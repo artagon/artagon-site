@@ -1,5 +1,5 @@
 name: Release bundle
-on: { push: { tags: [ 'v*.*.*', 'v*.*', 'v*' ] } }
+on: { push: { tags: ["v*.*.*", "v*.*", "v*"] } }
 permissions: { contents: write }
 jobs:
   build-and-release:
@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: 'npm' }
+        with: { node-version: 20, cache: "npm" }
       - run: npm ci || npm i
       - run: npm run build
       - run: cd dist && zip -r ../artagon-site-dist.zip .
