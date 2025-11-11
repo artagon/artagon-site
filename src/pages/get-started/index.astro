@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+<Base title="Get Started — Artagon" description="Create a tenant, register a client, issue your first DPoP-bound token.">
+  <Fragment slot="header">
+    <Header />
+  </Fragment>
+  <section class="container" style="padding:40px 0">
+    <div class="card">
+      <div class="eyebrow">Quickstart</div>
+      <h1>Get Started</h1>
+      <ol>
+        <li>Create a sandbox tenant in the <a href="/console">Console</a>.</li>
+        <li>Register a client (DCR) and enable DPoP + PAR.</li>
+        <li>Use an SDK to complete the auth code + DPoP flow.</li>
+      </ol>
+      <div class="actions" style="margin-top:12px">
+        <a class="cta" href="/console">Open Console</a>
+        <a class="btn" href="/docs">Open Docs</a>
+      </div>
+    </div>
+  </section>
+  <Fragment slot="footer">
+    <Footer />
+  </Fragment>
+</Base>
