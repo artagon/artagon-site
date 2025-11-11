@@ -1,6 +1,28 @@
 {
   "name": "artagon-web",
   "version": "0.1.0",
+  "description": "Artagon Identity Platform - The Unified Identity Platform: Trusted Identity for Machines and Humans. OIDC 2.1 Provider, GNAP Authorization Server, Verifiable Credentials (SD-JWT, BBS+), Passkeys, WebAuthn, Device Attestation, Zanzibar Policy Engine. Verified, Private, Attested.",
+  "keywords": [
+    "OIDC",
+    "OpenID Connect",
+    "GNAP",
+    "OAuth2",
+    "verifiable-credentials",
+    "passkeys",
+    "WebAuthn",
+    "FIDO2",
+    "attestation",
+    "identity",
+    "IAM",
+    "authorization",
+    "authentication",
+    "DPoP",
+    "mTLS",
+    "SD-JWT",
+    "BBS+",
+    "Zanzibar",
+    "policy-engine"
+  ],
   "private": true,
   "type": "module",
   "scripts": {
