@@ -9,3 +9,8 @@ tasks:
     input: theme_id, css_variables
     output: public/assets/theme.css, src/components/*
     risk: low
+  - id: navigation-management
+    title: Manage navigation and shim pages
+    input: nav_links, shim_page_routes
+    output: src/components/Header.astro, src/pages/*/index.astro
+    risk: low
