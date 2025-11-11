@@ -1,0 +1,12 @@
+# Default owner for everything in the repo
+* @trumpyla
+
+# Agent configuration and workflows
+/.agents/ @trumpyla
+
+# CI/CD workflows
+/.github/workflows/ @trumpyla
+
+# Security-sensitive files
+/scripts/csp.mjs @trumpyla
+/scripts/sri.mjs @trumpyla
