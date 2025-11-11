@@ -1,0 +1,6 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Artagon mark">
+  <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#22E3C5"/><stop offset="1" stop-color="#7C5CFF"/></linearGradient></defs>
+  <path fill="none" stroke="url(#grad)" stroke-width="16" stroke-linejoin="round" d="M128 12l104 60v112l-104 60L24 184V72z"/>
+  <path fill="none" stroke="url(#grad)" stroke-width="16" stroke-linecap="round" d="M88 184l40-96 40 96M108 136h40"/>
+</svg>

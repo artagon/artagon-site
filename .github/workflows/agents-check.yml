@@ -1,0 +1,13 @@
+name: Agents folder check
+on: { pull_request: {}, workflow_dispatch: {} }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure required agent files exist
+        run: |
+          test -f .agents/AGENT_MANIFEST.yaml
+          test -f .agents/llm-config.json
+          test -f .agents/policies/guardrails.md
+          test -f .agents/context/vision-and-roadmap-full.md

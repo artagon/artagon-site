@@ -1,0 +1,41 @@
+---
+export interface Props { title?: string; description?: string; path?: string; image?: string; }
+const { title='Artagon — Trusted Identity for Machines and Humans', description='Passkeys, verifiable credentials, attested clients, and graph-native policy — Verified. Private. Attested.', path='/', image='/assets/og-image.png' } = Astro.props;
+const url = new URL(path, Astro.site ?? 'https://www.artagon.com').toString();
+const motto = 'Verified. Private. Attested.';
+const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
+---
+<title>{title}</title>
+<meta name="description" content={metaDescription} />
+<link rel="canonical" href={url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={metaDescription} />
+<meta property="og:site_name" content="Artagon" />
+<meta property="og:url" content={url} />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:image" content={image} />
+<meta name="twitter:card" content="summary_large_image" />
+<script type="application/ld+json">
+{JSON.stringify({
+  "@context":"https://schema.org","@type":"Organization","name":"Artagon",
+  "url":"https://www.artagon.com/",
+  "logo":"https://www.artagon.com/assets/logo-wordmark.svg",
+  "slogan":"Verified, Private, Attested.",
+  "sameAs":["https://github.com/artagon"]
+}, null, 2)}
+</script>
+<script type="application/ld+json">
+{JSON.stringify({
+  "@context":"https://schema.org","@type":"WebSite","url":"https://www.artagon.com/",
+  "potentialAction":{"@type":"SearchAction","target":"https://www.artagon.com/search?q={search_term_string}","query-input":"required name=search_term_string"}
+}, null, 2)}
+</script>
+<script type="application/ld+json">
+{JSON.stringify({
+  "@context":"https://schema.org","@type":"Service","name":"Artagon Identity Platform",
+  "serviceType":"Identity and Access Management (IAM)","provider":{"@type":"Organization","name":"Artagon","url":"https://www.artagon.com/"},
+  "areaServed":"Worldwide","url":"https://www.artagon.com/",
+  "description":"Unified OIDC 2.1/GNAP with passkey-first authentication, SD-JWT/BBS+ credentials, device/app attestation, and Zanzibar-style policy."
+}, null, 2)}
+</script>

@@ -1,0 +1,11 @@
+tasks:
+  - id: update-hero
+    title: Update homepage hero
+    input: new_h1, new_subhead
+    output: src/pages/index.astro
+    risk: low
+  - id: theme-management
+    title: Manage site themes
+    input: theme_id, css_variables
+    output: public/assets/theme.css, src/components/*
+    risk: low

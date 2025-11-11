@@ -1,0 +1,135 @@
+---
+import Base from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Tagline from '../components/Tagline.astro';
+const page = {
+  title: 'Artagon — OIDC 2.1 Provider, GNAP Authorization Server & Verifiable Credentials',
+  description: 'The provable identity cloud: passkey sign-in, verifiable credentials, and attested clients—unified by a graph-native policy engine.'
+};
+---
+<Base title={page.title} description={page.description}>
+  <Fragment slot="header"><Header /></Fragment>
+
+  <section class="hero container">
+    <div class="twocol">
+      <div>
+        <div class="eyebrow">Verified • Private • Attested</div>
+        <h1 id="hero-h1">The provable identity cloud.</h1>
+        <p id="hero-sub" class="sub">
+          Passkey sign-in, verifiable credentials, and attested clients—unified by a graph-native policy engine.
+          <strong> Verified. Private. Attested.</strong>
+        </p>
+        <div style="margin-top:6px"><Tagline /></div>
+        <form class="actions" role="search" action="/search" method="get" aria-label="Site search">
+          <a class="cta" href="https://console.artagon.com">Get Started</a>
+          <a class="btn" href="https://docs.artagon.com">Read the Docs</a>
+          <a class="btn" href="https://play.artagon.com">Try the Playground</a>
+          <a class="btn" href="https://github.com/artagon" rel="noopener">View on GitHub</a>
+          <label class="sr-only" for="q">Search</label>
+          <input id="q" name="q" type="search" placeholder="Search OIDC, GNAP, VC…" aria-label="Search the site" style="padding:.6rem .8rem;border-radius:10px;border:1px solid rgba(148,163,184,.22);background:#0F172A;color:#E2E8F0;min-width:220px">
+          <button class="btn" type="submit">Search</button>
+        </form>
+        <div class="badges" style="margin-top:14px">
+          <span class="pill">OIDC 2.1 + PAR/JAR/JARM/DPoP/mTLS</span>
+          <span class="pill">GNAP with PoP + continuation</span>
+          <span class="pill">SD-JWT & BBS+ VCs</span>
+          <span class="pill">Zanzibar graph + PDP</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg width="520" height="220" viewBox="0 0 520 220">
+          <g fill="none" stroke="rgba(203,213,225,.6)" stroke-width="1">
+            <circle cx="60" cy="160" r="6"/><circle cx="150" cy="60" r="6"/>
+            <circle cx="260" cy="120" r="6"/><circle cx="360" cy="40" r="6"/>
+            <circle cx="450" cy="150" r="6"/>
+            <path d="M66 156 L144 64 M156 64 L254 120 M266 120 L354 44 M366 44 L444 146"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="kpi" aria-label="Key performance indicators">
+      <div class="card"><div class="eyebrow">Decision latency</div><h4>&lt; 10 ms p95</h4><div class="discrete">Policy + graph</div></div>
+      <div class="card"><div class="eyebrow">Token issuance</div><h4>&lt; 120 ms p95</h4><div class="discrete">DPoP / mTLS bound</div></div>
+      <div class="card"><div class="eyebrow">VC verification</div><h4>&lt; 150 ms p95</h4><div class="discrete">SD-JWT & BBS+</div></div>
+      <div class="card"><div class="eyebrow">Availability</div><h4>99.95%</h4><div class="discrete">Multi-region</div></div>
+    </div>
+  </section>
+
+  <section id="platform" class="section">
+    <div class="container">
+      <div class="grid cols-3">
+        <div class="card"><div class="eyebrow">Unified OP / AS</div><h3>OIDC 2.1 + GNAP</h3><p>Hardened OAuth profiles (PAR · JAR/JARM · RAR · DPoP · mTLS), GNAP PoP & continuation, client key rotation.</p></div>
+        <div class="card"><div class="eyebrow">Verifiable Identity</div><h3>Selective disclosure</h3><p>Issue SD‑JWT & BBS+ VCs, verify via OID4VCI/VP, unlinkable presentations, revocation with StatusList2021 and Merkle proofs.</p></div>
+        <div class="card"><div class="eyebrow">Policy & Graph</div><h3>Zanzibar‑style checks</h3><p>Relationship graph as fast path with PDP overlays (XACML · Cedar · OPA), obligations for redaction, masking, quotas, and consent.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="section">
+    <div class="container twocol">
+      <div>
+        <h2>How it works</h2>
+        <div class="card" aria-label="Flow">
+<pre class="code"><code>1. Authenticate with passkey (FIDO2/WebAuthn)
+2. Present minimal claims (OID4VP + SD‑JWT/BBS+)
+3. Graph check + policy overlay → DPoP/mTLS‑bound token</code></pre>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="eyebrow">Attestation</div><strong>Android Play Integrity · Apple App Attest · WebAuthn</strong><br>Evidence-bound clients with rotation and per-device DPoP binding.</div>
+        <div class="card"><div class="eyebrow">Proofing</div><strong>NIST 800‑63 / eIDAS mapping</strong><br>Pluggable doc/biometric KYC → Proofing VC for onboarding & step‑up.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mission" class="section">
+    <div class="container">
+      <h2>Mission statement</h2>
+      <p><strong>Artagon Identity Platform</strong> exists to solve today’s identity crisis by unifying high-assurance human identity, decentralized & verifiable credentials, and next-generation authorization into one platform.</p>
+      <div class="badges" style="margin:12px 0 18px 0">
+        <span class="pill">Verifiable Everything</span><span class="pill">Zero-Friction Security</span><span class="pill">Privacy-by-Design</span>
+      </div>
+      <details class="card"><summary><strong>Read the full Vision & Roadmap</strong></summary>
+        <div class="doc" style="padding-top:12px">
+          <p><em>Excerpt:</em> The digital landscape is in the midst of a profound identity crisis…</p>
+          <p><a href="/vision/">Open the full Vision & Roadmap</a>.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="developers" class="section">
+    <div class="container twocol">
+      <div>
+        <h2>For developers</h2>
+        <p>SDKs for Java · Rust · JS/TS · Go · Swift, GraphQL + REST APIs, and a conformance harness. Spin up a sandbox tenant in minutes and test OIDC, GNAP, and VC flows with real tokens.</p>
+        <div class="actions">
+          <a class="btn" href="https://docs.artagon.com">Browse APIs</a>
+          <a class="btn" href="https://play.artagon.com">Open Playground</a>
+          <a class="btn" href="https://github.com/artagon" rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <div class="card" aria-label="Quickstart">
+        <div class="eyebrow">Quickstart (OIDC + DPoP)</div>
+<pre class="code"><code>curl -X POST https://id.artagon.com/oauth2/token \
+ -H "DPoP: &lt;jwt&gt;" -H "Content-Type: application/x-www-form-urlencoded" \
+ -d "grant_type=authorization_code&amp;code=..."</code></pre>
+        <div class="discrete">Use our SDKs to generate DPoP and handle key rotation automatically.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="section">
+    <div class="container">
+      <h2>Frequently asked questions</h2>
+      <details><summary>What is the Artagon Identity Platform?</summary><p>Artagon combines an OIDC 2.1/OpenID Provider, a GNAP Authorization Server, verifiable credentials, device/app attestation, and Zanzibar‑style policy in one platform.</p></details>
+      <details><summary>Does Artagon support OIDC 2.1 and GNAP?</summary><p>Yes—OIDC 2.1 with hardened OAuth (PAR · JAR/JARM · RAR · DPoP · mTLS) and GNAP with proof‑of‑possession and continuation handles.</p></details>
+      <details><summary>Do you support passkeys and verifiable credentials?</summary><p>Yes—passkey/WebAuthn is primary auth, and we issue/verify SD‑JWT & BBS+ VCs via OID4VCI/OID4VP.</p></details>
+      <details><summary>How does authorization work?</summary><p>A Zanzibar graph powers fast relationship checks while policies in XACML, Cedar, or OPA apply fine‑grained controls and obligations.</p></details>
+    </div>
+  </section>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

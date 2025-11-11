@@ -1,0 +1,8 @@
+verbose = true
+accept = ["200..299", "403"]
+exclude_path = ["dist", "node_modules"]
+exclude = ["http://localhost.*","https://localhost.*","https://127.0.0.1.*","https://twitter.com/.*","mailto:.*"]
+retry_wait_time = "2s"
+max_retries = 2
+timeout = "20s"
+[[proxies]] domain = "github.com" scheme = "https" 

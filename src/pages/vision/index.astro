@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+<Base title="Artagon — Vision & Roadmap" description="Mission, principles, architecture, and a pragmatic multi-phase roadmap — Verified. Private. Attested.">
+  <Fragment slot="header"><Header /></Fragment>
+  <article class="container doc card" style="padding:24px">
+    <h1>Artagon Identity Platform: Vision and Roadmap</h1>
+    <p>See the .agents/context for the full text and summary; this page condenses the content for web reading.</p>
+    <h2>1. Executive Summary</h2>
+    <p>Artagon unifies passkey‑primary identity, verifiable credentials, and next‑gen authorization to deliver trusted identity for machines and humans.</p>
+    <h2>2. Product Vision &amp; Value</h2>
+    <ul><li>Verifiable Everything</li><li>Zero‑Friction Security</li><li>Privacy‑by‑Design</li></ul>
+    <h2>3. Architecture</h2>
+    <ul><li>OIDC 2.1 + GNAP, hardened OAuth profiles (PAR/JAR/JARM/DPoP/RAR/mTLS)</li><li>DIDs & VCs (SD‑JWT/BBS+), OID4VCI/VP</li><li>Device & App attestation; per‑instance credentials</li><li>Zanzibar graph + PDP (XACML, Cedar, OPA)</li></ul>
+    <h2>4. Roadmap</h2>
+    <ul><li>V1: OP/AS core + DPoP/PAR + Attestation MVP</li><li>V2: SD‑JWT issuance + OID4VP verification + StatusList</li><li>V3: Graph + PDP SDKs</li><li>V4: Proofing VC + registry</li><li>V5: Trust registry + agent keys + ZKP</li></ul>
+  </article>
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

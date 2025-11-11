@@ -1,0 +1,37 @@
+---
+const THEMES = [
+  { id: 'midnight', label: 'Midnight Teal' },  // current default
+  { id: 'twilight', label: 'Twilight Indigo' },
+  { id: 'slate',    label: 'Deep Slate Blue' }
+];
+---
+<div class="theme-toggle">
+  <label for="theme-select" class="sr-only">Theme</label>
+  <select id="theme-select" aria-label="Theme">
+    {THEMES.map(t => <option value={t.id}>{t.label}</option>)}
+  </select>
+</div>
+
+<script>
+(function(){
+  var sel = document.getElementById('theme-select');
+  if(!sel) return;
+  sel.value = document.documentElement.dataset.theme || 'midnight';
+  sel.addEventListener('change', function(e){
+    var t = e.target.value;
+    if (window.__setTheme) window.__setTheme(t);
+  });
+})();
+</script>
+
+<style>
+.theme-toggle { display:inline-flex; align-items:center; gap:.5rem; }
+#theme-select {
+  background: var(--surface);
+  color: var(--text);
+  border:1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius:10px; padding:.4rem .6rem; font: inherit;
+}
+#theme-select:focus-visible { outline:2px solid var(--ring); outline-offset:2px; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>

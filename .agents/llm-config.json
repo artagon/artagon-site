@@ -1,0 +1,31 @@
+{
+  "brand": {
+    "mission": "Trusted identity for machines and humans \u2014 Verified, Private, Attested",
+    "tagline": "Verified, Private, Attested"
+  },
+  "domains": {
+    "canonical": "artagon.com",
+    "subdomains": [
+      "id.artagon.com",
+      "docs.artagon.com",
+      "api.artagon.com",
+      "play.artagon.com",
+      "status.artagon.com"
+    ]
+  },
+  "security": {
+    "cookies": {
+      "prefix": "__Host-",
+      "SameSite": "Lax",
+      "Secure": true,
+      "HttpOnly": true,
+      "Path": "/"
+    },
+    "hsts": {
+      "enabled": true,
+      "maxAge": 31536000,
+      "includeSubDomains": true,
+      "preload": false
+    }
+  }
+}

@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base title="404 — Not Found" description="Page not found">
+  <Fragment slot="header"><Header /></Fragment>
+  <section class="container" style="padding:40px 0">
+    <div class="card"><h1>404</h1><p>We couldn’t find that page. Try the <a href="/">home page</a>.</p></div>
+  </section>
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

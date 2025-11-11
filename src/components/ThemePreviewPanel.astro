@@ -1,0 +1,20 @@
+---
+const THEMES = ['midnight','twilight','slate'];
+---
+<div class="theme-panel" aria-label="Theme preview panel">
+  {THEMES.map(t => <button onClick={`__setTheme('${t}')`}>{t}</button>)}
+</div>
+
+<style>
+.theme-panel {
+  position: fixed; right: 12px; bottom: 12px; z-index: 9999;
+  background: var(--surface); border:1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius:12px; padding:10px; display:flex; gap:.5rem;
+}
+.theme-panel button {
+  background: var(--bg); color: var(--text);
+  border:1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius:8px; padding:.35rem .6rem; cursor:pointer;
+}
+.theme-panel button:focus-visible { outline:2px solid var(--ring); outline-offset:2px; }
+</style>

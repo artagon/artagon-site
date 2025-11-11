@@ -1,0 +1,15 @@
+name: Release bundle
+on: { push: { tags: [ 'v*.*.*', 'v*.*', 'v*' ] } }
+permissions: { contents: write }
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: 'npm' }
+      - run: npm ci || npm i
+      - run: npm run build
+      - run: cd dist && zip -r ../artagon-site-dist.zip .
+      - uses: softprops/action-gh-release@v2
+        with: { files: artagon-site-dist.zip, generate_release_notes: true }

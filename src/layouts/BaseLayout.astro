@@ -1,0 +1,66 @@
+---
+import Seo from '../components/SeoTags.astro';
+import ThemePreview from '../components/ThemePreviewPanel.astro';
+const DEV = import.meta.env.DEV;
+export interface Props { title?: string; description?: string; path?: string; }
+const { title, description, path='/' } = Astro.props;
+---
+<!doctype html>
+<html lang="en" class="no-js" data-theme="midnight">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Seo {title} {description} {path} />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <script is:inline>
+(function(){
+  var KEY='artagon.theme', DEF='midnight';
+  // Preview override via URL (?theme=twilight[&persist=1])
+  try {
+    var sp = new URLSearchParams(location.search);
+    var override = sp.get('theme');
+    if (override) {
+      document.documentElement.dataset.theme = override;
+      if (sp.get('persist') === '1') localStorage.setItem(KEY, override);
+      return;
+    }
+  } catch(e){}
+  // Persisted choice
+  try {
+    var saved = localStorage.getItem(KEY) || DEF;
+    document.documentElement.dataset.theme = saved;
+  } catch(e) {
+    document.documentElement.dataset.theme = DEF;
+  }
+})();
+    </script>
+    <meta name="theme-color" content="#0B1220" />
+    <link rel="stylesheet" href="/assets/theme.css" />
+    <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}}</script>
+    <script is:inline>
+window.__setTheme = function(t){
+  var KEY='artagon.theme';
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem(KEY, t); } catch(e){}
+  // Sync browser UI with --bg
+  try {
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0B1220';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', bg);
+  } catch(e){}
+};
+    </script>
+  </head>
+  <body>
+    <a class="sr-only" href="#main">Skip to content</a>
+    <slot name="header" />
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="footer" />
+    <noscript>Your browser has JavaScript disabled. The site still works.</noscript>
+    {DEV && <ThemePreview />}
+  </body>
+</html>

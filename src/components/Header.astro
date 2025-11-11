@@ -1,0 +1,37 @@
+---
+import Logo from './Logo.astro';
+import Tagline from './Tagline.astro';
+import ThemeToggle from './ThemeToggle.astro';
+---
+<header>
+  <div class="container nav" role="navigation" aria-label="Primary">
+    <a class="brand" href="/" aria-label="Artagon Home">
+      <Logo showWordmark={true} />
+    </a>
+    <nav aria-label="Primary links">
+      <ul>
+        <li><a href="#platform">Platform</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#developers">Developers</a></li>
+        <li><a href="/search">Search</a></li>
+        <li><a href="https://github.com/artagon" rel="noopener">GitHub</a></li>
+        <li><a class="btn" href="https://docs.artagon.com" rel="noopener">Docs</a></li>
+        <li><a class="cta" href="https://console.artagon.com">Get Started</a></li>
+      </ul>
+      <button class="menu-btn" aria-expanded="false" aria-controls="menu" onclick="toggleMenu()">Menu</button>
+    </nav>
+    <Tagline class="hide-sm" />
+    <ThemeToggle />
+  </div>
+  <div id="menu" class="menu" hidden>
+    <ul class="container">
+      <li><a href="#platform" onclick="toggleMenu()">Platform</a></li>
+      <li><a href="#how" onclick="toggleMenu()">How it works</a></li>
+      <li><a href="#developers" onclick="toggleMenu()">Developers</a></li>
+      <li><a href="/search" onclick="toggleMenu()">Search</a></li>
+      <li><a href="https://github.com/artagon" rel="noopener" onclick="toggleMenu()">GitHub</a></li>
+      <li><a href="https://docs.artagon.com" rel="noopener" onclick="toggleMenu()">Docs</a></li>
+      <li><a class="cta" href="https://console.artagon.com" onclick="toggleMenu()">Get Started</a></li>
+    </ul>
+  </div>
+</header>

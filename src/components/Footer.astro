@@ -1,0 +1,19 @@
+---
+import Tagline from './Tagline.astro';
+---
+<footer role="contentinfo" class="site-footer">
+  <div class="container">
+    <nav aria-label="Footer">
+      <div class="badges" style="margin-bottom:10px">
+        <a class="pill" href="/privacy">Privacy by design</a>
+        <a class="pill" href="/security">Security</a>
+        <a class="pill" href="/status">Status</a>
+        <a class="pill" href="/security.txt">security.txt</a>
+      </div>
+    </nav>
+    <div>© <span id="y"></span> Artagon. All rights reserved.</div>
+    <div class="discrete">Docs • Status • Security.txt • Responsible Disclosure</div>
+    <div class="discrete" aria-label="Company motto"><Tagline variant="sentence" /></div>
+  </div>
+  <script>document.getElementById('y').textContent=(new Date()).getFullYear()</script>
+</footer>

@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Tagline from '../../components/Tagline.astro';
+---
+<Base title="Artagon Docs" description="Docs, APIs, SDKs, playground — Verified. Private. Attested.">
+  <Fragment slot="header"><Header /></Fragment>
+  <section class="container" style="padding:40px 0 0">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div><div class="eyebrow">Docs</div><h1 style="margin:.2rem 0">Artagon Documentation</h1><div class="discrete">Developer‑first. Real tokens. Real policies.</div></div>
+      <Tagline />
+    </div>
+  </section>
+  <main class="container" style="display:grid;grid-template-columns:260px 1fr;gap:20px;">
+    <aside class="sidebar">
+      <nav>
+        <h2>Getting started</h2>
+        <a href="/docs/quickstart">Quickstart</a><br/>
+        <a href="/docs/oidc">OIDC 2.1</a><br/>
+        <a href="/docs/gnap">GNAP</a><br/>
+        <a href="/docs/vc">Verifiable Credentials</a><br/>
+        <a href="/docs/policy">Policy & Graph</a>
+      </nav>
+    </aside>
+    <article class="doc card">
+      <h1>Welcome to Artagon Docs</h1>
+      <p>SDKs: Java, Rust, JS/TS, Go, Swift. Try the <a href="https://play.artagon.com">playground</a> to issue tokens and present VCs.</p>
+      <pre class="code"><code>curl https://id.artagon.com/.well-known/openid-configuration</code></pre>
+    </article>
+  </main>
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

@@ -1,0 +1,15 @@
+artagon.com, www.artagon.com {
+  encode zstd gzip
+  tls {
+    protocols tls1.2 tls1.3
+    stapling
+  }
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options "nosniff"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+  root * /var/www/artagon-web/dist
+  file_server
+  try_files {path} {path}/ /index.html
+}
