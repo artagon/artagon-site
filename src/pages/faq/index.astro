@@ -1,0 +1,165 @@
+---
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import FaqItem from '../../components/FaqItem.astro';
+import FaqSearch from '../../components/FaqSearch.astro';
+import { FAQS, FAQ_CATEGORIES } from '../../data/faq';
+
+const page = {
+  title: "FAQ — Artagon",
+  description: "Frequently asked questions about Artagon's identity platform: OIDC 2.1, GNAP, verifiable credentials, device attestation, and authorization.",
+};
+
+// Group FAQs by category
+const faqsByCategory = FAQ_CATEGORIES.map(category => ({
+  category,
+  items: FAQS.filter(faq => faq.category === category)
+})).filter(group => group.items.length > 0);
+
+// Generate JSON-LD FAQPage schema
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": FAQS.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+---
+
+<Base title={page.title} description={page.description}>
+  <Fragment slot="header"><Header /></Fragment>
+
+  <section class="faq-hero">
+    <div class="container narrow">
+      <h1 class="gradient-text" style="font-size:clamp(2rem,1.2rem+3vw,3rem)">Frequently Asked Questions</h1>
+      <p class="faq-lead">
+        Everything you need to know about Artagon's identity platform—from OIDC and GNAP to verifiable credentials, device attestation, and graph-native authorization.
+      </p>
+    </div>
+  </section>
+
+  <section class="section faq-content">
+    <div class="container narrow">
+      <FaqSearch />
+
+      {faqsByCategory.map(group => (
+        <div class="faq-category" data-category={group.category}>
+          <h2 class="faq-category-title">{group.category}</h2>
+          <div class="faq-list">
+            {group.items.map(item => <FaqItem {...item} />)}
+          </div>
+        </div>
+      ))}
+
+      <div class="faq-cta">
+        <h2>Still have questions?</h2>
+        <p>Can't find what you're looking for? Reach out to our team.</p>
+        <div class="faq-cta-actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="https://github.com/artagon/artagon-site/discussions" rel="noopener">Community Discussions</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+
+  <!-- JSON-LD Schema for FAQPage -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema, null, 2)} />
+</Base>
+
+<style>
+.faq-hero {
+  padding: clamp(48px, 8vw, 80px) 0 clamp(32px, 6vw, 48px) 0;
+  border-bottom: 1px solid var(--card-stroke);
+}
+
+.faq-lead {
+  font-size: clamp(1rem, 0.65rem + 1vw, 1.15rem);
+  line-height: 1.6;
+  max-width: 65ch;
+  color: color-mix(in srgb, var(--text) 85%, white 6%);
+  margin-top: 12px;
+}
+
+.faq-content {
+  padding-top: clamp(32px, 6vw, 48px);
+  padding-bottom: clamp(48px, 8vw, 80px);
+}
+
+.faq-category {
+  margin-bottom: 48px;
+}
+
+.faq-category-title {
+  font-size: 1.5rem;
+  color: var(--brand-teal);
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.faq-cta {
+  margin-top: 64px;
+  padding: 32px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-stroke);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.faq-cta h2 {
+  margin: 0 0 8px 0;
+  color: var(--text);
+}
+
+.faq-cta p {
+  color: var(--muted);
+  margin: 0 0 24px 0;
+}
+
+.faq-cta-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .faq-hero {
+    padding: 32px 0 24px 0;
+  }
+
+  .faq-category {
+    margin-bottom: 32px;
+  }
+
+  .faq-category-title {
+    font-size: 1.3rem;
+  }
+
+  .faq-cta {
+    padding: 24px 20px;
+    margin-top: 48px;
+  }
+
+  .faq-cta-actions {
+    flex-direction: column;
+  }
+
+  .faq-cta-actions .btn {
+    width: 100%;
+  }
+}
+</style>
