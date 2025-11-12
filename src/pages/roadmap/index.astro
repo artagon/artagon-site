@@ -1,430 +1,52 @@
 ---
-import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
+import Base from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import RoadmapPhaseCard from "../../components/RoadmapPhaseCard.astro";
+import RoadmapTable from "../../components/RoadmapTable.astro";
+import { ROADMAP } from "../../data/roadmap";
 ---
-<Base title="Artagon Platform Roadmap" description="A pragmatic multi-phase execution plan to build the trust layer for the next generation of digital interaction.">
+
+<Base title="Roadmap — Artagon" description="18‑month plan to deliver a provable identity cloud.">
   <Fragment slot="header"><Header /></Fragment>
 
-  <article class="container doc" style="max-width:900px; padding:40px 20px">
-    <h1>Artagon Platform Roadmap</h1>
+  <!-- HERO -->
+  <section class="rm-hero">
+    <div class="container narrow">
+      <h1 class="gradient-text" style="font-size:clamp(2rem,1.2rem+3vw,3rem)">Roadmap</h1>
+      <p class="rm-lead">
+        Five compounding phases over 18 months—starting with the core trust layer,
+        then adding verifiable credentials, graph‑native authorization, proofing, and federation.
+      </p>
 
-    <p class="lead">A pragmatic, five-phase execution plan to build the Artagon Identity Platform. Designed to deliver incremental, compounding value, focusing first on core trust infrastructure, then layering verifiable data, enterprise policy, and finally, ecosystem federation.</p>
+      <!-- on this page chips -->
+      <nav class="rm-onthispage" aria-label="On this page">
+        {ROADMAP.map(p => <a class="rm-chip" href={`#${p.id}`}>{p.phase} · {p.horizon}</a>)}
+      </nav>
 
-    <section id="roadmap-overview">
-      <h2>Roadmap Overview</h2>
-      <p>The Artagon platform roadmap spans 18 months across five major phases, each building upon the previous to create a comprehensive trust infrastructure:</p>
-      <ul>
-        <li><strong>V1 (0-3 months):</strong> Core Trust Layer</li>
-        <li><strong>V2 (3-6 months):</strong> Verifiable Credentials Layer</li>
-        <li><strong>V3 (6-9 months):</strong> Policy and Graph Engine</li>
-        <li><strong>V4 (9-12 months):</strong> Identity Proofing & VC Network</li>
-        <li><strong>V5 (12-18 months):</strong> Federation & AI Agents</li>
-      </ul>
-    </section>
-
-    <section id="phase-1">
-      <h2>Phase 1: V1 - Core Trust Layer</h2>
-      <div class="phase-meta">
-        <span class="timeline"><strong>Timeline:</strong> 0–3 months</span>
+      <!-- view toggle (CSS only) -->
+      <div class="rm-toggle" role="tablist" aria-label="View">
+        <input id="view-cards" name="rm-view" type="radio" checked />
+        <label for="view-cards" role="tab" aria-selected="true">Cards</label>
+        <input id="view-table" name="rm-view" type="radio" />
+        <label for="view-table" role="tab">Table</label>
       </div>
+    </div>
+  </section>
 
-      <h3>Focus</h3>
-      <p>Establishing the "minimally viable trust" infrastructure. This is the core OIDC/GNAP server, built on the Java + Virtual Threads + Rust architecture.</p>
+  <!-- CARDS VIEW -->
+  <section class="section rm-cards">
+    <div class="container narrow rm-grid">
+      {ROADMAP.map(p => <div class="rm-col-4"><RoadmapPhaseCard {...p} /></div>)}
+    </div>
+  </section>
 
-      <h3>Key Milestones</h3>
-      <ul>
-        <li>Functional, high-performance OIDC/GNAP MVP server</li>
-        <li>Implementation of non-negotiable hardened profiles:
-          <ul>
-            <li>DPoP (RFC 9449) - Demonstrating Proof of Possession</li>
-            <li>PAR (RFC 9126) - Pushed Authorization Requests</li>
-            <li>JAR (RFC 9101) - JWT-Secured Authorization Request</li>
-          </ul>
-        </li>
-        <li>Basic JWT issuance with JWKS support</li>
-        <li>Attestation MVP (verifying single platform, e.g., Apple App Attest)</li>
-        <li>Proof of binding model between device and credentials</li>
-      </ul>
-
-      <h3>Technical Deliverables</h3>
-      <ul>
-        <li>OIDC-compliant authorization server</li>
-        <li>GNAP negotiation engine</li>
-        <li>Cryptographic multi-tenancy foundation</li>
-        <li>Per-instance client credentials system</li>
-      </ul>
-
-      <h3>Success Metrics</h3>
-      <ul>
-        <li>OIDC conformance certification achieved</li>
-        <li>Latency p95 < 100ms for token issuance</li>
-        <li>Successful attestation verification for at least one platform</li>
-      </ul>
-
-      <h3>Business Goal</h3>
-      <p>Achieve OIDC conformance certification and secure a "design partner" for a greenfield mobile/web application.</p>
-    </section>
-
-    <section id="phase-2">
-      <h2>Phase 2: V2 - Verifiable Credentials Layer</h2>
-      <div class="phase-meta">
-        <span class="timeline"><strong>Timeline:</strong> 3–6 months</span>
-      </div>
-
-      <h3>Focus</h3>
-      <p>Activating the "Verifiable Everything" pillar. This layer builds directly on the V1 issuer to add full verifiable credentials support.</p>
-
-      <h3>Key Milestones</h3>
-      <ul>
-        <li>Full SD-JWT issuance via OID4VCI (OpenID for Verifiable Credential Issuance)</li>
-        <li>OID4VP (OpenID for Verifiable Presentations) verification flows</li>
-        <li>Strategic OIDC "bridge" flow implementation</li>
-        <li>First-generation revocation method using StatusList2021</li>
-        <li>DID support (did:web, did:key)</li>
-        <li>Holder binding to passkeys/device keys</li>
-      </ul>
-
-      <h3>Technical Deliverables</h3>
-      <ul>
-        <li>VC issuance engine with SD-JWT support</li>
-        <li>VC verification and presentation validation</li>
-        <li>Selective disclosure capabilities</li>
-        <li>Revocation registry with StatusList2021</li>
-        <li>OIDC-to-VC bridge (OID4VP integration)</li>
-      </ul>
-
-      <h3>Success Metrics</h3>
-      <ul>
-        <li>VC throughput: 1000+ ops/sec</li>
-        <li>Successful selective disclosure demonstrations</li>
-        <li>OID4VP bridge validated with legacy OIDC apps</li>
-      </ul>
-
-      <h3>Business Goal</h3>
-      <p>Enable "verifiable identity" use cases (e.g., "verified employee," "verified customer") for design partner, proving the value of portable identity.</p>
-    </section>
-
-    <section id="phase-3">
-      <h2>Phase 3: V3 - Policy and Graph Engine</h2>
-      <div class="phase-meta">
-        <span class="timeline"><strong>Timeline:</strong> 6–9 months</span>
-      </div>
-
-      <h3>Focus</h3>
-      <p>Delivering the next-generation authorization engine. This is the core enterprise "upsell" and a massive technical differentiator.</p>
-
-      <h3>Key Milestones</h3>
-      <ul>
-        <li>v1.0 Zanzibar graph store (off-heap, replicated) for ReBAC</li>
-        <li>Integration with polyglot PDP (XACML/Cedar/OPA)</li>
-        <li>First API SDKs (Policy Enforcement Points)</li>
-        <li>Git-backed Policy Administration Point (PAP)</li>
-        <li>Hybrid ReBAC + ABAC decision engine</li>
-        <li>Decision caching and zookie-based consistency</li>
-      </ul>
-
-      <h3>Technical Deliverables</h3>
-      <ul>
-        <li>Zanzibar-style graph store for relationship-based access control</li>
-        <li>Policy Decision Point (PDP) supporting Cedar, OPA, and XACML</li>
-        <li>Policy Enforcement Point (PEP) SDKs for Java, Rust, TypeScript, Go</li>
-        <li>Policy-as-code versioning system</li>
-        <li>Obligations and advice framework</li>
-      </ul>
-
-      <h3>Success Metrics</h3>
-      <ul>
-        <li>Authorization decision latency p95 < 10ms</li>
-        <li>Graph store handling 1M+ relationships</li>
-        <li>Policy evaluation throughput: 10,000+ decisions/sec</li>
-      </ul>
-
-      <h3>Business Goal</h3>
-      <p>Move the product conversation beyond "AuthN" to "AuthZ," enabling complex, fine-grained access control for high-value applications.</p>
-    </section>
-
-    <section id="phase-4">
-      <h2>Phase 4: V4 - Identity Proofing & VC Network</h2>
-      <div class="phase-meta">
-        <span class="timeline"><strong>Timeline:</strong> 9–12 months</span>
-      </div>
-
-      <h3>Focus</h3>
-      <p>Solving the "cold start" identity problem: how to root a digital identity in the real world.</p>
-
-      <h3>Key Milestones</h3>
-      <ul>
-        <li>Pluggable Proofing API connected to document verification vendor</li>
-        <li>First Proofing VC issuance (e.g., NIST 800-63 IAL2)</li>
-        <li>v1 VC trust registry for managing verifier/issuer trust</li>
-        <li>Compliance-as-code framework for NIST/eIDAS</li>
-        <li>Orchestration pipeline for:
-          <ul>
-            <li>Document verification</li>
-            <li>Liveness checks</li>
-            <li>Biometric matching</li>
-            <li>Issuer network verification</li>
-          </ul>
-        </li>
-      </ul>
-
-      <h3>Technical Deliverables</h3>
-      <ul>
-        <li>Identity proofing orchestration engine</li>
-        <li>Proofing VC schema and issuance</li>
-        <li>Trust registry for credential verification</li>
-        <li>Integration adapters for 3rd-party verification providers</li>
-        <li>GNAP/OIDC subject-interaction flows for onboarding</li>
-      </ul>
-
-      <h3>Success Metrics</h3>
-      <ul>
-        <li>Proofing success rate > 95%</li>
-        <li>Proofing completion time < 3 minutes</li>
-        <li>IAL2/IAL3 certification achieved</li>
-      </ul>
-
-      <h3>Business Goal</h3>
-      <p>Become a NIST 800-63/eIDAS-compliant identity provider, opening up regulated markets (finance, healthcare, government).</p>
-    </section>
-
-    <section id="phase-5">
-      <h2>Phase 5: V5 - Federation & AI Agents</h2>
-      <div class="phase-meta">
-        <span class="timeline"><strong>Timeline:</strong> 12–18 months</span>
-      </div>
-
-      <h3>Focus</h3>
-      <p>Scaling from a platform to an ecosystem. Enabling true decentralized federation and autonomous agent capabilities.</p>
-
-      <h3>Key Milestones</h3>
-      <ul>
-        <li>Multi-issuer trust registry for decentralized federation</li>
-        <li>BBS+ Verifiable Credentials support for advanced ZKP</li>
-        <li>Autonomous agent key provisioning</li>
-        <li>DID management for AI agents and bots</li>
-        <li>Policy-bound agent authorization</li>
-        <li>Cross-domain delegation credentials</li>
-      </ul>
-
-      <h3>Technical Deliverables</h3>
-      <ul>
-        <li>Federated trust registry with multi-issuer support</li>
-        <li>BBS+ signature suite and ZKP verification</li>
-        <li>Unlinkable presentation capabilities</li>
-        <li>Agent identity and key lifecycle management</li>
-        <li>DelegationVC issuance for autonomous agents</li>
-        <li>Advanced selective disclosure with predicates</li>
-      </ul>
-
-      <h3>Success Metrics</h3>
-      <ul>
-        <li>Federated issuers count > 10</li>
-        <li>Zero-knowledge proof verification < 50ms</li>
-        <li>Active autonomous agent identities > 1000</li>
-      </ul>
-
-      <h3>Business Goal</h3>
-      <p>Become the trust backbone for a multi-tenant ecosystem (e.g., a "verified travel" network) and the essential identity layer for the emerging AI-driven economy.</p>
-    </section>
-
-    <section id="roadmap-table">
-      <h2>Roadmap Summary Table</h2>
-      <div class="table-responsive">
-        <table class="roadmap-table">
-          <thead>
-            <tr>
-              <th>Phase</th>
-              <th>Timeline</th>
-              <th>Focus</th>
-              <th>Key Milestones</th>
-              <th>Primary KPIs</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>V1</strong></td>
-              <td>0–3 months</td>
-              <td>Core Trust Layer</td>
-              <td>OIDC/GNAP MVP, DPoP, PAR, JAR, JWKS, Attestation MVP</td>
-              <td>OIDC conformance %, Latency p95</td>
-            </tr>
-            <tr>
-              <td><strong>V2</strong></td>
-              <td>3–6 months</td>
-              <td>Verifiable Credentials Layer</td>
-              <td>SD-JWT issuance + OID4VP verification + StatusList2021</td>
-              <td>VC throughput ops/sec</td>
-            </tr>
-            <tr>
-              <td><strong>V3</strong></td>
-              <td>6–9 months</td>
-              <td>Policy and Graph Engine</td>
-              <td>XACML/Cedar/OPA PDP + Zanzibar graph store + API SDKs</td>
-              <td>Decision p95 &lt; 10 ms</td>
-            </tr>
-            <tr>
-              <td><strong>V4</strong></td>
-              <td>9–12 months</td>
-              <td>Identity Proofing & VC Network</td>
-              <td>Proofing API + Proofing VC issuance + VC registry integration</td>
-              <td>Proofing success rate %</td>
-            </tr>
-            <tr>
-              <td><strong>V5</strong></td>
-              <td>12–18 months</td>
-              <td>Federation & AI Agents</td>
-              <td>Multi-issuer trust registry + autonomous agent keys + ZKP credentials</td>
-              <td>Federated issuers count</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <section id="beyond-v5">
-      <h2>Beyond V5: Vision 2030</h2>
-
-      <p>The 18-month roadmap (V1-V5) establishes the core infrastructure. The long-term vision for 2030 is to leverage this infrastructure to become the default trust layer for an increasingly ambient and autonomous digital world.</p>
-
-      <h3>From "Identity" to "Authority"</h3>
-      <p>The platform will evolve from an "Identity Provider" (IdP) to an "Authority Broker." In a world populated by AI agents and complex data-sharing agreements, the most important question is not "Who are you?" (authentication) but "What authority do you have to perform this action?" (authorization).</p>
-
-      <h3>AI Agents as First-Class Citizens</h3>
-      <p>By 2030, AI agents will be primary economic actors, not just tools. These agents will require their own DIDs, their own Verifiable Credentials, and will be governed by fine-grained Artagon policies. Artagon will be the "IAM for AI," providing the critical trust, governance, and audit layer for this new economy.</p>
-
-      <h3>The "Verifiable Web"</h3>
-      <p>Artagon's synthesis of GNAP, Verifiable Credentials, and the OID4VP bridge will be the engine for a new, "verifiable web." In this web, users will move frictionlessly between services, carrying their Proofing VC, Payment VC, and Employee VC in their wallet.</p>
-
-      <p class="closing"><strong>Artagon's mission is to build the trust layer for the next two decades of digital interaction.</strong></p>
-    </section>
-  </article>
+  <!-- TABLE VIEW -->
+  <section class="section rm-table">
+    <div class="container narrow">
+      <RoadmapTable phases={ROADMAP} />
+    </div>
+  </section>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
-
-<style>
-  .doc {
-    line-height: 1.7;
-  }
-  .doc h1 {
-    font-size: 2.5rem;
-    margin: 0 0 1rem;
-    color: var(--brand-teal);
-  }
-  .doc .lead {
-    font-size: 1.15rem;
-    color: var(--text-muted);
-    margin: 0 0 2.5rem;
-    line-height: 1.6;
-  }
-  .doc h2 {
-    font-size: 1.8rem;
-    margin: 3rem 0 1rem;
-    color: var(--accent);
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 0.5rem;
-  }
-  .doc h3 {
-    font-size: 1.3rem;
-    margin: 2rem 0 0.8rem;
-    color: var(--text);
-  }
-  .doc h4 {
-    font-size: 1.1rem;
-    margin: 1.5rem 0 0.6rem;
-    color: var(--text);
-  }
-  .doc p {
-    margin: 1rem 0;
-    color: var(--text);
-  }
-  .doc ul, .doc ol {
-    margin: 1rem 0 1rem 1.5rem;
-    color: var(--text);
-  }
-  .doc li {
-    margin: 0.5rem 0;
-  }
-  .doc section {
-    margin: 2.5rem 0;
-  }
-  .doc strong {
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .doc em {
-    color: var(--brand-teal);
-    font-style: italic;
-  }
-
-  .phase-meta {
-    background: var(--surface);
-    border-left: 4px solid var(--brand-teal);
-    padding: 0.8rem 1.2rem;
-    margin: 1rem 0;
-    border-radius: 4px;
-  }
-  .phase-meta .timeline {
-    font-size: 1rem;
-    color: var(--text);
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-    margin: 2rem 0;
-  }
-
-  .roadmap-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--surface);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .roadmap-table thead {
-    background: var(--brand-teal);
-    color: var(--bg);
-  }
-
-  .roadmap-table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    border-bottom: 2px solid var(--border);
-  }
-
-  .roadmap-table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-  }
-
-  .roadmap-table tbody tr:hover {
-    background: color-mix(in srgb, var(--surface) 95%, var(--brand-teal));
-  }
-
-  .roadmap-table tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  .closing {
-    font-size: 1.1rem;
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: var(--surface);
-    border-left: 4px solid var(--brand-teal);
-    border-radius: 4px;
-  }
-
-  @media (max-width: 768px) {
-    .roadmap-table {
-      font-size: 0.9rem;
-    }
-    .roadmap-table th, .roadmap-table td {
-      padding: 0.75rem 0.5rem;
-    }
-  }
-</style>
