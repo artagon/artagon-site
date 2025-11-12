@@ -1,0 +1,3 @@
+# Netlify/GitHub Pages redirects
+# Redirect plural /faqs to singular /faq/
+/faqs  /faq/ 301!

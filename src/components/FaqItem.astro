@@ -1,0 +1,88 @@
+---
+import type { FaqItem } from '../data/faq';
+const item = Astro.props as FaqItem;
+---
+
+<details id={item.id} class="faq-item">
+  <summary class="faq-question">
+    <span class="faq-q-text">{item.question}</span>
+    <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </summary>
+  <div class="faq-answer" set:html={item.answer} />
+</details>
+
+<style>
+.faq-item {
+  background: var(--card-bg);
+  border: 1px solid var(--card-stroke);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  scroll-margin-top: 80px;
+}
+
+.faq-question {
+  cursor: pointer;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text);
+  list-style: none;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::marker { content: none; }
+
+.faq-question:hover {
+  color: var(--brand-teal);
+}
+
+.faq-q-text {
+  flex: 1;
+}
+
+.faq-icon {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+details[open] .faq-icon {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 20px 20px 20px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.faq-answer a {
+  color: var(--brand-teal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.faq-answer a:hover {
+  color: var(--brand-sky);
+}
+
+@media (max-width: 768px) {
+  .faq-question {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+
+  .faq-answer {
+    padding: 0 16px 16px 16px;
+    font-size: 0.9rem;
+  }
+}
+</style>

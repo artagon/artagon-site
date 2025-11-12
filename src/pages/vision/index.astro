@@ -1,550 +1,23 @@
 ---
+import { getEntry } from 'astro:content';
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+
+const entry = await getEntry('pages', 'vision');
+if (!entry) {
+  throw new Error('Vision page content not found');
+}
+
+const { Content } = await entry.render();
+const { title, description } = entry.data;
 ---
-<Base title="Artagon Identity Platform: Vision and Roadmap" description="Trusted Identity for Machines and Humans — Verified, Private, Attested.">
+
+<Base title={title} description={description}>
   <Fragment slot="header"><Header /></Fragment>
 
   <article class="vision-doc">
-    <div class="hero-section">
-      <h1>Artagon Identity Platform</h1>
-      <p class="hero-subtitle">Vision and Roadmap</p>
-      <div class="mission-statement">
-        <p class="mission-text">Trusted Identity for Machines and Humans — Verified, Private, Attested</p>
-      </div>
-    </div>
-
-    <div class="container" style="max-width:1000px; padding:0 20px 60px">
-
-    <section id="executive-summary" class="section-spacing">
-      <div class="section-header">
-        <h2>Executive Summary</h2>
-        <div class="section-number">01</div>
-      </div>
-
-      <div class="content-block">
-        <p class="lead-text">The digital landscape is in the midst of a profound identity crisis. The foundational model of perimeter-based security has failed, giving way to an epidemic of data breaches fueled by compromised credentials.</p>
-
-        <p>The very concept of "identity" has become dangerously fragmented, split between human-centric systems (CIAM) and a separate, ad-hoc world of machine and device identity (M2M/IoT). This fragmentation, coupled with the erosion of consumer privacy, creates a landscape of significant risk, friction, and missed opportunity.</p>
-
-        <div class="highlight-box">
-          <p><strong>Artagon Identity Platform</strong> is architected to solve this crisis—a next-generation trust infrastructure platform designed from the ground up to unify the three most critical, and historically siloed, domains of digital trust.</p>
-        </div>
-      </div>
-
-      <div class="three-domains">
-        <div class="domain-card">
-          <div class="domain-icon">🔐</div>
-          <h3>High-Assurance Identity</h3>
-          <p>A unified, passkey-primary foundation for phishing-resistant human authentication, built on the most secure, modern protocols (OIDC, GNAP).</p>
-        </div>
-        <div class="domain-card">
-          <div class="domain-icon">✓</div>
-          <h3>Decentralized & Verifiable Identity</h3>
-          <p>A complete Verifiable Credentials engine for issuing and verifying portable, holder-controlled, and privacy-preserving credentials.</p>
-        </div>
-        <div class="domain-card">
-          <div class="domain-icon">⚡</div>
-          <h3>Next-Generation Authorization</h3>
-          <p>A high-performance, graph-based authorization engine that fuses relationship-based and policy-based access control for complex, fine-grained decisions.</p>
-        </div>
-      </div>
-
-      <h3 class="pillars-title">Three Strategic Pillars</h3>
-
-      <div class="pillars-grid">
-        <div class="pillar-card">
-          <div class="pillar-header">
-            <span class="pillar-number">1</span>
-            <h4>Verifiable Everything</h4>
-          </div>
-          <p>Every identity, attribute, device, and software client can be cryptographically verified, moving the world from "asserted" identity to "proven" identity.</p>
-        </div>
-
-        <div class="pillar-card">
-          <div class="pillar-header">
-            <span class="pillar-number">2</span>
-            <h4>Zero-Friction Security</h4>
-          </div>
-          <p>The most secure posture is delivered as the path of least resistance. This is achieved through passkey-primary authentication (simpler and more secure than passwords) and invisible, hardware-level device attestation.</p>
-        </div>
-
-        <div class="pillar-card">
-          <div class="pillar-header">
-            <span class="pillar-number">3</span>
-            <h4>Privacy-by-Design</h4>
-          </div>
-          <p>Privacy is embedded at the protocol level, not as a compliance checkbox. The platform uses selective disclosure and zero-knowledge primitives, allowing users to prove facts about themselves without revealing underlying personal data.</p>
-        </div>
-      </div>
-
-      <div class="value-prop">
-        <div class="value-item">
-          <strong>For Enterprises:</strong> De-risk digital transformation, eliminate account takeover, and prove compliance with NIST 800-63 and eIDAS.
-        </div>
-        <div class="value-item">
-          <strong>For Developers:</strong> A single, unified "trust API" that abstracts the complexity of modern cryptography, protocols, and policy.
-        </div>
-        <div class="value-item">
-          <strong>For End-Users:</strong> A truly portable, private, and secure digital identity.
-        </div>
-      </div>
-    </section>
-
-    <section id="product-vision" class="section-spacing">
-      <div class="section-header">
-        <h2>Product Vision & Value Proposition</h2>
-        <div class="section-number">02</div>
-      </div>
-
-      <div class="mission-breakdown">
-        <h3>Mission Breakdown</h3>
-        <p class="mission-intro">The Artagon mission is a deliberate, strategic synthesis of capabilities that are essential for the next era of digital interaction.</p>
-
-        <div class="mission-parts">
-          <div class="mission-part">
-            <h4>"Trusted Identity..."</h4>
-            <p>A fundamental shift from "authentication" to establishing <strong>verifiable trust and assurance</strong> rooted in cryptographic proofs, not centralized databases.</p>
-          </div>
-          <div class="mission-part">
-            <h4>"...for Machines and Humans..."</h4>
-            <p>An explicit rejection of market fragmentation. The platform unifies <strong>CIAM (human) and M2M/IoT (machine)</strong> identity markets.</p>
-          </div>
-          <div class="mission-part">
-            <h4>"...Verified, Private, Attested."</h4>
-            <p>Three words mapping directly to the platform's <strong>core technical pillars</strong> and capabilities.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="architectural-principles" class="section-spacing">
-      <div class="section-header">
-        <h2>Architectural Principles</h2>
-        <div class="section-number">03</div>
-      </div>
-
-      <p class="section-intro">The Artagon platform architecture is a direct expression of its product vision, guided by five core principles that ensure security, scalability, and flexibility.</p>
-
-      <div class="principles-list">
-        <div class="principle-item">
-          <div class="principle-number">01</div>
-          <div class="principle-content">
-            <h3>High-Assurance by Default</h3>
-            <p>Security is not an optional feature or enterprise-tier add-on; it is the default posture for all tenants and all interactions.</p>
-          </div>
-        </div>
-
-        <div class="principle-item">
-          <div class="principle-number">02</div>
-          <div class="principle-content">
-            <h3>Cryptographic Agility & Isolation</h3>
-            <p>Built on a foundation agile to new cryptographic standards. Modular Rust sidecars for crypto operations (BBS+, ZKP) and native support for multiple VC formats (SD-JWT and BBS+).</p>
-          </div>
-        </div>
-
-        <div class="principle-item">
-          <div class="principle-number">03</div>
-          <div class="principle-content">
-            <h3>Policy-as-Code & Verifiable Audit</h3>
-            <p>All authorization and business logic expressed as explicit, human-readable, and auditable policy with a Git-backed Policy Administration Point (PAP).</p>
-          </div>
-        </div>
-
-        <div class="principle-item">
-          <div class="principle-number">04</div>
-          <div class="principle-content">
-            <h3>Holder-Centric & Privacy-Preserving</h3>
-            <p>The user (the "holder") is the ultimate owner of their identity—a fundamental shift away from the traditional "profile-in-a-database" CIAM model.</p>
-          </div>
-        </div>
-
-        <div class="principle-item">
-          <div class="principle-number">05</div>
-          <div class="principle-content">
-            <h3>Developer-First Abstraction</h3>
-            <p>Complexity of OIDC, GNAP, DIDs, VCs, and Zanzibar graph traversal abstracted behind a clean, unified API and idiomatic SDKs.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="core-components" class="section-spacing">
-      <div class="section-header">
-        <h2>Core Components and Capabilities</h2>
-        <div class="section-number">04</div>
-      </div>
-
-      <div class="components-grid">
-        <div class="component-card">
-          <div class="component-badge">4.1</div>
-          <h3>Unified Identity & Authorization Core</h3>
-          <p>Foundation for all identity transactions, serving as best-in-class provider for both human and machine identities.</p>
-          <ul class="feature-list">
-            <li>Protocol Unification (OIDC 2.1 & GNAP)</li>
-            <li>Hardened Security Profiles (PAR, JAR, JARM, DPoP, RAR, mTLS)</li>
-            <li>Passkey-Primary Authentication</li>
-            <li>Cryptographic Multi-Tenancy</li>
-          </ul>
-        </div>
-
-        <div class="component-card">
-          <div class="component-badge">4.2</div>
-          <h3>Decentralized Trust Layer</h3>
-          <p>Activates "Verifiable Everything," transforming Artagon into a comprehensive trust-issuance and verification engine.</p>
-          <ul class="feature-list">
-            <li>DID & VC Primitives (did:web, did:key, did:ion/peer)</li>
-            <li>VC Formats (SD-JWT, BBS+)</li>
-            <li>The OID4VC "On-Ramp" (OID4VCI, OID4VP)</li>
-            <li>Privacy & Revocation</li>
-          </ul>
-        </div>
-
-        <div class="component-card">
-          <div class="component-badge">4.3</div>
-          <h3>Integrated Identity Proofing Pipeline</h3>
-          <p>Solves the "cold start" problem: how to root a digital identity in the real world.</p>
-        </div>
-
-        <div class="component-card">
-          <div class="component-badge">4.4</div>
-          <h3>Device & Application Attestation Engine</h3>
-          <p>Delivers on the "Machines" part of the mission, establishing verifiable trust in the client itself.</p>
-        </div>
-
-        <div class="component-card">
-          <div class="component-badge">4.5</div>
-          <h3>Next-Generation Authorization Engine</h3>
-          <p>Fine-grained, high-performance engine answering: "What is this identity allowed to do?"</p>
-          <ul class="feature-list">
-            <li>Hybrid Model: ReBAC + ABAC</li>
-            <li>Zanzibar Graph Store</li>
-            <li>Polyglot Policy Engine (Cedar, OPA, XACML)</li>
-          </ul>
-        </div>
-
-        <div class="component-card highlight">
-          <div class="component-badge">4.6</div>
-          <h3>Advanced Delegation & Authority Brokering Engine</h3>
-          <p>The capstone—a powerful synthesis elevating Artagon from "Identity Provider" to true "Authority Broker."</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="technology-stack" class="section-spacing simple">
-      <div class="section-header">
-        <h2>Technology Stack</h2>
-        <div class="section-number">05</div>
-      </div>
-      <p class="section-intro">Architected for extreme performance, security, and scalability using a "best-of-both-worlds" technology stack.</p>
-      <div class="tech-grid">
-        <div class="tech-item"><strong>Core:</strong> Java 25/26 LTS with Virtual Threads (Project Loom)</div>
-        <div class="tech-item"><strong>Hot Paths:</strong> Rust sidecars for crypto ops (BBS+, ZKP) and graph traversal</div>
-        <div class="tech-item"><strong>Primary Store:</strong> PostgreSQL for tenant config, policies, metadata</div>
-        <div class="tech-item"><strong>Hot Store:</strong> Redis/KeyDB for sessions, states, caches</div>
-        <div class="tech-item"><strong>Graph:</strong> In-memory, off-heap Zanzibar-style store</div>
-        <div class="tech-item"><strong>Secrets:</strong> KMS/HSM for all cryptographic material</div>
-      </div>
-    </section>
-
-    <section id="security-privacy" class="section-spacing simple">
-      <div class="section-header">
-        <h2>Security & Privacy Model</h2>
-        <div class="section-number">06</div>
-      </div>
-      <div class="two-col">
-        <div>
-          <h3>Security: Phishing-Resistant, Zero-Trust</h3>
-          <p>Passkey-primary authentication, DPoP token binding, device attestation, mTLS, and PAR—secure-by-default at every layer.</p>
-        </div>
-        <div>
-          <h3>Privacy: Holder-Controlled, Minimum Disclosure</h3>
-          <p>Zero-knowledge selective disclosure (SD-JWT, BBS+), unlinkable presentations, data portability, and privacy-preserving revocation.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="developer-experience" class="section-spacing simple">
-      <div class="section-header">
-        <h2>Developer Experience</h2>
-        <div class="section-number">07</div>
-      </div>
-      <p class="section-intro">World-class, developer-first experience modeled after Stripe and Auth0.</p>
-      <div class="dx-features">
-        <div><strong>SDKs:</strong> Java, Rust, TypeScript, Go, Swift</div>
-        <div><strong>CLI:</strong> Full platform operations, policy testing, conformance</div>
-        <div><strong>APIs:</strong> Dual GraphQL + REST</div>
-        <div><strong>Playground:</strong> Live OAuth/GNAP/VC flows in-browser</div>
-      </div>
-    </section>
-
-    <section id="use-cases" class="section-spacing">
-      <div class="section-header">
-        <h2>Product Use Cases</h2>
-        <div class="section-number">08</div>
-      </div>
-      <p class="section-intro">Real-world scenarios demonstrating how Artagon transforms digital trust across industries.</p>
-
-      <div class="use-cases-detailed">
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">01</div>
-            <h3>High-Assurance Customer Support</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> A customer service representative needs temporary access to a customer's account to resolve a billing issue.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>Customer authenticates with passkey-based login (WebAuthn/FIDO2)</li>
-                <li>Customer grants explicit, time-boxed delegation (15 minutes) to CSR via Authority Broker</li>
-                <li>CSR receives a verifiable credential encoding the delegation scope (read billing, no PII access)</li>
-                <li>Authorization engine validates credential + relationships + time constraints on each API call</li>
-                <li>Delegation auto-expires; full audit trail captured in immutable log</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Zero standing privileges, cryptographic audit trail, customer control—eliminating insider threat vector.</p>
-          </div>
-        </div>
-
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">02</div>
-            <h3>Cross-Organization Healthcare Access</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> A primary care physician needs to share specific patient records with a specialist for consultation.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>Doctor authenticates with organizational credential + passkey</li>
-                <li>Issues time-limited Verifiable Presentation (VP) with selective disclosure of patient file X</li>
-                <li>Specialist receives VP at their organization (different IdP/domain)</li>
-                <li>Specialist's system verifies VP signature, issuer DID, and revocation status via OID4VP</li>
-                <li>Authorization engine checks: specialist has valid medical license VC + access relationship in graph</li>
-                <li>Access granted; patient's PII minimized via selective disclosure (only relevant medical data exposed)</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Seamless cross-domain trust without brittle SAML federations; privacy-preserving; patient-centric consent model.</p>
-          </div>
-        </div>
-
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">03</div>
-            <h3>IAM for Autonomous AI Agents</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> A CFO authorizes an AI agent to autonomously approve and sign vendor contracts under $50,000.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>CFO authenticates and issues a Verifiable Credential to AI agent's DID</li>
-                <li>VC encodes: authority scope (sign contracts), conditions (amount < $50k, vendor category = "SaaS"), expiration (30 days)</li>
-                <li>AI agent stores VC in secure enclave (device attestation bound)</li>
-                <li>When agent attempts contract signature, presents VC to contract API</li>
-                <li>Authorization engine validates: VC signature, issuer authority (CFO role in graph), policy conditions, device attestation</li>
-                <li>Action permitted or denied based on real-time policy evaluation; all decisions logged with context</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Human-delegated, cryptographically-bound authority with programmatic guardrails—the foundation for trusted AI agents.</p>
-          </div>
-        </div>
-
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">04</div>
-            <h3>Zero-Trust IoT Device Provisioning</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> Manufacturing facility deploys 10,000 industrial IoT sensors that need secure, automated provisioning and lifecycle management.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>Each device ships with hardware-backed key pair (TPM/secure element) and manufacturer DID</li>
-                <li>On first boot, device performs hardware attestation (proving genuine hardware + unmodified firmware)</li>
-                <li>Device requests bootstrap credential from Artagon via GNAP device flow</li>
-                <li>Artagon validates attestation, issues device identity VC bound to hardware key</li>
-                <li>Device uses VC + mTLS for all telemetry API calls; authorization graph defines device→gateway→cloud relationships</li>
-                <li>Firmware updates trigger re-attestation; compromised devices auto-revoked via StatusList2021</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Hardware-rooted trust, automated lifecycle management, instant revocation—eliminating IoT's weakest link (credential management).</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="competitive-differentiation" class="section-spacing">
-      <div class="section-header">
-        <h2>Competitive Differentiation</h2>
-        <div class="section-number">09</div>
-      </div>
-      <div class="highlight-box competitive">
-        <p><strong>Artagon's defensible "moat":</strong> The only platform architected from the ground up to unify three distinct, typically siloed identity markets.</p>
-        <p>Bridges the developer-first experience of modern CIAM, the enterprise-grade capabilities of legacy IAM, and the next-generation privacy and portability of the decentralized world.</p>
-      </div>
-
-      <div class="competitive-table">
-        <h3>Market Positioning</h3>
-        <div class="comparison-grid">
-          <div class="comparison-category">
-            <h4>vs. Modern CIAM (Auth0, Okta CIC)</h4>
-            <ul>
-              <li><strong>+</strong> Native Verifiable Credentials (not bolted-on)</li>
-              <li><strong>+</strong> Machine identity parity with human identity</li>
-              <li><strong>+</strong> Graph-native authorization (not role explosion)</li>
-              <li><strong>+</strong> Authority delegation as first-class primitive</li>
-            </ul>
-          </div>
-          <div class="comparison-category">
-            <h4>vs. Legacy IAM (Ping, ForgeRock)</h4>
-            <ul>
-              <li><strong>+</strong> Developer-first API/SDK experience</li>
-              <li><strong>+</strong> Cloud-native, elastic scale</li>
-              <li><strong>+</strong> Modern protocols (GNAP, OID4VC) not legacy retrofits</li>
-              <li><strong>+</strong> Privacy-by-design vs compliance checkbox</li>
-            </ul>
-          </div>
-          <div class="comparison-category">
-            <h4>vs. Decentralized Identity (SSI vendors)</h4>
-            <ul>
-              <li><strong>+</strong> Production-ready OIDC/SAML bridge for legacy apps</li>
-              <li><strong>+</strong> Enterprise SLAs, support, and compliance frameworks</li>
-              <li><strong>+</strong> Integrated authorization (not just authentication)</li>
-              <li><strong>+</strong> Pragmatic hybrid approach (not ideology-first)</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="roadmap" class="section-spacing">
-      <div class="section-header">
-        <h2>Multi-phase Roadmap</h2>
-        <div class="section-number">10</div>
-      </div>
-      <p class="section-intro">A pragmatic, five-phase execution plan delivering incremental, compounding value over 18 months.</p>
-
-      <div class="roadmap-phases">
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V1: Core Trust Layer</h3>
-            <span class="phase-timeline">0–3 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Foundation for high-assurance authentication and authorization.</p>
-            <ul class="phase-deliverables">
-              <li>OIDC 2.1 + GNAP server with PAR, JAR, JARM, DPoP token binding</li>
-              <li>Passkey-primary authentication (WebAuthn/FIDO2)</li>
-              <li>Multi-tenant architecture with cryptographic isolation</li>
-              <li>Device attestation MVP (iOS/Android platform attestation)</li>
-              <li>Basic ReBAC authorization with in-memory graph</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> &lt;50ms token issuance latency; 99.9% uptime; 10 design partner tenants</p>
-          </div>
-        </div>
-
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V2: Verifiable Credentials Engine</h3>
-            <span class="phase-timeline">3–6 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Full W3C VC issuance and verification with privacy-preserving primitives.</p>
-            <ul class="phase-deliverables">
-              <li>SD-JWT VC format support (selective disclosure)</li>
-              <li>OID4VCI (credential issuance) and OID4VP (presentation) flows</li>
-              <li>DID methods: did:web, did:key, did:ion (pilot)</li>
-              <li>StatusList2021 revocation mechanism</li>
-              <li>VC-to-OIDC bridge (legacy app compatibility)</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> Issue 100k+ VCs; 3+ VC wallet integrations; healthcare pilot deployment</p>
-          </div>
-        </div>
-
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V3: Policy & Authorization Graph</h3>
-            <span class="phase-timeline">6–9 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Production-grade, hybrid authorization engine with policy-as-code.</p>
-            <ul class="phase-deliverables">
-              <li>Zanzibar-style graph store (persistent, replicated)</li>
-              <li>Cedar + OPA policy engines with XACML compatibility</li>
-              <li>Git-backed Policy Administration Point (PAP)</li>
-              <li>PEP SDKs (Java, TypeScript, Go, Rust)</li>
-              <li>Real-time policy testing and conformance harness</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> &lt;10ms authorization decisions; 1M+ tuples in graph; 50+ policy repos managed</p>
-          </div>
-        </div>
-
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V4: Identity Proofing & Compliance</h3>
-            <span class="phase-timeline">9–12 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Regulated-industry readiness with identity proofing and compliance frameworks.</p>
-            <ul class="phase-deliverables">
-              <li>Identity proofing pipeline (document verification, liveness detection)</li>
-              <li>NIST 800-63 IAL2/AAL2 certification path</li>
-              <li>eIDAS compliance for EU market</li>
-              <li>Proofing VC issuance with assurance levels</li>
-              <li>Trust registry for issuer/verifier discovery</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> NIST certification achieved; 2+ regulated industry customers (finance, healthcare)</p>
-          </div>
-        </div>
-
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V5: Federation & AI-Native Features</h3>
-            <span class="phase-timeline">12–18 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Advanced delegation, cross-domain trust, and first-class AI agent support.</p>
-            <ul class="phase-deliverables">
-              <li>BBS+ signature support (unlinkable credentials)</li>
-              <li>Advanced Authority Brokering Engine (delegation chains, transitive trust)</li>
-              <li>Multi-issuer trust framework and federation protocol</li>
-              <li>AI agent identity primitives (autonomous signing keys, policy-bound agents)</li>
-              <li>Zero-knowledge proof integration (age verification, compliance checks)</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> 10+ federated trust domains; 1000+ AI agents managed; enterprise SOC 2 Type II</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="long-term-outlook" class="section-spacing vision-2030">
-      <div class="section-header">
-        <h2>Vision 2030</h2>
-        <div class="section-number">11</div>
-      </div>
-      <div class="vision-grid">
-        <div class="vision-card">
-          <h3>From "Identity" to "Authority"</h3>
-          <p>Evolving from IdP to Authority Broker—answering "What authority do you have?" not "Who are you?"</p>
-        </div>
-        <div class="vision-card">
-          <h3>AI Agents as First-Class Citizens</h3>
-          <p>Artagon will be the "IAM for AI"—trust, governance, and audit for autonomous economic actors.</p>
-        </div>
-        <div class="vision-card">
-          <h3>The "Verifiable Web"</h3>
-          <p>GNAP + VCs + OID4VP: the engine for frictionless, portable, verifiable identity across services.</p>
-        </div>
-      </div>
-      <div class="closing-statement">
-        <p><strong>Artagon's mission is to build the trust layer for the next two decades of digital interaction.</strong></p>
-        <p>By unifying the identity of humans and machines, by building in privacy and zero-friction security from the protocol level, and by grounding all trust in cryptographic verification, we are not just building a product—we are architecting the future of digital trust.</p>
-      </div>
-    </section>
-  </div>
+    <Content />
   </article>
 
   <Fragment slot="footer"><Footer /></Fragment>
@@ -650,29 +123,48 @@ import Footer from '../../components/Footer.astro';
     font-weight: 500;
     color: var(--text);
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .highlight-box {
     background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 10%, var(--surface)) 0%,
-      var(--surface) 100%
+      color-mix(in srgb, var(--brand-teal) 10%, var(--surface)),
+      var(--surface)
     );
     border-left: 4px solid var(--brand-teal);
     padding: 1.5rem 2rem;
-    border-radius: 8px;
     margin: 2rem 0;
+    border-radius: 8px;
   }
 
-  .highlight-box.competitive {
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 10%, var(--surface)) 0%,
-      var(--surface) 100%
-    );
-    border-left-color: var(--brand-teal);
+  .highlight-box p {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
   }
 
-  /* ==== THREE DOMAINS CARDS ==== */
+  .info-box {
+    background: var(--surface);
+    border: 2px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+  }
+
+  .info-box p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+  }
+
+  .info-box p:first-child {
+    margin-top: 0;
+  }
+
+  .info-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ==== CARDS & GRIDS ==== */
   .three-domains {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -682,63 +174,63 @@ import Footer from '../../components/Footer.astro';
 
   .domain-card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    border: 2px solid color-mix(in srgb, var(--brand-teal) 20%, transparent);
     padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
     transition: all 0.3s ease;
   }
 
   .domain-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     border-color: var(--brand-teal);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
   }
 
   .domain-icon {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
   }
 
   .domain-card h3 {
-    font-size: 1.3rem;
     color: var(--brand-teal);
-    margin: 0 0 1rem;
+    font-size: 1.3rem;
+    margin: 1rem 0 0.75rem;
     font-weight: 600;
   }
 
   .domain-card p {
-    color: var(--text);
-    margin: 0;
+    color: var(--muted);
     line-height: 1.6;
+    margin: 0;
   }
 
-  /* ==== PILLARS SECTION ==== */
   .pillars-title {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     color: var(--brand-teal);
-    margin: 3rem 0 2rem;
+    margin: 4rem 0 2rem;
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .pillars-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
-    margin: 2rem 0;
+    margin: 2rem 0 3rem;
   }
 
   .pillar-card {
     background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 12px;
+    border: 2px solid color-mix(in srgb, var(--brand-teal) 20%, transparent);
     padding: 2rem;
+    border-radius: 12px;
     transition: all 0.3s ease;
   }
 
   .pillar-card:hover {
     border-color: var(--brand-teal);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   }
 
   .pillar-header {
@@ -749,11 +241,11 @@ import Footer from '../../components/Footer.astro';
   }
 
   .pillar-number {
+    background: var(--brand-teal);
+    color: white;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--brand-teal);
-    color: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -763,195 +255,153 @@ import Footer from '../../components/Footer.astro';
   }
 
   .pillar-card h4 {
-    font-size: 1.3rem;
     color: var(--brand-teal);
+    font-size: 1.3rem;
     margin: 0;
     font-weight: 600;
   }
 
   .pillar-card p {
-    margin: 0;
-    line-height: 1.6;
     color: var(--text);
+    line-height: 1.6;
+    margin: 0;
   }
 
-  /* ==== VALUE PROPOSITION ==== */
   .value-prop {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     margin: 3rem 0;
   }
 
   .value-item {
-    background: var(--surface);
-    padding: 1.5rem 2rem;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 5%, var(--surface)),
+      var(--surface)
+    );
     border-left: 4px solid var(--brand-teal);
+    padding: 1.5rem;
     border-radius: 8px;
     line-height: 1.6;
   }
 
   .value-item strong {
     color: var(--brand-teal);
+    display: block;
+    margin-bottom: 0.5rem;
     font-size: 1.1rem;
   }
 
-  /* ==== MISSION BREAKDOWN ==== */
-  .mission-breakdown {
-    margin: 2rem 0;
-  }
-
-  .mission-breakdown h3 {
-    font-size: 1.5rem;
-    color: var(--brand-teal);
-    margin: 0 0 1rem;
-  }
-
-  .mission-intro {
-    font-size: 1.1rem;
-    color: var(--muted);
-    margin-bottom: 2rem;
-  }
-
-  .mission-parts {
-    display: grid;
-    gap: 2rem;
-    margin: 2rem 0;
-  }
-
-  .mission-part {
-    background: var(--surface);
-    border-left: 4px solid var(--brand-teal);
-    padding: 1.5rem 2rem;
-    border-radius: 8px;
-  }
-
-  .mission-part h4 {
-    font-size: 1.2rem;
-    color: var(--brand-teal);
-    margin: 0 0 0.8rem;
-    font-weight: 600;
-  }
-
-  .mission-part p {
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  /* ==== PRINCIPLES LIST ==== */
-  .principles-list {
-    display: grid;
-    gap: 1.5rem;
-  }
-
-  .principle-item {
-    display: flex;
-    gap: 2rem;
-    background: var(--surface);
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    transition: all 0.3s ease;
-  }
-
-  .principle-item:hover {
-    border-color: var(--brand-teal);
-    transform: translateX(4px);
-  }
-
-  .principle-number {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-teal) 0%, var(--brand-teal) 100%);
-    color: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .principle-content h3 {
-    font-size: 1.3rem;
-    color: var(--brand-teal);
-    margin: 0 0 0.8rem;
-    font-weight: 600;
-  }
-
-  .principle-content p {
-    margin: 0;
-    line-height: 1.6;
-    color: var(--text);
-  }
-
-  /* ==== COMPONENTS GRID ==== */
-  .components-grid {
+  /* ==== PRODUCT GRID ==== */
+  .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
-    margin: 2rem 0;
+    margin: 3rem 0;
   }
 
-  .component-card {
+  .product-card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    border: 2px solid color-mix(in srgb, var(--brand-teal) 20%, transparent);
     padding: 2rem;
+    border-radius: 12px;
     transition: all 0.3s ease;
-    position: relative;
   }
 
-  .component-card:hover {
+  .product-card:hover {
     border-color: var(--brand-teal);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   }
 
-  .component-card.highlight {
-    border: 2px solid var(--brand-teal);
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 8%, var(--surface)) 0%,
-      var(--surface) 100%
-    );
-  }
-
-  .component-badge {
-    display: inline-block;
-    background: var(--brand-teal);
-    color: var(--bg);
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-
-  .component-card h3 {
-    font-size: 1.25rem;
+  .product-card h3 {
     color: var(--brand-teal);
+    font-size: 1.5rem;
     margin: 0 0 1rem;
     font-weight: 600;
-    line-height: 1.3;
   }
 
-  .component-card p {
-    margin: 0 0 1rem;
+  .product-card p {
+    color: var(--text);
     line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .product-card li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .product-card li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--brand-teal);
+    font-weight: 700;
+  }
+
+  /* ==== TABLES ==== */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    background: var(--surface);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-teal) 15%, transparent);
+  }
+
+  .comparison-table th {
+    background: color-mix(in srgb, var(--brand-teal) 15%, var(--surface));
+    color: var(--brand-teal);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .comparison-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .comparison-table td:first-child {
+    font-weight: 600;
     color: var(--text);
   }
 
+  .comparison-table td {
+    text-align: center;
+    color: var(--text);
+  }
+
+  /* ==== LISTS ==== */
   .feature-list {
     list-style: none;
     padding: 0;
-    margin: 1rem 0 0;
+    margin: 2rem 0;
   }
 
   .feature-list li {
-    padding: 0.5rem 0 0.5rem 1.5rem;
+    padding: 1rem 0;
+    padding-left: 2rem;
     position: relative;
-    line-height: 1.5;
-    color: var(--text);
+    line-height: 1.6;
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-teal) 10%, transparent);
+  }
+
+  .feature-list li:last-child {
+    border-bottom: none;
   }
 
   .feature-list li::before {
@@ -960,424 +410,161 @@ import Footer from '../../components/Footer.astro';
     left: 0;
     color: var(--brand-teal);
     font-weight: 700;
+    font-size: 1.2rem;
   }
 
-  /* ==== TECH GRID ==== */
-  .tech-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+  .feature-list strong {
+    color: var(--brand-teal);
+  }
+
+  .numbered-list {
+    counter-reset: item;
+    list-style: none;
+    padding: 0;
     margin: 2rem 0;
   }
 
-  .tech-item {
-    background: var(--surface);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border-left: 3px solid var(--brand-teal);
-    line-height: 1.5;
-  }
-
-  .tech-item strong {
-    color: var(--brand-teal);
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-
-  /* ==== TWO COLUMN ==== */
-  .two-col {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2.5rem;
-    margin: 2rem 0;
-  }
-
-  .two-col h3 {
-    font-size: 1.3rem;
-    color: var(--brand-teal);
-    margin: 0 0 1rem;
-    font-weight: 600;
-  }
-
-  .two-col p {
-    margin: 0;
+  .numbered-list li {
+    counter-increment: item;
+    padding: 1.5rem 0;
+    padding-left: 3rem;
+    position: relative;
     line-height: 1.6;
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-teal) 10%, transparent);
   }
 
-  /* ==== DX FEATURES ==== */
-  .dx-features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
+  .numbered-list li:last-child {
+    border-bottom: none;
   }
 
-  .dx-features div {
-    background: var(--surface);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    line-height: 1.5;
-  }
-
-  .dx-features strong {
-    color: var(--brand-teal);
-  }
-
-  /* ==== USE CASES DETAILED ==== */
-  .use-cases-detailed {
-    display: grid;
-    gap: 3rem;
-    margin: 2rem 0;
-  }
-
-  .use-case-detailed {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .use-case-detailed:hover {
-    border-color: var(--brand-teal);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  .use-case-header {
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 15%, var(--surface)) 0%,
-      var(--surface) 100%
-    );
-    padding: 2rem;
-    border-bottom: 2px solid var(--brand-teal);
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .use-case-number {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+  .numbered-list li::before {
+    content: counter(item);
+    position: absolute;
+    left: 0;
+    top: 1.5rem;
     background: var(--brand-teal);
-    color: var(--bg);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.3rem;
-    flex-shrink: 0;
+    font-size: 1rem;
   }
 
-  .use-case-header h3 {
+  .numbered-list strong {
     color: var(--brand-teal);
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
   }
 
-  .use-case-content {
-    padding: 2rem;
-  }
-
-  .use-case-scenario {
-    font-size: 1.05rem;
-    color: var(--text);
-    margin: 0 0 1.5rem;
-    line-height: 1.6;
-  }
-
-  .use-case-flow {
-    background: color-mix(in srgb, var(--bg) 50%, var(--surface));
-    padding: 1.5rem;
-    border-radius: 8px;
-    border-left: 3px solid var(--brand-teal);
+  .bulleted-list {
+    list-style: none;
+    padding: 0;
     margin: 1.5rem 0;
   }
 
-  .use-case-flow h4 {
-    color: var(--brand-teal);
-    margin: 0 0 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  .use-case-flow ol {
-    margin: 0;
-    padding-left: 1.5rem;
-  }
-
-  .use-case-flow li {
-    margin: 0.75rem 0;
-    line-height: 1.6;
-    color: var(--text);
-  }
-
-  .use-case-value {
-    font-size: 1.05rem;
-    color: var(--text);
-    margin: 1.5rem 0 0;
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 8%, transparent) 0%,
-      transparent 100%
-    );
-    border-left: 3px solid var(--brand-teal);
-    border-radius: 6px;
+  .bulleted-list li {
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
     line-height: 1.6;
   }
 
-  .use-case-value strong {
+  .bulleted-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0.5rem;
     color: var(--brand-teal);
-  }
-
-  /* ==== COMPETITIVE ANALYSIS ==== */
-  .competitive-table {
-    margin: 2rem 0;
-  }
-
-  .competitive-table h3 {
+    font-weight: 700;
     font-size: 1.5rem;
+  }
+
+  .bulleted-list strong {
     color: var(--brand-teal);
-    margin: 2rem 0 1.5rem;
-    text-align: center;
   }
 
-  .comparison-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-  }
-
-  .comparison-category {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 2rem;
-    transition: all 0.3s ease;
-  }
-
-  .comparison-category:hover {
-    border-color: var(--brand-teal);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  }
-
-  .comparison-category h4 {
-    color: var(--brand-teal);
-    margin: 0 0 1.5rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  }
-
-  .comparison-category ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .comparison-category li {
-    padding: 0.6rem 0 0.6rem 2rem;
+  /* ==== TIMELINE ==== */
+  .timeline {
     position: relative;
-    line-height: 1.6;
-    color: var(--text);
+    padding: 2rem 0;
+    margin: 3rem 0;
   }
 
-  .comparison-category li::before {
-    content: "+";
+  .timeline::before {
+    content: '';
     position: absolute;
     left: 0;
-    color: var(--brand-teal);
-    font-weight: 700;
-    font-size: 1.3rem;
-  }
-
-  .comparison-category li strong {
-    color: var(--brand-teal);
-  }
-
-  /* ==== ROADMAP PHASES DETAILED ==== */
-  .roadmap-phases {
-    display: grid;
-    gap: 2.5rem;
-    margin: 2rem 0;
-  }
-
-  .phase-detailed {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .phase-detailed:hover {
-    border-color: var(--brand-teal);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
-
-  .phase-header {
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 15%, var(--surface)) 0%,
-      color-mix(in srgb, var(--brand-teal) 5%, var(--surface)) 100%
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom,
+      var(--brand-teal),
+      color-mix(in srgb, var(--brand-teal) 30%, transparent)
     );
-    padding: 1.5rem 2rem;
-    border-bottom: 2px solid var(--brand-teal);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
+    border-radius: 2px;
   }
 
-  .phase-header h3 {
-    color: var(--brand-teal);
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
+  .timeline-item {
+    position: relative;
+    padding-left: 3rem;
+    margin-bottom: 3rem;
   }
 
-  .phase-timeline {
-    display: inline-block;
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .timeline-marker {
+    position: absolute;
+    left: -8px;
+    top: 0;
+    width: 20px;
+    height: 20px;
     background: var(--brand-teal);
-    color: var(--bg);
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
+    border: 4px solid var(--bg);
+    border-radius: 50%;
+  }
+
+  .timeline-item h4 {
+    color: var(--brand-teal);
+    font-size: 1.3rem;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .timeline-item p {
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0.5rem 0;
+  }
+
+  .timeline-item ul {
+    margin: 1rem 0;
+  }
+
+  /* ==== CODE BLOCKS ==== */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--brand-teal) 20%, transparent);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    font-family: 'Monaco', 'Menlo', monospace;
     font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-
-  .phase-body {
-    padding: 2rem;
-  }
-
-  .phase-description {
-    font-size: 1.05rem;
-    color: var(--muted);
-    margin: 0 0 1.5rem;
     line-height: 1.6;
+    overflow-x: auto;
   }
 
-  .phase-deliverables {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 1.5rem;
-  }
-
-  .phase-deliverables li {
-    padding: 0.6rem 0 0.6rem 2rem;
-    position: relative;
-    line-height: 1.6;
+  .code-block code {
     color: var(--text);
-  }
-
-  .phase-deliverables li::before {
-    content: "→";
-    position: absolute;
-    left: 0;
-    color: var(--brand-teal);
-    font-weight: 700;
-  }
-
-  .phase-kpi {
-    font-size: 0.95rem;
-    color: var(--text);
-    margin: 1.5rem 0 0;
-    padding: 1rem 1.5rem;
-    background: color-mix(in srgb, var(--brand-teal) 5%, transparent);
-    border-left: 3px solid var(--brand-teal);
-    border-radius: 6px;
-    line-height: 1.6;
-  }
-
-  .phase-kpi strong {
-    color: var(--brand-teal);
-  }
-
-  /* ==== VISION 2030 ==== */
-  .vision-2030 {
-    background: linear-gradient(135deg,
-      color-mix(in srgb, var(--brand-teal) 5%, var(--bg)) 0%,
-      var(--bg) 100%
-    );
-    padding: 4rem 2rem;
-    border-radius: 16px;
-    margin-top: 5rem;
-  }
-
-  .vision-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0 3rem;
-  }
-
-  .vision-card {
-    background: var(--surface);
-    border: 2px solid var(--brand-teal);
-    border-radius: 12px;
-    padding: 2rem;
-  }
-
-  .vision-card h3 {
-    font-size: 1.3rem;
-    color: var(--brand-teal);
-    margin: 0 0 1rem;
-    font-weight: 600;
-  }
-
-  .vision-card p {
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  .closing-statement {
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-    background: var(--surface);
-    border-radius: 12px;
-    border: 2px solid var(--brand-teal);
-  }
-
-  .closing-statement p {
-    font-size: 1.1rem;
-    line-height: 1.7;
-    margin: 1rem 0;
-  }
-
-  .closing-statement p:first-child {
-    font-size: 1.3rem;
-    color: var(--brand-teal);
-  }
-
-  /* ==== GENERAL TYPOGRAPHY ==== */
-  .vision-doc h2, .vision-doc h3, .vision-doc h4 {
-    line-height: 1.3;
-  }
-
-  .vision-doc p {
-    margin: 1rem 0;
-  }
-
-  .vision-doc strong {
-    color: var(--brand-teal);
-    font-weight: 600;
   }
 
   /* ==== RESPONSIVE ==== */
   @media (max-width: 768px) {
-    .hero-section {
-      padding: 60px 20px 40px;
-    }
-
     .section-header {
       flex-direction: column;
       align-items: flex-start;
@@ -1387,13 +574,57 @@ import Footer from '../../components/Footer.astro';
       font-size: 3rem;
     }
 
-    .principle-item {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .two-col, .vision-grid, .pillars-grid, .three-domains {
+    .pillars-grid,
+    .product-grid,
+    .value-prop {
       grid-template-columns: 1fr;
     }
+
+    .comparison-table {
+      font-size: 0.9rem;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .timeline::before {
+      left: 8px;
+    }
+
+    .timeline-item {
+      padding-left: 3rem;
+    }
+
+    .timeline-marker {
+      left: 0;
+    }
+  }
+
+  /* ==== UTILITY CLASSES ==== */
+  .text-center {
+    text-align: center;
+  }
+
+  .mt-4 {
+    margin-top: 4rem;
+  }
+
+  .mb-4 {
+    margin-bottom: 4rem;
+  }
+
+  .emphasis {
+    color: var(--brand-teal);
+    font-weight: 600;
+  }
+
+  .quote {
+    font-style: italic;
+    color: var(--muted);
+    border-left: 4px solid var(--brand-teal);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
   }
 </style>

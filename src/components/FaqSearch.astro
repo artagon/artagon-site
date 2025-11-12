@@ -1,0 +1,178 @@
+---
+// Client-side search/filter component for FAQ page
+---
+
+<div class="faq-search-container">
+  <div class="faq-search-wrapper">
+    <svg class="faq-search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+      <path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <input
+      id="faq-search"
+      type="search"
+      placeholder="Search FAQs..."
+      aria-label="Search frequently asked questions"
+      autocomplete="off"
+    />
+    <button id="faq-clear" class="faq-clear-btn" aria-label="Clear search" style="display: none;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div id="faq-results" class="faq-results" aria-live="polite" aria-atomic="true"></div>
+</div>
+
+<style>
+.faq-search-container {
+  margin-bottom: 32px;
+}
+
+.faq-search-wrapper {
+  position: relative;
+  max-width: 600px;
+}
+
+.faq-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+#faq-search {
+  width: 100%;
+  padding: 14px 48px 14px 48px;
+  font-size: 1rem;
+  background: var(--card-bg);
+  border: 2px solid var(--card-stroke);
+  border-radius: 12px;
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#faq-search:focus {
+  outline: none;
+  border-color: var(--brand-teal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-teal) 15%, transparent);
+}
+
+#faq-search::placeholder {
+  color: var(--muted);
+}
+
+.faq-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.faq-clear-btn:hover {
+  background: color-mix(in srgb, var(--card-stroke) 50%, transparent);
+  color: var(--text);
+}
+
+.faq-results {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 768px) {
+  #faq-search {
+    padding: 12px 44px 12px 44px;
+    font-size: 0.95rem;
+  }
+}
+</style>
+
+<script>
+// Client-side FAQ search functionality
+(() => {
+  const searchInput = document.getElementById('faq-search') as HTMLInputElement | null;
+  const clearBtn = document.getElementById('faq-clear') as HTMLButtonElement | null;
+  const resultsDiv = document.getElementById('faq-results') as HTMLDivElement | null;
+
+  if (!searchInput || !clearBtn || !resultsDiv) return;
+
+  const categories = document.querySelectorAll('.faq-category');
+  const items = document.querySelectorAll('.faq-item');
+
+  function search(query: string) {
+    const q = query.toLowerCase().trim();
+
+    if (!q) {
+      // Show all categories and items
+      categories.forEach(cat => (cat as HTMLElement).style.display = '');
+      items.forEach(item => (item as HTMLElement).style.display = '');
+      resultsDiv.textContent = '';
+      clearBtn.style.display = 'none';
+      return;
+    }
+
+    clearBtn.style.display = 'flex';
+    let visibleCount = 0;
+
+    categories.forEach(category => {
+      const catItems = category.querySelectorAll('.faq-item');
+      let categoryHasVisible = false;
+
+      catItems.forEach(item => {
+        const question = item.querySelector('.faq-q-text')?.textContent || '';
+        const answer = item.querySelector('.faq-answer')?.textContent || '';
+        const matches = question.toLowerCase().includes(q) || answer.toLowerCase().includes(q);
+
+        (item as HTMLElement).style.display = matches ? '' : 'none';
+        if (matches) {
+          categoryHasVisible = true;
+          visibleCount++;
+        }
+      });
+
+      (category as HTMLElement).style.display = categoryHasVisible ? '' : 'none';
+    });
+
+    if (visibleCount === 0) {
+      resultsDiv.textContent = 'No FAQs match your search. Try different keywords.';
+    } else if (visibleCount === 1) {
+      resultsDiv.textContent = '1 result found';
+    } else {
+      resultsDiv.textContent = `${visibleCount} results found`;
+    }
+  }
+
+  searchInput.addEventListener('input', (e) => {
+    search((e.target as HTMLInputElement).value);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    search('');
+    searchInput.focus();
+  });
+
+  // Handle direct anchor links (e.g., /faq/#device-attestation)
+  if (window.location.hash) {
+    const targetId = window.location.hash.slice(1);
+    const targetEl = document.getElementById(targetId);
+    if (targetEl && targetEl.tagName === 'DETAILS') {
+      (targetEl as HTMLDetailsElement).open = true;
+      setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  }
+})();
+</script>
