@@ -4,6 +4,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
+import HeroChart from "../components/HeroChart.astro";
 const page = {
   title:
     "Artagon — OIDC 2.1 Provider, GNAP Authorization Server & Verifiable Credentials",
@@ -21,9 +22,7 @@ const page = {
         <div class="mission-badge">TRUSTED IDENTITY FOR MACHINES AND HUMANS</div>
         <h1 id="hero-h1">Verified, Private, Attested.</h1>
         <p id="hero-sub" class="sub">
-          OIDC 2.1, GNAP, Passkey sign-in, W3C Verifiable Credentials (SD-JWT, BBS+),
-          device attestation, and graph-native authorization—unified in one platform.<br />
-          <strong>The provable identity cloud.</strong>
+          OIDC 2.1, GNAP, Passkey sign‑in, W3C Verifiable Credentials (SD‑JWT, BBS+), device attestation, and graph‑native authorization—unified in one platform. <strong>The provable identity cloud.</strong>
         </p>
         <div style="margin-top:6px"><Tagline /></div>
         <div class="actions">
@@ -40,23 +39,13 @@ const page = {
           <span class="pill">Zanzibar graph + PDP</span>
         </div>
       </div>
-      <div class="hero-art" aria-hidden="true">
-        <svg width="520" height="220" viewBox="0 0 520 220">
-          <g fill="none" stroke="rgba(203,213,225,.6)" stroke-width="1">
-            <circle cx="60" cy="160" r="6"></circle><circle
-              cx="150"
-              cy="60"
-              r="6"></circle>
-            <circle cx="260" cy="120" r="6"></circle><circle
-              cx="360"
-              cy="40"
-              r="6"></circle>
-            <circle cx="450" cy="150" r="6"></circle>
-            <path
-              d="M66 156 L144 64 M156 64 L254 120 M266 120 L354 44 M366 44 L444 146"
-            ></path>
-          </g>
-        </svg>
+      <div class="hero-art">
+        <HeroChart
+          data={[12,18,14,22,28,19,31,27,34]}
+          width={620}
+          height={360}
+          label="Verified claims & policy decisions trend"
+        />
       </div>
     </div>
 

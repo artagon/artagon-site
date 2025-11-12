@@ -1,0 +1,75 @@
+---
+/**
+ * Minimal, CSP-safe hero chart (no hydration). Renders a smooth sparkline,
+ * markers, soft grid, and a subtle glow that matches dark-blue themes.
+ */
+export interface Props {
+  data?: number[];     // e.g., [12,18,14,22,…]
+  width?: number;      // outer SVG width
+  height?: number;     // outer SVG height
+  min?: number;        // optional fixed range
+  max?: number;
+  label?: string;      // accessible title/desc
+}
+
+const data   = Astro.props.data   ?? [12, 18, 14, 22, 28, 19, 31, 27, 34];
+const width  = Astro.props.width  ?? 620;
+const height = Astro.props.height ?? 360;
+const pad = 18;
+
+const min = Astro.props.min ?? Math.min(...data);
+const max = Astro.props.max ?? Math.max(...data);
+const range = Math.max(1e-6, max - min); // avoid /0
+
+// Scale points into the viewbox
+const xs = data.map((_, i) => pad + (i * (width - 2*pad) / (data.length - 1)));
+const ys = data.map(v => pad + (height - 2*pad) * (1 - (v - min) / range));
+const points = xs.map((x,i) => [x, ys[i]]);
+
+// Build a polyline path
+const d = 'M ' + points.map(p => p.join(' ')).join(' L ');
+const label = Astro.props.label ?? 'Platform activity trend';
+---
+
+<style>
+  .hero-chart-card {
+    height: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--card-stroke);
+    border-radius: 16px;
+    padding: 10px;
+    display: grid;
+    place-items: center;
+  }
+  .gridline { stroke: color-mix(in srgb, var(--border) 55%, transparent); stroke-width: 1; }
+  .line     { stroke: url(#heroGrad); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
+              filter: drop-shadow(0 0 12px color-mix(in srgb, var(--brand-sky) 50%, transparent)); }
+  .marker   { fill: var(--surface); stroke: url(#heroGrad); stroke-width: 2; }
+  /* draw-on animation */
+  .line { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  svg[viewBox] .line { animation: draw 1200ms ease forwards 200ms; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .cap { font-size: .82rem; fill: color-mix(in srgb, var(--text) 75%, white 10%); }
+</style>
+
+<div class="hero-chart-card" role="img" aria-label={label}>
+  <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
+    <defs>
+      <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"  stop-color="var(--brand-teal)"/>
+        <stop offset="100%" stop-color="var(--brand-sky)"/>
+      </linearGradient>
+    </defs>
+
+    {Array.from({length: 4}).map((_,i) => {
+      const y = pad + i*((height-2*pad)/3);
+      return <line x1={pad} y1={y} x2={width-pad} y2={y} class="gridline" />
+    })}
+    <rect x={pad} y={pad} width={width-2*pad} height={height-2*pad}
+          rx="12" ry="12" fill="transparent" stroke="color-mix(in srgb, var(--card-stroke) 70%, transparent)"/>
+
+    <path class="line" d={d} pathLength="1" />
+
+    {points.map(([x,y]) => <circle cx={x} cy={y} r="4.5" class="marker" />)}
+  </svg>
+</div>
