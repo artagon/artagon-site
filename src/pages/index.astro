@@ -6,78 +6,65 @@ import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
 import HeroChart from "../components/HeroChart.astro";
 const page = {
-  title:
-    "Artagon — OIDC 2.1 Provider, GNAP Authorization Server & Verifiable Credentials",
-  description:
-    "The provable identity cloud: passkey sign-in, verifiable credentials, and attested clients—unified by a graph-native policy engine.",
+  title: "Artagon — The provable identity cloud",
+  description: "OIDC 2.1 + GNAP + passkeys + verifiable credentials + attestation + graph‑native authorization.",
+  image: "/og/home.png"
 };
 ---
 
-<Base title={page.title} description={page.description}>
+<Base title={page.title} description={page.description} image={page.image}>
   <Fragment slot="header"><Header /></Fragment>
 
-  <section class="hero container">
-    <div class="twocol">
+  <section class="hero-platform">
+    <div class="container narrow grid">
       <div>
-        <div class="mission-badge">TRUSTED IDENTITY FOR MACHINES AND HUMANS</div>
-        <h1 id="hero-h1">Verified, Private, Attested.</h1>
-        <p id="hero-sub" class="sub">
-          OIDC 2.1, GNAP, Passkey sign‑in, W3C Verifiable Credentials (SD‑JWT, BBS+), device attestation, and graph‑native authorization—unified in one platform. <strong>The provable identity cloud.</strong>
+        <Tagline />
+        <h1 class="gradient-text" style="font-size:clamp(2.2rem,1.4rem+3.2vw,3.4rem)">Artagon Identity Platform</h1>
+        <p class="lead">
+          OIDC 2.1, GNAP, Passkey sign‑in, W3C Verifiable Credentials (SD‑JWT, BBS+),
+          device attestation, and graph‑native authorization—unified in one platform.
+          <strong>The provable identity cloud.</strong>
         </p>
-        <div style="margin-top:6px"><Tagline /></div>
-        <div class="actions">
-          <a class="btn" href="https://docs.artagon.com">Read the Docs</a>
-          <a class="btn" href="https://play.artagon.com">Try the Playground</a>
-          <a class="btn" href="https://github.com/artagon" rel="noopener"
-            >View on GitHub</a
-          >
+        <div class="chips" aria-label="Hardened profiles">
+          <span class="chip">PAR</span><span class="chip">JAR/JARM</span><span class="chip">DPoP</span><span class="chip">RAR</span><span class="chip">mTLS</span>
         </div>
-        <div class="badges" style="margin-top:14px">
-          <span class="pill">OIDC 2.1 + PAR/JAR/JARM/DPoP/mTLS</span>
-          <span class="pill">GNAP with PoP + continuation</span>
-          <span class="pill">SD-JWT & BBS+ VCs</span>
-          <span class="pill">Zanzibar graph + PDP</span>
+        <div class="actions">
+          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn ghost" href="/docs">Read the Docs</a>
+          <a class="btn ghost" href="/play">Try the Playground</a>
         </div>
       </div>
-      <div class="hero-art">
-        <HeroChart
-          data={[12,18,14,22,28,19,31,27,34]}
-          width={620}
-          height={360}
-          label="Verified claims & policy decisions trend"
-        />
+      <HeroChart data={[12,18,14,22,28,19,31,27,34]} width={620} height={360} label="Verified claims & policy decisions trend" />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow grid-auto">
+      <div class="col-4 card">
+        <h3>Verifiable Everything</h3>
+        <p>Move from asserted to proven identity: passkeys, VCs, device/app attestation.</p>
+      </div>
+      <div class="col-4 card">
+        <h3>Zero‑Friction Security</h3>
+        <p>Passkey‑primary UX; hardened OAuth/GNAP profiles by default.</p>
+      </div>
+      <div class="col-4 card">
+        <h3>Privacy‑by‑Design</h3>
+        <p>Selective disclosure (SD‑JWT/BBS+), unlinkable presentations, modern revocation.</p>
       </div>
     </div>
+  </section>
 
-    <div class="kpi" aria-label="Key performance indicators">
-      <div class="card">
-        <div class="eyebrow">Decision latency</div><h4>&lt; 10 ms p95</h4><div
-          class="discrete"
-        >
-          Policy + graph
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">Token issuance</div><h4>&lt; 120 ms p95</h4><div
-          class="discrete"
-        >
-          DPoP / mTLS bound
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">VC verification</div><h4>&lt; 150 ms p95</h4><div
-          class="discrete"
-        >
-          SD-JWT & BBS+
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">Availability</div><h4>99.95%</h4><div
-          class="discrete"
-        >
-          Multi-region
-        </div>
-      </div>
+  <section class="section">
+    <div class="container narrow">
+      <h2 class="gradient-text" style="margin-bottom:.6rem">How it works</h2>
+      <ol class="howit">
+        <li><strong>Passkey sign‑in</strong> (phishing‑resistant)</li>
+        <li><strong>Device & app attestation</strong> (hardware‑backed where available)</li>
+        <li><strong>Client proof‑of‑possession</strong> (DPoP/mTLS)</li>
+        <li><strong>Verifiable Credential</strong> (OID4VCI/VP; SD‑JWT or BBS+)</li>
+        <li><strong>Graph‑native authorization</strong> (Zanzibar + Cedar/OPA/XACML)</li>
+      </ol>
     </div>
   </section>
 

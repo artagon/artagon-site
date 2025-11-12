@@ -951,3 +951,29 @@ header .right .pill {
   .rm-toggle, .rm-onthispage { display:none; }
   .rm-table thead th { position: static; }
 }
+
+/* Skip link: visible only on focus */
+.skip-link {
+  position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
+}
+.skip-link:focus {
+  left: 16px; top: 16px; width: auto; height: auto; padding: .5rem .75rem;
+  background: var(--surface); border:1px solid var(--card-stroke); border-radius:10px; z-index: 1000;
+}
+
+/* "Shim" dead links: visibly disabled but keep layout */
+a.is-disabled { pointer-events: none; opacity: .55; }
+a.is-disabled::after { content: " (coming soon)"; font-size: .85em; color: color-mix(in srgb, var(--text) 70%, white 10%); }
+
+/* Spacing & rhythm */
+:root{
+  --section-pad: clamp(48px, 8vw, 112px);
+  --container-max: 1200px;
+}
+.section { padding-block: var(--section-pad); }
+.container.narrow { max-width: var(--container-max); margin-inline: auto; }
+
+.lead { font-size: clamp(1rem, .65rem + 1vw, 1.25rem); line-height: 1.6; max-width: 62ch; }
+.grid-auto { display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0,1fr)); }
+.col-4 { grid-column: span 4; } @media (max-width: 960px){ .col-4 { grid-column: span 12; } }
+.card { background: var(--card-bg); border:1px solid var(--card-stroke); border-radius:16px; padding:18px; }

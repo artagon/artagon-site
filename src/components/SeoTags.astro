@@ -8,7 +8,7 @@ const {
   image = '/assets/logos/og-image.png',
   robots
 } = Astro.props;
-const url = new URL(path, Astro.site ?? 'https://www.artagon.com').toString();
+const url = new URL(path, Astro.site ?? 'https://artagon.com').toString();
 const motto = 'Trusted Identity for Machines and Humans - Verified, Private, Attested';
 const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
 ---
@@ -32,23 +32,23 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
 <script type="application/ld+json">
 {JSON.stringify({
   "@context":"https://schema.org","@type":"Organization","name":"Artagon",
-  "url":"https://www.artagon.com/",
-  "logo":"https://www.artagon.com/assets/logos/logo-square-512.png",
+  "url":"https://artagon.com/",
+  "logo":"https://artagon.com/assets/logos/logo-square-512.png",
   "slogan":"Trusted Identity for Machines and Humans - Verified, Private, Attested",
   "sameAs":["https://github.com/artagon"]
 }, null, 2)}
 </script>
 <script type="application/ld+json">
 {JSON.stringify({
-  "@context":"https://schema.org","@type":"WebSite","url":"https://www.artagon.com/",
-  "potentialAction":{"@type":"SearchAction","target":"https://www.artagon.com/search?q={search_term_string}","query-input":"required name=search_term_string"}
+  "@context":"https://schema.org","@type":"WebSite","url":"https://artagon.com/",
+  "potentialAction":{"@type":"SearchAction","target":"https://artagon.com/search?q={search_term_string}","query-input":"required name=search_term_string"}
 }, null, 2)}
 </script>
 <script type="application/ld+json">
 {JSON.stringify({
   "@context":"https://schema.org","@type":"Service","name":"Artagon Identity Platform",
-  "serviceType":"Identity and Access Management (IAM)","provider":{"@type":"Organization","name":"Artagon","url":"https://www.artagon.com/"},
-  "areaServed":"Worldwide","url":"https://www.artagon.com/",
+  "serviceType":"Identity and Access Management (IAM)","provider":{"@type":"Organization","name":"Artagon","url":"https://artagon.com/"},
+  "areaServed":"Worldwide","url":"https://artagon.com/",
   "description":"The Unified Identity Platform for Machines and Humans. OIDC 2.1 OpenID Provider with PAR, JAR, JARM, DPoP, mTLS. GNAP Authorization Server with proof-of-possession. Verifiable Credentials using SD-JWT and BBS+ via OID4VCI/VP. Passkey-first authentication (WebAuthn/FIDO2). Device and app attestation (Android Play Integrity, Apple App Attest). Zanzibar-style relationship graph with PDP policy engine (XACML, Cedar, OPA). Zero-knowledge selective disclosure. Privacy-by-design identity infrastructure. Verified, Private, Attested."
 }, null, 2)}
 </script>
