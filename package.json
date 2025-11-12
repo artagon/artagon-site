@@ -46,6 +46,6 @@
     "tmp": "^0.2.5",
     "rimraf": "^6.0.1",
     "glob": "^11.0.0",
-    "inflight": "npm:noop3@^1.0.0"
+    "inflight": "npm:noop3@1000.0.0"
   }
 }
