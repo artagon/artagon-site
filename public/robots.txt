@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.artagon.com/sitemap-index.xml
+Sitemap: https://artagon.com/sitemap-index.xml
