@@ -1,0 +1,48 @@
+---
+/**
+ * SeoIcons Component
+ *
+ * Centralized icon and manifest links for favicon, PWA, and platform-specific icons.
+ * Include this in the <head> of your base layout.
+ *
+ * Props:
+ * - pinnedColor: Safari pinned tab color (default: #0EA5E9)
+ * - themeColor: Browser theme color (default: #0B1220)
+ */
+
+interface Props {
+  pinnedColor?: string;
+  themeColor?: string;
+}
+
+const {
+  pinnedColor = '#0EA5E9',
+  themeColor = '#0B1220'
+} = Astro.props;
+---
+
+<!-- Favicon and standard icons -->
+<link rel="icon" type="image/png" href="/icons/icon-32.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="/icons/icon-16.png" sizes="16x16" />
+<link rel="shortcut icon" href="/icons/favicon.ico" />
+
+<!-- Apple iOS -->
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Artagon" />
+
+<!-- Safari Pinned Tab -->
+<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color={pinnedColor} />
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="/site.webmanifest" />
+
+<!-- Theme Colors -->
+<meta name="theme-color" content={themeColor} />
+<meta name="msapplication-TileColor" content={themeColor} />
+<meta name="msapplication-config" content="/browserconfig.xml" />
+
+<!-- Additional PWA Meta -->
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name" content="Artagon" />

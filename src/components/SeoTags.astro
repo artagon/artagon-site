@@ -1,6 +1,13 @@
 ---
-export interface Props { title?: string; description?: string; path?: string; image?: string; }
-const { title='Artagon — Trusted Identity for Machines and Humans', description='Passkeys, verifiable credentials, attested clients, and graph-native policy — Trusted Identity for Machines and Humans - Verified, Private, Attested', path='/', image='/assets/og-image.png' } = Astro.props;
+export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
+const {
+  title = 'Artagon — Trusted Identity for Machines and Humans',
+  description = 'Passkeys, verifiable credentials, attested clients, and graph-native policy — Trusted Identity for Machines and Humans - Verified, Private, Attested',
+  path = '/',
+  // Use generated OG image from logos package (1200x630)
+  image = '/assets/logos/og-image.png',
+  robots
+} = Astro.props;
 const url = new URL(path, Astro.site ?? 'https://www.artagon.com').toString();
 const motto = 'Trusted Identity for Machines and Humans - Verified, Private, Attested';
 const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
@@ -8,6 +15,7 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
 <title>{title}</title>
 <meta name="description" content={metaDescription} />
 <link rel="canonical" href={url} />
+{robots && <meta name="robots" content={robots} />}
 <meta property="og:title" content={title} />
 <meta property="og:description" content={metaDescription} />
 <meta property="og:site_name" content="Artagon" />
@@ -15,12 +23,17 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="en_US" />
 <meta property="og:image" content={image} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={metaDescription} />
+<meta name="twitter:image" content={image} />
 <script type="application/ld+json">
 {JSON.stringify({
   "@context":"https://schema.org","@type":"Organization","name":"Artagon",
   "url":"https://www.artagon.com/",
-  "logo":"https://www.artagon.com/assets/logo-wordmark.svg",
+  "logo":"https://www.artagon.com/assets/logos/logo-square-512.png",
   "slogan":"Trusted Identity for Machines and Humans - Verified, Private, Attested",
   "sameAs":["https://github.com/artagon"]
 }, null, 2)}

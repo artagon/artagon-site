@@ -60,81 +60,6 @@
         </div>
       </div>
     </div>
-
-    <div class="mission-divider"></div>
-
-    <div class="platform-highlights">
-      <h3>Platform Highlights</h3>
-      <div class="grid cols-2 highlights-grid">
-        <div class="card highlight-card">
-          <h4>Unified Identity & Authorization Core</h4>
-          <p>Modern OIDC + GNAP with hardened profiles and cryptographic multi‑tenancy by default.</p>
-        </div>
-        <div class="card highlight-card">
-          <h4>Verifiable Credentials, Seamlessly Bridged</h4>
-          <p>Issue and verify VCs—and bridge legacy OIDC apps via OID4VC/OID4VP so they gain high‑assurance data with no rewrites.</p>
-        </div>
-        <div class="card highlight-card">
-          <h4>Device & Application Attestation</h4>
-          <p>Bind trust to hardware; bind tokens/keys to devices so stolen tokens are useless.</p>
-        </div>
-        <div class="card highlight-card">
-          <h4>Hybrid Authorization (ReBAC + ABAC)</h4>
-          <p>Zanzibar graph for relationships; Cedar/OPA policies for context and conditions; all managed as policy‑as‑code with an auditable trail.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="mission-divider"></div>
-
-    <div class="authority-broker">
-      <h3>From Identity Provider to Authority Broker</h3>
-      <p class="section-intro">
-        Artagon enables <strong>Verifiable Authority</strong>—precise, time‑bound, auditable delegation across teams and domains:
-      </p>
-      <div class="use-cases">
-        <div class="use-case">
-          <h4>Customer Service, done right</h4>
-          <p>A CSR securely acts on behalf of a customer with explicit, time‑boxed consent—no admin backdoors.</p>
-        </div>
-        <div class="use-case">
-          <h4>Cross‑organization access</h4>
-          <p>A doctor grants a specialist temporary read‑only access to a specific file—no brittle federations.</p>
-        </div>
-        <div class="use-case">
-          <h4>IAM for AI</h4>
-          <p>A CFO authorizes an AI agent to sign contracts under $50,000—human‑issued authority with cryptographic guardrails.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="mission-divider"></div>
-
-    <div class="why-artagon">
-      <div class="grid cols-2">
-        <div class="why-card">
-          <h3>Why Enterprises Choose Artagon</h3>
-          <ul>
-            <li><strong>Slash risk:</strong> Eliminate the #1 phishing vector with passkeys, attestation, and token binding.</li>
-            <li><strong>Prove compliance:</strong> A clear path to verifiable frameworks (e.g., NIST, eIDAS) with proofing and auditable decisions.</li>
-            <li><strong>Future‑proof:</strong> Bridge today's OIDC world to decentralized, verifiable identity—without rip‑and‑replace.</li>
-          </ul>
-        </div>
-        <div class="why-card">
-          <h3>Why Developers Love It</h3>
-          <ul>
-            <li><strong>One Trust API</strong> that abstracts crypto, protocols, attestation, and authorization.</li>
-            <li><strong>Polyglot SDKs,</strong> CLI, and Docs‑as‑Code playgrounds to go from hello world to high assurance fast.</li>
-            <li><strong>Git‑backed policy‑as‑code</strong> and conformance harnesses out of the box.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="vision-cta-links">
-      <a class="btn" href="/vision/">Read Full Vision & Roadmap</a>
-      <a class="btn" href="/roadmap/">View 18-Month Roadmap</a>
-    </div>
   </div>
 </section>
 
@@ -156,13 +81,37 @@
 .mission-header h2 {
   font-size: clamp(1.8rem, 3vw, 2.5rem);
   margin-bottom: 1rem;
-  color: var(--text);
+  background: linear-gradient(
+    120deg,
+    var(--text) 0%,
+    var(--brand-teal) 50%,
+    var(--text) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px color-mix(in srgb, var(--brand-teal) 30%, transparent));
 }
 
 .mission-tagline {
   font-size: 1.3rem;
   color: var(--brand-teal);
   margin: 0;
+  text-shadow: 0 0 30px color-mix(in srgb, var(--brand-teal) 40%, transparent);
+}
+
+.mission-tagline strong {
+  background: linear-gradient(
+    90deg,
+    var(--brand-teal) 0%,
+    var(--brand-sky) 35%,
+    var(--brand-violet) 65%,
+    var(--brand-teal) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px color-mix(in srgb, var(--brand-teal) 35%, transparent));
 }
 
 .mission-intro-text {
@@ -179,12 +128,35 @@
 }
 
 .mission-intro-text strong {
-  color: var(--text);
-  font-weight: 600;
+  color: var(--brand-teal);
+  font-weight: 700;
+  text-shadow: 0 0 20px color-mix(in srgb, var(--brand-teal) 25%, transparent);
 }
 
 .mission-domains {
   margin-bottom: 3rem;
+}
+
+.mission-domains .domain-highlight {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-color: color-mix(in srgb, var(--brand-teal) 30%, transparent);
+}
+
+.mission-domains .domain-highlight:hover {
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.2),
+    0 0 40px color-mix(in srgb, var(--brand-teal) 15%, transparent);
+}
+
+.mission-domains .domain-highlight h3 {
+  color: var(--brand-teal);
+  text-shadow: 0 0 15px color-mix(in srgb, var(--brand-teal) 20%, transparent);
+}
+
+.mission-domains .domain-badge {
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--brand-teal) 30%, transparent),
+    0 0 20px color-mix(in srgb, var(--brand-teal) 20%, transparent);
 }
 
 .mission-divider {
@@ -196,15 +168,15 @@
     transparent 100%
   );
   margin: 3rem 0;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--brand-teal) 10%, transparent);
 }
 
-.mission-difference h3,
-.platform-highlights h3,
-.authority-broker h3 {
+.mission-difference h3 {
   text-align: center;
   font-size: 1.8rem;
   margin-bottom: 2rem;
   color: var(--brand-teal);
+  text-shadow: 0 0 25px color-mix(in srgb, var(--brand-teal) 30%, transparent);
 }
 
 .difference-grid {
@@ -216,131 +188,5 @@
   .difference-grid {
     grid-template-columns: 1fr;
   }
-}
-
-.highlights-grid {
-  gap: 1.5rem;
-}
-
-.highlight-card {
-  background: color-mix(in srgb, var(--surface) 95%, var(--brand-teal) 5%);
-  border-color: color-mix(in srgb, var(--brand-teal) 20%, transparent);
-  transition: all 0.3s ease;
-}
-
-.highlight-card:hover {
-  border-color: var(--brand-teal);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.highlight-card h4 {
-  color: var(--brand-teal);
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-  font-size: 1.1rem;
-}
-
-.highlight-card p {
-  color: var(--muted);
-  margin: 0;
-  line-height: 1.6;
-}
-
-.section-intro {
-  text-align: center;
-  font-size: 1.1rem;
-  color: var(--muted);
-  max-width: 800px;
-  margin: 0 auto 2rem;
-}
-
-.use-cases {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-@media (max-width: 900px) {
-  .use-cases {
-    grid-template-columns: 1fr;
-  }
-}
-
-.use-case {
-  padding: 1.5rem;
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-  border-radius: var(--radius);
-  transition: all 0.3s ease;
-}
-
-.use-case:hover {
-  border-color: var(--brand-violet);
-  transform: translateY(-2px);
-}
-
-.use-case h4 {
-  color: var(--brand-violet);
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-  font-size: 1.05rem;
-}
-
-.use-case p {
-  color: var(--muted);
-  margin: 0;
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-.why-card {
-  padding: 2rem;
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-  border-radius: var(--radius);
-}
-
-.why-card h3 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: var(--text);
-  font-size: 1.4rem;
-  text-align: left;
-}
-
-.why-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.why-card li {
-  color: var(--muted);
-  line-height: 1.7;
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
-  position: relative;
-}
-
-.why-card li::before {
-  content: '→';
-  position: absolute;
-  left: 0;
-  color: var(--brand-teal);
-  font-weight: bold;
-}
-
-.why-card strong {
-  color: var(--text);
-}
-
-.vision-cta-links {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 3rem;
-  flex-wrap: wrap;
 }
 </style>

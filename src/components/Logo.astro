@@ -1,12 +1,19 @@
 ---
-const { showWordmark = false } = Astro.props;
+const { showWordmark = false, size = 32, usePNG = false } = Astro.props;
+const logoSrc = usePNG ? `/icons/icon-${size}.png` : '/assets/logo-mark.svg';
 ---
 <span style="display:inline-flex; align-items:center; gap:.55rem">
-  <img src="/assets/logo-mark.svg" alt="Artagon" width="28" height="28" />
+  <img
+    src={logoSrc}
+    alt="Artagon"
+    width={size}
+    height={size}
+    style="display:block;"
+  />
   {showWordmark && (
     <picture class="hide-sm" aria-hidden="true">
       <source srcset="/assets/logo-wordmark.svg" type="image/svg+xml" />
-      <img src="/assets/logo-wordmark.svg" alt="" style="height:18px" />
+      <img src="/assets/logo-wordmark.svg" alt="" style="height:18px; display:block;" />
     </picture>
   )}
 </span>

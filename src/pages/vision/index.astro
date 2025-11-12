@@ -279,36 +279,251 @@ import Footer from '../../components/Footer.astro';
       </div>
     </section>
 
+    <section id="use-cases" class="section-spacing">
+      <div class="section-header">
+        <h2>Product Use Cases</h2>
+        <div class="section-number">08</div>
+      </div>
+      <p class="section-intro">Real-world scenarios demonstrating how Artagon transforms digital trust across industries.</p>
+
+      <div class="use-cases-detailed">
+        <div class="use-case-detailed">
+          <div class="use-case-header">
+            <div class="use-case-number">01</div>
+            <h3>High-Assurance Customer Support</h3>
+          </div>
+          <div class="use-case-content">
+            <p class="use-case-scenario"><strong>Scenario:</strong> A customer service representative needs temporary access to a customer's account to resolve a billing issue.</p>
+            <div class="use-case-flow">
+              <h4>Flow:</h4>
+              <ol>
+                <li>Customer authenticates with passkey-based login (WebAuthn/FIDO2)</li>
+                <li>Customer grants explicit, time-boxed delegation (15 minutes) to CSR via Authority Broker</li>
+                <li>CSR receives a verifiable credential encoding the delegation scope (read billing, no PII access)</li>
+                <li>Authorization engine validates credential + relationships + time constraints on each API call</li>
+                <li>Delegation auto-expires; full audit trail captured in immutable log</li>
+              </ol>
+            </div>
+            <p class="use-case-value"><strong>Value:</strong> Zero standing privileges, cryptographic audit trail, customer control—eliminating insider threat vector.</p>
+          </div>
+        </div>
+
+        <div class="use-case-detailed">
+          <div class="use-case-header">
+            <div class="use-case-number">02</div>
+            <h3>Cross-Organization Healthcare Access</h3>
+          </div>
+          <div class="use-case-content">
+            <p class="use-case-scenario"><strong>Scenario:</strong> A primary care physician needs to share specific patient records with a specialist for consultation.</p>
+            <div class="use-case-flow">
+              <h4>Flow:</h4>
+              <ol>
+                <li>Doctor authenticates with organizational credential + passkey</li>
+                <li>Issues time-limited Verifiable Presentation (VP) with selective disclosure of patient file X</li>
+                <li>Specialist receives VP at their organization (different IdP/domain)</li>
+                <li>Specialist's system verifies VP signature, issuer DID, and revocation status via OID4VP</li>
+                <li>Authorization engine checks: specialist has valid medical license VC + access relationship in graph</li>
+                <li>Access granted; patient's PII minimized via selective disclosure (only relevant medical data exposed)</li>
+              </ol>
+            </div>
+            <p class="use-case-value"><strong>Value:</strong> Seamless cross-domain trust without brittle SAML federations; privacy-preserving; patient-centric consent model.</p>
+          </div>
+        </div>
+
+        <div class="use-case-detailed">
+          <div class="use-case-header">
+            <div class="use-case-number">03</div>
+            <h3>IAM for Autonomous AI Agents</h3>
+          </div>
+          <div class="use-case-content">
+            <p class="use-case-scenario"><strong>Scenario:</strong> A CFO authorizes an AI agent to autonomously approve and sign vendor contracts under $50,000.</p>
+            <div class="use-case-flow">
+              <h4>Flow:</h4>
+              <ol>
+                <li>CFO authenticates and issues a Verifiable Credential to AI agent's DID</li>
+                <li>VC encodes: authority scope (sign contracts), conditions (amount < $50k, vendor category = "SaaS"), expiration (30 days)</li>
+                <li>AI agent stores VC in secure enclave (device attestation bound)</li>
+                <li>When agent attempts contract signature, presents VC to contract API</li>
+                <li>Authorization engine validates: VC signature, issuer authority (CFO role in graph), policy conditions, device attestation</li>
+                <li>Action permitted or denied based on real-time policy evaluation; all decisions logged with context</li>
+              </ol>
+            </div>
+            <p class="use-case-value"><strong>Value:</strong> Human-delegated, cryptographically-bound authority with programmatic guardrails—the foundation for trusted AI agents.</p>
+          </div>
+        </div>
+
+        <div class="use-case-detailed">
+          <div class="use-case-header">
+            <div class="use-case-number">04</div>
+            <h3>Zero-Trust IoT Device Provisioning</h3>
+          </div>
+          <div class="use-case-content">
+            <p class="use-case-scenario"><strong>Scenario:</strong> Manufacturing facility deploys 10,000 industrial IoT sensors that need secure, automated provisioning and lifecycle management.</p>
+            <div class="use-case-flow">
+              <h4>Flow:</h4>
+              <ol>
+                <li>Each device ships with hardware-backed key pair (TPM/secure element) and manufacturer DID</li>
+                <li>On first boot, device performs hardware attestation (proving genuine hardware + unmodified firmware)</li>
+                <li>Device requests bootstrap credential from Artagon via GNAP device flow</li>
+                <li>Artagon validates attestation, issues device identity VC bound to hardware key</li>
+                <li>Device uses VC + mTLS for all telemetry API calls; authorization graph defines device→gateway→cloud relationships</li>
+                <li>Firmware updates trigger re-attestation; compromised devices auto-revoked via StatusList2021</li>
+              </ol>
+            </div>
+            <p class="use-case-value"><strong>Value:</strong> Hardware-rooted trust, automated lifecycle management, instant revocation—eliminating IoT's weakest link (credential management).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="competitive-differentiation" class="section-spacing">
       <div class="section-header">
         <h2>Competitive Differentiation</h2>
-        <div class="section-number">08</div>
+        <div class="section-number">09</div>
       </div>
       <div class="highlight-box competitive">
         <p><strong>Artagon's defensible "moat":</strong> The only platform architected from the ground up to unify three distinct, typically siloed identity markets.</p>
         <p>Bridges the developer-first experience of modern CIAM, the enterprise-grade capabilities of legacy IAM, and the next-generation privacy and portability of the decentralized world.</p>
+      </div>
+
+      <div class="competitive-table">
+        <h3>Market Positioning</h3>
+        <div class="comparison-grid">
+          <div class="comparison-category">
+            <h4>vs. Modern CIAM (Auth0, Okta CIC)</h4>
+            <ul>
+              <li><strong>+</strong> Native Verifiable Credentials (not bolted-on)</li>
+              <li><strong>+</strong> Machine identity parity with human identity</li>
+              <li><strong>+</strong> Graph-native authorization (not role explosion)</li>
+              <li><strong>+</strong> Authority delegation as first-class primitive</li>
+            </ul>
+          </div>
+          <div class="comparison-category">
+            <h4>vs. Legacy IAM (Ping, ForgeRock)</h4>
+            <ul>
+              <li><strong>+</strong> Developer-first API/SDK experience</li>
+              <li><strong>+</strong> Cloud-native, elastic scale</li>
+              <li><strong>+</strong> Modern protocols (GNAP, OID4VC) not legacy retrofits</li>
+              <li><strong>+</strong> Privacy-by-design vs compliance checkbox</li>
+            </ul>
+          </div>
+          <div class="comparison-category">
+            <h4>vs. Decentralized Identity (SSI vendors)</h4>
+            <ul>
+              <li><strong>+</strong> Production-ready OIDC/SAML bridge for legacy apps</li>
+              <li><strong>+</strong> Enterprise SLAs, support, and compliance frameworks</li>
+              <li><strong>+</strong> Integrated authorization (not just authentication)</li>
+              <li><strong>+</strong> Pragmatic hybrid approach (not ideology-first)</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="roadmap" class="section-spacing">
       <div class="section-header">
         <h2>Multi-phase Roadmap</h2>
-        <div class="section-number">09</div>
+        <div class="section-number">10</div>
       </div>
-      <p class="section-intro">A pragmatic, five-phase execution plan delivering incremental, compounding value.</p>
+      <p class="section-intro">A pragmatic, five-phase execution plan delivering incremental, compounding value over 18 months.</p>
+
       <div class="roadmap-phases">
-        <div class="phase"><strong>V1 (0–3m):</strong> Core Trust Layer—OIDC/GNAP MVP, DPoP, PAR, JAR, Attestation MVP</div>
-        <div class="phase"><strong>V2 (3–6m):</strong> Verifiable Credentials—SD-JWT issuance, OID4VP verification, StatusList2021</div>
-        <div class="phase"><strong>V3 (6–9m):</strong> Policy & Graph—Zanzibar store, Cedar/OPA/XACML PDP, PEP SDKs</div>
-        <div class="phase"><strong>V4 (9–12m):</strong> Identity Proofing—Proofing VC, VC registry, NIST/eIDAS compliance</div>
-        <div class="phase"><strong>V5 (12–18m):</strong> Federation & AI—Multi-issuer registry, BBS+, autonomous agent keys</div>
+        <div class="phase-detailed">
+          <div class="phase-header">
+            <h3>V1: Core Trust Layer</h3>
+            <span class="phase-timeline">0–3 months</span>
+          </div>
+          <div class="phase-body">
+            <p class="phase-description">Foundation for high-assurance authentication and authorization.</p>
+            <ul class="phase-deliverables">
+              <li>OIDC 2.1 + GNAP server with PAR, JAR, JARM, DPoP token binding</li>
+              <li>Passkey-primary authentication (WebAuthn/FIDO2)</li>
+              <li>Multi-tenant architecture with cryptographic isolation</li>
+              <li>Device attestation MVP (iOS/Android platform attestation)</li>
+              <li>Basic ReBAC authorization with in-memory graph</li>
+            </ul>
+            <p class="phase-kpi"><strong>Success Metrics:</strong> &lt;50ms token issuance latency; 99.9% uptime; 10 design partner tenants</p>
+          </div>
+        </div>
+
+        <div class="phase-detailed">
+          <div class="phase-header">
+            <h3>V2: Verifiable Credentials Engine</h3>
+            <span class="phase-timeline">3–6 months</span>
+          </div>
+          <div class="phase-body">
+            <p class="phase-description">Full W3C VC issuance and verification with privacy-preserving primitives.</p>
+            <ul class="phase-deliverables">
+              <li>SD-JWT VC format support (selective disclosure)</li>
+              <li>OID4VCI (credential issuance) and OID4VP (presentation) flows</li>
+              <li>DID methods: did:web, did:key, did:ion (pilot)</li>
+              <li>StatusList2021 revocation mechanism</li>
+              <li>VC-to-OIDC bridge (legacy app compatibility)</li>
+            </ul>
+            <p class="phase-kpi"><strong>Success Metrics:</strong> Issue 100k+ VCs; 3+ VC wallet integrations; healthcare pilot deployment</p>
+          </div>
+        </div>
+
+        <div class="phase-detailed">
+          <div class="phase-header">
+            <h3>V3: Policy & Authorization Graph</h3>
+            <span class="phase-timeline">6–9 months</span>
+          </div>
+          <div class="phase-body">
+            <p class="phase-description">Production-grade, hybrid authorization engine with policy-as-code.</p>
+            <ul class="phase-deliverables">
+              <li>Zanzibar-style graph store (persistent, replicated)</li>
+              <li>Cedar + OPA policy engines with XACML compatibility</li>
+              <li>Git-backed Policy Administration Point (PAP)</li>
+              <li>PEP SDKs (Java, TypeScript, Go, Rust)</li>
+              <li>Real-time policy testing and conformance harness</li>
+            </ul>
+            <p class="phase-kpi"><strong>Success Metrics:</strong> &lt;10ms authorization decisions; 1M+ tuples in graph; 50+ policy repos managed</p>
+          </div>
+        </div>
+
+        <div class="phase-detailed">
+          <div class="phase-header">
+            <h3>V4: Identity Proofing & Compliance</h3>
+            <span class="phase-timeline">9–12 months</span>
+          </div>
+          <div class="phase-body">
+            <p class="phase-description">Regulated-industry readiness with identity proofing and compliance frameworks.</p>
+            <ul class="phase-deliverables">
+              <li>Identity proofing pipeline (document verification, liveness detection)</li>
+              <li>NIST 800-63 IAL2/AAL2 certification path</li>
+              <li>eIDAS compliance for EU market</li>
+              <li>Proofing VC issuance with assurance levels</li>
+              <li>Trust registry for issuer/verifier discovery</li>
+            </ul>
+            <p class="phase-kpi"><strong>Success Metrics:</strong> NIST certification achieved; 2+ regulated industry customers (finance, healthcare)</p>
+          </div>
+        </div>
+
+        <div class="phase-detailed">
+          <div class="phase-header">
+            <h3>V5: Federation & AI-Native Features</h3>
+            <span class="phase-timeline">12–18 months</span>
+          </div>
+          <div class="phase-body">
+            <p class="phase-description">Advanced delegation, cross-domain trust, and first-class AI agent support.</p>
+            <ul class="phase-deliverables">
+              <li>BBS+ signature support (unlinkable credentials)</li>
+              <li>Advanced Authority Brokering Engine (delegation chains, transitive trust)</li>
+              <li>Multi-issuer trust framework and federation protocol</li>
+              <li>AI agent identity primitives (autonomous signing keys, policy-bound agents)</li>
+              <li>Zero-knowledge proof integration (age verification, compliance checks)</li>
+            </ul>
+            <p class="phase-kpi"><strong>Success Metrics:</strong> 10+ federated trust domains; 1000+ AI agents managed; enterprise SOC 2 Type II</p>
+          </div>
+        </div>
       </div>
     </section>
 
     <section id="long-term-outlook" class="section-spacing vision-2030">
       <div class="section-header">
         <h2>Vision 2030</h2>
-        <div class="section-number">10</div>
+        <div class="section-number">11</div>
       </div>
       <div class="vision-grid">
         <div class="vision-card">
@@ -364,7 +579,7 @@ import Footer from '../../components/Footer.astro';
 
   .hero-subtitle {
     font-size: clamp(1.2rem, 3vw, 1.5rem);
-    color: var(--text-muted);
+    color: var(--muted);
     margin: 0 0 2rem;
     font-weight: 300;
   }
@@ -404,7 +619,7 @@ import Footer from '../../components/Footer.astro';
 
   .section-header h2 {
     font-size: clamp(1.8rem, 4vw, 2.5rem);
-    color: var(--accent);
+    color: var(--brand-teal);
     margin: 0;
     font-weight: 700;
     flex: 1;
@@ -420,7 +635,7 @@ import Footer from '../../components/Footer.astro';
 
   .section-intro {
     font-size: 1.15rem;
-    color: var(--text-muted);
+    color: var(--muted);
     margin-bottom: 2rem;
     line-height: 1.6;
   }
@@ -451,10 +666,10 @@ import Footer from '../../components/Footer.astro';
 
   .highlight-box.competitive {
     background: linear-gradient(135deg,
-      color-mix(in srgb, var(--accent) 10%, var(--surface)) 0%,
+      color-mix(in srgb, var(--brand-teal) 10%, var(--surface)) 0%,
       var(--surface) 100%
     );
-    border-left-color: var(--accent);
+    border-left-color: var(--brand-teal);
   }
 
   /* ==== THREE DOMAINS CARDS ==== */
@@ -486,7 +701,7 @@ import Footer from '../../components/Footer.astro';
 
   .domain-card h3 {
     font-size: 1.3rem;
-    color: var(--accent);
+    color: var(--brand-teal);
     margin: 0 0 1rem;
     font-weight: 600;
   }
@@ -549,7 +764,7 @@ import Footer from '../../components/Footer.astro';
 
   .pillar-card h4 {
     font-size: 1.3rem;
-    color: var(--accent);
+    color: var(--brand-teal);
     margin: 0;
     font-weight: 600;
   }
@@ -570,7 +785,7 @@ import Footer from '../../components/Footer.astro';
   .value-item {
     background: var(--surface);
     padding: 1.5rem 2rem;
-    border-left: 4px solid var(--accent);
+    border-left: 4px solid var(--brand-teal);
     border-radius: 8px;
     line-height: 1.6;
   }
@@ -593,7 +808,7 @@ import Footer from '../../components/Footer.astro';
 
   .mission-intro {
     font-size: 1.1rem;
-    color: var(--text-muted);
+    color: var(--muted);
     margin-bottom: 2rem;
   }
 
@@ -612,7 +827,7 @@ import Footer from '../../components/Footer.astro';
 
   .mission-part h4 {
     font-size: 1.2rem;
-    color: var(--accent);
+    color: var(--brand-teal);
     margin: 0 0 0.8rem;
     font-weight: 600;
   }
@@ -647,7 +862,7 @@ import Footer from '../../components/Footer.astro';
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-teal) 0%, var(--accent) 100%);
+    background: linear-gradient(135deg, var(--brand-teal) 0%, var(--brand-teal) 100%);
     color: var(--bg);
     display: flex;
     align-items: center;
@@ -659,7 +874,7 @@ import Footer from '../../components/Footer.astro';
 
   .principle-content h3 {
     font-size: 1.3rem;
-    color: var(--accent);
+    color: var(--brand-teal);
     margin: 0 0 0.8rem;
     font-weight: 600;
   }
@@ -714,7 +929,7 @@ import Footer from '../../components/Footer.astro';
 
   .component-card h3 {
     font-size: 1.25rem;
-    color: var(--accent);
+    color: var(--brand-teal);
     margin: 0 0 1rem;
     font-weight: 600;
     line-height: 1.3;
@@ -764,7 +979,7 @@ import Footer from '../../components/Footer.astro';
   }
 
   .tech-item strong {
-    color: var(--accent);
+    color: var(--brand-teal);
     display: block;
     margin-bottom: 0.3rem;
   }
@@ -809,30 +1024,280 @@ import Footer from '../../components/Footer.astro';
     color: var(--brand-teal);
   }
 
-  /* ==== ROADMAP PHASES ==== */
-  .roadmap-phases {
+  /* ==== USE CASES DETAILED ==== */
+  .use-cases-detailed {
     display: grid;
-    gap: 1.5rem;
+    gap: 3rem;
     margin: 2rem 0;
   }
 
-  .phase {
+  .use-case-detailed {
     background: var(--surface);
-    padding: 1.5rem 2rem;
-    border-left: 4px solid var(--accent);
-    border-radius: 8px;
-    line-height: 1.6;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
     transition: all 0.3s ease;
   }
 
-  .phase:hover {
-    border-left-width: 8px;
-    padding-left: 1.75rem;
+  .use-case-detailed:hover {
+    border-color: var(--brand-teal);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
   }
 
-  .phase strong {
+  .use-case-header {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 15%, var(--surface)) 0%,
+      var(--surface) 100%
+    );
+    padding: 2rem;
+    border-bottom: 2px solid var(--brand-teal);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .use-case-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--brand-teal);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .use-case-header h3 {
     color: var(--brand-teal);
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .use-case-content {
+    padding: 2rem;
+  }
+
+  .use-case-scenario {
+    font-size: 1.05rem;
+    color: var(--text);
+    margin: 0 0 1.5rem;
+    line-height: 1.6;
+  }
+
+  .use-case-flow {
+    background: color-mix(in srgb, var(--bg) 50%, var(--surface));
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--brand-teal);
+    margin: 1.5rem 0;
+  }
+
+  .use-case-flow h4 {
+    color: var(--brand-teal);
+    margin: 0 0 1rem;
     font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .use-case-flow ol {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .use-case-flow li {
+    margin: 0.75rem 0;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .use-case-value {
+    font-size: 1.05rem;
+    color: var(--text);
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 8%, transparent) 0%,
+      transparent 100%
+    );
+    border-left: 3px solid var(--brand-teal);
+    border-radius: 6px;
+    line-height: 1.6;
+  }
+
+  .use-case-value strong {
+    color: var(--brand-teal);
+  }
+
+  /* ==== COMPETITIVE ANALYSIS ==== */
+  .competitive-table {
+    margin: 2rem 0;
+  }
+
+  .competitive-table h3 {
+    font-size: 1.5rem;
+    color: var(--brand-teal);
+    margin: 2rem 0 1.5rem;
+    text-align: center;
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .comparison-category {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .comparison-category:hover {
+    border-color: var(--brand-teal);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .comparison-category h4 {
+    color: var(--brand-teal);
+    margin: 0 0 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
+  }
+
+  .comparison-category ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .comparison-category li {
+    padding: 0.6rem 0 0.6rem 2rem;
+    position: relative;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .comparison-category li::before {
+    content: "+";
+    position: absolute;
+    left: 0;
+    color: var(--brand-teal);
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+
+  .comparison-category li strong {
+    color: var(--brand-teal);
+  }
+
+  /* ==== ROADMAP PHASES DETAILED ==== */
+  .roadmap-phases {
+    display: grid;
+    gap: 2.5rem;
+    margin: 2rem 0;
+  }
+
+  .phase-detailed {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .phase-detailed:hover {
+    border-color: var(--brand-teal);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .phase-header {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 15%, var(--surface)) 0%,
+      color-mix(in srgb, var(--brand-teal) 5%, var(--surface)) 100%
+    );
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid var(--brand-teal);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .phase-header h3 {
+    color: var(--brand-teal);
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .phase-timeline {
+    display: inline-block;
+    background: var(--brand-teal);
+    color: var(--bg);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .phase-body {
+    padding: 2rem;
+  }
+
+  .phase-description {
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+    line-height: 1.6;
+  }
+
+  .phase-deliverables {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .phase-deliverables li {
+    padding: 0.6rem 0 0.6rem 2rem;
+    position: relative;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .phase-deliverables li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--brand-teal);
+    font-weight: 700;
+  }
+
+  .phase-kpi {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.5rem;
+    background: color-mix(in srgb, var(--brand-teal) 5%, transparent);
+    border-left: 3px solid var(--brand-teal);
+    border-radius: 6px;
+    line-height: 1.6;
+  }
+
+  .phase-kpi strong {
+    color: var(--brand-teal);
   }
 
   /* ==== VISION 2030 ==== */
@@ -903,7 +1368,7 @@ import Footer from '../../components/Footer.astro';
   }
 
   .vision-doc strong {
-    color: var(--accent);
+    color: var(--brand-teal);
     font-weight: 600;
   }
 

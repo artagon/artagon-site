@@ -1,29 +1,25 @@
 ---
-import Logo from './Logo.astro';
-import Tagline from './Tagline.astro';
 import ThemeToggle from './ThemeToggle.astro';
 const path = Astro.url.pathname;
 const active = (href: string) => path === href || path.startsWith(href + '/');
 ---
 <header>
-  <div class="container nav" role="navigation" aria-label="Primary">
+  <div class="container nav">
     <a class="brand" href="/" aria-label="Artagon Home">
-      <Logo showWordmark={true} />
+      <img src="/icons/icon-64.png" alt="Artagon" width="32" height="32" style="display:block;" />
     </a>
-    <nav aria-label="Main">
+    <nav aria-label="Primary">
       <ul class="links">
-        <li><a href="/platform" class={active('/platform') ? 'active' : ''}>Platform</a></li>
-        <li><a href="/vision" class={active('/vision') ? 'active' : ''}>Vision</a></li>
-        <li><a href="/roadmap" class={active('/roadmap') ? 'active' : ''}>Roadmap</a></li>
-        <li><a href="/developers" class={active('/developers') ? 'active' : ''}>Developers</a></li>
-        <li><a href="/docs" class={active('/docs') ? 'active' : ''}>Docs</a></li>
-        <li><a href="https://github.com/artagon" rel="noopener">GitHub</a></li>
+        <li><a href="/platform" class={active('/platform') ? 'active' : ''} aria-current={active('/platform') ? 'page' : undefined}>Platform</a></li>
+        <li><a href="/vision" class={active('/vision') ? 'active' : ''} aria-current={active('/vision') ? 'page' : undefined}>Vision</a></li>
+        <li><a href="/roadmap" class={active('/roadmap') ? 'active' : ''} aria-current={active('/roadmap') ? 'page' : undefined}>Roadmap</a></li>
+        <li><a href="/developers" class={active('/developers') ? 'active' : ''} aria-current={active('/developers') ? 'page' : undefined}>Developers</a></li>
+        <li><a href="/docs" class={active('/docs') ? 'active' : ''} aria-current={active('/docs') ? 'page' : undefined}>Docs</a></li>
+        <li><a href="https://github.com/artagon" rel="noopener noreferrer">GitHub</a></li>
       </ul>
     </nav>
     <div class="right">
-      <Tagline class="hide-sm" />
       <ThemeToggle />
-      <a class="cta" href="/get-started">Get Started</a>
     </div>
   </div>
 </header>

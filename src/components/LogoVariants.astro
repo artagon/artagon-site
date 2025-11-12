@@ -1,0 +1,108 @@
+---
+/**
+ * LogoVariants Component
+ *
+ * Flexible logo component supporting multiple variants from the logos package.
+ *
+ * @param variant - Logo variant: 'full' | 'mark' | 'wordmark' | 'square' | 'horizontal'
+ * @param size - Size preset: 'small' | 'medium' | 'large' | 'xlarge' | number (px)
+ * @param format - 'svg' | 'png' (defaults to SVG for mark, PNG for others)
+ * @param alt - Alt text (defaults to 'Artagon')
+ * @param class - Additional CSS classes
+ */
+
+interface Props {
+  variant?: 'full' | 'mark' | 'wordmark' | 'square' | 'horizontal';
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | number;
+  format?: 'svg' | 'png';
+  alt?: string;
+  class?: string;
+}
+
+const {
+  variant = 'mark',
+  size = 'medium',
+  format,
+  alt = 'Artagon',
+  class: className = ''
+} = Astro.props;
+
+// Size presets
+const sizeMap = {
+  small: { mark: 32, full: 200, wordmark: 150, square: 64, horizontal: 200 },
+  medium: { mark: 64, full: 400, wordmark: 300, square: 128, horizontal: 400 },
+  large: { mark: 128, full: 800, wordmark: 500, square: 256, horizontal: 800 },
+  xlarge: { mark: 256, full: 1200, wordmark: 800, square: 512, horizontal: 1200 }
+};
+
+// Get actual size
+const actualSize = typeof size === 'number' ? size : sizeMap[size][variant];
+
+// Determine format (default to SVG for mark, PNG for others unless specified)
+const actualFormat = format || (variant === 'mark' ? 'svg' : 'png');
+
+// Build logo path
+let logoSrc: string;
+let width: number;
+let height: number | 'auto';
+
+if (actualFormat === 'svg' && variant === 'mark') {
+  // Use existing SVG mark
+  logoSrc = '/assets/logo-mark.svg';
+  width = actualSize;
+  height = actualSize;
+} else if (actualFormat === 'svg' && variant === 'wordmark') {
+  // Use existing SVG wordmark
+  logoSrc = '/assets/logo-wordmark.svg';
+  width = actualSize;
+  height = 'auto';
+} else {
+  // Use PNG from logos package
+  const sizeVariant = (() => {
+    if (variant === 'mark') {
+      if (actualSize <= 32) return 32;
+      if (actualSize <= 64) return 64;
+      if (actualSize <= 128) return 128;
+      if (actualSize <= 256) return 256;
+      return 512;
+    } else if (variant === 'wordmark') {
+      if (actualSize <= 200) return 200;
+      if (actualSize <= 400) return 400;
+      return 800;
+    } else if (variant === 'full' || variant === 'horizontal') {
+      if (actualSize <= 400) return 400;
+      if (actualSize <= 800) return 800;
+      return 1200;
+    } else if (variant === 'square') {
+      if (actualSize <= 512) return 512;
+      return 1200;
+    }
+    return actualSize;
+  })();
+
+  logoSrc = `/assets/logos/logo-${variant}-${sizeVariant}.png`;
+
+  if (variant === 'square' || variant === 'mark') {
+    width = actualSize;
+    height = actualSize;
+  } else {
+    width = actualSize;
+    height = 'auto';
+  }
+}
+
+// Build style string
+const style = height === 'auto'
+  ? `width: ${width}px; height: auto; display: block;`
+  : `width: ${width}px; height: ${height}px; display: block;`;
+---
+
+<img
+  src={logoSrc}
+  alt={alt}
+  width={width}
+  height={height === 'auto' ? undefined : height}
+  style={style}
+  class={className}
+  loading="lazy"
+/>

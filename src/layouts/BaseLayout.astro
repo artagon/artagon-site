@@ -1,19 +1,18 @@
 ---
 import Seo from '../components/SeoTags.astro';
+import SeoIcons from '../components/SeoIcons.astro';
 import ThemePreview from '../components/ThemePreviewPanel.astro';
 const DEV = import.meta.env.DEV;
-export interface Props { title?: string; description?: string; path?: string; }
-const { title, description, path='/' } = Astro.props;
+export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
+const { title, description, path='/', image, robots } = Astro.props;
 ---
 <!doctype html>
 <html lang="en" class="no-js" data-theme="midnight">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Seo {title} {description} {path} />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <Seo {title} {description} {path} {image} {robots} />
+    <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
     <script is:inline>
 (function(){
   var KEY='artagon.theme', DEF='midnight';
@@ -36,9 +35,8 @@ const { title, description, path='/' } = Astro.props;
   }
 })();
     </script>
-    <meta name="theme-color" content="#0B1220" />
     <link rel="stylesheet" href="/assets/theme.css" />
-    <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}}</script>
+    <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
     <script is:inline>
 window.__setTheme = function(t){
   var KEY='artagon.theme';
