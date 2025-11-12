@@ -1,5 +1,5 @@
 ---
 const { variant = 'inline', class: cls = '' } = Astro.props;
-const text = variant === 'sentence' ? 'Verified, Private, Attested.' : (variant === 'abbr' ? 'V • P • A' : 'Verified • Private • Attested');
+const text = variant === 'full' ? 'Trusted Identity for Machines and Humans - Verified, Private, Attested' : (variant === 'sentence' ? 'Verified, Private, Attested.' : (variant === 'abbr' ? 'V • P • A' : 'Verified • Private • Attested'));
 ---
 <span class={`pill ${cls}`} aria-label="Company motto">{text}</span>

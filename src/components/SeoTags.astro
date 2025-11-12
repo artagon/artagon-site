@@ -1,8 +1,8 @@
 ---
 export interface Props { title?: string; description?: string; path?: string; image?: string; }
-const { title='Artagon — Trusted Identity for Machines and Humans', description='Passkeys, verifiable credentials, attested clients, and graph-native policy — Verified. Private. Attested.', path='/', image='/assets/og-image.png' } = Astro.props;
+const { title='Artagon — Trusted Identity for Machines and Humans', description='Passkeys, verifiable credentials, attested clients, and graph-native policy — Trusted Identity for Machines and Humans - Verified, Private, Attested', path='/', image='/assets/og-image.png' } = Astro.props;
 const url = new URL(path, Astro.site ?? 'https://www.artagon.com').toString();
-const motto = 'Verified. Private. Attested.';
+const motto = 'Trusted Identity for Machines and Humans - Verified, Private, Attested';
 const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
 ---
 <title>{title}</title>
@@ -21,7 +21,7 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
   "@context":"https://schema.org","@type":"Organization","name":"Artagon",
   "url":"https://www.artagon.com/",
   "logo":"https://www.artagon.com/assets/logo-wordmark.svg",
-  "slogan":"Verified, Private, Attested.",
+  "slogan":"Trusted Identity for Machines and Humans - Verified, Private, Attested",
   "sameAs":["https://github.com/artagon"]
 }, null, 2)}
 </script>
