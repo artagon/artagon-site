@@ -3,19 +3,932 @@ import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 ---
-<Base title="Artagon — Vision & Roadmap" description="Mission, principles, architecture, and a pragmatic multi-phase roadmap — Verified. Private. Attested.">
+<Base title="Artagon Identity Platform: Vision and Roadmap" description="Trusted Identity for Machines and Humans — Verified, Private, Attested.">
   <Fragment slot="header"><Header /></Fragment>
-  <article class="container doc card" style="padding:24px">
-    <h1>Artagon Identity Platform: Vision and Roadmap</h1>
-    <p>See the .agents/context for the full text and summary; this page condenses the content for web reading.</p>
-    <h2>1. Executive Summary</h2>
-    <p>Artagon unifies passkey‑primary identity, verifiable credentials, and next‑gen authorization to deliver trusted identity for machines and humans.</p>
-    <h2>2. Product Vision &amp; Value</h2>
-    <ul><li>Verifiable Everything</li><li>Zero‑Friction Security</li><li>Privacy‑by‑Design</li></ul>
-    <h2>3. Architecture</h2>
-    <ul><li>OIDC 2.1 + GNAP, hardened OAuth profiles (PAR/JAR/JARM/DPoP/RAR/mTLS)</li><li>DIDs & VCs (SD‑JWT/BBS+), OID4VCI/VP</li><li>Device & App attestation; per‑instance credentials</li><li>Zanzibar graph + PDP (XACML, Cedar, OPA)</li></ul>
-    <h2>4. Roadmap</h2>
-    <ul><li>V1: OP/AS core + DPoP/PAR + Attestation MVP</li><li>V2: SD‑JWT issuance + OID4VP verification + StatusList</li><li>V3: Graph + PDP SDKs</li><li>V4: Proofing VC + registry</li><li>V5: Trust registry + agent keys + ZKP</li></ul>
+
+  <article class="vision-doc">
+    <div class="hero-section">
+      <h1>Artagon Identity Platform</h1>
+      <p class="hero-subtitle">Vision and Roadmap</p>
+      <div class="mission-statement">
+        <p class="mission-text">Trusted Identity for Machines and Humans — Verified, Private, Attested</p>
+      </div>
+    </div>
+
+    <div class="container" style="max-width:1000px; padding:0 20px 60px">
+
+    <section id="executive-summary" class="section-spacing">
+      <div class="section-header">
+        <h2>Executive Summary</h2>
+        <div class="section-number">01</div>
+      </div>
+
+      <div class="content-block">
+        <p class="lead-text">The digital landscape is in the midst of a profound identity crisis. The foundational model of perimeter-based security has failed, giving way to an epidemic of data breaches fueled by compromised credentials.</p>
+
+        <p>The very concept of "identity" has become dangerously fragmented, split between human-centric systems (CIAM) and a separate, ad-hoc world of machine and device identity (M2M/IoT). This fragmentation, coupled with the erosion of consumer privacy, creates a landscape of significant risk, friction, and missed opportunity.</p>
+
+        <div class="highlight-box">
+          <p><strong>Artagon Identity Platform</strong> is architected to solve this crisis—a next-generation trust infrastructure platform designed from the ground up to unify the three most critical, and historically siloed, domains of digital trust.</p>
+        </div>
+      </div>
+
+      <div class="three-domains">
+        <div class="domain-card">
+          <div class="domain-icon">🔐</div>
+          <h3>High-Assurance Identity</h3>
+          <p>A unified, passkey-primary foundation for phishing-resistant human authentication, built on the most secure, modern protocols (OIDC, GNAP).</p>
+        </div>
+        <div class="domain-card">
+          <div class="domain-icon">✓</div>
+          <h3>Decentralized & Verifiable Identity</h3>
+          <p>A complete Verifiable Credentials engine for issuing and verifying portable, holder-controlled, and privacy-preserving credentials.</p>
+        </div>
+        <div class="domain-card">
+          <div class="domain-icon">⚡</div>
+          <h3>Next-Generation Authorization</h3>
+          <p>A high-performance, graph-based authorization engine that fuses relationship-based and policy-based access control for complex, fine-grained decisions.</p>
+        </div>
+      </div>
+
+      <h3 class="pillars-title">Three Strategic Pillars</h3>
+
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <div class="pillar-header">
+            <span class="pillar-number">1</span>
+            <h4>Verifiable Everything</h4>
+          </div>
+          <p>Every identity, attribute, device, and software client can be cryptographically verified, moving the world from "asserted" identity to "proven" identity.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-header">
+            <span class="pillar-number">2</span>
+            <h4>Zero-Friction Security</h4>
+          </div>
+          <p>The most secure posture is delivered as the path of least resistance. This is achieved through passkey-primary authentication (simpler and more secure than passwords) and invisible, hardware-level device attestation.</p>
+        </div>
+
+        <div class="pillar-card">
+          <div class="pillar-header">
+            <span class="pillar-number">3</span>
+            <h4>Privacy-by-Design</h4>
+          </div>
+          <p>Privacy is embedded at the protocol level, not as a compliance checkbox. The platform uses selective disclosure and zero-knowledge primitives, allowing users to prove facts about themselves without revealing underlying personal data.</p>
+        </div>
+      </div>
+
+      <div class="value-prop">
+        <div class="value-item">
+          <strong>For Enterprises:</strong> De-risk digital transformation, eliminate account takeover, and prove compliance with NIST 800-63 and eIDAS.
+        </div>
+        <div class="value-item">
+          <strong>For Developers:</strong> A single, unified "trust API" that abstracts the complexity of modern cryptography, protocols, and policy.
+        </div>
+        <div class="value-item">
+          <strong>For End-Users:</strong> A truly portable, private, and secure digital identity.
+        </div>
+      </div>
+    </section>
+
+    <section id="product-vision" class="section-spacing">
+      <div class="section-header">
+        <h2>Product Vision & Value Proposition</h2>
+        <div class="section-number">02</div>
+      </div>
+
+      <div class="mission-breakdown">
+        <h3>Mission Breakdown</h3>
+        <p class="mission-intro">The Artagon mission is a deliberate, strategic synthesis of capabilities that are essential for the next era of digital interaction.</p>
+
+        <div class="mission-parts">
+          <div class="mission-part">
+            <h4>"Trusted Identity..."</h4>
+            <p>A fundamental shift from "authentication" to establishing <strong>verifiable trust and assurance</strong> rooted in cryptographic proofs, not centralized databases.</p>
+          </div>
+          <div class="mission-part">
+            <h4>"...for Machines and Humans..."</h4>
+            <p>An explicit rejection of market fragmentation. The platform unifies <strong>CIAM (human) and M2M/IoT (machine)</strong> identity markets.</p>
+          </div>
+          <div class="mission-part">
+            <h4>"...Verified, Private, Attested."</h4>
+            <p>Three words mapping directly to the platform's <strong>core technical pillars</strong> and capabilities.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architectural-principles" class="section-spacing">
+      <div class="section-header">
+        <h2>Architectural Principles</h2>
+        <div class="section-number">03</div>
+      </div>
+
+      <p class="section-intro">The Artagon platform architecture is a direct expression of its product vision, guided by five core principles that ensure security, scalability, and flexibility.</p>
+
+      <div class="principles-list">
+        <div class="principle-item">
+          <div class="principle-number">01</div>
+          <div class="principle-content">
+            <h3>High-Assurance by Default</h3>
+            <p>Security is not an optional feature or enterprise-tier add-on; it is the default posture for all tenants and all interactions.</p>
+          </div>
+        </div>
+
+        <div class="principle-item">
+          <div class="principle-number">02</div>
+          <div class="principle-content">
+            <h3>Cryptographic Agility & Isolation</h3>
+            <p>Built on a foundation agile to new cryptographic standards. Modular Rust sidecars for crypto operations (BBS+, ZKP) and native support for multiple VC formats (SD-JWT and BBS+).</p>
+          </div>
+        </div>
+
+        <div class="principle-item">
+          <div class="principle-number">03</div>
+          <div class="principle-content">
+            <h3>Policy-as-Code & Verifiable Audit</h3>
+            <p>All authorization and business logic expressed as explicit, human-readable, and auditable policy with a Git-backed Policy Administration Point (PAP).</p>
+          </div>
+        </div>
+
+        <div class="principle-item">
+          <div class="principle-number">04</div>
+          <div class="principle-content">
+            <h3>Holder-Centric & Privacy-Preserving</h3>
+            <p>The user (the "holder") is the ultimate owner of their identity—a fundamental shift away from the traditional "profile-in-a-database" CIAM model.</p>
+          </div>
+        </div>
+
+        <div class="principle-item">
+          <div class="principle-number">05</div>
+          <div class="principle-content">
+            <h3>Developer-First Abstraction</h3>
+            <p>Complexity of OIDC, GNAP, DIDs, VCs, and Zanzibar graph traversal abstracted behind a clean, unified API and idiomatic SDKs.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="core-components" class="section-spacing">
+      <div class="section-header">
+        <h2>Core Components and Capabilities</h2>
+        <div class="section-number">04</div>
+      </div>
+
+      <div class="components-grid">
+        <div class="component-card">
+          <div class="component-badge">4.1</div>
+          <h3>Unified Identity & Authorization Core</h3>
+          <p>Foundation for all identity transactions, serving as best-in-class provider for both human and machine identities.</p>
+          <ul class="feature-list">
+            <li>Protocol Unification (OIDC 2.1 & GNAP)</li>
+            <li>Hardened Security Profiles (PAR, JAR, JARM, DPoP, RAR, mTLS)</li>
+            <li>Passkey-Primary Authentication</li>
+            <li>Cryptographic Multi-Tenancy</li>
+          </ul>
+        </div>
+
+        <div class="component-card">
+          <div class="component-badge">4.2</div>
+          <h3>Decentralized Trust Layer</h3>
+          <p>Activates "Verifiable Everything," transforming Artagon into a comprehensive trust-issuance and verification engine.</p>
+          <ul class="feature-list">
+            <li>DID & VC Primitives (did:web, did:key, did:ion/peer)</li>
+            <li>VC Formats (SD-JWT, BBS+)</li>
+            <li>The OID4VC "On-Ramp" (OID4VCI, OID4VP)</li>
+            <li>Privacy & Revocation</li>
+          </ul>
+        </div>
+
+        <div class="component-card">
+          <div class="component-badge">4.3</div>
+          <h3>Integrated Identity Proofing Pipeline</h3>
+          <p>Solves the "cold start" problem: how to root a digital identity in the real world.</p>
+        </div>
+
+        <div class="component-card">
+          <div class="component-badge">4.4</div>
+          <h3>Device & Application Attestation Engine</h3>
+          <p>Delivers on the "Machines" part of the mission, establishing verifiable trust in the client itself.</p>
+        </div>
+
+        <div class="component-card">
+          <div class="component-badge">4.5</div>
+          <h3>Next-Generation Authorization Engine</h3>
+          <p>Fine-grained, high-performance engine answering: "What is this identity allowed to do?"</p>
+          <ul class="feature-list">
+            <li>Hybrid Model: ReBAC + ABAC</li>
+            <li>Zanzibar Graph Store</li>
+            <li>Polyglot Policy Engine (Cedar, OPA, XACML)</li>
+          </ul>
+        </div>
+
+        <div class="component-card highlight">
+          <div class="component-badge">4.6</div>
+          <h3>Advanced Delegation & Authority Brokering Engine</h3>
+          <p>The capstone—a powerful synthesis elevating Artagon from "Identity Provider" to true "Authority Broker."</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="technology-stack" class="section-spacing simple">
+      <div class="section-header">
+        <h2>Technology Stack</h2>
+        <div class="section-number">05</div>
+      </div>
+      <p class="section-intro">Architected for extreme performance, security, and scalability using a "best-of-both-worlds" technology stack.</p>
+      <div class="tech-grid">
+        <div class="tech-item"><strong>Core:</strong> Java 25/26 LTS with Virtual Threads (Project Loom)</div>
+        <div class="tech-item"><strong>Hot Paths:</strong> Rust sidecars for crypto ops (BBS+, ZKP) and graph traversal</div>
+        <div class="tech-item"><strong>Primary Store:</strong> PostgreSQL for tenant config, policies, metadata</div>
+        <div class="tech-item"><strong>Hot Store:</strong> Redis/KeyDB for sessions, states, caches</div>
+        <div class="tech-item"><strong>Graph:</strong> In-memory, off-heap Zanzibar-style store</div>
+        <div class="tech-item"><strong>Secrets:</strong> KMS/HSM for all cryptographic material</div>
+      </div>
+    </section>
+
+    <section id="security-privacy" class="section-spacing simple">
+      <div class="section-header">
+        <h2>Security & Privacy Model</h2>
+        <div class="section-number">06</div>
+      </div>
+      <div class="two-col">
+        <div>
+          <h3>Security: Phishing-Resistant, Zero-Trust</h3>
+          <p>Passkey-primary authentication, DPoP token binding, device attestation, mTLS, and PAR—secure-by-default at every layer.</p>
+        </div>
+        <div>
+          <h3>Privacy: Holder-Controlled, Minimum Disclosure</h3>
+          <p>Zero-knowledge selective disclosure (SD-JWT, BBS+), unlinkable presentations, data portability, and privacy-preserving revocation.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="developer-experience" class="section-spacing simple">
+      <div class="section-header">
+        <h2>Developer Experience</h2>
+        <div class="section-number">07</div>
+      </div>
+      <p class="section-intro">World-class, developer-first experience modeled after Stripe and Auth0.</p>
+      <div class="dx-features">
+        <div><strong>SDKs:</strong> Java, Rust, TypeScript, Go, Swift</div>
+        <div><strong>CLI:</strong> Full platform operations, policy testing, conformance</div>
+        <div><strong>APIs:</strong> Dual GraphQL + REST</div>
+        <div><strong>Playground:</strong> Live OAuth/GNAP/VC flows in-browser</div>
+      </div>
+    </section>
+
+    <section id="competitive-differentiation" class="section-spacing">
+      <div class="section-header">
+        <h2>Competitive Differentiation</h2>
+        <div class="section-number">08</div>
+      </div>
+      <div class="highlight-box competitive">
+        <p><strong>Artagon's defensible "moat":</strong> The only platform architected from the ground up to unify three distinct, typically siloed identity markets.</p>
+        <p>Bridges the developer-first experience of modern CIAM, the enterprise-grade capabilities of legacy IAM, and the next-generation privacy and portability of the decentralized world.</p>
+      </div>
+    </section>
+
+    <section id="roadmap" class="section-spacing">
+      <div class="section-header">
+        <h2>Multi-phase Roadmap</h2>
+        <div class="section-number">09</div>
+      </div>
+      <p class="section-intro">A pragmatic, five-phase execution plan delivering incremental, compounding value.</p>
+      <div class="roadmap-phases">
+        <div class="phase"><strong>V1 (0–3m):</strong> Core Trust Layer—OIDC/GNAP MVP, DPoP, PAR, JAR, Attestation MVP</div>
+        <div class="phase"><strong>V2 (3–6m):</strong> Verifiable Credentials—SD-JWT issuance, OID4VP verification, StatusList2021</div>
+        <div class="phase"><strong>V3 (6–9m):</strong> Policy & Graph—Zanzibar store, Cedar/OPA/XACML PDP, PEP SDKs</div>
+        <div class="phase"><strong>V4 (9–12m):</strong> Identity Proofing—Proofing VC, VC registry, NIST/eIDAS compliance</div>
+        <div class="phase"><strong>V5 (12–18m):</strong> Federation & AI—Multi-issuer registry, BBS+, autonomous agent keys</div>
+      </div>
+    </section>
+
+    <section id="long-term-outlook" class="section-spacing vision-2030">
+      <div class="section-header">
+        <h2>Vision 2030</h2>
+        <div class="section-number">10</div>
+      </div>
+      <div class="vision-grid">
+        <div class="vision-card">
+          <h3>From "Identity" to "Authority"</h3>
+          <p>Evolving from IdP to Authority Broker—answering "What authority do you have?" not "Who are you?"</p>
+        </div>
+        <div class="vision-card">
+          <h3>AI Agents as First-Class Citizens</h3>
+          <p>Artagon will be the "IAM for AI"—trust, governance, and audit for autonomous economic actors.</p>
+        </div>
+        <div class="vision-card">
+          <h3>The "Verifiable Web"</h3>
+          <p>GNAP + VCs + OID4VP: the engine for frictionless, portable, verifiable identity across services.</p>
+        </div>
+      </div>
+      <div class="closing-statement">
+        <p><strong>Artagon's mission is to build the trust layer for the next two decades of digital interaction.</strong></p>
+        <p>By unifying the identity of humans and machines, by building in privacy and zero-friction security from the protocol level, and by grounding all trust in cryptographic verification, we are not just building a product—we are architecting the future of digital trust.</p>
+      </div>
+    </section>
+  </div>
   </article>
+
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
+
+<style>
+  /* ==== GLOBAL VISION DOC STYLES ==== */
+  .vision-doc {
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  /* ==== HERO SECTION ==== */
+  .hero-section {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 20%, var(--bg)) 0%,
+      var(--bg) 100%
+    );
+    border-bottom: 2px solid var(--brand-teal);
+    padding: 80px 20px 60px;
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .hero-section h1 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--brand-teal);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--text-muted);
+    margin: 0 0 2rem;
+    font-weight: 300;
+  }
+
+  .mission-statement {
+    max-width: 900px;
+    margin: 2rem auto 0;
+    padding: 2rem;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 2px solid var(--brand-teal);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .mission-text {
+    font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+    font-weight: 600;
+    color: var(--brand-teal);
+    margin: 0;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* ==== SECTION STRUCTURE ==== */
+  .section-spacing {
+    margin: 5rem 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    gap: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    color: var(--accent);
+    margin: 0;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .section-number {
+    font-size: 4rem;
+    font-weight: 900;
+    color: color-mix(in srgb, var(--brand-teal) 20%, transparent);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .section-intro {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  /* ==== CONTENT BLOCKS ==== */
+  .content-block {
+    margin: 2rem 0;
+  }
+
+  .lead-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 10%, var(--surface)) 0%,
+      var(--surface) 100%
+    );
+    border-left: 4px solid var(--brand-teal);
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+
+  .highlight-box.competitive {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 10%, var(--surface)) 0%,
+      var(--surface) 100%
+    );
+    border-left-color: var(--accent);
+  }
+
+  /* ==== THREE DOMAINS CARDS ==== */
+  .three-domains {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+  }
+
+  .domain-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .domain-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--brand-teal);
+  }
+
+  .domain-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .domain-card h3 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin: 0 0 1rem;
+    font-weight: 600;
+  }
+
+  .domain-card p {
+    color: var(--text);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ==== PILLARS SECTION ==== */
+  .pillars-title {
+    font-size: 1.6rem;
+    color: var(--brand-teal);
+    margin: 3rem 0 2rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .pillar-card:hover {
+    border-color: var(--brand-teal);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .pillar-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .pillar-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--brand-teal);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .pillar-card h4 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .pillar-card p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  /* ==== VALUE PROPOSITION ==== */
+  .value-prop {
+    display: grid;
+    gap: 1.5rem;
+    margin: 3rem 0;
+  }
+
+  .value-item {
+    background: var(--surface);
+    padding: 1.5rem 2rem;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    line-height: 1.6;
+  }
+
+  .value-item strong {
+    color: var(--brand-teal);
+    font-size: 1.1rem;
+  }
+
+  /* ==== MISSION BREAKDOWN ==== */
+  .mission-breakdown {
+    margin: 2rem 0;
+  }
+
+  .mission-breakdown h3 {
+    font-size: 1.5rem;
+    color: var(--brand-teal);
+    margin: 0 0 1rem;
+  }
+
+  .mission-intro {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .mission-parts {
+    display: grid;
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .mission-part {
+    background: var(--surface);
+    border-left: 4px solid var(--brand-teal);
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+  }
+
+  .mission-part h4 {
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin: 0 0 0.8rem;
+    font-weight: 600;
+  }
+
+  .mission-part p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ==== PRINCIPLES LIST ==== */
+  .principles-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .principle-item {
+    display: flex;
+    gap: 2rem;
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .principle-item:hover {
+    border-color: var(--brand-teal);
+    transform: translateX(4px);
+  }
+
+  .principle-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-teal) 0%, var(--accent) 100%);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .principle-content h3 {
+    font-size: 1.3rem;
+    color: var(--accent);
+    margin: 0 0 0.8rem;
+    font-weight: 600;
+  }
+
+  .principle-content p {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  /* ==== COMPONENTS GRID ==== */
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+
+  .component-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .component-card:hover {
+    border-color: var(--brand-teal);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .component-card.highlight {
+    border: 2px solid var(--brand-teal);
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 8%, var(--surface)) 0%,
+      var(--surface) 100%
+    );
+  }
+
+  .component-badge {
+    display: inline-block;
+    background: var(--brand-teal);
+    color: var(--bg);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .component-card h3 {
+    font-size: 1.25rem;
+    color: var(--accent);
+    margin: 0 0 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .component-card p {
+    margin: 0 0 1rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+  }
+
+  .feature-list li {
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    position: relative;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .feature-list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--brand-teal);
+    font-weight: 700;
+  }
+
+  /* ==== TECH GRID ==== */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .tech-item {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--brand-teal);
+    line-height: 1.5;
+  }
+
+  .tech-item strong {
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ==== TWO COLUMN ==== */
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    margin: 2rem 0;
+  }
+
+  .two-col h3 {
+    font-size: 1.3rem;
+    color: var(--brand-teal);
+    margin: 0 0 1rem;
+    font-weight: 600;
+  }
+
+  .two-col p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ==== DX FEATURES ==== */
+  .dx-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .dx-features div {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .dx-features strong {
+    color: var(--brand-teal);
+  }
+
+  /* ==== ROADMAP PHASES ==== */
+  .roadmap-phases {
+    display: grid;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .phase {
+    background: var(--surface);
+    padding: 1.5rem 2rem;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    line-height: 1.6;
+    transition: all 0.3s ease;
+  }
+
+  .phase:hover {
+    border-left-width: 8px;
+    padding-left: 1.75rem;
+  }
+
+  .phase strong {
+    color: var(--brand-teal);
+    font-size: 1.1rem;
+  }
+
+  /* ==== VISION 2030 ==== */
+  .vision-2030 {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--brand-teal) 5%, var(--bg)) 0%,
+      var(--bg) 100%
+    );
+    padding: 4rem 2rem;
+    border-radius: 16px;
+    margin-top: 5rem;
+  }
+
+  .vision-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0 3rem;
+  }
+
+  .vision-card {
+    background: var(--surface);
+    border: 2px solid var(--brand-teal);
+    border-radius: 12px;
+    padding: 2rem;
+  }
+
+  .vision-card h3 {
+    font-size: 1.3rem;
+    color: var(--brand-teal);
+    margin: 0 0 1rem;
+    font-weight: 600;
+  }
+
+  .vision-card p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .closing-statement {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 2px solid var(--brand-teal);
+  }
+
+  .closing-statement p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin: 1rem 0;
+  }
+
+  .closing-statement p:first-child {
+    font-size: 1.3rem;
+    color: var(--brand-teal);
+  }
+
+  /* ==== GENERAL TYPOGRAPHY ==== */
+  .vision-doc h2, .vision-doc h3, .vision-doc h4 {
+    line-height: 1.3;
+  }
+
+  .vision-doc p {
+    margin: 1rem 0;
+  }
+
+  .vision-doc strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ==== RESPONSIVE ==== */
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 60px 20px 40px;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .section-number {
+      font-size: 3rem;
+    }
+
+    .principle-item {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .two-col, .vision-grid, .pillars-grid, .three-domains {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
