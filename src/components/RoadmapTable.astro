@@ -1,0 +1,28 @@
+---
+import type { Phase } from "../data/roadmap";
+const phases = (Astro.props.phases as Phase[]) ?? [];
+---
+<div class="rm-card rm-table">
+  <table aria-label="Roadmap phases table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Horizon</th>
+        <th>Focus</th>
+        <th>Milestones</th>
+        <th>KPIs</th>
+      </tr>
+    </thead>
+    <tbody>
+      {phases.map(p => (
+        <tr>
+          <td class="rm-phase"><a href={`#${p.id}`}>{p.phase}</a></td>
+          <td>{p.horizon}</td>
+          <td>{p.focus}</td>
+          <td>{p.milestones.join(" · ")}</td>
+          <td>{p.kpis.join(" · ")}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
