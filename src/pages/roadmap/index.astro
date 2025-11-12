@@ -7,46 +7,78 @@ import RoadmapTable from "../../components/RoadmapTable.astro";
 import { ROADMAP } from "../../data/roadmap";
 ---
 
-<Base title="Roadmap — Artagon" description="18‑month plan to deliver a provable identity cloud.">
+<Base
+  title="Roadmap — Artagon"
+  description="18‑month plan to deliver a provable identity cloud."
+>
   <Fragment slot="header"><Header /></Fragment>
 
-  <!-- HERO -->
-  <section class="rm-hero">
-    <div class="container narrow">
-      <h1 class="gradient-text" style="font-size:clamp(2rem,1.2rem+3vw,3rem)">Roadmap</h1>
-      <p class="rm-lead">
-        Five compounding phases over 18 months—starting with the core trust layer,
-        then adding verifiable credentials, graph‑native authorization, proofing, and federation.
-      </p>
+  <!-- Wrapper that controls the view state via hidden radios -->
+  <div class="rm-view">
+    <!-- radios must be siblings of both sections below -->
+    <input
+      id="view-cards"
+      class="rm-view-toggle"
+      name="rm-view"
+      type="radio"
+      checked
+    />
+    <input id="view-table" class="rm-view-toggle" name="rm-view" type="radio" />
 
-      <!-- on this page chips -->
-      <nav class="rm-onthispage" aria-label="On this page">
-        {ROADMAP.map(p => <a class="rm-chip" href={`#${p.id}`}>{p.phase} · {p.horizon}</a>)}
-      </nav>
+    <!-- HERO (labels live here, but radios are above) -->
+    <section class="rm-hero">
+      <div class="container narrow">
+        <h1 class="gradient-text" style="font-size:clamp(2rem,1.2rem+3vw,3rem)">
+          Roadmap
+        </h1>
+        <p class="rm-lead">
+          Five compounding phases over 18 months—starting with the core trust
+          layer, then adding verifiable credentials, graph‑native authorization,
+          proofing, and federation.
+        </p>
 
-      <!-- view toggle (CSS only) -->
-      <div class="rm-toggle" role="tablist" aria-label="View">
-        <input id="view-cards" name="rm-view" type="radio" checked />
-        <label for="view-cards" role="tab" aria-selected="true">Cards</label>
-        <input id="view-table" name="rm-view" type="radio" />
-        <label for="view-table" role="tab">Table</label>
+        <nav class="rm-onthispage" aria-label="On this page">
+          {
+            ROADMAP.map((p) => (
+              <a class="rm-chip" href={`#${p.id}`}>
+                {p.phase} · {p.horizon}
+              </a>
+            ))
+          }
+        </nav>
+
+        <!-- Toggle controls -->
+        <div class="rm-toggle" role="tablist" aria-label="View">
+          <label for="view-cards" class="rm-tab toggle-cards" role="tab"
+            >Cards</label
+          >
+          <label for="view-table" class="rm-tab toggle-table" role="tab"
+            >Table</label
+          >
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CARDS VIEW -->
-  <section class="section rm-cards">
-    <div class="container narrow rm-grid">
-      {ROADMAP.map(p => <div class="rm-col-4"><RoadmapPhaseCard {...p} /></div>)}
-    </div>
-  </section>
+    <!-- CARDS VIEW (default visible) -->
+    <section class="section rm-cards">
+      <div class="container narrow rm-grid">
+        {
+          ROADMAP.map((p) => (
+            <div class="rm-col-4">
+              <RoadmapPhaseCard {...p} />
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
-  <!-- TABLE VIEW -->
-  <section class="section rm-table">
-    <div class="container narrow">
-      <RoadmapTable phases={ROADMAP} />
-    </div>
-  </section>
+    <!-- TABLE VIEW -->
+    <section class="section rm-table">
+      <div class="container narrow">
+        <RoadmapTable phases={ROADMAP} />
+      </div>
+    </section>
+  </div>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

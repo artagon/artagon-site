@@ -977,3 +977,30 @@ a.is-disabled::after { content: " (coming soon)"; font-size: .85em; color: color
 .grid-auto { display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0,1fr)); }
 .col-4 { grid-column: span 4; } @media (max-width: 960px){ .col-4 { grid-column: span 12; } }
 .card { background: var(--card-bg); border:1px solid var(--card-stroke); border-radius:16px; padding:18px; }
+
+/* ===== Roadmap toggle + spacing fix ===== */
+/* radios: invisible but present in DOM; must be siblings of both views */
+.rm-view-toggle { position: absolute; inline-size: 0; block-size: 0; opacity: 0; pointer-events: none; }
+
+/* Default: show cards, hide table */
+.rm-cards { display: block; }
+.rm-table { display: none; }
+
+/* Toggle using wrapper state (radios are siblings of sections) */
+.rm-view #view-table:checked ~ .rm-cards { display: none; }
+.rm-view #view-table:checked ~ .rm-table { display: block; }
+
+/* Active tab highlighting without adjacency dependence */
+.rm-toggle { display: flex; gap: .6rem; margin: 12px 0 18px 0; }
+.rm-tab { cursor: pointer; padding: .45rem .75rem; border-radius: 10px; border: 1px solid var(--rm-card-stroke); background: var(--rm-chip-bg); font-weight: 600; }
+.rm-view #view-cards:checked ~ .rm-hero .toggle-cards,
+.rm-view #view-table:checked ~ .rm-hero .toggle-table { background: var(--brand-grad); color: #031018; border-color: transparent; }
+
+/* Tighten spacing under hero; global .section padding can be too large here */
+.rm-cards.section, .rm-table.section { padding-top: 16px; }
+
+/* Smooth anchor scroll with fixed header */
+.rm-card { scroll-margin-top: 80px; }
+
+/* Minor polish for first card top margin if any */
+.rm-card:first-child { margin-top: 0; }
