@@ -1,0 +1,19 @@
+---
+import type { Phase } from "../data/roadmap";
+const p = Astro.props as Phase;
+---
+<article id={p.id} class="rm-card" aria-labelledby={`${p.id}-title`}>
+  <div class="rm-eyebrow">{p.phase} • {p.horizon}</div>
+  <h3 id={`${p.id}-title`}>{p.focus}</h3>
+
+  <div style="margin-top:.4rem">
+    <strong>Milestones</strong>
+    <ul class="rm-list">
+      {p.milestones.map(m => <li>{m}</li>)}
+    </ul>
+  </div>
+
+  <div class="rm-kpis">
+    {p.kpis.map(k => <span class="rm-kpi">{k}</span>)}
+  </div>
+</article>
