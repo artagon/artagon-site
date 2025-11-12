@@ -2,7 +2,6 @@
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import HeroChart from '../../components/HeroChart.astro';
 ---
 <Base title="Platform — Artagon" description="The Artagon Identity Platform: unified identity and authorization infrastructure for machines and humans">
   <Fragment slot="header">
@@ -12,28 +11,10 @@ import HeroChart from '../../components/HeroChart.astro';
   <main id="main">
     <section class="platform-hero">
       <div class="container">
-        <div class="hero-grid">
-          <div class="hero-content">
-            <h1>Platform</h1>
-            <p class="hero-subtitle">
-              Unified identity and authorization infrastructure for the next generation of digital trust
-            </p>
-            <div class="hero-chips">
-              <span class="chip">OIDC 2.1</span>
-              <span class="chip">GNAP</span>
-              <span class="chip">W3C VCs</span>
-              <span class="chip">Zanzibar</span>
-            </div>
-          </div>
-          <div class="hero-visual">
-            <HeroChart
-              data={[14,19,16,24,29,22,33,28,36]}
-              width={520}
-              height={300}
-              label="Platform adoption and decision throughput"
-            />
-          </div>
-        </div>
+        <h1>Platform</h1>
+        <p class="hero-subtitle">
+          Unified identity and authorization infrastructure for the next generation of digital trust
+        </p>
       </div>
     </section>
 
@@ -124,32 +105,12 @@ import HeroChart from '../../components/HeroChart.astro';
 <style>
 .platform-hero {
   padding: 80px 0 60px;
+  text-align: center;
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--brand-teal) 5%, var(--bg)) 0%,
     var(--bg) 100%
   );
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: center;
-}
-
-@media (max-width: 900px) {
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  .hero-visual {
-    order: -1;
-  }
-}
-
-.hero-content {
-  text-align: left;
 }
 
 .platform-hero h1 {
@@ -170,26 +131,8 @@ import HeroChart from '../../components/HeroChart.astro';
 .hero-subtitle {
   font-size: 1.3rem;
   color: var(--muted);
-  margin: 0 0 1.5rem;
-  line-height: 1.6;
-}
-
-.hero-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.chip {
-  display: inline-block;
-  padding: 0.4rem 1rem;
-  background: color-mix(in srgb, var(--brand-teal) 10%, var(--surface));
-  border: 1px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: var(--brand-teal);
-  font-weight: 600;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .platform-highlights h2,
