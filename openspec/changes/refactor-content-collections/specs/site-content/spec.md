@@ -5,7 +5,7 @@
 Long-form content pages SHALL be implemented using Astro Content Collections to ensure separation of content and presentation.
 
 #### Scenario: Vision Page Content
-- **WHEN** a developer edits `src/content/pages/vision.mdx`
+- **WHEN** a developer edits `src/content/pages/vision.md`
 - **THEN** the changes are reflected on the `/vision` route without modifying the page template logic.
 
 ### Requirement: Type-Safe Content Schemas

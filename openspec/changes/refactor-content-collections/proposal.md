@@ -15,3 +15,4 @@ Currently, long-form content (specifically the Vision page at `/vision`) is hard
     - `src/pages/vision/index.astro` (Logic overhaul)
     - `src/content/config.ts` (New file/Config)
     - `src/content/pages/vision.md` (New file)
+    - `package.json`, `package-lock.json` (content collection dependency updates)
