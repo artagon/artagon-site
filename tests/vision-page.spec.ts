@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Vision Page - Content Collections', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/vision/');
+    await page.goto('/vision');
   });
 
   test('should have correct page title and meta description', async ({ page }) => {
