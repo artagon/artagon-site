@@ -10,8 +10,9 @@ Reference: https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-
 - Add validation triggers (`workflow_dispatch`, plus push/pull_request paths for the workflow file) so the setup workflow can be tested.
 - Define OpenSpec requirements for configuring Copilot agent setup in a new capability spec.
 - Document the Copilot setup workflow location and purpose in `README.md`.
+- Add a root-level Copilot context file and cross-link it with `openspec/AGENTS.md`.
 
 ## Impact
 
 - Affected specs: `specs/configure-copilot-environment/spec.md`
-- Affected code: `.github/workflows/copilot-setup-steps.yml`
+- Affected code: `.github/workflows/copilot-setup-steps.yml`, `COPILOT.md`, `openspec/AGENTS.md`

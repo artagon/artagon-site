@@ -27,3 +27,17 @@ The workflow SHALL include `workflow_dispatch` plus push and pull_request trigge
 #### Scenario: Workflow is testable
 - **WHEN** maintainers need to validate the setup workflow
 - **THEN** it can be run manually or on changes to the workflow file.
+
+### Requirement: Copilot context file
+The repository SHALL include a Copilot context file at `COPILOT.md` in the repository root.
+
+#### Scenario: Context file is available
+- **WHEN** Copilot agents request repository guidance
+- **THEN** `COPILOT.md` is available at the repository root.
+
+### Requirement: Copilot/OpenSpec cross-link
+`COPILOT.md` SHALL reference `openspec/AGENTS.md`, and `openspec/AGENTS.md` SHALL reference `COPILOT.md`.
+
+#### Scenario: Cross-links are present
+- **WHEN** a reader opens either document
+- **THEN** the other document is referenced.
