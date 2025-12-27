@@ -529,6 +529,12 @@ Generates logo variants from source files.
 
 Validates AI agent configuration in `.agents/` directory.
 
+#### Copilot Setup Steps (`copilot-setup-steps.yml`)
+
+**Trigger:** Manual dispatch or changes to the workflow file
+
+Prepares the repository for GitHub Copilot coding agent sessions. The workflow must define a single `copilot-setup-steps` job that checks out the repo, installs the latest LTS Node.js version, and runs `npm ci`.
+
 #### Release (`release.yml`)
 
 **Trigger:** Push tag matching `v*.*.*`
