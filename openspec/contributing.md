@@ -165,9 +165,11 @@ When an AI agent works from an OpenSpec item, it must:
    git checkout -b archive/add-two-factor-auth
    ```
 
-4. **Update agent context** - Summarize all branch changes in the agent context document
+4. **Check CI and Copilot comments** - Monitor CI status and Copilot review comments for the related PR and address them before marking work complete
 
-5. **Follow conventional commits** - Structure commit messages with references:
+5. **Update agent context** - Summarize all branch changes in the agent context document
+
+6. **Follow conventional commits** - Structure commit messages with references:
    ```bash
    # Pattern: <type>(<spec-id>): <description>
    git commit -m "feat(auth): add two-factor authentication
@@ -182,7 +184,7 @@ When an AI agent works from an OpenSpec item, it must:
    Closes #42"
    ```
 
-6. **Link everything together**:
+7. **Link everything together**:
    - Branch name follows: `feature/site(42)-two-factor-auth`
    - Commit scope matches spec-id: `feat(auth):`
    - Commit body references: `openspec/changes/add-two-factor-auth/`

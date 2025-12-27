@@ -22,6 +22,7 @@
 
 - OpenSpec updates: `openspec/project.md`, `openspec/contributing.md`, `openspec/changes/update-site-quality-checks/` (proposal, tasks, specs), updates to `openspec/changes/refactor-content-collections/`, and new `openspec/changes/refactor-styling-architecture/`.
 - Copilot integration: implemented `openspec/changes/add-copilot-integration/` with `.github/workflows/copilot-setup-steps.yml` and documented it in `README.md` (issue #6).
+- OpenSpec contributing: added AI agent guidance to check CI status and Copilot comments for spec-related work.
 - Quality checks: `scripts/lhci-serve.mjs` added; `lighthouserc.json` updated with READY pattern; LHCI usage documented in `README.md`; `lychee.toml` updated to the current schema.
 - Content collections: `src/content/config.ts` and `src/content/pages/vision.md` added; `src/pages/vision/index.astro` now renders content via `getEntry`; `sharp` added to `package.json` with `package-lock.json` generated.
 - Link hygiene: internalized CTAs and placeholders in `src/pages/index.astro` and `src/pages/docs/index.astro`; FAQ CTA trimmed in `src/pages/faq/index.astro`; endpoint mentions removed in `src/data/faq.ts`; SearchAction JSON-LD removed from `src/components/SeoTags.astro`.
