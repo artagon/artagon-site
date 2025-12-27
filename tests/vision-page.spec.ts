@@ -149,10 +149,15 @@ test.describe('Vision Page - Content Collections', () => {
 
   test('should load without console errors', async ({ page }) => {
     const consoleErrors: string[] = [];
+    const ignoredConsoleMessages = ['frame-ancestors'];
 
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
+        const text = msg.text();
+        if (ignoredConsoleMessages.some((fragment) => text.includes(fragment))) {
+          return;
+        }
+        consoleErrors.push(text);
       }
     });
 

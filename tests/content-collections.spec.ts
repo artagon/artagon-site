@@ -1,23 +1,34 @@
 import { test, expect } from '@playwright/test';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 test.describe('Content Collections - Schema Validation', () => {
   const contentPath = 'src/content/pages/vision.mdx';
-  const backupPath = 'src/content/pages/vision.mdx.backup';
-
-  test.beforeAll(() => {
-    // Backup original file
-    fs.copyFileSync(contentPath, backupPath);
-  });
-
-  test.afterAll(() => {
-    // Restore original file
-    if (fs.existsSync(backupPath)) {
-      fs.copyFileSync(backupPath, contentPath);
-      fs.unlinkSync(backupPath);
+  const runAstroBuild = () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astro-build-'));
+    try {
+      return execFileSync('npx', ['astro', 'build', '--outDir', outDir], { stdio: 'pipe' });
+    } finally {
+      fs.rmSync(outDir, { recursive: true, force: true });
     }
+  };
+  const withVisionContent = (content: string, run: () => void) => {
+    const originalContent = fs.readFileSync(contentPath, 'utf-8');
+    fs.writeFileSync(contentPath, content);
+    try {
+      run();
+    } finally {
+      fs.writeFileSync(contentPath, originalContent);
+    }
+  };
+
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'chromium',
+      'Runs in Chromium only to avoid cross-project content mutations.',
+    );
   });
 
   test('should validate required frontmatter fields', () => {
@@ -33,20 +44,17 @@ hero:
 Test content
 `;
 
-    fs.writeFileSync(contentPath, invalidContent);
-
-    // Try to build - should fail
-    try {
-      execSync('npm run build', { stdio: 'pipe' });
-      expect(false).toBe(true); // Should not reach here
-    } catch (error: any) {
-      // Build should fail with validation error
-      expect(error.status).not.toBe(0);
-      expect(error.stderr.toString()).toContain('title');
-    }
-
-    // Restore backup
-    fs.copyFileSync(backupPath, contentPath);
+    withVisionContent(invalidContent, () => {
+      // Try to build - should fail
+      try {
+        runAstroBuild();
+        expect(false).toBe(true); // Should not reach here
+      } catch (error: any) {
+        // Build should fail with validation error
+        expect(error.status).not.toBe(0);
+        expect(error.stderr.toString()).toContain('title');
+      }
+    });
   });
 
   test('should validate hero object schema', () => {
@@ -62,19 +70,16 @@ hero:
 Test content
 `;
 
-    fs.writeFileSync(contentPath, invalidContent);
-
-    // Try to build - should fail
-    try {
-      execSync('npm run build', { stdio: 'pipe' });
-      expect(false).toBe(true); // Should not reach here
-    } catch (error: any) {
-      // Build should fail with validation error
-      expect(error.status).not.toBe(0);
-    }
-
-    // Restore backup
-    fs.copyFileSync(backupPath, contentPath);
+    withVisionContent(invalidContent, () => {
+      // Try to build - should fail
+      try {
+        runAstroBuild();
+        expect(false).toBe(true); // Should not reach here
+      } catch (error: any) {
+        // Build should fail with validation error
+        expect(error.status).not.toBe(0);
+      }
+    });
   });
 
   test('should accept valid frontmatter', () => {
@@ -93,14 +98,11 @@ hero:
 This is valid markdown content.
 `;
 
-    fs.writeFileSync(contentPath, validContent);
-
-    // Build should succeed
-    const result = execSync('npm run build', { stdio: 'pipe' });
-    expect(result).toBeTruthy();
-
-    // Restore backup
-    fs.copyFileSync(backupPath, contentPath);
+    withVisionContent(validContent, () => {
+      // Build should succeed
+      const result = runAstroBuild();
+      expect(result).toBeTruthy();
+    });
   });
 
   test('should allow optional hero field', () => {
@@ -115,18 +117,22 @@ description: "Valid description"
 This is valid markdown content without a hero section.
 `;
 
-    fs.writeFileSync(contentPath, validContent);
-
-    // Build should succeed
-    const result = execSync('npm run build', { stdio: 'pipe' });
-    expect(result).toBeTruthy();
-
-    // Restore backup
-    fs.copyFileSync(backupPath, contentPath);
+    withVisionContent(validContent, () => {
+      // Build should succeed
+      const result = runAstroBuild();
+      expect(result).toBeTruthy();
+    });
   });
 });
 
 test.describe('Content Collections - File Structure', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'chromium',
+      'Runs in Chromium only to avoid cross-project content mutations.',
+    );
+  });
+
   test('should have content config file', () => {
     const configPath = 'src/content/config.ts';
     expect(fs.existsSync(configPath)).toBe(true);
