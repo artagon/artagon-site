@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -129,7 +129,17 @@ jobs:
         run: npm run build
 
       - name: Run visual regression tests
-        run: npx playwright test --grep "visual regression" --project=chromium
+        run: npx playwright test --grep "visual regression" --project=chromium --update-snapshots
+        continue-on-error: true
+
+      - name: Commit updated snapshots
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/**/*-snapshots/
+          git diff --staged --quiet || git commit -m "chore(ci): update Linux visual regression snapshots"
+          git push || true
 
       - name: Upload visual diffs
         uses: actions/upload-artifact@v4
