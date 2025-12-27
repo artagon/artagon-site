@@ -1,8 +1,9 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "npx http-server dist -p 8080 -s",
-      "url": ["http://localhost:8080/"],
+      "startServerCommand": "node scripts/lhci-serve.mjs",
+      "startServerReadyPattern": "READY",
+      "url": ["http://localhost:8081/"],
       "numberOfRuns": 2
     },
     "assert": {

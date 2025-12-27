@@ -42,22 +42,22 @@ import Logo from '../components/Logo.astro';
 
 ### LogoVariants
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `variant` | `'full' \| 'mark' \| 'wordmark' \| 'square' \| 'horizontal'` | `'mark'` | Logo style variant |
-| `size` | `'small' \| 'medium' \| 'large' \| 'xlarge' \| number` | `'medium'` | Size preset or exact pixels |
-| `format` | `'svg' \| 'png'` | Auto | Force format (SVG default for mark) |
-| `alt` | `string` | `'Artagon'` | Alt text for accessibility |
-| `class` | `string` | `''` | Additional CSS classes |
+| Prop      | Type                                                         | Default     | Description                         |
+| --------- | ------------------------------------------------------------ | ----------- | ----------------------------------- |
+| `variant` | `'full' \| 'mark' \| 'wordmark' \| 'square' \| 'horizontal'` | `'mark'`    | Logo style variant                  |
+| `size`    | `'small' \| 'medium' \| 'large' \| 'xlarge' \| number`       | `'medium'`  | Size preset or exact pixels         |
+| `format`  | `'svg' \| 'png'`                                             | Auto        | Force format (SVG default for mark) |
+| `alt`     | `string`                                                     | `'Artagon'` | Alt text for accessibility          |
+| `class`   | `string`                                                     | `''`        | Additional CSS classes              |
 
 ### Size Presets
 
-| Size | Mark | Full | Wordmark | Square | Horizontal |
-|------|------|------|----------|--------|------------|
-| `small` | 32px | 200px | 150px | 64px | 200px |
-| `medium` | 64px | 400px | 300px | 128px | 400px |
-| `large` | 128px | 800px | 500px | 256px | 800px |
-| `xlarge` | 256px | 1200px | 800px | 512px | 1200px |
+| Size     | Mark  | Full   | Wordmark | Square | Horizontal |
+| -------- | ----- | ------ | -------- | ------ | ---------- |
+| `small`  | 32px  | 200px  | 150px    | 64px   | 200px      |
+| `medium` | 64px  | 400px  | 300px    | 128px  | 400px      |
+| `large`  | 128px | 800px  | 500px    | 256px  | 800px      |
+| `xlarge` | 256px | 1200px | 800px    | 512px  | 1200px     |
 
 ## 🎨 Common Use Cases
 
@@ -126,10 +126,12 @@ import Logo from '../components/Logo.astro';
 
 ```html
 <!-- Use smaller full logo to keep email size down -->
-<img src="https://artagon.com/assets/logos/logo-full-400.png"
-     alt="Artagon"
-     width="400"
-     height="267" />
+<img
+  src="https://artagon.com/assets/logos/logo-full-400.png"
+  alt="Artagon"
+  width="400"
+  height="267"
+/>
 ```
 
 ## 🔗 Direct Asset URLs
@@ -137,11 +139,13 @@ import Logo from '../components/Logo.astro';
 When you need direct image URLs (outside components):
 
 ### Full Logo
+
 - `/assets/logos/logo-full-1200.png` - High-res (1200×800)
 - `/assets/logos/logo-full-800.png` - Standard (800×533)
 - `/assets/logos/logo-full-400.png` - Small (400×267)
 
 ### Logo Mark
+
 - `/assets/logos/logo-mark-512.png` - 512×512
 - `/assets/logos/logo-mark-256.png` - 256×256
 - `/assets/logos/logo-mark-128.png` - 128×128
@@ -150,12 +154,14 @@ When you need direct image URLs (outside components):
 - `/assets/logo-mark.svg` - SVG (scalable)
 
 ### Wordmark
+
 - `/assets/logos/logo-wordmark-800.png` - Max 800px
 - `/assets/logos/logo-wordmark-400.png` - Max 400px
 - `/assets/logos/logo-wordmark-200.png` - Max 200px
 - `/assets/logo-wordmark.svg` - SVG (scalable)
 
 ### Special Formats
+
 - `/assets/logos/logo-square-1200.png` - Square 1200×1200
 - `/assets/logos/logo-square-512.png` - Square 512×512
 - `/assets/logos/og-image.png` - Open Graph 1200×630
@@ -189,10 +195,16 @@ import Base from '../layouts/BaseLayout.astro';
 ```html
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:image" content="https://artagon.com/assets/logos/og-image.png" />
+<meta
+  name="twitter:image"
+  content="https://artagon.com/assets/logos/og-image.png"
+/>
 
 <!-- Open Graph -->
-<meta property="og:image" content="https://artagon.com/assets/logos/og-image.png" />
+<meta
+  property="og:image"
+  content="https://artagon.com/assets/logos/og-image.png"
+/>
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 ```
@@ -200,18 +212,23 @@ import Base from '../layouts/BaseLayout.astro';
 ## 📱 Platform-Specific
 
 ### iOS Share Sheet
+
 Use square logo for better display:
+
 ```html
 <link rel="apple-touch-icon" href="/assets/logos/logo-square-512.png" />
 ```
 
 ### Android Share Sheet
+
 Use square logo:
+
 ```html
 <link rel="icon" sizes="192x192" href="/assets/logos/logo-square-512.png" />
 ```
 
 ### PWA Manifest
+
 ```json
 {
   "icons": [
@@ -227,6 +244,7 @@ Use square logo:
 ## 🎯 Performance Tips
 
 ### 1. Use Appropriate Sizes
+
 Don't load a 1200px logo when 400px will do:
 
 ```astro

@@ -18,15 +18,18 @@ chmod +x scripts/icons/make-icons.sh
 The script creates icons in `public/icons/`:
 
 ### Standard Icons
+
 - `icon-16.png` through `icon-512.png` - Various sizes for PWA and browsers
 - `favicon.ico` - Traditional favicon (32×32)
 - `apple-touch-icon.png` - iOS home screen icon (180×180)
 
 ### Special Variants
+
 - `icon-maskable-512.png` - Android adaptive icon with safe padding
 - `safari-pinned-tab.svg` - Monochrome SVG for Safari pinned tabs
 
 ### Verification
+
 - `checksums/` - SHA-256 digests (base64 and hex) for all generated files
 
 ## Configuration
@@ -45,6 +48,7 @@ BRAND_BG="#000000" MASK_BG="#111111" bash scripts/icons/make-icons.sh
 ```
 
 ### Available Variables
+
 - `LOGO_DIR` - Logo submodule directory (default: `public/assets/artagon-logo`)
 - `SVG_MARK` - SVG logo mark file (default: `public/assets/logo-mark.svg`)
 - `SRC` - Fallback PNG source (default: `$LOGO_DIR/artagon_D1A.png`)
@@ -56,11 +60,13 @@ BRAND_BG="#000000" MASK_BG="#111111" bash scripts/icons/make-icons.sh
 ## Requirements
 
 ### Installed Tools
+
 - **rsvg-convert** - SVG to PNG conversion (from librsvg)
 - **sips** - macOS image resizing and format conversion (built-in)
 - **shasum** - Checksum generation (built-in)
 
 ### Check Tool Availability
+
 ```bash
 # Check what's installed
 which rsvg-convert sips shasum
@@ -106,19 +112,28 @@ public/icons/
 After generating icons, integrate them into your site:
 
 ### 1. Web Manifest
+
 Create or update `public/site.webmanifest`:
+
 ```json
 {
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
 ```
 
 ### 2. HTML Head Links
+
 Add to your `<head>`:
+
 ```html
 <link rel="icon" type="image/png" href="/icons/icon-32.png" sizes="32x32" />
 <link rel="icon" type="image/png" href="/icons/icon-16.png" sizes="16x16" />
@@ -131,22 +146,27 @@ Add to your `<head>`:
 ## Troubleshooting
 
 ### Issue: Icons appear pixelated
+
 - **Solution**: Ensure you're using the SVG source (`logo-mark.svg`) which scales perfectly
 - Check: `file public/assets/logo-mark.svg` should show SVG
 
 ### Issue: Maskable icon gets cropped on Android
+
 - **Current**: Script uses 20% padding (80% safe area)
 - **Fix**: Manually adjust padding in the script (line ~70) or edit the maskable PNG
 
 ### Issue: Safari pinned tab doesn't show
+
 - **Check**: Ensure `safari-pinned-tab.svg` is a valid monochrome SVG
 - **Test**: Open SVG in browser to verify it renders
 
 ### Issue: favicon.ico not working in older browsers
+
 - **Note**: Script creates ICO from 32px PNG via sips
 - **Alternative**: Use online converter for multi-resolution ICO if needed
 
 ### Issue: Script fails with "rsvg-convert not found"
+
 ```bash
 # Install on macOS
 brew install librsvg
@@ -160,6 +180,7 @@ sudo apt-get install librsvg2-bin
 For production deployments, consider additional optimization:
 
 ### PNG Compression
+
 ```bash
 # Install oxipng or pngquant
 brew install oxipng
@@ -169,6 +190,7 @@ oxipng -o6 -s public/icons/*.png
 ```
 
 ### SVG Optimization
+
 ```bash
 # Install svgo
 npm install -g svgo
@@ -180,12 +202,14 @@ svgo public/icons/safari-pinned-tab.svg
 ## Testing
 
 ### Browser Testing
+
 1. **Chrome**: Check DevTools → Application → Manifest for PWA icons
 2. **Safari**: Pin tab to verify pinned tab icon and color
 3. **iOS Safari**: Add to home screen to test Apple touch icon
 4. **Android Chrome**: Install as PWA to test maskable icon
 
 ### Lighthouse Audit
+
 ```bash
 npm run build
 npm run preview
@@ -195,6 +219,7 @@ lighthouse http://localhost:4321 --view
 ```
 
 Check:
+
 - ✅ "Provides a valid `apple-touch-icon`"
 - ✅ "Manifest has a maskable icon"
 - ✅ "Has a `<meta name="theme-color">` tag"
@@ -207,6 +232,7 @@ Check:
 4. Deploy
 
 ### Git Workflow
+
 ```bash
 # Update logo submodule
 cd public/assets/artagon-logo
@@ -225,13 +251,6 @@ git commit -m "Update site icons from latest logo"
 ## Notes
 
 - Icons are generated from the **logo mark** (emblem/shield), not the full wordmark
-- Maskable icons use 20% padding (80% safe area) per [maskable.app](https://maskable.app/) guidelines
+- Maskable icons use 20% padding (80% safe area) per maskable icon guidelines
 - SHA-256 checksums are provided for verification and optional SRI (Subresource Integrity)
 - The Safari pinned tab SVG is a simplified monochrome version
-
-## Resources
-
-- [Favicon Generator](https://realfavicongenerator.net/) - Test your icons
-- [Maskable.app](https://maskable.app/) - Preview maskable icons
-- [Web.dev PWA Icons](https://web.dev/add-manifest/#icons) - Icon guidelines
-- [Apple Touch Icon](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html) - iOS requirements

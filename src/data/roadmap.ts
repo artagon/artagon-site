@@ -16,9 +16,9 @@ export const ROADMAP: Phase[] = [
     milestones: [
       "OIDC/GNAP MVP",
       "DPoP, PAR, JAR/JARM",
-      "JWKS & Attestation MVP"
+      "JWKS & Attestation MVP",
     ],
-    kpis: ["OIDC conformance %", "Latency p95"]
+    kpis: ["OIDC conformance %", "Latency p95"],
   },
   {
     id: "v2",
@@ -28,9 +28,9 @@ export const ROADMAP: Phase[] = [
     milestones: [
       "OID4VCI (SD‑JWT) issuance",
       "OID4VP verification",
-      "StatusList2021 revocation"
+      "StatusList2021 revocation",
     ],
-    kpis: ["VC throughput ops/sec"]
+    kpis: ["VC throughput ops/sec"],
   },
   {
     id: "v3",
@@ -40,9 +40,9 @@ export const ROADMAP: Phase[] = [
     milestones: [
       "PDP (XACML/Cedar/OPA)",
       "Zanzibar graph store",
-      "API SDKs / PEPs"
+      "API SDKs / PEPs",
     ],
-    kpis: ["Decision p95 < 10 ms"]
+    kpis: ["Decision p95 < 10 ms"],
   },
   {
     id: "v4",
@@ -52,9 +52,9 @@ export const ROADMAP: Phase[] = [
     milestones: [
       "Pluggable Proofing API",
       "Proofing VC issuance",
-      "VC trust registry"
+      "VC trust registry",
     ],
-    kpis: ["Proofing success rate %"]
+    kpis: ["Proofing success rate %"],
   },
   {
     id: "v5",
@@ -64,8 +64,8 @@ export const ROADMAP: Phase[] = [
     milestones: [
       "Multi‑issuer trust registry",
       "Autonomous agent keys",
-      "BBS+ / ZKP credentials"
+      "BBS+ / ZKP credentials",
     ],
-    kpis: ["Federated issuers count"]
-  }
+    kpis: ["Federated issuers count"],
+  },
 ];
