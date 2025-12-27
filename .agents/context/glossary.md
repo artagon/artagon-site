@@ -26,7 +26,8 @@
 - CI workflows: updated GitHub Actions to the latest major versions across `.github/workflows/*.yml`.
 - OpenSpec contributing: added AI agent guidance to check CI status and Copilot comments for spec-related work.
 - Quality checks: `scripts/lhci-serve.mjs` added; `lighthouserc.json` updated with READY pattern; LHCI usage documented in `README.md`; `lychee.toml` updated to the current schema.
-- Content collections: `src/content/config.ts` and `src/content/pages/vision.md` added; `src/pages/vision/index.astro` now renders content via `getEntry`; `sharp` added to `package.json` with `package-lock.json` generated.
+- Content collections: `src/content/config.ts` and `src/content/pages/vision.mdx` added; `src/pages/vision/index.astro` now renders content via `getEntry`; `sharp` added to `package.json` with `package-lock.json` generated.
+- CI/test fixes: Playwright shards now use numeric indices and `/vision` routes; visual regression tests are gated to the dedicated job; hero gradient has a fallback in `src/pages/vision/index.astro`.
 - Link hygiene: internalized CTAs and placeholders in `src/pages/index.astro` and `src/pages/docs/index.astro`; FAQ CTA trimmed in `src/pages/faq/index.astro`; endpoint mentions removed in `src/data/faq.ts`; SearchAction JSON-LD removed from `src/components/SeoTags.astro`.
 - Assets/docs: external reference links removed from `scripts/icons/README.md` and `scripts/icons/VERIFICATION.md`; formatting-only updates in `astro.config.mjs`, `docs/LOGO_CONVERSION_SUMMARY.md`, `docs/LOGO_USAGE.md`, `docs/SITE_AUDIT.md`, `public/assets/logos/README.md`, `public/assets/theme.css`, `src/data/roadmap.ts`.
 - New tooling/docs: `AGENTS.md`, `openspec/AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `playwright.config.ts`, `src/components/Difference.astro`, plus `.lighthouseci/` now ignored via `.gitignore`.
