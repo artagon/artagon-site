@@ -4,8 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 test.describe('Content Collections - Schema Validation', () => {
-  const contentPath = 'src/content/pages/vision.md';
-  const backupPath = 'src/content/pages/vision.md.backup';
+  const contentPath = 'src/content/pages/vision.mdx';
+  const backupPath = 'src/content/pages/vision.mdx.backup';
 
   test.beforeAll(() => {
     // Backup original file
@@ -136,8 +136,8 @@ test.describe('Content Collections - File Structure', () => {
     expect(content).toContain('pages');
   });
 
-  test('should have vision.md in pages collection', () => {
-    const visionPath = 'src/content/pages/vision.md';
+  test('should have vision.mdx in pages collection', () => {
+    const visionPath = 'src/content/pages/vision.mdx';
     expect(fs.existsSync(visionPath)).toBe(true);
 
     const content = fs.readFileSync(visionPath, 'utf-8');
