@@ -1,0 +1,5 @@
+- [ ] Add spec deltas for GitHub Pages deployment in `openspec/changes/fix-pages-build/specs/github-pages-deployment/spec.md`.
+- [ ] Add `public/.nojekyll` to ensure published artifacts bypass Jekyll.
+- [ ] Add `_config.yml` to exclude Astro sources from any branch-based Jekyll build.
+- [ ] Document that GitHub Pages source must be set to GitHub Actions and reference `deploy.yml`.
+- [ ] Run `openspec validate fix-pages-build --strict` and resolve findings.
