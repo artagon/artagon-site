@@ -1,10 +1,6 @@
 ---
 title: "Artagon Identity Platform: Vision and Roadmap"
 description: "Trusted Identity for Machines and Humans — Verified, Private, Attested."
-hero:
-  title: "Artagon Identity Platform"
-  subtitle: "Vision and Roadmap"
-  missionText: "Trusted Identity for Machines and Humans — Verified, Private, Attested"
 ---
 
     <div class="hero-section">
@@ -545,8 +541,3 @@ hero:
       </div>
     </section>
   </div>
-  </article>
-
-  <Fragment slot="footer"><Footer /></Fragment>
-</Base>
-
