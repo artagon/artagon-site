@@ -106,11 +106,12 @@ test.describe('Vision Page - Content Collections', () => {
       window.getComputedStyle(el).borderColor
     );
 
-    // Just verify the card has transition property
-    const hasTransition = await firstCard.evaluate((el) =>
-      window.getComputedStyle(el).transition.includes('all')
+    // Just verify transitions are enabled
+    const transitionDuration = await firstCard.evaluate((el) =>
+      window.getComputedStyle(el).transitionDuration
     );
-    expect(hasTransition).toBe(true);
+    const durations = transitionDuration.split(',').map((value) => value.trim());
+    expect(durations.some((value) => value !== '0s')).toBe(true);
   });
 
   test('should be responsive on mobile viewport', async ({ page }) => {
