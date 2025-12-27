@@ -22,6 +22,7 @@
 
 - OpenSpec updates: `openspec/project.md`, `openspec/contributing.md`, `openspec/changes/update-site-quality-checks/` (proposal, tasks, specs), updates to `openspec/changes/refactor-content-collections/`, and new `openspec/changes/refactor-styling-architecture/`.
 - Copilot integration: implemented `openspec/changes/add-copilot-integration/` with `.github/workflows/copilot-setup-steps.yml` and documented it in `README.md` (issue #6).
+- Copilot context: added root `COPILOT.md` and linked it with `openspec/AGENTS.md`.
 - CI workflows: updated GitHub Actions to the latest major versions across `.github/workflows/*.yml`.
 - OpenSpec contributing: added AI agent guidance to check CI status and Copilot comments for spec-related work.
 - Quality checks: `scripts/lhci-serve.mjs` added; `lighthouserc.json` updated with READY pattern; LHCI usage documented in `README.md`; `lychee.toml` updated to the current schema.

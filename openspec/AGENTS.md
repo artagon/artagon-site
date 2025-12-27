@@ -2,6 +2,10 @@
 
 Instructions for AI coding assistants using OpenSpec for spec-driven development.
 
+## Copilot Context
+
+For GitHub Copilot-specific guidance, read [COPILOT.md](../COPILOT.md).
+
 ## TL;DR Quick Checklist
 
 - Search existing work: `openspec spec list --long`, `openspec list` (use `rg` only for full-text search)
