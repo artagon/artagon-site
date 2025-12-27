@@ -30,7 +30,12 @@
     "build": "astro build",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs"
+    "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:update-snapshots": "playwright test --update-snapshots",
+    "test:ci": "playwright test --reporter=github"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
@@ -39,6 +44,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
+    "@playwright/test": "1.57.0",
     "cheerio": "^1.1.2",
     "prettier": "^3.6.2"
   },
