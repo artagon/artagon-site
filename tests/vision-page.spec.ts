@@ -33,11 +33,15 @@ test.describe('Vision Page - Content Collections', () => {
     const sections = [
       { number: '01', title: 'Executive Summary' },
       { number: '02', title: 'Product Vision & Value Proposition' },
-      { number: '03', title: 'Core Technology Stack' },
-      { number: '04', title: 'Competitive Positioning' },
-      { number: '05', title: 'Go-to-Market Strategy' },
-      { number: '06', title: 'Roadmap & Milestones' },
-      { number: '07', title: 'Success Metrics' },
+      { number: '03', title: 'Architectural Principles' },
+      { number: '04', title: 'Core Components and Capabilities' },
+      { number: '05', title: 'Technology Stack' },
+      { number: '06', title: 'Security & Privacy Model' },
+      { number: '07', title: 'Developer Experience' },
+      { number: '08', title: 'Product Use Cases' },
+      { number: '09', title: 'Competitive Differentiation' },
+      { number: '10', title: 'Multi-phase Roadmap' },
+      { number: '11', title: 'Vision 2030' },
     ];
 
     for (const section of sections) {
@@ -79,7 +83,11 @@ test.describe('Vision Page - Content Collections', () => {
     await expect(pillarCards.nth(2).locator('h4')).toContainText('Privacy-by-Design');
   });
 
-  test('should have interactive hover effects on cards', async ({ page }) => {
+  test('should have interactive hover effects on cards', async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name.startsWith('Mobile'),
+      'Hover interactions are not reliable on touch devices.',
+    );
     const firstCard = page.locator('.domain-card').first();
 
     // Get initial border color
@@ -179,11 +187,11 @@ test.describe('Vision Page - Content Collections', () => {
 
     // Check gradient background on hero (accept missing gradient if browser reports color-mix fallback)
     const heroSection = page.locator('.hero-section');
-    const background = await heroSection.evaluate((el) =>
-      window.getComputedStyle(el).background
+    const backgroundImage = await heroSection.evaluate((el) =>
+      window.getComputedStyle(el).backgroundImage
     );
 
-    expect(background).toMatch(/gradient|color-mix|linear-gradient/);
+    expect(backgroundImage).toMatch(/gradient|color-mix|linear-gradient/);
   });
 
   test('visual regression - full page screenshot', async ({ page }) => {
