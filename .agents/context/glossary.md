@@ -20,6 +20,7 @@
 
 ## Branch Change Summary
 
+- Pages deployment spec: added `openspec/changes/fix-pages-build/` (proposal, tasks, spec delta) to address GitHub Pages build failures caused by Jekyll parsing Astro sources.
 - OpenSpec updates: `openspec/project.md`, `openspec/contributing.md`, `openspec/changes/update-site-quality-checks/` (proposal, tasks, specs), updates to `openspec/changes/refactor-content-collections/`, and new `openspec/changes/refactor-styling-architecture/`.
 - Copilot integration: implemented `openspec/changes/add-copilot-integration/` with `.github/workflows/copilot-setup-steps.yml` and documented it in `README.md` (issue #6).
 - Copilot context: added root `COPILOT.md` and linked it with `openspec/AGENTS.md`.
