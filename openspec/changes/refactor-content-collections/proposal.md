@@ -14,4 +14,4 @@ Currently, long-form content (specifically the Vision page at `/vision`) is hard
 - **Affected Code:**
     - `src/pages/vision/index.astro` (Logic overhaul)
     - `src/content/config.ts` (New file/Config)
-    - `src/content/pages/vision.md` (New file)
+    - `src/content/pages/vision.mdx` (New file)

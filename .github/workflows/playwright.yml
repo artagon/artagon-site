@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1/3, 2/3, 3/3]
+        shard: [1, 2, 3]
 
     steps:
       - name: Checkout code
@@ -52,7 +52,7 @@ jobs:
         run: npm run build
 
       - name: Run Playwright tests
-        run: npm run test:ci -- --shard=${{ matrix.shard }}
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/3
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -130,6 +130,8 @@ jobs:
 
       - name: Run visual regression tests
         run: npx playwright test --grep "visual regression" --project=chromium --update-snapshots
+        env:
+          VISUAL_REGRESSION: '1'
         continue-on-error: true
 
       - name: Commit updated snapshots

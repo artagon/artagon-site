@@ -23,7 +23,7 @@ The site uses Astro, which provides "Content Collections" for type-safe content 
     - This approach separates content from the page template logic without requiring additional dependencies.
 
 - **Content Strategy:**
-    - **Migrate HTML structure to Markdown:** The entire article content (sections, cards, grids) will move to `src/content/pages/vision.md`
+    - **Migrate HTML structure to Markdown:** The entire article content (sections, cards, grids) will move to `src/content/pages/vision.mdx`
     - **Keep layout in Astro:** The page wrapper (`BaseLayout`, `Header`, `Footer`) stays in `src/pages/vision/index.astro`
     - **Handle CSS:** Component-specific styles will remain scoped in the page template but we'll explore moving reusable patterns to global theme in a future refactor (see `refactor-styling-architecture`)
 
