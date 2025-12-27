@@ -26,8 +26,8 @@ const page = {
         </p>
         <div style="margin-top:6px"><Tagline /></div>
         <div class="actions">
-          <a class="btn" href="https://docs.artagon.com">Read the Docs</a>
-          <a class="btn" href="https://play.artagon.com">Try the Playground</a>
+          <a class="btn" href="/docs">Read the Docs</a>
+          <a class="btn" href="/play">Try the Playground</a>
           <a class="btn" href="https://github.com/artagon" rel="noopener"
             >View on GitHub</a
           >
@@ -150,8 +150,8 @@ const page = {
           OIDC, GNAP, and VC flows with real tokens.
         </p>
         <div class="actions">
-          <a class="btn" href="https://docs.artagon.com">Browse APIs</a>
-          <a class="btn" href="https://play.artagon.com">Open Playground</a>
+          <a class="btn" href="/docs">Browse APIs</a>
+          <a class="btn" href="/play">Open Playground</a>
           <a class="btn" href="https://github.com/artagon" rel="noopener"
             >GitHub</a
           >
@@ -160,7 +160,7 @@ const page = {
       <div class="card" aria-label="Quickstart">
         <div class="eyebrow">Quickstart (OIDC + DPoP)</div>
         <pre
-          class="code"><code>curl -X POST https://id.artagon.com/oauth2/token \
+          class="code"><code>curl -X POST $TOKEN_ENDPOINT \
  -H "DPoP: &lt;jwt&gt;" -H "Content-Type: application/x-www-form-urlencoded" \
  -d "grant_type=authorization_code&amp;code=..."</code></pre>
         <div class="discrete">
@@ -209,7 +209,7 @@ const page = {
         Start building with Artagon's unified identity platform. Deploy passkey authentication,
         verifiable credentials, and graph-native authorization in minutes.
       </p>
-      <a class="cta cta-large" href="https://console.artagon.com">Get Started</a>
+      <a class="cta cta-large" href="/get-started">Get Started</a>
     </div>
   </section>
 

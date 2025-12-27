@@ -9,23 +9,29 @@ Comprehensive site audit and improvements implemented to enhance SEO, performanc
 ## Problems Identified & Resolved
 
 ### 1. SEO & Discoverability
+
 **Issue**: Sitemap integration was removed from astro.config.mjs
 **Resolution**:
+
 - Re-enabled `@astrojs/sitemap` integration in astro.config.mjs
 - Updated robots.txt to point to canonical domain (artagon.com)
 - Sitemap auto-generates at build time (sitemap-index.xml)
 
 ### 2. Platform Page Layout
+
 **Issue**: Platform page lacked visual engagement and modern hero treatment
 **Resolution**:
+
 - Added HeroChart component to platform hero section
 - Implemented 2-column hero grid (content + chart)
 - Added protocol chips (OIDC 2.1, GNAP, W3C VCs, Zanzibar)
 - Enhanced responsive behavior for mobile
 
 ### 3. Domain Consistency
+
 **Issue**: Mixed usage of www.artagon.com and artagon.com
 **Resolution**:
+
 - Standardized on `https://artagon.com` as canonical domain
 - Updated astro.config.mjs site URL
 - Updated robots.txt sitemap URL
@@ -43,12 +49,14 @@ Comprehensive site audit and improvements implemented to enhance SEO, performanc
 ## Changes Made
 
 ### Files Modified
+
 1. `astro.config.mjs` - Added sitemap integration
 2. `public/robots.txt` - Updated canonical domain
 3. `src/pages/platform/index.astro` - Enhanced hero with chart and chips
 4. `docs/SITE_AUDIT.md` - This document
 
 ### New Features
+
 - **Animated sparkline chart** on Platform page hero
 - **Protocol chips** highlighting key technologies
 - **Responsive hero grid** for better mobile experience
@@ -56,12 +64,15 @@ Comprehensive site audit and improvements implemented to enhance SEO, performanc
 ## SEO Enhancements
 
 ### Structured Data
+
 - Organization schema with logo and GitHub link
 - Software application schema on homepage
 - Proper canonical URLs across all pages
 
 ### Meta Tags
+
 All pages include:
+
 - `<title>` with descriptive text
 - `<meta name="description">`
 - Open Graph tags (og:title, og:description, og:url, og:image)
@@ -69,16 +80,18 @@ All pages include:
 - Theme color and manifest links
 
 ### Sitemap Configuration
+
 ```javascript
 sitemap({
-  filter: (page) => !page.includes('/_drafts/'),
-  customPages: []
-})
+  filter: (page) => !page.includes("/_drafts/"),
+  customPages: [],
+});
 ```
 
 ## Quality Gates Status
 
 ### Accessibility ✓
+
 - All interactive elements have labels
 - Headings follow logical order
 - Skip-to-content link present
@@ -86,6 +99,7 @@ sitemap({
 - Color contrast meets WCAG AA
 
 ### Performance ✓
+
 - Non-hero images use `loading="lazy"`
 - All images have width/height attributes
 - CSS is scoped to components
@@ -93,6 +107,7 @@ sitemap({
 - LCP target: <2.5s on cable-fast
 
 ### SEO ✓
+
 - Valid sitemap generated
 - robots.txt with sitemap hint
 - Canonical URLs set
@@ -102,6 +117,7 @@ sitemap({
 ## Test Results
 
 ### Build
+
 ```bash
 npm run build
 ✓ 15 pages built successfully
@@ -110,6 +126,7 @@ npm run build
 ```
 
 ### Link Check
+
 ```bash
 ✓ Existing lychee CI workflow passes
 ✓ No broken internal links
@@ -117,6 +134,7 @@ npm run build
 ```
 
 ### Validation
+
 - ✓ Sitemap validates (XML well-formed)
 - ✓ robots.txt accessible
 - ✓ All pages return 200 OK
@@ -124,18 +142,21 @@ npm run build
 ## Next Steps & Recommendations
 
 ### Immediate (Optional)
+
 1. **OG Image Automation**: Create dynamic OG images for all pages
 2. **JSON-LD Enhancement**: Add SoftwareApplication schema to homepage
 3. **Preconnect Fonts**: Add font preconnect for faster FOPO
 4. **Image Optimization**: Ensure all hero images use modern formats (WebP)
 
 ### Short-term
+
 1. **Analytics**: Implement privacy-first analytics (Plausible or similar)
 2. **Error Monitoring**: Add Sentry or similar for client-side errors
 3. **A11y Audit**: Run axe-core for comprehensive accessibility scan
 4. **Performance Budget**: Set up Lighthouse CI thresholds
 
 ### Long-term
+
 1. **Internationalization**: Prepare i18n structure for multi-language support
 2. **Search**: Add client-side search with pagefind or similar
 3. **Blog/Updates**: Consider adding /blog or /updates section
@@ -144,12 +165,14 @@ npm run build
 ## Performance Metrics
 
 ### Build Performance
+
 - **Build time**: ~1.1s
 - **Pages**: 15 static pages
 - **Assets**: Fully optimized PNGs, scoped CSS
 - **Bundle size**: Minimal JS (theme toggle only)
 
 ### Runtime Performance
+
 - **LCP**: <2.5s target met
 - **FID**: N/A (minimal interactivity)
 - **CLS**: 0 (no layout shift)
@@ -166,6 +189,7 @@ npm run build
 ## Conclusion
 
 The Artagon site now has:
+
 - ✓ Complete SEO foundation (sitemap, robots.txt, structured data)
 - ✓ Engaging, modern platform page with animated chart
 - ✓ Consistent canonical domain usage

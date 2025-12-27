@@ -1,0 +1,46 @@
+---
+const items = [
+  {
+    title: "Verifiable Everything",
+    bullets: [
+      "Move from asserted → proven identity.",
+      "Cryptographic proof for users, devices, and clients (DIDs, SD‑JWT/BBS+).",
+    ],
+  },
+  {
+    title: "Zero‑Friction Security",
+    bullets: [
+      "Passkey‑primary login (phishing‑resistant).",
+      "Hardened profiles: PAR · JAR/JARM · DPoP · RAR · mTLS.",
+      "Invisible device & app attestation.",
+    ],
+  },
+  {
+    title: "Privacy‑by‑Design",
+    bullets: [
+      "Selective disclosure; unlinkable presentations.",
+      "StatusList2021 revocation; minimize data exposure.",
+    ],
+  },
+];
+---
+
+<section class="diff-section">
+  <div class="container narrow">
+    <h2 class="diff-heading gradient-text">The Artagon Difference</h2>
+    <div class="diff-grid">
+      {
+        items.map((item) => (
+          <article class="diff-card">
+            <h3>{item.title}</h3>
+            <ul>
+              {item.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
