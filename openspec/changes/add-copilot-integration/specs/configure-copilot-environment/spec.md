@@ -15,11 +15,11 @@ The workflow SHALL define a single job named `copilot-setup-steps`.
 - **THEN** the `copilot-setup-steps` job is the only job defined.
 
 ### Requirement: Copilot job steps
-The `copilot-setup-steps` job SHALL check out the repository, install Node 20.x, and run `npm ci` to prepare dependencies.
+The `copilot-setup-steps` job SHALL check out the repository, install the latest Node.js version, and run `npm ci` to prepare dependencies.
 
 #### Scenario: Dependencies are available
 - **WHEN** the workflow runs for Copilot agent setup
-- **THEN** the repository is available, Node 20.x is installed, and `npm ci` completes successfully.
+- **THEN** the repository is available, the latest Node.js version is installed, and `npm ci` completes successfully.
 
 ### Requirement: Workflow validation triggers
 The workflow SHALL include `workflow_dispatch` plus push and pull_request triggers scoped to changes in `.github/workflows/copilot-setup-steps.yml`.

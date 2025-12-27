@@ -6,7 +6,7 @@ Reference: https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-
 
 ## What Changes
 
-- Add a Copilot agent environment setup workflow at `.github/workflows/copilot-setup-steps.yml` with a single `copilot-setup-steps` job that checks out the repo, installs Node 20.x, and runs `npm ci`.
+- Add a Copilot agent environment setup workflow at `.github/workflows/copilot-setup-steps.yml` with a single `copilot-setup-steps` job that checks out the repo, installs the latest Node.js version, and runs `npm ci`.
 - Add validation triggers (`workflow_dispatch`, plus push/pull_request paths for the workflow file) so the setup workflow can be tested.
 - Define OpenSpec requirements for configuring Copilot agent setup in a new capability spec.
 - Document the Copilot setup workflow location and purpose in `README.md`.
