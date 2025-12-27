@@ -3,541 +3,541 @@ title: "Artagon Identity Platform: Vision and Roadmap"
 description: "Trusted Identity for Machines and Humans — Verified, Private, Attested."
 ---
 
-    <div class="hero-section">
-      <h1>Artagon Identity Platform</h1>
-      <p class="hero-subtitle">Vision and Roadmap</p>
-      <div class="mission-statement">
-        <p class="mission-text">Trusted Identity for Machines and Humans — Verified, Private, Attested</p>
-      </div>
-    </div>
+<div class="hero-section">
+<h1>Artagon Identity Platform</h1>
+<p class="hero-subtitle">Vision and Roadmap</p>
+<div class="mission-statement">
+<p class="mission-text">Trusted Identity for Machines and Humans — Verified, Private, Attested</p>
+</div>
+</div>
 
-    <div class="container" style="max-width:1000px; padding:0 20px 60px">
+<div class="container" style="max-width:1000px; padding:0 20px 60px">
 
-    <section id="executive-summary" class="section-spacing">
-      <div class="section-header">
-        <h2>Executive Summary</h2>
-        <div class="section-number">01</div>
-      </div>
+<section id="executive-summary" class="section-spacing">
+<div class="section-header">
+<h2>Executive Summary</h2>
+<div class="section-number">01</div>
+</div>
 
-      <div class="content-block">
-        <p class="lead-text">The digital landscape is in the midst of a profound identity crisis. The foundational model of perimeter-based security has failed, giving way to an epidemic of data breaches fueled by compromised credentials.</p>
+<div class="content-block">
+<p class="lead-text">The digital landscape is in the midst of a profound identity crisis. The foundational model of perimeter-based security has failed, giving way to an epidemic of data breaches fueled by compromised credentials.</p>
 
-        <p>The very concept of "identity" has become dangerously fragmented, split between human-centric systems (CIAM) and a separate, ad-hoc world of machine and device identity (M2M/IoT). This fragmentation, coupled with the erosion of consumer privacy, creates a landscape of significant risk, friction, and missed opportunity.</p>
+<p>The very concept of "identity" has become dangerously fragmented, split between human-centric systems (CIAM) and a separate, ad-hoc world of machine and device identity (M2M/IoT). This fragmentation, coupled with the erosion of consumer privacy, creates a landscape of significant risk, friction, and missed opportunity.</p>
 
-        <div class="highlight-box">
-          <p><strong>Artagon Identity Platform</strong> is architected to solve this crisis—a next-generation trust infrastructure platform designed from the ground up to unify the three most critical, and historically siloed, domains of digital trust.</p>
-        </div>
-      </div>
+<div class="highlight-box">
+<p><strong>Artagon Identity Platform</strong> is architected to solve this crisis—a next-generation trust infrastructure platform designed from the ground up to unify the three most critical, and historically siloed, domains of digital trust.</p>
+</div>
+</div>
 
-      <div class="three-domains">
-        <div class="domain-card">
-          <div class="domain-icon">🔐</div>
-          <h3>High-Assurance Identity</h3>
-          <p>A unified, passkey-primary foundation for phishing-resistant human authentication, built on the most secure, modern protocols (OIDC, GNAP).</p>
-        </div>
-        <div class="domain-card">
-          <div class="domain-icon">✓</div>
-          <h3>Decentralized & Verifiable Identity</h3>
-          <p>A complete Verifiable Credentials engine for issuing and verifying portable, holder-controlled, and privacy-preserving credentials.</p>
-        </div>
-        <div class="domain-card">
-          <div class="domain-icon">⚡</div>
-          <h3>Next-Generation Authorization</h3>
-          <p>A high-performance, graph-based authorization engine that fuses relationship-based and policy-based access control for complex, fine-grained decisions.</p>
-        </div>
-      </div>
+<div class="three-domains">
+<div class="domain-card">
+<div class="domain-icon">🔐</div>
+<h3>High-Assurance Identity</h3>
+<p>A unified, passkey-primary foundation for phishing-resistant human authentication, built on the most secure, modern protocols (OIDC, GNAP).</p>
+</div>
+<div class="domain-card">
+<div class="domain-icon">✓</div>
+<h3>Decentralized & Verifiable Identity</h3>
+<p>A complete Verifiable Credentials engine for issuing and verifying portable, holder-controlled, and privacy-preserving credentials.</p>
+</div>
+<div class="domain-card">
+<div class="domain-icon">⚡</div>
+<h3>Next-Generation Authorization</h3>
+<p>A high-performance, graph-based authorization engine that fuses relationship-based and policy-based access control for complex, fine-grained decisions.</p>
+</div>
+</div>
 
-      <h3 class="pillars-title">Three Strategic Pillars</h3>
+<h3 class="pillars-title">Three Strategic Pillars</h3>
 
-      <div class="pillars-grid">
-        <div class="pillar-card">
-          <div class="pillar-header">
-            <span class="pillar-number">1</span>
-            <h4>Verifiable Everything</h4>
-          </div>
-          <p>Every identity, attribute, device, and software client can be cryptographically verified, moving the world from "asserted" identity to "proven" identity.</p>
-        </div>
+<div class="pillars-grid">
+<div class="pillar-card">
+<div class="pillar-header">
+<span class="pillar-number">1</span>
+<h4>Verifiable Everything</h4>
+</div>
+<p>Every identity, attribute, device, and software client can be cryptographically verified, moving the world from "asserted" identity to "proven" identity.</p>
+</div>
 
-        <div class="pillar-card">
-          <div class="pillar-header">
-            <span class="pillar-number">2</span>
-            <h4>Zero-Friction Security</h4>
-          </div>
-          <p>The most secure posture is delivered as the path of least resistance. This is achieved through passkey-primary authentication (simpler and more secure than passwords) and invisible, hardware-level device attestation.</p>
-        </div>
+<div class="pillar-card">
+<div class="pillar-header">
+<span class="pillar-number">2</span>
+<h4>Zero-Friction Security</h4>
+</div>
+<p>The most secure posture is delivered as the path of least resistance. This is achieved through passkey-primary authentication (simpler and more secure than passwords) and invisible, hardware-level device attestation.</p>
+</div>
 
-        <div class="pillar-card">
-          <div class="pillar-header">
-            <span class="pillar-number">3</span>
-            <h4>Privacy-by-Design</h4>
-          </div>
-          <p>Privacy is embedded at the protocol level, not as a compliance checkbox. The platform uses selective disclosure and zero-knowledge primitives, allowing users to prove facts about themselves without revealing underlying personal data.</p>
-        </div>
-      </div>
+<div class="pillar-card">
+<div class="pillar-header">
+<span class="pillar-number">3</span>
+<h4>Privacy-by-Design</h4>
+</div>
+<p>Privacy is embedded at the protocol level, not as a compliance checkbox. The platform uses selective disclosure and zero-knowledge primitives, allowing users to prove facts about themselves without revealing underlying personal data.</p>
+</div>
+</div>
 
-      <div class="value-prop">
-        <div class="value-item">
-          <strong>For Enterprises:</strong> De-risk digital transformation, eliminate account takeover, and prove compliance with NIST 800-63 and eIDAS.
-        </div>
-        <div class="value-item">
-          <strong>For Developers:</strong> A single, unified "trust API" that abstracts the complexity of modern cryptography, protocols, and policy.
-        </div>
-        <div class="value-item">
-          <strong>For End-Users:</strong> A truly portable, private, and secure digital identity.
-        </div>
-      </div>
-    </section>
+<div class="value-prop">
+<div class="value-item">
+<strong>For Enterprises:</strong> De-risk digital transformation, eliminate account takeover, and prove compliance with NIST 800-63 and eIDAS.
+</div>
+<div class="value-item">
+<strong>For Developers:</strong> A single, unified "trust API" that abstracts the complexity of modern cryptography, protocols, and policy.
+</div>
+<div class="value-item">
+<strong>For End-Users:</strong> A truly portable, private, and secure digital identity.
+</div>
+</div>
+</section>
 
-    <section id="product-vision" class="section-spacing">
-      <div class="section-header">
-        <h2>Product Vision & Value Proposition</h2>
-        <div class="section-number">02</div>
-      </div>
+<section id="product-vision" class="section-spacing">
+<div class="section-header">
+<h2>Product Vision & Value Proposition</h2>
+<div class="section-number">02</div>
+</div>
 
-      <div class="mission-breakdown">
-        <h3>Mission Breakdown</h3>
-        <p class="mission-intro">The Artagon mission is a deliberate, strategic synthesis of capabilities that are essential for the next era of digital interaction.</p>
+<div class="mission-breakdown">
+<h3>Mission Breakdown</h3>
+<p class="mission-intro">The Artagon mission is a deliberate, strategic synthesis of capabilities that are essential for the next era of digital interaction.</p>
 
-        <div class="mission-parts">
-          <div class="mission-part">
-            <h4>"Trusted Identity..."</h4>
-            <p>A fundamental shift from "authentication" to establishing <strong>verifiable trust and assurance</strong> rooted in cryptographic proofs, not centralized databases.</p>
-          </div>
-          <div class="mission-part">
-            <h4>"...for Machines and Humans..."</h4>
-            <p>An explicit rejection of market fragmentation. The platform unifies <strong>CIAM (human) and M2M/IoT (machine)</strong> identity markets.</p>
-          </div>
-          <div class="mission-part">
-            <h4>"...Verified, Private, Attested."</h4>
-            <p>Three words mapping directly to the platform's <strong>core technical pillars</strong> and capabilities.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+<div class="mission-parts">
+<div class="mission-part">
+<h4>"Trusted Identity..."</h4>
+<p>A fundamental shift from "authentication" to establishing <strong>verifiable trust and assurance</strong> rooted in cryptographic proofs, not centralized databases.</p>
+</div>
+<div class="mission-part">
+<h4>"...for Machines and Humans..."</h4>
+<p>An explicit rejection of market fragmentation. The platform unifies <strong>CIAM (human) and M2M/IoT (machine)</strong> identity markets.</p>
+</div>
+<div class="mission-part">
+<h4>"...Verified, Private, Attested."</h4>
+<p>Three words mapping directly to the platform's <strong>core technical pillars</strong> and capabilities.</p>
+</div>
+</div>
+</div>
+</section>
 
-    <section id="architectural-principles" class="section-spacing">
-      <div class="section-header">
-        <h2>Architectural Principles</h2>
-        <div class="section-number">03</div>
-      </div>
+<section id="architectural-principles" class="section-spacing">
+<div class="section-header">
+<h2>Architectural Principles</h2>
+<div class="section-number">03</div>
+</div>
 
-      <p class="section-intro">The Artagon platform architecture is a direct expression of its product vision, guided by five core principles that ensure security, scalability, and flexibility.</p>
+<p class="section-intro">The Artagon platform architecture is a direct expression of its product vision, guided by five core principles that ensure security, scalability, and flexibility.</p>
 
-      <div class="principles-list">
-        <div class="principle-item">
-          <div class="principle-number">01</div>
-          <div class="principle-content">
-            <h3>High-Assurance by Default</h3>
-            <p>Security is not an optional feature or enterprise-tier add-on; it is the default posture for all tenants and all interactions.</p>
-          </div>
-        </div>
+<div class="principles-list">
+<div class="principle-item">
+<div class="principle-number">01</div>
+<div class="principle-content">
+<h3>High-Assurance by Default</h3>
+<p>Security is not an optional feature or enterprise-tier add-on; it is the default posture for all tenants and all interactions.</p>
+</div>
+</div>
 
-        <div class="principle-item">
-          <div class="principle-number">02</div>
-          <div class="principle-content">
-            <h3>Cryptographic Agility & Isolation</h3>
-            <p>Built on a foundation agile to new cryptographic standards. Modular Rust sidecars for crypto operations (BBS+, ZKP) and native support for multiple VC formats (SD-JWT and BBS+).</p>
-          </div>
-        </div>
+<div class="principle-item">
+<div class="principle-number">02</div>
+<div class="principle-content">
+<h3>Cryptographic Agility & Isolation</h3>
+<p>Built on a foundation agile to new cryptographic standards. Modular Rust sidecars for crypto operations (BBS+, ZKP) and native support for multiple VC formats (SD-JWT and BBS+).</p>
+</div>
+</div>
 
-        <div class="principle-item">
-          <div class="principle-number">03</div>
-          <div class="principle-content">
-            <h3>Policy-as-Code & Verifiable Audit</h3>
-            <p>All authorization and business logic expressed as explicit, human-readable, and auditable policy with a Git-backed Policy Administration Point (PAP).</p>
-          </div>
-        </div>
+<div class="principle-item">
+<div class="principle-number">03</div>
+<div class="principle-content">
+<h3>Policy-as-Code & Verifiable Audit</h3>
+<p>All authorization and business logic expressed as explicit, human-readable, and auditable policy with a Git-backed Policy Administration Point (PAP).</p>
+</div>
+</div>
 
-        <div class="principle-item">
-          <div class="principle-number">04</div>
-          <div class="principle-content">
-            <h3>Holder-Centric & Privacy-Preserving</h3>
-            <p>The user (the "holder") is the ultimate owner of their identity—a fundamental shift away from the traditional "profile-in-a-database" CIAM model.</p>
-          </div>
-        </div>
+<div class="principle-item">
+<div class="principle-number">04</div>
+<div class="principle-content">
+<h3>Holder-Centric & Privacy-Preserving</h3>
+<p>The user (the "holder") is the ultimate owner of their identity—a fundamental shift away from the traditional "profile-in-a-database" CIAM model.</p>
+</div>
+</div>
 
-        <div class="principle-item">
-          <div class="principle-number">05</div>
-          <div class="principle-content">
-            <h3>Developer-First Abstraction</h3>
-            <p>Complexity of OIDC, GNAP, DIDs, VCs, and Zanzibar graph traversal abstracted behind a clean, unified API and idiomatic SDKs.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+<div class="principle-item">
+<div class="principle-number">05</div>
+<div class="principle-content">
+<h3>Developer-First Abstraction</h3>
+<p>Complexity of OIDC, GNAP, DIDs, VCs, and Zanzibar graph traversal abstracted behind a clean, unified API and idiomatic SDKs.</p>
+</div>
+</div>
+</div>
+</section>
 
-    <section id="core-components" class="section-spacing">
-      <div class="section-header">
-        <h2>Core Components and Capabilities</h2>
-        <div class="section-number">04</div>
-      </div>
+<section id="core-components" class="section-spacing">
+<div class="section-header">
+<h2>Core Components and Capabilities</h2>
+<div class="section-number">04</div>
+</div>
 
-      <div class="components-grid">
-        <div class="component-card">
-          <div class="component-badge">4.1</div>
-          <h3>Unified Identity & Authorization Core</h3>
-          <p>Foundation for all identity transactions, serving as best-in-class provider for both human and machine identities.</p>
-          <ul class="feature-list">
-            <li>Protocol Unification (OIDC 2.1 & GNAP)</li>
-            <li>Hardened Security Profiles (PAR, JAR, JARM, DPoP, RAR, mTLS)</li>
-            <li>Passkey-Primary Authentication</li>
-            <li>Cryptographic Multi-Tenancy</li>
-          </ul>
-        </div>
+<div class="components-grid">
+<div class="component-card">
+<div class="component-badge">4.1</div>
+<h3>Unified Identity & Authorization Core</h3>
+<p>Foundation for all identity transactions, serving as best-in-class provider for both human and machine identities.</p>
+<ul class="feature-list">
+<li>Protocol Unification (OIDC 2.1 & GNAP)</li>
+<li>Hardened Security Profiles (PAR, JAR, JARM, DPoP, RAR, mTLS)</li>
+<li>Passkey-Primary Authentication</li>
+<li>Cryptographic Multi-Tenancy</li>
+</ul>
+</div>
 
-        <div class="component-card">
-          <div class="component-badge">4.2</div>
-          <h3>Decentralized Trust Layer</h3>
-          <p>Activates "Verifiable Everything," transforming Artagon into a comprehensive trust-issuance and verification engine.</p>
-          <ul class="feature-list">
-            <li>DID & VC Primitives (did:web, did:key, did:ion/peer)</li>
-            <li>VC Formats (SD-JWT, BBS+)</li>
-            <li>The OID4VC "On-Ramp" (OID4VCI, OID4VP)</li>
-            <li>Privacy & Revocation</li>
-          </ul>
-        </div>
+<div class="component-card">
+<div class="component-badge">4.2</div>
+<h3>Decentralized Trust Layer</h3>
+<p>Activates "Verifiable Everything," transforming Artagon into a comprehensive trust-issuance and verification engine.</p>
+<ul class="feature-list">
+<li>DID & VC Primitives (did:web, did:key, did:ion/peer)</li>
+<li>VC Formats (SD-JWT, BBS+)</li>
+<li>The OID4VC "On-Ramp" (OID4VCI, OID4VP)</li>
+<li>Privacy & Revocation</li>
+</ul>
+</div>
 
-        <div class="component-card">
-          <div class="component-badge">4.3</div>
-          <h3>Integrated Identity Proofing Pipeline</h3>
-          <p>Solves the "cold start" problem: how to root a digital identity in the real world.</p>
-        </div>
+<div class="component-card">
+<div class="component-badge">4.3</div>
+<h3>Integrated Identity Proofing Pipeline</h3>
+<p>Solves the "cold start" problem: how to root a digital identity in the real world.</p>
+</div>
 
-        <div class="component-card">
-          <div class="component-badge">4.4</div>
-          <h3>Device & Application Attestation Engine</h3>
-          <p>Delivers on the "Machines" part of the mission, establishing verifiable trust in the client itself.</p>
-        </div>
+<div class="component-card">
+<div class="component-badge">4.4</div>
+<h3>Device & Application Attestation Engine</h3>
+<p>Delivers on the "Machines" part of the mission, establishing verifiable trust in the client itself.</p>
+</div>
 
-        <div class="component-card">
-          <div class="component-badge">4.5</div>
-          <h3>Next-Generation Authorization Engine</h3>
-          <p>Fine-grained, high-performance engine answering: "What is this identity allowed to do?"</p>
-          <ul class="feature-list">
-            <li>Hybrid Model: ReBAC + ABAC</li>
-            <li>Zanzibar Graph Store</li>
-            <li>Polyglot Policy Engine (Cedar, OPA, XACML)</li>
-          </ul>
-        </div>
+<div class="component-card">
+<div class="component-badge">4.5</div>
+<h3>Next-Generation Authorization Engine</h3>
+<p>Fine-grained, high-performance engine answering: "What is this identity allowed to do?"</p>
+<ul class="feature-list">
+<li>Hybrid Model: ReBAC + ABAC</li>
+<li>Zanzibar Graph Store</li>
+<li>Polyglot Policy Engine (Cedar, OPA, XACML)</li>
+</ul>
+</div>
 
-        <div class="component-card highlight">
-          <div class="component-badge">4.6</div>
-          <h3>Advanced Delegation & Authority Brokering Engine</h3>
-          <p>The capstone—a powerful synthesis elevating Artagon from "Identity Provider" to true "Authority Broker."</p>
-        </div>
-      </div>
-    </section>
+<div class="component-card highlight">
+<div class="component-badge">4.6</div>
+<h3>Advanced Delegation & Authority Brokering Engine</h3>
+<p>The capstone—a powerful synthesis elevating Artagon from "Identity Provider" to true "Authority Broker."</p>
+</div>
+</div>
+</section>
 
-    <section id="technology-stack" class="section-spacing simple">
-      <div class="section-header">
-        <h2>Technology Stack</h2>
-        <div class="section-number">05</div>
-      </div>
-      <p class="section-intro">Architected for extreme performance, security, and scalability using a "best-of-both-worlds" technology stack.</p>
-      <div class="tech-grid">
-        <div class="tech-item"><strong>Core:</strong> Java 25/26 LTS with Virtual Threads (Project Loom)</div>
-        <div class="tech-item"><strong>Hot Paths:</strong> Rust sidecars for crypto ops (BBS+, ZKP) and graph traversal</div>
-        <div class="tech-item"><strong>Primary Store:</strong> PostgreSQL for tenant config, policies, metadata</div>
-        <div class="tech-item"><strong>Hot Store:</strong> Redis/KeyDB for sessions, states, caches</div>
-        <div class="tech-item"><strong>Graph:</strong> In-memory, off-heap Zanzibar-style store</div>
-        <div class="tech-item"><strong>Secrets:</strong> KMS/HSM for all cryptographic material</div>
-      </div>
-    </section>
+<section id="technology-stack" class="section-spacing simple">
+<div class="section-header">
+<h2>Technology Stack</h2>
+<div class="section-number">05</div>
+</div>
+<p class="section-intro">Architected for extreme performance, security, and scalability using a "best-of-both-worlds" technology stack.</p>
+<div class="tech-grid">
+<div class="tech-item"><strong>Core:</strong> Java 25/26 LTS with Virtual Threads (Project Loom)</div>
+<div class="tech-item"><strong>Hot Paths:</strong> Rust sidecars for crypto ops (BBS+, ZKP) and graph traversal</div>
+<div class="tech-item"><strong>Primary Store:</strong> PostgreSQL for tenant config, policies, metadata</div>
+<div class="tech-item"><strong>Hot Store:</strong> Redis/KeyDB for sessions, states, caches</div>
+<div class="tech-item"><strong>Graph:</strong> In-memory, off-heap Zanzibar-style store</div>
+<div class="tech-item"><strong>Secrets:</strong> KMS/HSM for all cryptographic material</div>
+</div>
+</section>
 
-    <section id="security-privacy" class="section-spacing simple">
-      <div class="section-header">
-        <h2>Security & Privacy Model</h2>
-        <div class="section-number">06</div>
-      </div>
-      <div class="two-col">
-        <div>
-          <h3>Security: Phishing-Resistant, Zero-Trust</h3>
-          <p>Passkey-primary authentication, DPoP token binding, device attestation, mTLS, and PAR—secure-by-default at every layer.</p>
-        </div>
-        <div>
-          <h3>Privacy: Holder-Controlled, Minimum Disclosure</h3>
-          <p>Zero-knowledge selective disclosure (SD-JWT, BBS+), unlinkable presentations, data portability, and privacy-preserving revocation.</p>
-        </div>
-      </div>
-    </section>
+<section id="security-privacy" class="section-spacing simple">
+<div class="section-header">
+<h2>Security & Privacy Model</h2>
+<div class="section-number">06</div>
+</div>
+<div class="two-col">
+<div>
+<h3>Security: Phishing-Resistant, Zero-Trust</h3>
+<p>Passkey-primary authentication, DPoP token binding, device attestation, mTLS, and PAR—secure-by-default at every layer.</p>
+</div>
+<div>
+<h3>Privacy: Holder-Controlled, Minimum Disclosure</h3>
+<p>Zero-knowledge selective disclosure (SD-JWT, BBS+), unlinkable presentations, data portability, and privacy-preserving revocation.</p>
+</div>
+</div>
+</section>
 
-    <section id="developer-experience" class="section-spacing simple">
-      <div class="section-header">
-        <h2>Developer Experience</h2>
-        <div class="section-number">07</div>
-      </div>
-      <p class="section-intro">World-class, developer-first experience modeled after Stripe and Auth0.</p>
-      <div class="dx-features">
-        <div><strong>SDKs:</strong> Java, Rust, TypeScript, Go, Swift</div>
-        <div><strong>CLI:</strong> Full platform operations, policy testing, conformance</div>
-        <div><strong>APIs:</strong> Dual GraphQL + REST</div>
-        <div><strong>Playground:</strong> Live OAuth/GNAP/VC flows in-browser</div>
-      </div>
-    </section>
+<section id="developer-experience" class="section-spacing simple">
+<div class="section-header">
+<h2>Developer Experience</h2>
+<div class="section-number">07</div>
+</div>
+<p class="section-intro">World-class, developer-first experience modeled after Stripe and Auth0.</p>
+<div class="dx-features">
+<div><strong>SDKs:</strong> Java, Rust, TypeScript, Go, Swift</div>
+<div><strong>CLI:</strong> Full platform operations, policy testing, conformance</div>
+<div><strong>APIs:</strong> Dual GraphQL + REST</div>
+<div><strong>Playground:</strong> Live OAuth/GNAP/VC flows in-browser</div>
+</div>
+</section>
 
-    <section id="use-cases" class="section-spacing">
-      <div class="section-header">
-        <h2>Product Use Cases</h2>
-        <div class="section-number">08</div>
-      </div>
-      <p class="section-intro">Real-world scenarios demonstrating how Artagon transforms digital trust across industries.</p>
+<section id="use-cases" class="section-spacing">
+<div class="section-header">
+<h2>Product Use Cases</h2>
+<div class="section-number">08</div>
+</div>
+<p class="section-intro">Real-world scenarios demonstrating how Artagon transforms digital trust across industries.</p>
 
-      <div class="use-cases-detailed">
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">01</div>
-            <h3>High-Assurance Customer Support</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> A customer service representative needs temporary access to a customer's account to resolve a billing issue.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>Customer authenticates with passkey-based login (WebAuthn/FIDO2)</li>
-                <li>Customer grants explicit, time-boxed delegation (15 minutes) to CSR via Authority Broker</li>
-                <li>CSR receives a verifiable credential encoding the delegation scope (read billing, no PII access)</li>
-                <li>Authorization engine validates credential + relationships + time constraints on each API call</li>
-                <li>Delegation auto-expires; full audit trail captured in immutable log</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Zero standing privileges, cryptographic audit trail, customer control—eliminating insider threat vector.</p>
-          </div>
-        </div>
+<div class="use-cases-detailed">
+<div class="use-case-detailed">
+<div class="use-case-header">
+<div class="use-case-number">01</div>
+<h3>High-Assurance Customer Support</h3>
+</div>
+<div class="use-case-content">
+<p class="use-case-scenario"><strong>Scenario:</strong> A customer service representative needs temporary access to a customer's account to resolve a billing issue.</p>
+<div class="use-case-flow">
+  <h4>Flow:</h4>
+  <ol>
+    <li>Customer authenticates with passkey-based login (WebAuthn/FIDO2)</li>
+    <li>Customer grants explicit, time-boxed delegation (15 minutes) to CSR via Authority Broker</li>
+    <li>CSR receives a verifiable credential encoding the delegation scope (read billing, no PII access)</li>
+    <li>Authorization engine validates credential + relationships + time constraints on each API call</li>
+    <li>Delegation auto-expires; full audit trail captured in immutable log</li>
+  </ol>
+</div>
+<p class="use-case-value"><strong>Value:</strong> Zero standing privileges, cryptographic audit trail, customer control—eliminating insider threat vector.</p>
+</div>
+</div>
 
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">02</div>
-            <h3>Cross-Organization Healthcare Access</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> A primary care physician needs to share specific patient records with a specialist for consultation.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>Doctor authenticates with organizational credential + passkey</li>
-                <li>Issues time-limited Verifiable Presentation (VP) with selective disclosure of patient file X</li>
-                <li>Specialist receives VP at their organization (different IdP/domain)</li>
-                <li>Specialist's system verifies VP signature, issuer DID, and revocation status via OID4VP</li>
-                <li>Authorization engine checks: specialist has valid medical license VC + access relationship in graph</li>
-                <li>Access granted; patient's PII minimized via selective disclosure (only relevant medical data exposed)</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Seamless cross-domain trust without brittle SAML federations; privacy-preserving; patient-centric consent model.</p>
-          </div>
-        </div>
+<div class="use-case-detailed">
+<div class="use-case-header">
+<div class="use-case-number">02</div>
+<h3>Cross-Organization Healthcare Access</h3>
+</div>
+<div class="use-case-content">
+<p class="use-case-scenario"><strong>Scenario:</strong> A primary care physician needs to share specific patient records with a specialist for consultation.</p>
+<div class="use-case-flow">
+  <h4>Flow:</h4>
+  <ol>
+    <li>Doctor authenticates with organizational credential + passkey</li>
+    <li>Issues time-limited Verifiable Presentation (VP) with selective disclosure of patient file X</li>
+    <li>Specialist receives VP at their organization (different IdP/domain)</li>
+    <li>Specialist's system verifies VP signature, issuer DID, and revocation status via OID4VP</li>
+    <li>Authorization engine checks: specialist has valid medical license VC + access relationship in graph</li>
+    <li>Access granted; patient's PII minimized via selective disclosure (only relevant medical data exposed)</li>
+  </ol>
+</div>
+<p class="use-case-value"><strong>Value:</strong> Seamless cross-domain trust without brittle SAML federations; privacy-preserving; patient-centric consent model.</p>
+</div>
+</div>
 
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">03</div>
-            <h3>IAM for Autonomous AI Agents</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> A CFO authorizes an AI agent to autonomously approve and sign vendor contracts under $50,000.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>CFO authenticates and issues a Verifiable Credential to AI agent's DID</li>
-                <li>VC encodes: authority scope (sign contracts), conditions (amount < $50k, vendor category = "SaaS"), expiration (30 days)</li>
-                <li>AI agent stores VC in secure enclave (device attestation bound)</li>
-                <li>When agent attempts contract signature, presents VC to contract API</li>
-                <li>Authorization engine validates: VC signature, issuer authority (CFO role in graph), policy conditions, device attestation</li>
-                <li>Action permitted or denied based on real-time policy evaluation; all decisions logged with context</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Human-delegated, cryptographically-bound authority with programmatic guardrails—the foundation for trusted AI agents.</p>
-          </div>
-        </div>
+<div class="use-case-detailed">
+<div class="use-case-header">
+<div class="use-case-number">03</div>
+<h3>IAM for Autonomous AI Agents</h3>
+</div>
+<div class="use-case-content">
+<p class="use-case-scenario"><strong>Scenario:</strong> A CFO authorizes an AI agent to autonomously approve and sign vendor contracts under $50,000.</p>
+<div class="use-case-flow">
+  <h4>Flow:</h4>
+  <ol>
+    <li>CFO authenticates and issues a Verifiable Credential to AI agent's DID</li>
+    <li>VC encodes: authority scope (sign contracts), conditions (amount < $50k, vendor category = "SaaS"), expiration (30 days)</li>
+    <li>AI agent stores VC in secure enclave (device attestation bound)</li>
+    <li>When agent attempts contract signature, presents VC to contract API</li>
+    <li>Authorization engine validates: VC signature, issuer authority (CFO role in graph), policy conditions, device attestation</li>
+    <li>Action permitted or denied based on real-time policy evaluation; all decisions logged with context</li>
+  </ol>
+</div>
+<p class="use-case-value"><strong>Value:</strong> Human-delegated, cryptographically-bound authority with programmatic guardrails—the foundation for trusted AI agents.</p>
+</div>
+</div>
 
-        <div class="use-case-detailed">
-          <div class="use-case-header">
-            <div class="use-case-number">04</div>
-            <h3>Zero-Trust IoT Device Provisioning</h3>
-          </div>
-          <div class="use-case-content">
-            <p class="use-case-scenario"><strong>Scenario:</strong> Manufacturing facility deploys 10,000 industrial IoT sensors that need secure, automated provisioning and lifecycle management.</p>
-            <div class="use-case-flow">
-              <h4>Flow:</h4>
-              <ol>
-                <li>Each device ships with hardware-backed key pair (TPM/secure element) and manufacturer DID</li>
-                <li>On first boot, device performs hardware attestation (proving genuine hardware + unmodified firmware)</li>
-                <li>Device requests bootstrap credential from Artagon via GNAP device flow</li>
-                <li>Artagon validates attestation, issues device identity VC bound to hardware key</li>
-                <li>Device uses VC + mTLS for all telemetry API calls; authorization graph defines device→gateway→cloud relationships</li>
-                <li>Firmware updates trigger re-attestation; compromised devices auto-revoked via StatusList2021</li>
-              </ol>
-            </div>
-            <p class="use-case-value"><strong>Value:</strong> Hardware-rooted trust, automated lifecycle management, instant revocation—eliminating IoT's weakest link (credential management).</p>
-          </div>
-        </div>
-      </div>
-    </section>
+<div class="use-case-detailed">
+<div class="use-case-header">
+<div class="use-case-number">04</div>
+<h3>Zero-Trust IoT Device Provisioning</h3>
+</div>
+<div class="use-case-content">
+<p class="use-case-scenario"><strong>Scenario:</strong> Manufacturing facility deploys 10,000 industrial IoT sensors that need secure, automated provisioning and lifecycle management.</p>
+<div class="use-case-flow">
+  <h4>Flow:</h4>
+  <ol>
+    <li>Each device ships with hardware-backed key pair (TPM/secure element) and manufacturer DID</li>
+    <li>On first boot, device performs hardware attestation (proving genuine hardware + unmodified firmware)</li>
+    <li>Device requests bootstrap credential from Artagon via GNAP device flow</li>
+    <li>Artagon validates attestation, issues device identity VC bound to hardware key</li>
+    <li>Device uses VC + mTLS for all telemetry API calls; authorization graph defines device→gateway→cloud relationships</li>
+    <li>Firmware updates trigger re-attestation; compromised devices auto-revoked via StatusList2021</li>
+  </ol>
+</div>
+<p class="use-case-value"><strong>Value:</strong> Hardware-rooted trust, automated lifecycle management, instant revocation—eliminating IoT's weakest link (credential management).</p>
+</div>
+</div>
+</div>
+</section>
 
-    <section id="competitive-differentiation" class="section-spacing">
-      <div class="section-header">
-        <h2>Competitive Differentiation</h2>
-        <div class="section-number">09</div>
-      </div>
-      <div class="highlight-box competitive">
-        <p><strong>Artagon's defensible "moat":</strong> The only platform architected from the ground up to unify three distinct, typically siloed identity markets.</p>
-        <p>Bridges the developer-first experience of modern CIAM, the enterprise-grade capabilities of legacy IAM, and the next-generation privacy and portability of the decentralized world.</p>
-      </div>
+<section id="competitive-differentiation" class="section-spacing">
+<div class="section-header">
+<h2>Competitive Differentiation</h2>
+<div class="section-number">09</div>
+</div>
+<div class="highlight-box competitive">
+<p><strong>Artagon's defensible "moat":</strong> The only platform architected from the ground up to unify three distinct, typically siloed identity markets.</p>
+<p>Bridges the developer-first experience of modern CIAM, the enterprise-grade capabilities of legacy IAM, and the next-generation privacy and portability of the decentralized world.</p>
+</div>
 
-      <div class="competitive-table">
-        <h3>Market Positioning</h3>
-        <div class="comparison-grid">
-          <div class="comparison-category">
-            <h4>vs. Modern CIAM (Auth0, Okta CIC)</h4>
-            <ul>
-              <li><strong>+</strong> Native Verifiable Credentials (not bolted-on)</li>
-              <li><strong>+</strong> Machine identity parity with human identity</li>
-              <li><strong>+</strong> Graph-native authorization (not role explosion)</li>
-              <li><strong>+</strong> Authority delegation as first-class primitive</li>
-            </ul>
-          </div>
-          <div class="comparison-category">
-            <h4>vs. Legacy IAM (Ping, ForgeRock)</h4>
-            <ul>
-              <li><strong>+</strong> Developer-first API/SDK experience</li>
-              <li><strong>+</strong> Cloud-native, elastic scale</li>
-              <li><strong>+</strong> Modern protocols (GNAP, OID4VC) not legacy retrofits</li>
-              <li><strong>+</strong> Privacy-by-design vs compliance checkbox</li>
-            </ul>
-          </div>
-          <div class="comparison-category">
-            <h4>vs. Decentralized Identity (SSI vendors)</h4>
-            <ul>
-              <li><strong>+</strong> Production-ready OIDC/SAML bridge for legacy apps</li>
-              <li><strong>+</strong> Enterprise SLAs, support, and compliance frameworks</li>
-              <li><strong>+</strong> Integrated authorization (not just authentication)</li>
-              <li><strong>+</strong> Pragmatic hybrid approach (not ideology-first)</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
+<div class="competitive-table">
+<h3>Market Positioning</h3>
+<div class="comparison-grid">
+<div class="comparison-category">
+<h4>vs. Modern CIAM (Auth0, Okta CIC)</h4>
+<ul>
+  <li><strong>+</strong> Native Verifiable Credentials (not bolted-on)</li>
+  <li><strong>+</strong> Machine identity parity with human identity</li>
+  <li><strong>+</strong> Graph-native authorization (not role explosion)</li>
+  <li><strong>+</strong> Authority delegation as first-class primitive</li>
+</ul>
+</div>
+<div class="comparison-category">
+<h4>vs. Legacy IAM (Ping, ForgeRock)</h4>
+<ul>
+  <li><strong>+</strong> Developer-first API/SDK experience</li>
+  <li><strong>+</strong> Cloud-native, elastic scale</li>
+  <li><strong>+</strong> Modern protocols (GNAP, OID4VC) not legacy retrofits</li>
+  <li><strong>+</strong> Privacy-by-design vs compliance checkbox</li>
+</ul>
+</div>
+<div class="comparison-category">
+<h4>vs. Decentralized Identity (SSI vendors)</h4>
+<ul>
+  <li><strong>+</strong> Production-ready OIDC/SAML bridge for legacy apps</li>
+  <li><strong>+</strong> Enterprise SLAs, support, and compliance frameworks</li>
+  <li><strong>+</strong> Integrated authorization (not just authentication)</li>
+  <li><strong>+</strong> Pragmatic hybrid approach (not ideology-first)</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
 
-    <section id="roadmap" class="section-spacing">
-      <div class="section-header">
-        <h2>Multi-phase Roadmap</h2>
-        <div class="section-number">10</div>
-      </div>
-      <p class="section-intro">A pragmatic, five-phase execution plan delivering incremental, compounding value over 18 months.</p>
+<section id="roadmap" class="section-spacing">
+<div class="section-header">
+<h2>Multi-phase Roadmap</h2>
+<div class="section-number">10</div>
+</div>
+<p class="section-intro">A pragmatic, five-phase execution plan delivering incremental, compounding value over 18 months.</p>
 
-      <div class="roadmap-phases">
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V1: Core Trust Layer</h3>
-            <span class="phase-timeline">0–3 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Foundation for high-assurance authentication and authorization.</p>
-            <ul class="phase-deliverables">
-              <li>OIDC 2.1 + GNAP server with PAR, JAR, JARM, DPoP token binding</li>
-              <li>Passkey-primary authentication (WebAuthn/FIDO2)</li>
-              <li>Multi-tenant architecture with cryptographic isolation</li>
-              <li>Device attestation MVP (iOS/Android platform attestation)</li>
-              <li>Basic ReBAC authorization with in-memory graph</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> &lt;50ms token issuance latency; 99.9% uptime; 10 design partner tenants</p>
-          </div>
-        </div>
+<div class="roadmap-phases">
+<div class="phase-detailed">
+<div class="phase-header">
+<h3>V1: Core Trust Layer</h3>
+<span class="phase-timeline">0–3 months</span>
+</div>
+<div class="phase-body">
+<p class="phase-description">Foundation for high-assurance authentication and authorization.</p>
+<ul class="phase-deliverables">
+  <li>OIDC 2.1 + GNAP server with PAR, JAR, JARM, DPoP token binding</li>
+  <li>Passkey-primary authentication (WebAuthn/FIDO2)</li>
+  <li>Multi-tenant architecture with cryptographic isolation</li>
+  <li>Device attestation MVP (iOS/Android platform attestation)</li>
+  <li>Basic ReBAC authorization with in-memory graph</li>
+</ul>
+<p class="phase-kpi"><strong>Success Metrics:</strong> &lt;50ms token issuance latency; 99.9% uptime; 10 design partner tenants</p>
+</div>
+</div>
 
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V2: Verifiable Credentials Engine</h3>
-            <span class="phase-timeline">3–6 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Full W3C VC issuance and verification with privacy-preserving primitives.</p>
-            <ul class="phase-deliverables">
-              <li>SD-JWT VC format support (selective disclosure)</li>
-              <li>OID4VCI (credential issuance) and OID4VP (presentation) flows</li>
-              <li>DID methods: did:web, did:key, did:ion (pilot)</li>
-              <li>StatusList2021 revocation mechanism</li>
-              <li>VC-to-OIDC bridge (legacy app compatibility)</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> Issue 100k+ VCs; 3+ VC wallet integrations; healthcare pilot deployment</p>
-          </div>
-        </div>
+<div class="phase-detailed">
+<div class="phase-header">
+<h3>V2: Verifiable Credentials Engine</h3>
+<span class="phase-timeline">3–6 months</span>
+</div>
+<div class="phase-body">
+<p class="phase-description">Full W3C VC issuance and verification with privacy-preserving primitives.</p>
+<ul class="phase-deliverables">
+  <li>SD-JWT VC format support (selective disclosure)</li>
+  <li>OID4VCI (credential issuance) and OID4VP (presentation) flows</li>
+  <li>DID methods: did:web, did:key, did:ion (pilot)</li>
+  <li>StatusList2021 revocation mechanism</li>
+  <li>VC-to-OIDC bridge (legacy app compatibility)</li>
+</ul>
+<p class="phase-kpi"><strong>Success Metrics:</strong> Issue 100k+ VCs; 3+ VC wallet integrations; healthcare pilot deployment</p>
+</div>
+</div>
 
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V3: Policy & Authorization Graph</h3>
-            <span class="phase-timeline">6–9 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Production-grade, hybrid authorization engine with policy-as-code.</p>
-            <ul class="phase-deliverables">
-              <li>Zanzibar-style graph store (persistent, replicated)</li>
-              <li>Cedar + OPA policy engines with XACML compatibility</li>
-              <li>Git-backed Policy Administration Point (PAP)</li>
-              <li>PEP SDKs (Java, TypeScript, Go, Rust)</li>
-              <li>Real-time policy testing and conformance harness</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> &lt;10ms authorization decisions; 1M+ tuples in graph; 50+ policy repos managed</p>
-          </div>
-        </div>
+<div class="phase-detailed">
+<div class="phase-header">
+<h3>V3: Policy & Authorization Graph</h3>
+<span class="phase-timeline">6–9 months</span>
+</div>
+<div class="phase-body">
+<p class="phase-description">Production-grade, hybrid authorization engine with policy-as-code.</p>
+<ul class="phase-deliverables">
+  <li>Zanzibar-style graph store (persistent, replicated)</li>
+  <li>Cedar + OPA policy engines with XACML compatibility</li>
+  <li>Git-backed Policy Administration Point (PAP)</li>
+  <li>PEP SDKs (Java, TypeScript, Go, Rust)</li>
+  <li>Real-time policy testing and conformance harness</li>
+</ul>
+<p class="phase-kpi"><strong>Success Metrics:</strong> &lt;10ms authorization decisions; 1M+ tuples in graph; 50+ policy repos managed</p>
+</div>
+</div>
 
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V4: Identity Proofing & Compliance</h3>
-            <span class="phase-timeline">9–12 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Regulated-industry readiness with identity proofing and compliance frameworks.</p>
-            <ul class="phase-deliverables">
-              <li>Identity proofing pipeline (document verification, liveness detection)</li>
-              <li>NIST 800-63 IAL2/AAL2 certification path</li>
-              <li>eIDAS compliance for EU market</li>
-              <li>Proofing VC issuance with assurance levels</li>
-              <li>Trust registry for issuer/verifier discovery</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> NIST certification achieved; 2+ regulated industry customers (finance, healthcare)</p>
-          </div>
-        </div>
+<div class="phase-detailed">
+<div class="phase-header">
+<h3>V4: Identity Proofing & Compliance</h3>
+<span class="phase-timeline">9–12 months</span>
+</div>
+<div class="phase-body">
+<p class="phase-description">Regulated-industry readiness with identity proofing and compliance frameworks.</p>
+<ul class="phase-deliverables">
+  <li>Identity proofing pipeline (document verification, liveness detection)</li>
+  <li>NIST 800-63 IAL2/AAL2 certification path</li>
+  <li>eIDAS compliance for EU market</li>
+  <li>Proofing VC issuance with assurance levels</li>
+  <li>Trust registry for issuer/verifier discovery</li>
+</ul>
+<p class="phase-kpi"><strong>Success Metrics:</strong> NIST certification achieved; 2+ regulated industry customers (finance, healthcare)</p>
+</div>
+</div>
 
-        <div class="phase-detailed">
-          <div class="phase-header">
-            <h3>V5: Federation & AI-Native Features</h3>
-            <span class="phase-timeline">12–18 months</span>
-          </div>
-          <div class="phase-body">
-            <p class="phase-description">Advanced delegation, cross-domain trust, and first-class AI agent support.</p>
-            <ul class="phase-deliverables">
-              <li>BBS+ signature support (unlinkable credentials)</li>
-              <li>Advanced Authority Brokering Engine (delegation chains, transitive trust)</li>
-              <li>Multi-issuer trust framework and federation protocol</li>
-              <li>AI agent identity primitives (autonomous signing keys, policy-bound agents)</li>
-              <li>Zero-knowledge proof integration (age verification, compliance checks)</li>
-            </ul>
-            <p class="phase-kpi"><strong>Success Metrics:</strong> 10+ federated trust domains; 1000+ AI agents managed; enterprise SOC 2 Type II</p>
-          </div>
-        </div>
-      </div>
-    </section>
+<div class="phase-detailed">
+<div class="phase-header">
+<h3>V5: Federation & AI-Native Features</h3>
+<span class="phase-timeline">12–18 months</span>
+</div>
+<div class="phase-body">
+<p class="phase-description">Advanced delegation, cross-domain trust, and first-class AI agent support.</p>
+<ul class="phase-deliverables">
+  <li>BBS+ signature support (unlinkable credentials)</li>
+  <li>Advanced Authority Brokering Engine (delegation chains, transitive trust)</li>
+  <li>Multi-issuer trust framework and federation protocol</li>
+  <li>AI agent identity primitives (autonomous signing keys, policy-bound agents)</li>
+  <li>Zero-knowledge proof integration (age verification, compliance checks)</li>
+</ul>
+<p class="phase-kpi"><strong>Success Metrics:</strong> 10+ federated trust domains; 1000+ AI agents managed; enterprise SOC 2 Type II</p>
+</div>
+</div>
+</div>
+</section>
 
-    <section id="long-term-outlook" class="section-spacing vision-2030">
-      <div class="section-header">
-        <h2>Vision 2030</h2>
-        <div class="section-number">11</div>
-      </div>
-      <div class="vision-grid">
-        <div class="vision-card">
-          <h3>From "Identity" to "Authority"</h3>
-          <p>Evolving from IdP to Authority Broker—answering "What authority do you have?" not "Who are you?"</p>
-        </div>
-        <div class="vision-card">
-          <h3>AI Agents as First-Class Citizens</h3>
-          <p>Artagon will be the "IAM for AI"—trust, governance, and audit for autonomous economic actors.</p>
-        </div>
-        <div class="vision-card">
-          <h3>The "Verifiable Web"</h3>
-          <p>GNAP + VCs + OID4VP: the engine for frictionless, portable, verifiable identity across services.</p>
-        </div>
-      </div>
-      <div class="closing-statement">
-        <p><strong>Artagon's mission is to build the trust layer for the next two decades of digital interaction.</strong></p>
-        <p>By unifying the identity of humans and machines, by building in privacy and zero-friction security from the protocol level, and by grounding all trust in cryptographic verification, we are not just building a product—we are architecting the future of digital trust.</p>
-      </div>
-    </section>
-  </div>
+<section id="long-term-outlook" class="section-spacing vision-2030">
+<div class="section-header">
+<h2>Vision 2030</h2>
+<div class="section-number">11</div>
+</div>
+<div class="vision-grid">
+<div class="vision-card">
+<h3>From "Identity" to "Authority"</h3>
+<p>Evolving from IdP to Authority Broker—answering "What authority do you have?" not "Who are you?"</p>
+</div>
+<div class="vision-card">
+<h3>AI Agents as First-Class Citizens</h3>
+<p>Artagon will be the "IAM for AI"—trust, governance, and audit for autonomous economic actors.</p>
+</div>
+<div class="vision-card">
+<h3>The "Verifiable Web"</h3>
+<p>GNAP + VCs + OID4VP: the engine for frictionless, portable, verifiable identity across services.</p>
+</div>
+</div>
+<div class="closing-statement">
+<p><strong>Artagon's mission is to build the trust layer for the next two decades of digital interaction.</strong></p>
+<p>By unifying the identity of humans and machines, by building in privacy and zero-friction security from the protocol level, and by grounding all trust in cryptographic verification, we are not just building a product—we are architecting the future of digital trust.</p>
+</div>
+</section>
+</div>
