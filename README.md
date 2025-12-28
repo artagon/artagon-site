@@ -330,6 +330,8 @@ Serves `dist/` on `http://localhost:4321` to test production build.
 6. Deploy to GitHub Pages
 ```
 
+**Required Pages setting:** set **Source** to **GitHub Actions** so deployments run from `.github/workflows/deploy.yml` (branch-based Jekyll builds are not supported).
+
 **Configuration:**
 - **Custom domain:** `artagon.com` (set in repo settings)
 - **CNAME:** `artagon.com` (in `public/CNAME`)

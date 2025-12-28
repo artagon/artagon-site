@@ -1,0 +1,21 @@
+# Fallback for branch-based Pages builds; keep Jekyll away from Astro sources.
+exclude:
+  - src
+  - node_modules
+  - scripts
+  - tests
+  - openspec
+  - .github
+  - .agents
+  - deploy
+  - docs
+  - assets
+  - package.json
+  - package-lock.json
+  - astro.config.mjs
+  - lighthouserc.json
+  - lychee.toml
+  - playwright.config.ts
+  - README.md
+  - AGENTS.md
+  - COPILOT.md
