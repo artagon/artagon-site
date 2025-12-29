@@ -17,6 +17,12 @@ const faqsByCategory = FAQ_CATEGORIES.map(category => ({
   items: FAQS.filter(faq => faq.category === category)
 })).filter(group => group.items.length > 0);
 
+const stripMarkdown = (value: string) =>
+  value
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\[(.*?)\]\((.*?)\)/g, '$1');
+
 // Generate JSON-LD FAQPage schema
 const faqSchema = {
   "@context": "https://schema.org",
@@ -26,7 +32,7 @@ const faqSchema = {
     "name": faq.question,
     "acceptedAnswer": {
       "@type": "Answer",
-      "text": faq.answer
+      "text": stripMarkdown(faq.answer)
     }
   }))
 };

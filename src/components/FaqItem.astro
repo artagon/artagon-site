@@ -1,11 +1,9 @@
 ---
 import type { FaqItem } from '../data/faq';
-import { markHTMLString } from 'astro/runtime/server/index.js';
 import { renderMarkdown } from '../lib/markdown';
 
 const item = Astro.props as FaqItem;
-const { code } = await renderMarkdown(item.answer);
-const renderedAnswer = markHTMLString(code);
+const renderedAnswer = await renderMarkdown(item.answer);
 ---
 
 <details id={item.id} class="faq-item">

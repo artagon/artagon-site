@@ -22,7 +22,7 @@ export const FAQS: FaqItem[] = [
     category: "Platform Overview",
     question: "What is the Artagon Identity Platform?",
     answer:
-      "Artagon is a unified identity and authorization platform that combines an OIDC 2.1/OpenID Provider, GNAP Authorization Server, verifiable credentials infrastructure, device/app attestation, and Zanzibar-style policy engine. It provides a complete solution for modern, high-assurance identity and access management for both machines and humans.",
+      "Artagon is a unified identity and authorization platform that combines an **OIDC 2.1/OpenID Provider**, **GNAP Authorization Server**, **verifiable credentials infrastructure**, **device/app attestation**, and **Zanzibar-style policy engine**. It provides a complete solution for modern, high-assurance identity and access management for both machines and humans.",
   },
   {
     id: "oidc-gnap-support",
