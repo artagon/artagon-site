@@ -19,4 +19,6 @@ exclude:
   - README.md
   - AGENTS.md
   - COPILOT.md
+  - CLAUDE.md
+  - GEMINI.md
   - CNAME
