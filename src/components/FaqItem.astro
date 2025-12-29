@@ -1,6 +1,6 @@
 ---
 import type { FaqItem } from '../data/faq';
-import { markHTMLString } from 'astro/runtime/server';
+import { markHTMLString } from 'astro/runtime/server/index.js';
 import { renderMarkdown } from '../lib/markdown';
 
 const item = Astro.props as FaqItem;
