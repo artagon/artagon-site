@@ -5,7 +5,7 @@
 Two issues identified in Copilot PR review for Content Collections refactoring (#3) remain unaddressed:
 
 1. **Code Quality**: Content file formatting inconsistency
-   - `src/content/pages/vision.md` has inconsistent indentation (4 spaces instead of standard 2)
+   - `src/content/pages/vision.mdx` has inconsistent indentation (4 spaces instead of standard 2)
    - Makes the file harder to maintain and read
    - Violates standard Markdown/HTML formatting conventions
 
@@ -19,7 +19,7 @@ Two issues identified in Copilot PR review for Content Collections refactoring (
 
 ### 1. Normalize Vision Page Indentation
 
-**File:** `src/content/pages/vision.md`
+**File:** `src/content/pages/vision.mdx`
 
 - Standardize all HTML indentation to 2 spaces (Prettier/web standard)
 - Maintain existing structure and content unchanged
