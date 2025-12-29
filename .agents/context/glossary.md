@@ -20,6 +20,7 @@
 
 ## Branch Change Summary
 
+- OpenSpec archive: moved `openspec/changes/fix-pages-build/` to `openspec/changes/archive/2025-12-29-fix-pages-build/` and generated `openspec/specs/github-pages-deployment/spec.md`.
 - Pages build fix implementation: added `public/.nojekyll` and `_config.yml` fallback excludes plus documented GitHub Pages source settings in `README.md`; marked `openspec/changes/fix-pages-build/tasks.md` complete.
 - Pages deployment spec: added `openspec/changes/fix-pages-build/` (proposal, tasks, spec delta) to address GitHub Pages build failures caused by Jekyll parsing Astro sources.
 - OpenSpec updates: `openspec/project.md`, `openspec/contributing.md`, `openspec/changes/update-site-quality-checks/` (proposal, tasks, specs), updates to `openspec/changes/refactor-content-collections/`, and new `openspec/changes/refactor-styling-architecture/`.
