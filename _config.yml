@@ -19,3 +19,4 @@ exclude:
   - README.md
   - AGENTS.md
   - COPILOT.md
+  - CNAME
