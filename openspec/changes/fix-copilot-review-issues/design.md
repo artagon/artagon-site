@@ -14,8 +14,8 @@
 
 **Implementation:**
 ```bash
-# Run Prettier on vision.md
-npx prettier --write src/content/pages/vision.md
+# Run Prettier on vision.mdx
+npx prettier --write src/content/pages/vision.mdx
 ```
 
 ### 2. FAQ XSS Vulnerability Fix
