@@ -15,6 +15,7 @@ export const FAQ_CATEGORIES = [
 ] as const;
 
 export const FAQS: FaqItem[] = [
+  // Answers are Markdown strings rendered via the Astro Markdown pipeline.
   // Platform Overview
   {
     id: "what-is-artagon",

@@ -20,6 +20,7 @@
 
 ## Branch Change Summary
 
+- FAQ Markdown rendering: replaced `set:html` in `src/components/FaqItem.astro` with Astro Markdown pipeline rendering, added FAQ Markdown styling, and introduced `tests/faq-markdown.spec.ts`.
 - Copilot review spec: clarified that FAQ Markdown rendering must use the shared Astro Markdown pipeline for consistency with content collections.
 - Copilot review spec: added `openspec/changes/fix-copilot-review-issues/specs/site-content/spec.md`, created tasks, and aligned proposal/design references to `vision.mdx`.
 - OpenSpec archive: moved `openspec/changes/fix-pages-build/` to `openspec/changes/archive/2025-12-29-fix-pages-build/` and generated `openspec/specs/github-pages-deployment/spec.md`.
