@@ -107,7 +107,9 @@ Follow [tasks.md](./tasks.md) phases:
 
 ## 📊 Success Metrics
 
-| Metric | Baseline | Target | Status |
+Note: Baselines are estimates until measured during the Phase 1 audit.
+
+| Metric | Baseline (estimate) | Target | Status |
 |--------|----------|--------|--------|
 | CSS Bundle Size | 70KB | ≤ 57KB (-19%) | ⏳ TBD |
 | Gzipped CSS | ~12KB | ≤ 10KB | ⏳ TBD |
