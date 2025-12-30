@@ -106,6 +106,7 @@
   - [ ] 1.12.3 Add examples for each component variant
   - [ ] 1.12.4 Document token naming conventions
   - [ ] 1.12.5 Create migration guide for future pages
+  - [ ] 1.12.6 After implementation, move the guide to `docs/guides/styling-guide.md` and update references
   - **Acceptance**: Complete guide published; peer-reviewed
 
 ## 2. Success Metrics Summary

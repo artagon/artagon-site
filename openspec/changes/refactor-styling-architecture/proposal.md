@@ -27,6 +27,12 @@ The Vision page styling lives in `src/styles/vision.css` and is a large, page-sc
   **Mitigation:** Prefer existing utilities, introduce new ones with clear prefixes or names, and keep page-only rules scoped under `.vision-doc`. Verify visual parity on `/`, `/platform`, `/roadmap`, and `/faq` across all themes before merge.
 - **Rollback:** Revert the theme/component changes and restore the previous Vision-specific classes if parity cannot be maintained.
 
+## Post-Implementation Documentation
+
+After the implementation is approved and merged, publish the styling architecture guide under `docs/`. Move
+`openspec/changes/refactor-styling-architecture/styling-guide.md` to `docs/guides/styling-guide.md` and update
+references to point to the docs location.
+
 ## Impact
 
 - **Affected Specs:** `style-system` (New Capability)
