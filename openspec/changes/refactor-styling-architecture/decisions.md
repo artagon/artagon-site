@@ -289,7 +289,7 @@ export interface Props { /* ... */ }
 
 ### 4.2 Component vs Utility Decision Tree
 
-**Create**: `docs/guides/styling-guide.md`
+**Create**: `openspec/changes/refactor-styling-architecture/styling-guide.md`
 
 ```markdown
 # When to Use Components vs Utilities
@@ -451,6 +451,6 @@ Add `@csstools/postcss-color-mix-function` to build pipeline.
 - [x] Accessibility requirements (Section 7)
 - [x] Tasks and acceptance criteria captured in `tasks.md`
 - [x] Token inventory drafted in `token-inventory.md`
-- [x] Developer guide drafted in `docs/guides/styling-guide.md`
+- [x] Developer guide drafted in `openspec/changes/refactor-styling-architecture/styling-guide.md`
 
 **Status**: Draft decisions; keep in sync with tasks and inventory during implementation.

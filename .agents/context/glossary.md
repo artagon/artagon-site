@@ -22,7 +22,7 @@
 
 - Refactor styling architecture spec: added `design.md`, clarified scope/rollback in the proposal, and expanded tasks to align with `src/styles/vision.css` and theme token usage.
 - Refactor styling architecture spec: added cross-page verification to the proposal risk mitigation for global utility changes.
-- Refactor styling architecture docs: added draft planning docs (`docs/guides/styling-guide.md`, `openspec/changes/refactor-styling-architecture/README.md`, `decisions.md`, `token-inventory.md`) and aligned status/wording with OpenSpec approval flow.
+- Refactor styling architecture docs: added draft planning docs (`openspec/changes/refactor-styling-architecture/styling-guide.md`, `openspec/changes/refactor-styling-architecture/README.md`, `decisions.md`, `token-inventory.md`) and aligned status/wording with OpenSpec approval flow.
 - FAQ Markdown rendering: replaced `set:html` in `src/components/FaqItem.astro` with Astro Markdown pipeline rendering via `src/lib/markdown.ts`, added FAQ Markdown styling and schema-safe `stripMarkdown` in `src/pages/faq/index.astro`, and introduced `tests/faq-markdown.spec.ts`.
 - OpenSpec archive batch: moved `openspec/changes/{add-copilot-integration,fix-copilot-review-issues,refactor-content-collections,update-site-quality-checks}/` into `openspec/changes/archive/2025-12-29-*` and generated new specs for `configure-copilot-environment`, `site-content`, `check-site-quality`, `manage-site-links`, and `openspec-workflow`.
 - Copilot review spec: clarified that FAQ Markdown rendering must use the shared Astro Markdown pipeline for consistency with content collections.

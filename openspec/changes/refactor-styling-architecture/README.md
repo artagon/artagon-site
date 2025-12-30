@@ -65,7 +65,7 @@ All documentation is in `openspec/changes/refactor-styling-architecture/`:
    - Copy-paste ready token definitions
    - Migration strategy with find/replace patterns
 
-7. **[docs/guides/styling-guide.md](../../../docs/guides/styling-guide.md)** ⭐ NEW
+7. **[styling-guide.md](./styling-guide.md)** ⭐ NEW
    - **Developer guide** for using the new system
    - Component vs utility decision tree
    - Theme token reference
@@ -87,7 +87,7 @@ approval or completion.
 - [x] ✅ Token inventory complete ([token-inventory.md](./token-inventory.md))
 - [x] ✅ Acceptance criteria defined ([tasks.md](./tasks.md))
 - [x] ✅ Component API designed ([decisions.md](./decisions.md) Section 3)
-- [x] ✅ Documentation created ([docs/guides/styling-guide.md](../../../docs/guides/styling-guide.md))
+- [x] ✅ Documentation created ([styling-guide.md](./styling-guide.md))
 - [ ] ⏳ Team review and approval
 - [ ] ⏳ Baseline screenshots captured
 
@@ -164,7 +164,7 @@ Follow [tasks.md](./tasks.md) phases:
 
 **Rationale**: Prevents naming collisions, clearly identifies global utilities.
 
-📄 **Details**: [styling-guide.md Naming Conventions](../../../docs/guides/styling-guide.md#naming-conventions)
+📄 **Details**: [styling-guide.md Naming Conventions](./styling-guide.md#naming-conventions)
 
 ---
 
@@ -326,7 +326,7 @@ If visual parity cannot be achieved:
 - ✅ `openspec/changes/refactor-styling-architecture/tasks.md`
 - ✅ `openspec/changes/refactor-styling-architecture/decisions.md`
 - ✅ `openspec/changes/refactor-styling-architecture/token-inventory.md`
-- ✅ `docs/guides/styling-guide.md`
+- ✅ `openspec/changes/refactor-styling-architecture/styling-guide.md`
 
 ---
 
@@ -334,7 +334,7 @@ If visual parity cannot be achieved:
 
 ### For Developers
 
-1. **Read**: [styling-guide.md](../../../docs/guides/styling-guide.md) - Understand system usage
+1. **Read**: [styling-guide.md](./styling-guide.md) - Understand system usage
 2. **Review**: [token-inventory.md](./token-inventory.md) - See what tokens are available
 3. **Implement**: Follow [tasks.md](./tasks.md) phases sequentially
 4. **Reference**: [decisions.md](./decisions.md) - Check architectural decisions
@@ -363,7 +363,7 @@ If visual parity cannot be achieved:
 | Token inventory | Draft | [token-inventory.md](./token-inventory.md) |
 | Acceptance criteria | Draft | [tasks.md](./tasks.md) |
 | Component API design | Draft | [decisions.md#3](./decisions.md#3-component-api-specifications) |
-| Developer documentation | Draft | [styling-guide.md](../../../docs/guides/styling-guide.md) |
+| Developer documentation | Draft | [styling-guide.md](./styling-guide.md) |
 | Browser compatibility | Planned | [decisions.md#5](./decisions.md#5-browser-compatibility-strategy) |
 | Performance targets | Draft | [tasks.md#2](./tasks.md#2-success-metrics-summary) |
 | Accessibility requirements | Draft | [decisions.md#7](./decisions.md#7-accessibility-audit-requirements) |
@@ -378,7 +378,7 @@ If visual parity cannot be achieved:
 - **Architecture**: See [decisions.md](./decisions.md)
 - **Token usage**: See [token-inventory.md](./token-inventory.md)
 - **Implementation**: See [tasks.md](./tasks.md)
-- **Developer guide**: See [docs/guides/styling-guide.md](../../../docs/guides/styling-guide.md)
+- **Developer guide**: See [styling-guide.md](./styling-guide.md)
 - **Original proposal**: See [proposal.md](./proposal.md)
 
 ---

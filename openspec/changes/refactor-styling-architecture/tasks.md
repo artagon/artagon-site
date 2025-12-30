@@ -101,7 +101,7 @@
 ### Phase 7: Documentation
 
 - [ ] 1.12 Create developer documentation.
-  - [ ] 1.12.1 Document component usage in `docs/guides/styling-guide.md`
+  - [ ] 1.12.1 Document component usage in `openspec/changes/refactor-styling-architecture/styling-guide.md`
   - [ ] 1.12.2 Document when to use components vs utilities (decision tree)
   - [ ] 1.12.3 Add examples for each component variant
   - [ ] 1.12.4 Document token naming conventions
