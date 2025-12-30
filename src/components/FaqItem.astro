@@ -1,6 +1,9 @@
 ---
 import type { FaqItem } from '../data/faq';
+import { renderMarkdown } from '../lib/markdown';
+
 const item = Astro.props as FaqItem;
+const renderedAnswer = await renderMarkdown(item.answer);
 ---
 
 <details id={item.id} class="faq-item">
@@ -10,7 +13,7 @@ const item = Astro.props as FaqItem;
       <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </summary>
-  <div class="faq-answer" set:html={item.answer} />
+  <div class="faq-answer">{renderedAnswer}</div>
 </details>
 
 <style>
@@ -62,6 +65,24 @@ details[open] .faq-icon {
   color: var(--muted);
   line-height: 1.7;
   font-size: 0.95rem;
+}
+
+.faq-answer p {
+  margin: 0;
+}
+
+.faq-answer p + p {
+  margin-top: 12px;
+}
+
+.faq-answer ul,
+.faq-answer ol {
+  margin: 12px 0 0 20px;
+  padding: 0;
+}
+
+.faq-answer li {
+  margin: 6px 0;
 }
 
 .faq-answer a {
