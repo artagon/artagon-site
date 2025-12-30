@@ -84,8 +84,8 @@
   - **Acceptance**: Pixel-perfect match (< 2% diff) across all 9 comparisons
 
 - [ ] 1.10 Performance validation.
-- [ ] 1.10.1 Measure CSS bundle size to establish the baseline (estimate: 70KB, target: ≤ 57KB)
-  - [ ] 1.10.2 Measure gzipped CSS (target: ≤ 10KB)
+- [ ] 1.10.1 Measure CSS bundle size to establish the baseline (measured: 43.0KB, target: ≤ 35.0KB)
+  - [ ] 1.10.2 Measure gzipped CSS (target: ≤ 7.0KB)
   - [ ] 1.10.3 Measure vision page build time (target: < +10% delta)
   - [ ] 1.10.4 Run Lighthouse audit (Critical CSS target: < 15KB)
   - **Acceptance**: All performance targets met or exceeded
@@ -111,17 +111,17 @@
 
 ## 2. Success Metrics Summary
 
-Note: Baselines are estimates until measured during Phase 1; update the table with actuals
-before final acceptance.
+Note: Baselines are measured via the validation prompt. Targets assume ~19% reduction and
+may be recalibrated during approval.
 
-| Metric | Baseline (estimate) | Target | Actual |
+| Metric | Baseline (measured) | Target | Actual |
 |--------|----------|--------|--------|
-| CSS Bundle Size | 70KB | ≤ 57KB (-19%) | _TBD_ |
-| Gzipped CSS | ~12KB | ≤ 10KB | _TBD_ |
+| CSS Bundle Size | 43.0KB | ≤ 35.0KB (~19%) | _TBD_ |
+| Gzipped CSS | 8.7KB | ≤ 7.0KB (~19%) | _TBD_ |
 | Vision Build Time | TBD | < +10% | _TBD_ |
 | Critical CSS | TBD | < 15KB | _TBD_ |
 | Lighthouse A11y | TBD | ≥ 95 | _TBD_ |
-| vision.css LOC | 1,014 | ≤ 250 | _TBD_ |
+| vision.css LOC | 1,013 | ≤ 250 | _TBD_ |
 | Visual Regression | N/A | < 2% pixel diff | _TBD_ |
 
 ## 3. Utilities Promoted to theme.css

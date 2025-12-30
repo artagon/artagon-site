@@ -9,12 +9,14 @@ Counts and line numbers are approximate; update during the Phase 1 audit.
 
 | Pattern | Count | Approx Line Numbers | Percentage |
 |---------|-------|---------------------|------------|
-| `color-mix(..., 20%, ...)` | 8 | 10, 82, 126, 155, 203, 294, 322, 364 | 20% |
-| `color-mix(..., 10%, ...)` | 12 | 109, 257, 509, 767 | 10% |
-| `color-mix(..., 8%, ...)` | 6 | 331, 378, 508, 612, 654 | 8% |
-| `color-mix(..., 5%, ...)` | 4 | 227, 257 | 5% |
-| `color-mix(..., 15%, ...)` | 4 | 331, 735, 858 | 15% |
-| `color-mix(..., 6%, ...)` | 2 | 619 | 6% |
+| `color-mix(..., 20%, ...)` | 15 | various | 20% |
+| `color-mix(..., 10%, ...)` | 3 | various | 10% |
+| `color-mix(..., 8%, ...)` | 4 | various | 8% |
+| `color-mix(..., 5%, ...)` | 1 | various | 5% |
+| `color-mix(..., 15%, ...)` | 3 | various | 15% |
+| `color-mix(..., 6%, ...)` | 1 | various | 6% |
+
+Total color-mix occurrences (all percentages): 29. Additional 30% usages appear outside the table (2 occurrences).
 
 ### Recommended Tokens
 
@@ -111,12 +113,12 @@ Counts and line numbers are approximate; update during the Phase 1 audit.
 
 | Pattern | Count | Example Line Numbers | Usage |
 |---------|-------|---------------------|-------|
-| `2px solid var(--brand-teal)` | 12 | 17, 44, 377, 517, 711, 813 | Solid accent |
-| `2px solid color-mix(..., 20%, transparent)` | 18 | 155, 203, 294, 322, 364, 442, 466, 531, 560, 634 | Subtle border |
-| `1px solid color-mix(..., 20%, transparent)` | 4 | 426, 919 | Thin subtle border |
-| `4px solid var(--brand-teal)` | 7 | 112, 260, 509, 601, 657, 1010 | Thick left accent |
-| `1px solid color-mix(..., 10%, transparent)` | 2 | 767 | Very subtle border |
-| `1px solid color-mix(..., 15%, transparent)` | 2 | 731 | Subtle table border |
+| `2px solid var(--brand-teal)` | 2 | various | Solid accent |
+| `2px solid color-mix(..., 20%, transparent)` | 13 | various | Subtle border |
+| `1px solid color-mix(..., 20%, transparent)` | 2 | various | Thin subtle border |
+| `4px solid var(--brand-teal)` | 6 | various | Thick left accent |
+| `1px solid color-mix(..., 10%, transparent)` | 2 | various | Very subtle border |
+| `1px solid color-mix(..., 15%, transparent)` | 1 | various | Subtle table border |
 
 ### Recommended Tokens
 
@@ -165,11 +167,10 @@ Counts and line numbers are approximate; update during the Phase 1 audit.
 
 | Type | Values | Count | Example Line Numbers |
 |------|--------|-------|---------------------|
-| **Section padding** | `5rem 0`, `4rem 0` | 8 | 60, 411 |
-| **Hero padding** | `80px 20px 60px` | 1 | 18 |
-| **Card padding** | `2rem`, `1.5rem`, `1.5rem 2rem` | 15+ | 41, 96, 113, 206, 261, 366 |
-| **Section margin** | `5rem 0`, `4rem 0`, `3rem 0` | 10+ | 60, 150, 198, 252, 411 |
-| **Element gap** | `2rem`, `1.5rem`, `1rem` | 20+ | 68, 149, 198, 251, 314 |
+| **Section margin** | `5rem 0`, `4rem 0`, `3rem 0` | 5rem: 19, 4rem: 6, 3rem: 6 | various |
+| **Hero padding** | `80px 20px 60px` | 1 | various |
+| **Card padding** | `2rem`, `1.5rem`, `1.5rem 2rem` | 2rem: 15, 1.5rem: 14 | various |
+| **Element gap** | `2rem`, `1.5rem`, `1rem` | 2rem: 7, 1.5rem: 6, 1rem: 4 | various |
 
 ### Recommended Tokens
 
@@ -225,12 +226,12 @@ Counts and line numbers are approximate; update during the Phase 1 audit.
 
 | Value | Count | Example Line Numbers | Usage |
 |-------|-------|---------------------|-------|
-| `12px` | 18 | 43, 115, 157, 206, 295, 365, 413, 531, 635, 659, 674, 723 | Cards |
-| `14px` | 8 | 365, 443, 469, 563, 622 | Large cards |
-| `8px` | 7 | 115, 262, 512, 611 | Small elements |
-| `10px` | 2 | 427 | Tech items |
-| `16px` | 2 | 622, 964 | Vision section |
-| `999px` | 3 | 711 | Circular badges |
+| `12px` | 9 | various | Cards |
+| `14px` | 4 | various | Large cards |
+| `8px` | 7 | various | Small elements |
+| `10px` | 1 | various | Tech items |
+| `16px` | 1 | various | Vision section |
+| `999px` | 1 | various | Circular badges |
 
 ### Recommended Tokens
 
@@ -405,14 +406,14 @@ Counts and line numbers are approximate; update during the Phase 1 audit.
 ## 8. Implementation Priority
 
 ### Phase 1: Critical (Block implementation)
-1. ✅ **Gradient tokens** - 40+ usages
-2. ✅ **Border tokens** - 50+ usages
-3. ✅ **Spacing tokens** - 30+ usages
-4. ✅ **Border radius tokens** - 30+ usages
+1. ✅ **Gradient tokens** - ~29 color-mix usages (plus 2 at 30%)
+2. ✅ **Border tokens** - ~31 teal border declarations
+3. ✅ **Spacing tokens** - ~77 margin/padding/gap declarations
+4. ✅ **Border radius tokens** - ~29 declarations
 
 ### Phase 2: Important (Enable componentization)
 5. ✅ **Shadow tokens** - 10+ usages
-6. ✅ **Color opacity tokens** - 30+ usages
+6. ✅ **Color opacity tokens** - 30+ usages (estimate)
 
 ### Phase 3: Enhancement (Nice-to-have)
 7. ⚠️ **Typography tokens** - Optional, low priority
@@ -464,10 +465,10 @@ Test each theme after replacement:
 
 ## 10. Acceptance Criteria
 
-- [ ] All gradient patterns (40+) replaced with tokens
-- [ ] All border patterns (50+) replaced with tokens
-- [ ] All spacing values (30+) replaced with tokens
-- [ ] All border radius values (30+) replaced with tokens
+- [ ] All gradient patterns (~29 color-mix occurrences) replaced with tokens
+- [ ] All border patterns (~31 teal border declarations) replaced with tokens
+- [ ] All spacing values (~77 margin/padding/gap declarations) replaced with tokens
+- [ ] All border radius values (~29 declarations) replaced with tokens
 - [ ] All shadow values (10+) replaced with tokens
 - [ ] Fallback values provided for all color-mix() tokens
 - [ ] Visual regression: < 2% pixel diff across all 9 screenshots

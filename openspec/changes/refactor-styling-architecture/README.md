@@ -11,7 +11,7 @@ tokens, metrics, and timelines are proposed until implementation is approved and
 
 ## 📋 Overview
 
-This change refactors the Vision page styling system to eliminate duplication and establish reusable design patterns for the entire Artagon site. The refactor extracts 40+ duplicated CSS patterns into a unified style system with theme tokens, utility classes, and reusable components.
+This change refactors the Vision page styling system to eliminate duplication and establish reusable design patterns for the entire Artagon site. The refactor consolidates recurring CSS patterns into a unified style system with theme tokens, utility classes, and reusable components.
 
 ---
 
@@ -56,12 +56,12 @@ All documentation is in `openspec/changes/refactor-styling-architecture/`:
 6. **[token-inventory.md](./token-inventory.md)** ⭐ NEW
    - **Draft inventory** of vision.css (approximate counts)
    - **6 token categories** inventoried:
-     - Gradients (40+ usages)
-     - Borders (50+ usages)
-     - Spacing (30+ usages)
-     - Border radius (30+ usages)
+     - Gradients (~29 color-mix usages)
+     - Borders (~31 teal border declarations)
+     - Spacing (~77 margin/padding/gap declarations)
+     - Border radius (~29 usages)
      - Shadows (10+ usages)
-     - Color opacity (30+ usages)
+     - Color opacity (estimate, 30+ usages)
    - Copy-paste ready token definitions
    - Migration strategy with find/replace patterns
 
@@ -73,6 +73,10 @@ All documentation is in `openspec/changes/refactor-styling-architecture/`:
    - Naming conventions
    - Best practices
    - Migration guide
+
+8. **[validation-prompt.md](./validation-prompt.md)** ⭐ NEW
+   - Measurement script for baselines and token counts
+   - Pass/fail criteria for proposal approval
 
 ---
 
@@ -88,6 +92,7 @@ approval or completion.
 - [x] ✅ Acceptance criteria defined ([tasks.md](./tasks.md))
 - [x] ✅ Component API designed ([decisions.md](./decisions.md) Section 3)
 - [x] ✅ Documentation created ([styling-guide.md](./styling-guide.md))
+- [ ] ⏳ **Validation prompt run** ([validation instructions](./validation-prompt.md))
 - [ ] ⏳ Team review and approval
 - [ ] ⏳ Baseline screenshots captured
 
@@ -107,13 +112,13 @@ Follow [tasks.md](./tasks.md) phases:
 
 ## 📊 Success Metrics
 
-Note: Baselines are estimates until measured during the Phase 1 audit.
+Note: Baselines are measured; targets assume ~19% reduction and may be recalibrated during approval.
 
-| Metric | Baseline (estimate) | Target | Status |
+| Metric | Baseline (measured) | Target | Status |
 |--------|----------|--------|--------|
-| CSS Bundle Size | 70KB | ≤ 57KB (-19%) | ⏳ TBD |
-| Gzipped CSS | ~12KB | ≤ 10KB | ⏳ TBD |
-| vision.css LOC | 1,014 lines | ≤ 250 lines | ⏳ TBD |
+| CSS Bundle Size | 43.0KB | ≤ 35.0KB (~19%) | ⏳ TBD |
+| Gzipped CSS | 8.7KB | ≤ 7.0KB (~19%) | ⏳ TBD |
+| vision.css LOC | 1,013 lines | ≤ 250 lines | ⏳ TBD |
 | Lighthouse A11y | _TBD_ | ≥ 95 | ⏳ TBD |
 | Visual Regression | N/A | < 2% pixel diff | ⏳ TBD |
 | Build Time Delta | Baseline | < +10% | ⏳ TBD |
@@ -281,7 +286,8 @@ interface Props {
 ### Performance Validation
 
 **Targets**:
-- CSS bundle: ≤ 57KB (-19% reduction)
+- CSS bundle: ≤ 35.0KB (~19% reduction)
+- Gzipped CSS: ≤ 7.0KB (~19% reduction)
 - Build time: < +10% delta
 - Critical CSS: < 15KB
 - Lighthouse score: ≥ 95
@@ -317,7 +323,7 @@ If visual parity cannot be achieved:
 ### Files to Modify
 
 - [ ] `public/assets/theme.css` - Add ~150 lines of tokens
-- [ ] `src/styles/vision.css` - Reduce from 1,014 → ~250 lines
+- [ ] `src/styles/vision.css` - Reduce from 1,013 → ~250 lines
 - [ ] `src/content/pages/vision.mdx` - Replace divs with components
 
 ### Files to Review
@@ -375,6 +381,11 @@ If visual parity cannot be achieved:
 
 ---
 
+## Validation Prompt
+
+Run the validation steps in `validation-prompt.md` before approval. If results fall
+outside tolerance, update `token-inventory.md` and the success metrics in `tasks.md`.
+
 ## 📞 Questions?
 
 - **Architecture**: See [decisions.md](./decisions.md)
@@ -382,9 +393,10 @@ If visual parity cannot be achieved:
 - **Implementation**: See [tasks.md](./tasks.md)
 - **Developer guide**: See [styling-guide.md](./styling-guide.md)
 - **Original proposal**: See [proposal.md](./proposal.md)
+- **Validation**: Run prompt above to verify estimates
 
 ---
 
 **Document Version**: 1.0
 **Status**: Draft
-**Ready for**: Team review and approval
+**Ready for**: Validation → Team review and approval

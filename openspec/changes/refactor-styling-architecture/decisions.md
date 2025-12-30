@@ -331,7 +331,7 @@ export interface Props { /* ... */ }
 
 ### Issue: `color-mix()` Support
 
-**Current usage**: 60+ instances in vision.css
+**Current usage**: 29 color-mix occurrences in vision.css (measured baseline)
 
 **Browser support**:
 - ✅ Chrome 111+ (March 2023)
@@ -374,12 +374,12 @@ Add `@csstools/postcss-color-mix-function` to build pipeline.
 
 ### Acceptance Criteria
 
-Note: Baselines are estimates until measured during the Phase 1 audit.
+Note: Baselines are measured via the validation prompt. Targets assume ~19% reduction and may be recalibrated during approval.
 
 | Metric | Current | Target | Measurement Method |
 |--------|---------|--------|-------------------|
-| **CSS Bundle Size** | 70KB (estimate, uncompressed) | ≤ 57KB (19% reduction) | `wc -c src/styles/vision.css public/assets/theme.css` |
-| **Gzipped CSS** | ~12KB | ≤ 10KB | `gzip -c file.css \| wc -c` |
+| **CSS Bundle Size** | 43.0KB (measured, uncompressed) | ≤ 35.0KB (~19% reduction) | `wc -c src/styles/vision.css public/assets/theme.css` |
+| **Gzipped CSS** | 8.7KB (measured) | ≤ 7.0KB (~19% reduction) | `gzip -c file.css \| wc -c` |
 | **Vision Page Build Time** | Baseline TBD | < +10% delta | `astro build --verbose` |
 | **Critical CSS** | Not measured | < 15KB | Lighthouse audit |
 | **Component Overhead** | 0 imports | ≤ 5 components | Count in vision.mdx |
