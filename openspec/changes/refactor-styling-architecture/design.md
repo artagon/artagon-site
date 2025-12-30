@@ -41,5 +41,4 @@ The Vision page uses a large, page-scoped stylesheet in `src/styles/vision.css`.
 
 ## Open Questions
 
-- Which hero gradient should be the canonical token for reuse?
-- Should `SectionHeader` be a component, a utility class, or both?
+- Open questions are tracked in `decisions.md` and are currently resolved.

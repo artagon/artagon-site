@@ -24,7 +24,7 @@ The Vision page styling lives in `src/styles/vision.css` and is a large, page-sc
 ## Risks and Rollback
 
 - **Risk:** Global utilities can affect other pages.
-  **Mitigation:** Prefer existing utilities, introduce new ones with clear prefixes or names, and keep page-only rules scoped under `.vision-doc`.
+  **Mitigation:** Prefer existing utilities, introduce new ones with clear prefixes or names, and keep page-only rules scoped under `.vision-doc`. Verify visual parity on `/`, `/platform`, `/roadmap`, and `/faq` across all themes before merge.
 - **Rollback:** Revert the theme/component changes and restore the previous Vision-specific classes if parity cannot be maintained.
 
 ## Impact
