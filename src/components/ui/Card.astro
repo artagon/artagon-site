@@ -1,0 +1,68 @@
+---
+/**
+ * Card component - Reusable container for content with multiple visual variants.
+ *
+ * @example Basic usage
+ * <Card>
+ *   <h3>Title</h3>
+ *   <p>Content</p>
+ * </Card>
+ *
+ * @example Domain variant with badge
+ * <Card variant="domain" badgeIcon="🔐">
+ *   <h3>Security Feature</h3>
+ *   <p>Description</p>
+ * </Card>
+ *
+ * @see public/assets/theme.css for .ui-card utility classes
+ */
+export interface Props {
+  /** Visual variant determines styling preset */
+  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product' | 'vision';
+
+  /** Enable hover lift effect (default: true) */
+  hover?: boolean;
+
+  /** Optional badge text (positioned top-right) */
+  badge?: string;
+
+  /** Badge icon (emoji or HTML entity) */
+  badgeIcon?: string;
+
+  /** Highlight accent (strengthens border/background) */
+  highlight?: boolean;
+
+  /** Additional CSS classes */
+  className?: string;
+
+  /** Numbered badge (circular, positioned left for pillar variant) */
+  number?: string | number;
+}
+
+const {
+  variant = 'default',
+  hover = true,
+  badge,
+  badgeIcon,
+  highlight = false,
+  className = '',
+  number
+} = Astro.props;
+
+const classes = [
+  'ui-card',
+  `ui-card--${variant}`,
+  hover && 'ui-card--hover',
+  highlight && 'ui-card--highlight',
+  className
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<div class={classes}>
+  {badge && <div class="ui-card-badge">{badge}</div>}
+  {badgeIcon && <div class="ui-card-badge-icon">{badgeIcon}</div>}
+  {number && <div class="ui-card-number">{number}</div>}
+  <slot />
+</div>

@@ -45,16 +45,16 @@ test.describe('Vision Page - Content Collections', () => {
     ];
 
     for (const section of sections) {
-      const sectionHeader = page.locator('.section-header', { has: page.locator(`h2:text("${section.title}")`) });
+      const sectionHeader = page.locator('.ui-section-header', { has: page.locator(`h2:text("${section.title}")`) });
       await expect(sectionHeader).toBeVisible();
 
-      const sectionNumber = sectionHeader.locator('.section-number');
+      const sectionNumber = sectionHeader.locator('.ui-section-number');
       await expect(sectionNumber).toHaveText(section.number);
     }
   });
 
   test('should render three domain cards', async ({ page }) => {
-    const domainCards = page.locator('.domain-card');
+    const domainCards = page.locator('.ui-card--domain');
     await expect(domainCards).toHaveCount(3);
 
     // Check card titles
@@ -63,19 +63,19 @@ test.describe('Vision Page - Content Collections', () => {
     await expect(domainCards.nth(2).locator('h3')).toContainText('Next-Generation Authorization');
 
     // Check icons are present
-    await expect(domainCards.nth(0).locator('.domain-icon')).toHaveText('🔐');
-    await expect(domainCards.nth(1).locator('.domain-icon')).toHaveText('✓');
-    await expect(domainCards.nth(2).locator('.domain-icon')).toHaveText('⚡');
+    await expect(domainCards.nth(0).locator('.ui-card-badge-icon')).toHaveText('🔐');
+    await expect(domainCards.nth(1).locator('.ui-card-badge-icon')).toHaveText('✓');
+    await expect(domainCards.nth(2).locator('.ui-card-badge-icon')).toHaveText('⚡');
   });
 
   test('should render three strategic pillars', async ({ page }) => {
-    const pillarCards = page.locator('.pillar-card');
+    const pillarCards = page.locator('.ui-card--pillar');
     await expect(pillarCards).toHaveCount(3);
 
     // Check pillar numbers
-    await expect(pillarCards.nth(0).locator('.pillar-number')).toHaveText('1');
-    await expect(pillarCards.nth(1).locator('.pillar-number')).toHaveText('2');
-    await expect(pillarCards.nth(2).locator('.pillar-number')).toHaveText('3');
+    await expect(pillarCards.nth(0).locator('.ui-card-number')).toHaveText('1');
+    await expect(pillarCards.nth(1).locator('.ui-card-number')).toHaveText('2');
+    await expect(pillarCards.nth(2).locator('.ui-card-number')).toHaveText('3');
 
     // Check pillar titles
     await expect(pillarCards.nth(0).locator('h4')).toContainText('Verifiable Everything');
@@ -88,7 +88,7 @@ test.describe('Vision Page - Content Collections', () => {
       testInfo.project.name.startsWith('Mobile'),
       'Hover interactions are not reliable on touch devices.',
     );
-    const firstCard = page.locator('.domain-card').first();
+    const firstCard = page.locator('.ui-card--domain').first();
 
     // Get initial border color
     const initialBorder = await firstCard.evaluate((el) =>
@@ -120,7 +120,7 @@ test.describe('Vision Page - Content Collections', () => {
     await page.goto('/vision');
 
     // Check that section header stacks vertically on mobile
-    const sectionHeader = page.locator('.section-header').first();
+    const sectionHeader = page.locator('.ui-section-header').first();
     await sectionHeader.waitFor({ state: 'visible' });
     const flexDirection = await sectionHeader.evaluate((el) =>
       window.getComputedStyle(el).flexDirection
@@ -128,7 +128,7 @@ test.describe('Vision Page - Content Collections', () => {
     expect(flexDirection).toBe('column');
 
     // Domain cards should stack on mobile
-    const domainCards = page.locator('.domain-card');
+    const domainCards = page.locator('.ui-card--domain');
     const firstCardWidth = await domainCards.first().boundingBox();
     const secondCardWidth = await domainCards.nth(1).boundingBox();
 
@@ -149,7 +149,7 @@ test.describe('Vision Page - Content Collections', () => {
     await expect(h2s.count()).resolves.toBeGreaterThan(5);
 
     // Check that cards have proper structure
-    const cards = page.locator('.domain-card');
+    const cards = page.locator('.ui-card--domain');
     for (let i = 0; i < await cards.count(); i++) {
       const card = cards.nth(i);
       await expect(card.locator('h3')).toBeVisible();

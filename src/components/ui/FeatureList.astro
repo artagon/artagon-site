@@ -1,0 +1,30 @@
+---
+/**
+ * FeatureList component - Styled list wrapper for feature, numbered, or bulleted lists.
+ *
+ * @example Feature list
+ * <FeatureList variant="feature">
+ *   - **Protocol Unification**: OIDC 2.1 & GNAP
+ *   - **Hardened Security**: PAR, JAR, JARM, DPoP
+ * </FeatureList>
+ */
+export interface Props {
+  variant?: 'feature' | 'numbered' | 'bulleted';
+  className?: string;
+}
+
+const { variant = 'feature', className = '' } = Astro.props;
+
+const variantClass =
+  variant === 'numbered'
+    ? 'ui-numbered-list'
+    : variant === 'bulleted'
+      ? 'ui-bulleted-list'
+      : 'ui-feature-list';
+
+const classes = [variantClass, className].filter(Boolean).join(' ');
+---
+
+<div class={classes}>
+  <slot />
+</div>
