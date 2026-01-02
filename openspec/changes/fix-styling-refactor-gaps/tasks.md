@@ -42,4 +42,4 @@
 ## 5. Verification
 
 - [x] 5.1 Run E2E tests and ensure pass.
-- [ ] 5.2 Manual visual check of `vision.mdx` (ensure "solid" card renders correctly).
+- [x] 5.2 Manual visual check of `vision.mdx` (ensure "solid" card renders correctly).
