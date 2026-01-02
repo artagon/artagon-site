@@ -11,6 +11,8 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
+    env:
+      SPEC_VALIDATION_PATH: ${{ runner.temp }}/spec-validation.json
     steps:
       # Checkout for local scripts
       - name: Checkout repository
@@ -28,13 +30,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          node scripts/validate-spec-reference.js --output "$RUNNER_TEMP/spec-validation.json"
+          node scripts/validate-spec-reference.js --output "$SPEC_VALIDATION_PATH"
 
       # Use GitHub Script for API interactions (labels, comments, enforcement)
       - name: Comment and enforce spec compliance
         uses: actions/github-script@v7
-        env:
-          SPEC_VALIDATION_PATH: ${{ runner.temp }}/spec-validation.json
         with:
           script: |
             const fs = require('fs');
