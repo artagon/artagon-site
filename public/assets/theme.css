@@ -25,6 +25,7 @@
   --muted: #94a3b8;
 
   --brand-teal: #22e3c5; /* Verified */
+  --brand-teal-rgb: 34, 227, 197;
   --brand-violet: #7c5cff; /* Attested */
   --brand-sky: #38bdf8; /* Helpful actions/links */
 
@@ -42,6 +43,7 @@
   --muted: #a9b4cc;
 
   --brand-teal: #22d3ee;
+  --brand-teal-rgb: 34, 211, 238;
   --brand-violet: #a78bfa;
   --brand-sky: #6ea8fe;
 
@@ -59,6 +61,7 @@
   --muted: #9bb1cc;
 
   --brand-teal: #2dd4bf;
+  --brand-teal-rgb: 45, 212, 191;
   --brand-violet: #5b8aff;
   --brand-sky: #5b8aff;
 
@@ -70,7 +73,7 @@
   /* Gradients */
   --gradient-hero-fallback: linear-gradient(
     135deg,
-    rgba(34, 227, 197, 0.2) 0%,
+    rgba(var(--brand-teal-rgb), 0.2) 0%,
     var(--bg) 100%
   );
   --gradient-hero: linear-gradient(
@@ -81,7 +84,7 @@
 
   --gradient-surface-fallback: linear-gradient(
     135deg,
-    rgba(34, 227, 197, 0.1),
+    rgba(var(--brand-teal-rgb), 0.1),
     var(--surface)
   );
   --gradient-surface: linear-gradient(
@@ -92,7 +95,7 @@
 
   --gradient-accent-fallback: linear-gradient(
     135deg,
-    rgba(34, 227, 197, 0.05),
+    rgba(var(--brand-teal-rgb), 0.05),
     var(--surface)
   );
   --gradient-accent: linear-gradient(
@@ -103,7 +106,7 @@
 
   --gradient-inline-fallback: linear-gradient(
     135deg,
-    rgba(34, 227, 197, 0.08),
+    rgba(var(--brand-teal-rgb), 0.08),
     var(--surface)
   );
   --gradient-inline: linear-gradient(
@@ -114,7 +117,7 @@
 
   --gradient-vision-2030-fallback: linear-gradient(
     135deg,
-    rgba(34, 227, 197, 0.06),
+    rgba(var(--brand-teal-rgb), 0.06),
     transparent
   );
   --gradient-vision-2030: linear-gradient(
@@ -124,30 +127,30 @@
   );
 
   /* Color opacity */
-  --teal-5-fallback: rgba(34, 227, 197, 0.05);
+  --teal-5-fallback: rgba(var(--brand-teal-rgb), 0.05);
   --teal-5: color-mix(in srgb, var(--brand-teal) 5%, transparent);
-  --teal-8-fallback: rgba(34, 227, 197, 0.08);
+  --teal-8-fallback: rgba(var(--brand-teal-rgb), 0.08);
   --teal-8: color-mix(in srgb, var(--brand-teal) 8%, transparent);
-  --teal-10-fallback: rgba(34, 227, 197, 0.1);
+  --teal-10-fallback: rgba(var(--brand-teal-rgb), 0.1);
   --teal-10: color-mix(in srgb, var(--brand-teal) 10%, transparent);
-  --teal-12-fallback: rgba(34, 227, 197, 0.12);
+  --teal-12-fallback: rgba(var(--brand-teal-rgb), 0.12);
   --teal-12: color-mix(in srgb, var(--brand-teal) 12%, transparent);
-  --teal-15-fallback: rgba(34, 227, 197, 0.15);
+  --teal-15-fallback: rgba(var(--brand-teal-rgb), 0.15);
   --teal-15: color-mix(in srgb, var(--brand-teal) 15%, transparent);
-  --teal-20-fallback: rgba(34, 227, 197, 0.2);
+  --teal-20-fallback: rgba(var(--brand-teal-rgb), 0.2);
   --teal-20: color-mix(in srgb, var(--brand-teal) 20%, transparent);
-  --teal-30-fallback: rgba(34, 227, 197, 0.3);
+  --teal-30-fallback: rgba(var(--brand-teal-rgb), 0.3);
   --teal-30: color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  --teal-40-fallback: rgba(34, 227, 197, 0.4);
+  --teal-40-fallback: rgba(var(--brand-teal-rgb), 0.4);
   --teal-40: color-mix(in srgb, var(--brand-teal) 40%, transparent);
 
-  --surface-teal-5-fallback: rgba(34, 227, 197, 0.05);
+  --surface-teal-5-fallback: rgba(var(--brand-teal-rgb), 0.05);
   --surface-teal-5: color-mix(in srgb, var(--brand-teal) 5%, var(--surface));
-  --surface-teal-8-fallback: rgba(34, 227, 197, 0.08);
+  --surface-teal-8-fallback: rgba(var(--brand-teal-rgb), 0.08);
   --surface-teal-8: color-mix(in srgb, var(--brand-teal) 8%, var(--surface));
-  --surface-teal-10-fallback: rgba(34, 227, 197, 0.1);
+  --surface-teal-10-fallback: rgba(var(--brand-teal-rgb), 0.1);
   --surface-teal-10: color-mix(in srgb, var(--brand-teal) 10%, var(--surface));
-  --surface-teal-15-fallback: rgba(34, 227, 197, 0.15);
+  --surface-teal-15-fallback: rgba(var(--brand-teal-rgb), 0.15);
   --surface-teal-15: color-mix(in srgb, var(--brand-teal) 15%, var(--surface));
 
   /* Borders */
@@ -195,7 +198,7 @@
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.2);
-  --shadow-glow-teal-fallback: 0 4px 16px rgba(34, 227, 197, 0.2);
+  --shadow-glow-teal-fallback: 0 4px 16px rgba(var(--brand-teal-rgb), 0.2);
   --shadow-glow-teal: 0 4px 16px color-mix(in srgb, var(--brand-teal) 20%, transparent);
 }
 

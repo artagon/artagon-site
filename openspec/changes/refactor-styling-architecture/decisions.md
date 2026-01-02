@@ -252,7 +252,7 @@ const classes = [
 | Grid layouts | `.ui-grid`, `.ui-grid-2`, `.ui-grid-3` | Responsive grid containers |
 | Badges | `.ui-badge-number`, `.ui-badge-icon` | Circular numbered/icon badges |
 | Highlights | `.ui-highlight-box`, `.ui-info-box` | Callout boxes |
-| Lists | `.ui-feature-list`, `.ui-numbered-list` | Styled list containers |
+| Lists | `.ui-feature-list`, `.ui-numbered-list`, `.ui-bulleted-list` | Styled list containers |
 
 **Page-scoped classes**: Keep `.vision-doc` prefix for Vision-only rules
 

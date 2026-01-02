@@ -1,0 +1,102 @@
+name: "Spec Review Reminder"
+
+on:
+  issues:
+    types: [labeled, closed]
+
+jobs:
+  spec-review-reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      # Create tracking issues when specs are approved or closed
+      - name: Create spec tracking issue
+        uses: actions/github-script@v7
+        env:
+          TEAM_MENTIONS: "@artagon/maintainers" # Update to match your team handle
+        with:
+          script: |
+            const core = require('@actions/core');
+
+            const issue = context.payload.issue;
+            const action = context.payload.action;
+            const label = context.payload.label;
+            const labels = (issue.labels || []).map((item) => item.name);
+
+            const isSpec = labels.includes('spec');
+            const isApprovedLabel = action === 'labeled' && label && label.name === 'spec:approved';
+            const isClosed = action === 'closed' && labels.includes('spec');
+
+            if (!isSpec || (!isApprovedLabel && !isClosed)) {
+              core.info('Skipping: not a spec approval or closure event.');
+              return;
+            }
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const specNumber = issue.number;
+            const specTitle = issue.title.replace(/^Spec:\s*/i, '').trim();
+            const trackingTitle = `Implementation: Spec #${specNumber} - ${specTitle}`;
+
+            const search = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} in:title "Implementation: Spec #${specNumber}"`,
+            });
+
+            if (search.data.total_count > 0) {
+              core.info('Tracking issue already exists.');
+              return;
+            }
+
+            const extractAcceptanceCriteria = (body) => {
+              if (!body) return [];
+              const match = body.match(/(^|\n)#{1,6}\s*Acceptance Criteria\s*\n([\s\S]*?)(\n#{1,6}\s|\n---\n|$)/i);
+              if (!match) return [];
+              const section = match[2] || '';
+              return section
+                .split(/\r?\n/)
+                .map((line) => {
+                  const item = line.match(/^\s*[-*]\s+\[[ xX]\]\s+(.*)$/);
+                  return item ? item[1].trim() : null;
+                })
+                .filter(Boolean);
+            };
+
+            const criteria = extractAcceptanceCriteria(issue.body || '');
+            const criteriaList = criteria.length
+              ? criteria.map((item) => `- [ ] ${item}`).join('\n')
+              : '- [ ] Review acceptance criteria in the spec issue';
+
+            const formatDate = (date) => date.toISOString().split('T')[0];
+            const addDays = (base, days) => new Date(base.getTime() + days * 24 * 60 * 60 * 1000);
+            const now = new Date();
+
+            const reminders = [
+              `- [ ] ${formatDate(addDays(now, 3))} - Confirm implementation branch created`,
+              `- [ ] ${formatDate(addDays(now, 7))} - Open implementation PR and link spec`,
+              `- [ ] ${formatDate(addDays(now, 14))} - Verify acceptance criteria coverage`,
+            ].join('\n');
+
+            const teamMentions = process.env.TEAM_MENTIONS || '';
+            const body = [
+              `Tracking issue for ${issue.html_url}.`,
+              '',
+              teamMentions ? `Team: ${teamMentions}` : 'Team: (add team mentions)',
+              '',
+              '### Acceptance Criteria',
+              criteriaList,
+              '',
+              '### Implementation Reminders',
+              reminders,
+              '',
+              '### Notes',
+              '- Link the implementation PR when ready.',
+            ].join('\n');
+
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: trackingTitle,
+              body,
+              labels: ['implementation'],
+            });

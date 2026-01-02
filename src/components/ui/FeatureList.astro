@@ -10,10 +10,16 @@
  */
 export interface Props {
   variant?: 'feature' | 'numbered' | 'bulleted';
+  class?: string;
   className?: string;
 }
 
-const { variant = 'feature', className = '' } = Astro.props;
+const {
+  variant = 'feature',
+  class: classNameProp = '',
+  className = '',
+  ...rest
+} = Astro.props;
 
 const variantClass =
   variant === 'numbered'
@@ -22,9 +28,9 @@ const variantClass =
       ? 'ui-bulleted-list'
       : 'ui-feature-list';
 
-const classes = [variantClass, className].filter(Boolean).join(' ');
+const classes = [variantClass, classNameProp, className].filter(Boolean).join(' ');
 ---
 
-<div class={classes}>
+<div class={classes} {...rest}>
   <slot />
 </div>

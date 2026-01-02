@@ -1,0 +1,78 @@
+name: "Spec"
+description: "Define a new capability or change using OpenSpec."
+title: "Spec: "
+labels:
+  - "spec"
+  - "spec:draft"
+body:
+  # Overview
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to define a specification (what to build). Proposals live in PRs or discussions.
+        See `openspec/AGENTS.md` for workflow rules.
+
+  # Summary
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: "Brief description of the change."
+      placeholder: "In 1-2 sentences, describe what should be built."
+    validations:
+      required: true
+
+  # Motivation
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: "Why is this change needed?"
+      placeholder: "Explain the problem or opportunity."
+    validations:
+      required: true
+
+  # Detailed Design
+  - type: textarea
+    id: detailed_design
+    attributes:
+      label: Detailed Design
+      description: "Technical specification and behavior details."
+      placeholder: "Describe workflows, data flows, and key constraints."
+    validations:
+      required: true
+
+  # Acceptance Criteria
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: "Checklist of testable outcomes."
+      placeholder: |
+        - [ ] Example criterion
+        - [ ] Another criterion
+    validations:
+      required: true
+
+  # Out of Scope
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of Scope
+      description: "Explicitly list what is not included."
+      placeholder: "Not included: ..."
+
+  # Open Questions
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open Questions
+      description: "Unresolved decisions or dependencies."
+
+  # Related Issues/Specs
+  - type: input
+    id: related_issues
+    attributes:
+      label: Related Issues/Specs
+      description: "Link related specs, issues, or proposals."
+      placeholder: "#123, #456, or URL"
