@@ -18,7 +18,7 @@
  */
 export interface Props {
   /** Visual variant determines styling preset */
-  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product' | 'vision';
+  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product' | 'vision' | 'solid';
 
   /** Enable hover lift effect (default: true) */
   hover?: boolean;
@@ -33,6 +33,7 @@ export interface Props {
   highlight?: boolean;
 
   /** Additional CSS classes */
+  class?: string;
   className?: string;
 
   /** Numbered badge (circular, positioned left for pillar variant) */
@@ -45,8 +46,10 @@ const {
   badge,
   badgeIcon,
   highlight = false,
+  class: classNameProp = '',
   className = '',
-  number
+  number,
+  ...rest
 } = Astro.props;
 
 const classes = [
@@ -54,13 +57,14 @@ const classes = [
   `ui-card--${variant}`,
   hover && 'ui-card--hover',
   highlight && 'ui-card--highlight',
+  classNameProp,
   className
 ]
   .filter(Boolean)
   .join(' ');
 ---
 
-<div class={classes}>
+<div class={classes} {...rest}>
   {badge && <div class="ui-card-badge">{badge}</div>}
   {badgeIcon && <div class="ui-card-badge-icon">{badgeIcon}</div>}
   {number && <div class="ui-card-number">{number}</div>}

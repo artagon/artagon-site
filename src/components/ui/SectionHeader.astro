@@ -11,16 +11,24 @@ export interface Props {
   title: string;
   number?: string;
   intro?: string;
+  class?: string;
   className?: string;
   id?: string;
 }
 
-const { title, number, intro, className = '', id } = Astro.props;
+const {
+  title,
+  number,
+  intro,
+  class: classNameProp = '',
+  className = '',
+  ...rest
+} = Astro.props;
 
-const classes = ['ui-section', className].filter(Boolean).join(' ');
+const classes = ['ui-section', classNameProp, className].filter(Boolean).join(' ');
 ---
 
-<section class={classes} id={id}>
+<section class={classes} {...rest}>
   <div class="ui-section-header">
     <h2>{title}</h2>
     {number && <div class="ui-section-number">{number}</div>}

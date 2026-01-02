@@ -310,12 +310,13 @@ import { Card, SectionHeader, FeatureList } from '../../components/ui';
 **Props**:
 ```typescript
 interface Props {
-  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product' | 'vision';
+  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product' | 'vision' | 'solid';
   hover?: boolean;           // Enable hover lift (default: true)
   badge?: string;            // Badge text (top-right)
   badgeIcon?: string;        // Badge icon/emoji
   highlight?: boolean;       // Accent border/background
   number?: string | number;  // Circular number badge (left)
+  class?: string;            // Additional classes
   className?: string;        // Additional classes
 }
 ```
@@ -351,6 +352,11 @@ interface Props {
 <Card hover={false}>
   <p>Static card</p>
 </Card>
+
+<!-- Solid card -->
+<Card variant="solid" className="mission-statement">
+  <p>Trusted Identity for Machines and Humans - Verified, Private, Attested</p>
+</Card>
 ```
 
 **Utility Class Equivalent**:
@@ -375,6 +381,8 @@ interface Props {
   title: string;
   number?: string;      // Section number (e.g., "01")
   intro?: string;       // Section intro paragraph
+  id?: string;          // Optional anchor id
+  class?: string;
   className?: string;
 }
 ```
@@ -383,7 +391,7 @@ interface Props {
 
 ```mdx
 <!-- Basic section header -->
-<SectionHeader title="Executive Summary" number="01">
+<SectionHeader id="executive-summary" title="Executive Summary" number="01">
   <!-- Section content -->
 </SectionHeader>
 
@@ -425,6 +433,7 @@ interface Props {
 ```typescript
 interface Props {
   variant?: 'feature' | 'numbered' | 'bulleted';
+  class?: string;
   className?: string;
 }
 ```

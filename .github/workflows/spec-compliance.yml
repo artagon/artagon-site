@@ -1,0 +1,171 @@
+name: "Spec Compliance"
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  spec-compliance:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      SPEC_VALIDATION_PATH: ${{ runner.temp }}/spec-validation.json
+    steps:
+      # Checkout for local scripts
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Node is required for the validation script
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Validate spec reference
+        id: validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/validate-spec-reference.js --output "$SPEC_VALIDATION_PATH"
+
+      # Use GitHub Script for API interactions (labels, comments, enforcement)
+      - name: Comment and enforce spec compliance
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const core = require('@actions/core');
+
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed('No pull_request payload found.');
+              return;
+            }
+
+            const validationPath = process.env.SPEC_VALIDATION_PATH;
+            if (!validationPath || !fs.existsSync(validationPath)) {
+              core.setFailed('Spec validation output not found.');
+              return;
+            }
+
+            const data = JSON.parse(fs.readFileSync(validationPath, 'utf8'));
+            const body = pr.body || '';
+
+            const typeMatchers = [
+              { label: 'spec', regex: /- \[[xX]\]\s*Spec\b/ },
+              { label: 'proposal', regex: /- \[[xX]\]\s*Proposal\b/ },
+              { label: 'implementation', regex: /- \[[xX]\]\s*Implementation\b/ },
+              { label: 'fix', regex: /- \[[xX]\]\s*Fix\b/ },
+            ];
+
+            let prType = null;
+            for (const matcher of typeMatchers) {
+              if (matcher.regex.test(body)) {
+                prType = matcher.label;
+                break;
+              }
+            }
+
+            if (!prType) {
+              const title = pr.title || '';
+              if (/^spec:/i.test(title)) prType = 'spec';
+              if (/^proposal:/i.test(title)) prType = 'proposal';
+            }
+
+            if (!prType) {
+              const existingLabels = (pr.labels || []).map((item) => item.name);
+              if (existingLabels.includes('spec')) prType = 'spec';
+              if (existingLabels.includes('proposal')) prType = 'proposal';
+              if (existingLabels.includes('implementation')) prType = 'implementation';
+            }
+
+            if (!prType) prType = 'implementation';
+
+            const labelsToAdd = new Set();
+            if (['spec', 'proposal', 'implementation'].includes(prType)) {
+              labelsToAdd.add(prType);
+            }
+
+            if (prType === 'implementation' && data.missingSpecReference) {
+              labelsToAdd.add('needs-spec');
+            }
+
+            if (labelsToAdd.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: Array.from(labelsToAdd),
+              });
+            }
+
+            if (!data.missingSpecReference) {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: 'needs-spec',
+                });
+              } catch (error) {
+                // Ignore if the label is not present.
+              }
+            }
+
+            const criteriaLines = (data.acceptanceCriteria || []).length
+              ? data.acceptanceCriteria.map((item) => `- [ ] ${item}`).join('\n')
+              : '- (No acceptance criteria parsed)';
+
+            const specReference = data.specIssue
+              ? `#${data.specIssue.number} ${data.specIssue.title}`
+              : 'Missing spec reference';
+
+            const errorSection = (data.errors || []).length
+              ? `\n\nErrors:\n${data.errors.map((err) => `- ${err}`).join('\n')}`
+              : '';
+
+            const summaryBody = [
+              '## Spec Compliance Summary',
+              '',
+              `- Spec reference: ${specReference}`,
+              `- Implementation PR: ${prType === 'implementation' ? 'Yes' : 'No'}`,
+              '',
+              '### Acceptance Criteria',
+              criteriaLines,
+              errorSection,
+            ].join('\n');
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              per_page: 100,
+            });
+
+            const existing = comments.data.find((comment) =>
+              comment.user && comment.user.type === 'Bot' && comment.body.includes('## Spec Compliance Summary')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: summaryBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: summaryBody,
+              });
+            }
+
+            if (prType === 'implementation' && data.missingSpecReference) {
+              core.setFailed('Implementation PRs must reference a spec issue.');
+            }
