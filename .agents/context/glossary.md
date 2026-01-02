@@ -46,3 +46,4 @@
 - New tooling/docs: `AGENTS.md`, `openspec/AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `playwright.config.ts`, `src/components/Difference.astro`, plus `.lighthouseci/` now ignored via `.gitignore`.
 - Styling architecture implementation: added UI tokens/utilities in `public/assets/theme.css`, created `src/components/ui/` components, refactored `src/content/pages/vision.mdx` to use them, and reduced `src/styles/vision.css` to 220 lines with `.vision-doc` scoping; updated `openspec/changes/refactor-styling-architecture/tasks.md` progress.
 - Styling refactor follow-up: added `openspec/changes/fix-styling-refactor-gaps/` with proposal, tasks, and spec deltas for compatibility fixes plus Copilot/OpenSpec workflow integrations.
+- Vision tests: updated `tests/vision-page.spec.ts` selectors to match new UI utility classes (`ui-section-header`, `ui-card--domain`, `ui-card--pillar`, `ui-card-number`).
