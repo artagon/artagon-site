@@ -1,0 +1,30 @@
+---
+/**
+ * SectionHeader component - Section wrapper with header, number, and intro text.
+ *
+ * @example Basic usage
+ * <SectionHeader title="Executive Summary" number="01">
+ *   <p>Content here.</p>
+ * </SectionHeader>
+ */
+export interface Props {
+  title: string;
+  number?: string;
+  intro?: string;
+  className?: string;
+  id?: string;
+}
+
+const { title, number, intro, className = '', id } = Astro.props;
+
+const classes = ['ui-section', className].filter(Boolean).join(' ');
+---
+
+<section class={classes} id={id}>
+  <div class="ui-section-header">
+    <h2>{title}</h2>
+    {number && <div class="ui-section-number">{number}</div>}
+  </div>
+  {intro && <p class="ui-section-intro">{intro}</p>}
+  <slot />
+</section>

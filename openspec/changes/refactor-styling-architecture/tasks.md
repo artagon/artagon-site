@@ -2,23 +2,23 @@
 
 ### Phase 1: Audit & Planning
 
-- [ ] 1.1 Audit `src/styles/vision.css` and classify reusable vs page-only rules.
-  - [ ] 1.1.1 Inventory all card patterns (domain, pillar, component, product, vision)
-  - [ ] 1.1.2 Inventory all grid layouts (three-domains, pillars-grid, components-grid, etc.)
-  - [ ] 1.1.3 Inventory all gradient usages (count color-mix percentages: 5%, 8%, 10%, 20%)
-  - [ ] 1.1.4 Inventory all border patterns (solid, subtle, accent)
-  - [ ] 1.1.5 Inventory all spacing values (section, hero, card padding)
-- [ ] 1.1.6 Document findings in `token-inventory.md` and summarize key decisions in `decisions.md`
+- [x] 1.1 Audit `src/styles/vision.css` and classify reusable vs page-only rules.
+  - [x] 1.1.1 Inventory all card patterns (domain, pillar, component, product, vision)
+  - [x] 1.1.2 Inventory all grid layouts (three-domains, pillars-grid, components-grid, etc.)
+  - [x] 1.1.3 Inventory all gradient usages (count color-mix percentages: 5%, 8%, 10%, 20%)
+  - [x] 1.1.4 Inventory all border patterns (solid, subtle, accent)
+  - [x] 1.1.5 Inventory all spacing values (section, hero, card padding)
+- [x] 1.1.6 Document findings in `token-inventory.md` and summarize key decisions in `decisions.md`
 - **Acceptance**: `token-inventory.md` updated with counts and approximate references
 
 ### Phase 2: Token Definition
 
-- [ ] 1.2 Define theme tokens in `public/assets/theme.css` (see `decisions.md` Section 1).
-  - [ ] 1.2.1 Add gradient tokens (--gradient-hero, --gradient-surface, --gradient-accent, --gradient-inline)
-  - [ ] 1.2.2 Add spacing tokens (--spacing-section, --spacing-hero)
-  - [ ] 1.2.3 Add border tokens (--border-teal-solid, --border-teal-subtle)
-  - [ ] 1.2.4 Add radius tokens if missing (--radius-card: 12px, --radius-lg: 14px)
-  - [ ] 1.2.5 Add color-mix fallbacks for browser compatibility (rgba values)
+- [x] 1.2 Define theme tokens in `public/assets/theme.css` (see `decisions.md` Section 1).
+  - [x] 1.2.1 Add gradient tokens (--gradient-hero, --gradient-surface, --gradient-accent, --gradient-inline)
+  - [x] 1.2.2 Add spacing tokens (--spacing-section, --spacing-hero)
+  - [x] 1.2.3 Add border tokens (--border-teal-solid, --border-teal-subtle)
+  - [x] 1.2.4 Add radius tokens if missing (--radius-card: 12px, --radius-lg: 14px)
+  - [x] 1.2.5 Add color-mix fallbacks for browser compatibility (rgba values)
   - **Acceptance**: All tokens added with fallbacks; no visual changes when applied
 
 - [ ] 1.3 Verify tokens across all themes (midnight, twilight, slate).
@@ -30,42 +30,42 @@
 
 ### Phase 3: Global Utilities
 
-- [ ] 1.4 Promote shared utilities from Vision styles into `public/assets/theme.css` (with `ui-` prefix).
-  - [ ] 1.4.1 Create `.ui-card` base class and variants (--default, --domain, --pillar, --component)
-  - [ ] 1.4.2 Create `.ui-grid` with CSS custom property `--grid-min-width`
-  - [ ] 1.4.3 Create `.ui-section-header`, `.ui-section-number`, `.ui-section-intro`
-  - [ ] 1.4.4 Create `.ui-badge-number` utility for circular numbered badges
-  - [ ] 1.4.5 Create `.ui-highlight-box` and `.ui-info-box` utilities
-  - [ ] 1.4.6 Add focus-within states for accessibility
+- [x] 1.4 Promote shared utilities from Vision styles into `public/assets/theme.css` (with `ui-` prefix).
+  - [x] 1.4.1 Create `.ui-card` base class and variants (--default, --domain, --pillar, --component)
+  - [x] 1.4.2 Create `.ui-grid` with CSS custom property `--grid-min-width`
+  - [x] 1.4.3 Create `.ui-section-header`, `.ui-section-number`, `.ui-section-intro`
+  - [x] 1.4.4 Create `.ui-badge-number` utility for circular numbered badges
+  - [x] 1.4.5 Create `.ui-highlight-box` and `.ui-info-box` utilities
+  - [x] 1.4.6 Add focus-within states for accessibility
   - **Acceptance**: All utilities added; tested in isolation; documented in theme.css comments
 
 ### Phase 4: UI Components
 
-- [ ] 1.5 Create `src/components/ui/` primitives that wrap global utilities.
-  - [ ] 1.5.1 Create `Card.astro` with TypeScript interface (see `decisions.md` Section 3.1)
-  - [ ] 1.5.2 Create `SectionHeader.astro` with title, number, intro props
-  - [ ] 1.5.3 Create `FeatureList.astro` for styled lists (numbered, bulleted, feature)
-  - [ ] 1.5.4 Add JSDoc documentation to each component
-  - [ ] 1.5.5 Create `ui/index.ts` barrel export for convenience
+- [x] 1.5 Create `src/components/ui/` primitives that wrap global utilities.
+  - [x] 1.5.1 Create `Card.astro` with TypeScript interface (see `decisions.md` Section 3.1)
+  - [x] 1.5.2 Create `SectionHeader.astro` with title, number, intro props
+  - [x] 1.5.3 Create `FeatureList.astro` for styled lists (numbered, bulleted, feature)
+  - [x] 1.5.4 Add JSDoc documentation to each component
+  - [x] 1.5.5 Create `ui/index.ts` barrel export for convenience
   - **Acceptance**: All components type-safe; importable in MDX; documented with examples
 
 ### Phase 5: Vision Page Migration
 
-- [ ] 1.6 Update `src/content/pages/vision.mdx` to use the new components/classes.
-  - [ ] 1.6.1 Replace domain-card divs with `<Card variant="domain">` (3 instances)
-  - [ ] 1.6.2 Replace pillar-card divs with `<Card variant="pillar">` (3 instances)
-  - [ ] 1.6.3 Replace section-header divs with `<SectionHeader>` (11 instances)
-  - [ ] 1.6.4 Replace feature lists with `<FeatureList>` component
-  - [ ] 1.6.5 Update highlight-box/info-box to use `.ui-highlight-box` class
+- [x] 1.6 Update `src/content/pages/vision.mdx` to use the new components/classes.
+  - [x] 1.6.1 Replace domain-card divs with `<Card variant="domain">` (3 instances)
+  - [x] 1.6.2 Replace pillar-card divs with `<Card variant="pillar">` (3 instances)
+  - [x] 1.6.3 Replace section-header divs with `<SectionHeader>` (11 instances)
+  - [x] 1.6.4 Replace feature lists with `<FeatureList>` component
+  - [x] 1.6.5 Update highlight-box/info-box to use `.ui-highlight-box` class
   - **Acceptance**: MDX compiles without errors; all components render correctly
 
-- [ ] 1.7 Reduce `src/styles/vision.css` to page-only layout rules scoped under `.vision-doc`.
-  - [ ] 1.7.1 Delete all card pattern rules (moved to theme.css)
-  - [ ] 1.7.2 Delete all grid layout rules (moved to theme.css)
-  - [ ] 1.7.3 Delete all section header rules (moved to theme.css)
-  - [ ] 1.7.4 Delete all gradient definitions (replaced by tokens)
-  - [ ] 1.7.5 Keep only Vision-specific layout rules under `.vision-doc`
-  - [ ] 1.7.6 Scope remaining rules to prevent global leakage
+- [x] 1.7 Reduce `src/styles/vision.css` to page-only layout rules scoped under `.vision-doc`.
+  - [x] 1.7.1 Delete all card pattern rules (moved to theme.css)
+  - [x] 1.7.2 Delete all grid layout rules (moved to theme.css)
+  - [x] 1.7.3 Delete all section header rules (moved to theme.css)
+  - [x] 1.7.4 Delete all gradient definitions (replaced by tokens)
+  - [x] 1.7.5 Keep only Vision-specific layout rules under `.vision-doc`
+  - [x] 1.7.6 Scope remaining rules to prevent global leakage
   - **Acceptance**: vision.css reduced to < 250 lines; all rules scoped to `.vision-doc`
 
 ### Phase 6: Quality Assurance
@@ -121,25 +121,25 @@ may be recalibrated during approval.
 | Vision Build Time | TBD | < +10% | _TBD_ |
 | Critical CSS | TBD | < 15KB | _TBD_ |
 | Lighthouse A11y | TBD | ≥ 95 | _TBD_ |
-| vision.css LOC | 1,013 | ≤ 250 | _TBD_ |
+| vision.css LOC | 1,013 | ≤ 250 | 220 |
 | Visual Regression | N/A | < 2% pixel diff | _TBD_ |
 
 ## 3. Utilities Promoted to theme.css
 
 Document each utility as it's added:
 
-- [ ] `.ui-card` - Base card container
-- [ ] `.ui-card--domain` - Domain variant (3 uses in vision.mdx)
-- [ ] `.ui-card--pillar` - Pillar variant (3 uses)
-- [ ] `.ui-card--component` - Component variant (6+ uses)
-- [ ] `.ui-card--product` - Product variant (3 uses)
-- [ ] `.ui-grid` - Responsive grid with `--grid-min-width` custom property
-- [ ] `.ui-section-header` - Section header flex container
-- [ ] `.ui-section-number` - Large decorative number
-- [ ] `.ui-section-intro` - Section intro paragraph
-- [ ] `.ui-badge-number` - Circular numbered badge
-- [ ] `.ui-highlight-box` - Gradient highlight callout
-- [ ] `.ui-info-box` - Border info callout
+- [x] `.ui-card` - Base card container
+- [x] `.ui-card--domain` - Domain variant (3 uses in vision.mdx)
+- [x] `.ui-card--pillar` - Pillar variant (3 uses)
+- [x] `.ui-card--component` - Component variant (6+ uses)
+- [x] `.ui-card--product` - Product variant (reserved for future use)
+- [x] `.ui-grid` - Responsive grid with `--grid-min-width` custom property
+- [x] `.ui-section-header` - Section header flex container
+- [x] `.ui-section-number` - Large decorative number
+- [x] `.ui-section-intro` - Section intro paragraph
+- [x] `.ui-badge-number` - Circular numbered badge
+- [x] `.ui-highlight-box` - Gradient highlight callout
+- [x] `.ui-info-box` - Border info callout
 
 ## 4. Rollback Plan
 
