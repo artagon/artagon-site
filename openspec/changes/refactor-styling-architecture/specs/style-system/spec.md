@@ -6,7 +6,7 @@ Common UI patterns (Cards, Section Headers, Feature Lists) MUST be implemented a
 
 #### Scenario: Developer adds a new page
 - **WHEN** a developer creates a new page with a "Card" layout
-- **THEN** they can import the `Card` component or use the `.card` class without copying CSS.
+- **THEN** they can import the `Card` component or use the `.ui-card` utility without copying CSS.
 
 ### Requirement: Global Theme Consistency
 
