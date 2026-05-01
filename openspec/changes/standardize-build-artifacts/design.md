@@ -12,7 +12,7 @@ This change consolidates everything under `.build/` and centralizes path declara
 - Type-safe path lookups in TS configs (no string drift).
 - One `.gitignore` line.
 - One `npm run clean` that nukes everything reproducible.
-- CI cache key = single hash of `.build/cache/` directory.
+- CI cache key = `hashFiles('build.config.json', 'package-lock.json')` (content-derived; never `hashFiles('.build/cache/**')` self-hash tautology).
 - Per-run reports uploaded as a single CI artifact (`.build/reports/`).
 - Future-proof for Bazel adoption (JSON neutral form, no TS lock-in for path data).
 

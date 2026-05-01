@@ -70,6 +70,8 @@ Both additions are infrastructure-and-content scoped. They sequence AFTER `updat
 - **Risk: Remote content uses MDX components not whitelisted on this site.** **Mitigation:** The Astro MDX component allowlist is enforced at parse time; remote MDX with unknown components fails the build. `docs/writing-pipeline.md` documents the allowlist (`StandardChip`, `TrustChain`, `Diagram`, `Callout`).
 - **Rollback:** Revert in reverse order: (1) disable `WRITING_REMOTE_REPO` env in CI (immediately falls back to local-only); (2) remove `.github/workflows/content-redeploy.yml`; (3) remove the opt-in loader branch from `src/content/config.ts`; (4) revert `/brand` route, generators, generated PNGs, and `brand-svgs.ts`. Per-step is independent; none of the rollbacks affect already-published marketing pages.
 
+**Merge-order dependency:** This change MUST archive AFTER `standardize-build-artifacts`. The `prebuild` chain (`build:prebuild-chain`) is owned by `standardize-build-artifacts`; this change extends it with `build:favicons` + `build:logos` during its own apply phase. Archiving in the reverse order would land `build:prebuild-chain` in `package.json` without the leading `sync:build-config` step, which is unfixable without retroactively editing the archived `standardize-build-artifacts`. `openspec validate --strict` MUST fail if this proposal attempts to archive while `standardize-build-artifacts` is still in flight.
+
 ## Impact
 
 - **Affected Specs:**
