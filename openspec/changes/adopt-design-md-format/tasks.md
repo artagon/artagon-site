@@ -9,7 +9,9 @@
 - [ ] 0.3 `openspec validate adopt-design-md-format --strict` passes.
 - [ ] 0.4 Verify no path collision with `update-site-marketing-redesign`'s in-flight references; this change MUST land before the redesign per `design.md` Decision #8.
 - [ ] 0.5 File upstream issue at `google-labs-code/design.md` requesting `"license": "Apache-2.0"` in the published `package.json` (npm metadata currently omits it); record issue URL in `docs/design-md.md`. Pin upstream `LICENSE`-file SHA in `docs/design-md.md` so license-checker tools have a verified reference until the upstream fix lands.
-- [ ] 0.6 Build `scripts/verify-design-prerequisites.mjs` (`npm run verify:design-prerequisites`): fails the build if (a) this change is archived AND `update-site-marketing-redesign`'s tasks still reference `new-design/extracted/DESIGN.md`, OR (b) this change is in flight and the prereq guard hasn't been wired. Wire into CI postbuild step.
+- [ ] 0.6 Build `scripts/verify-design-prerequisites.mjs` (`npm run verify:design-prerequisites`): fails the build only when `update-site-marketing-redesign` is **in flight** (directory exists at `openspec/changes/update-site-marketing-redesign/`, NOT archived) AND its **live `tasks.md`** still references `new-design/extracted/DESIGN.md` paths. The grep MUST be scoped to the in-flight tasks file ONLY — historical references in `proposal.md`/`design.md` are authoring records, not build inputs, and MUST NOT trigger the failure. Once the redesign archives (its directory moves to `openspec/changes/archive/<timestamp>-update-site-marketing-redesign/`), the script exits 0 unconditionally because the redesign is no longer in flight. Wire into CI postbuild step.
+
+  Acceptance: a unit-test fixture proves three states — (a) redesign in flight + tasks reference old paths → exit 1; (b) redesign in flight + tasks updated → exit 0; (c) redesign archived → exit 0 regardless of historical references.
 
 ## Phase 1 — Capability scaffolding
 

@@ -8,6 +8,8 @@
 - [ ] 0.2 Confirm both prerequisite changes are archived: `npm run verify:writing-prerequisites` exits 0.
 - [ ] 0.3 `openspec validate add-brand-assets-and-writing-pipeline --strict` passes.
 - [ ] 0.4 Confirm CODEOWNERS includes `src/data/brand-svgs.ts`, `public/assets/logos/`, `.github/workflows/content-redeploy.yml`, and `docs/writing-pipeline.md`. Acceptance: `grep -q '/src/data/brand-svgs.ts' .github/CODEOWNERS && grep -q 'content-redeploy.yml' .github/CODEOWNERS`.
+- [ ] 0.5 Tag `pre-brand-assets` git tag once `update-site-marketing-redesign` and `adopt-design-md-format` are both archived (multi-phase rollback baseline analogous to the redesign's `pre-redesign` tag). Acceptance: `git tag -l pre-brand-assets` returns the tag.
+- [ ] 0.6 **Consolidate the three prerequisite-verification scripts.** Build `scripts/verify-openspec-prereqs.mjs` taking `--change <id>` as the single source of truth for openspec ordering. Replace the three near-duplicate scripts (`verify:prerequisites` from the redesign, `verify:design-prerequisites` from `adopt-design-md-format`, `verify:writing-prerequisites` from this change) with thin npm-script wrappers: `"verify:prerequisites": "node scripts/verify-openspec-prereqs.mjs --change update-site-marketing-redesign"` (etc.). Document the consolidation in `docs/openspec-ordering.md`. Acceptance: `node scripts/verify-openspec-prereqs.mjs --change add-brand-assets-and-writing-pipeline` exits 0 only when both prerequisite changes are archived; the three legacy script names continue to work as wrappers; `package.json` has only one source-of-truth implementation.
 
 ## Phase 1 — Capability scaffolding
 

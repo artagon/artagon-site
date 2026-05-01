@@ -146,17 +146,22 @@ When `WRITING_REMOTE_REPO=""` (or unset), the build MUST succeed using only loca
 
 ### Requirement: End-to-End Merge-to-Visible Latency
 
-From PR-merge in `artagon/content` (the dispatch trigger) to the live `/writing/[slug]` page on `artagon.com`, the pipeline MUST complete within 10 minutes (P95). The deployed page MUST emit `<meta name="artagon:build-sha" content="${WRITING_REMOTE_REF}">` in the head so contributors can verify their merge SHA is live. The `content-redeploy.yml` workflow MUST post a status check back to the dispatching repo's PR via `gh api repos/artagon/content/statuses/${sha}` so authors see "deployed" or "failed" without polling. Deploy failures MUST surface in the workflow's tracking issue.
+From PR-merge in `artagon/content` (the dispatch trigger) to the live `/writing/[slug]` page on `artagon.com`, the pipeline MUST complete within 10 minutes (P95). Every NON-noindex marketing route (i.e. routes not in `NOINDEX_ROUTES` from `src/lib/indexation.ts`) MUST emit `<meta name="artagon:build-sha" content="${WRITING_REMOTE_REF}">` in the head so contributors can verify their merge SHA is live. Noindex routes (`/console`, `/search`, `/play`, `/404`, `/brand`) MUST NOT emit the build-sha meta — they are tooling/app-shell surfaces, not user-facing content. The `content-redeploy.yml` workflow MUST post a status check back to the dispatching repo's PR via `gh api repos/artagon/content/statuses/${sha}` so authors see "deployed" or "failed" without polling. Deploy failures MUST surface in the workflow's tracking issue.
 
 #### Scenario: Merged PR is visible within 10 minutes
 
 - **WHEN** `artagon/content` merges a PR at time T
 - **THEN** by T+10 minutes the rendered `/writing/[slug]` page contains a head meta tag matching the merge SHA.
 
-#### Scenario: Build-SHA visible on rendered page
+#### Scenario: Build-SHA visible on indexable routes
 
-- **WHEN** a contributor inspects the deployed `/writing/[slug]` page
+- **WHEN** a contributor inspects the deployed `/`, `/platform`, `/use-cases`, `/standards`, `/roadmap`, `/writing`, or any `/writing/[slug]` route
 - **THEN** the head contains `<meta name="artagon:build-sha" content="${WRITING_REMOTE_REF}">` (40-hex value).
+
+#### Scenario: Build-SHA absent on noindex routes
+
+- **WHEN** a contributor inspects the deployed `/console`, `/search`, `/play`, `/404`, or `/brand` route
+- **THEN** the head does NOT contain a `<meta name="artagon:build-sha">` tag.
 
 #### Scenario: Status posted back to content-repo PR
 
