@@ -52,7 +52,7 @@ Each gallery tile MUST render a "Copy SVG" button that, when activated, writes a
 
 ### Requirement: /brand is Noindex
 
-The `/brand` route MUST be added to `NOINDEX_ROUTES` in `src/lib/indexation.ts` (the single-source list from `site-indexation`). It MUST emit `<meta name="robots" content="noindex, nofollow">` and MUST NOT appear in the sitemap.
+The literal string `'/brand'` MUST be present in the `NOINDEX_ROUTES` tuple declared in `src/lib/indexation.ts` after this change archives (the constant is `as const` so this is a source-edit, not a runtime concat). The single-source list is established by `site-indexation`. The `/brand` route MUST emit `<meta name="robots" content="noindex, nofollow">` and MUST NOT appear in the sitemap.
 
 #### Scenario: /brand excluded from sitemap
 
@@ -66,7 +66,7 @@ The `/brand` route MUST be added to `NOINDEX_ROUTES` in `src/lib/indexation.ts` 
 
 ### Requirement: /brand Performance Exception
 
-The `/brand` route MAY ship inline SVG payload exceeding the marketing-route content budget; `lighthouserc.json` MUST list `/brand` separately with a perf threshold of ≥ 0.8 (relaxed from the marketing-route ≥ 0.9). The exception MUST be documented inline in `lighthouserc.json` with a comment naming this requirement. Other Lighthouse categories (a11y ≥ 0.95, SEO ≥ 0.95, best-practices ≥ 0.95) MUST remain at standard thresholds.
+The `/brand` route MAY ship inline SVG payload exceeding the marketing-route content budget. The Lighthouse CI per-URL exception MUST be expressed as an additional `assertMatrix` entry (per the `style-system` Lighthouse CI Performance Gate requirement) with `matchingUrlPattern: "https?://[^/]+/brand/?$"` and assertions that relax `categories:performance` to `minScore: 0.8` while keeping `categories:accessibility`, `categories:seo`, and `categories:best-practices` at `minScore: 0.95`. The exception MUST be documented inline in `lighthouserc.json` with a comment citing this requirement. The marketing-route thresholds defined in the redesign's Lighthouse Requirement MUST NOT be lowered by this exception; only the `/brand`-specific entry relaxes.
 
 #### Scenario: /brand passes relaxed perf
 

@@ -124,7 +124,9 @@ YAML frontmatter colors carry sRGB hex; prose carries OKLCH. `scripts/oklch-to-h
 
 ### Requirement: Upstream Liveness Probe
 
-`.github/workflows/design-md-drift.yml` MUST run on a weekly cron and execute three checks: (1) regenerate the spec cache and `git diff --exit-code` it; (2) query `gh api repos/google-labs-code/design.md` and fail the workflow if `archived=true` OR the last push timestamp is more than 90 days old; (3) run `tests/fixtures/design-md/{good,bad}.md` snapshot tests asserting linter exit code and finding count. Failure MUST open a tracking issue; the workflow MUST NOT auto-PR an upgrade.
+`.github/workflows/design-md-drift.yml` MUST run on a weekly cron and execute three checks: (1) regenerate the spec cache and `git diff --exit-code` it; (2) query `gh api repos/google-labs-code/design.md` and fail the workflow if `archived=true` OR the last push timestamp is more than 90 days old; (3) run `tests/fixtures/design-md/{good,bad}.md` snapshot tests asserting linter exit code and finding count. Failure MUST open a tracking issue; the workflow MUST NOT auto-PR an upgrade and MUST NOT push commits.
+
+The workflow MUST declare an explicit minimum-privilege `permissions:` block at workflow scope: `permissions: { contents: read, issues: write }` (read for repo content; write for opening tracking issues only). All `uses:` references MUST be pinned by full 40-hex commit SHA with a `# v<semver>` comment recording the human-readable version. Dependabot's `package-ecosystem: github-actions` (configured under `add-brand-assets-and-writing-pipeline`'s `site-writing-pipeline` requirement) covers SHA-pin upgrades for this workflow as well.
 
 #### Scenario: Upstream archives
 

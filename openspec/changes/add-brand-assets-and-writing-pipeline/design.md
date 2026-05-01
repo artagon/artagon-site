@@ -39,23 +39,31 @@ Tradeoff: A second source of truth in TS instead of just DESIGN.md prose. Mitiga
 The TS module uses the `javascript-typescript:typescript-advanced-types` patterns:
 
 ```typescript
-type GlyphVariant = "classic" | "tight" | "filled" | "monochrome" | "cropped";
+type GlyphVariant =
+  | "classic"
+  | "tight"
+  | "filled"
+  | "monochrome"
+  | "cropped"
+  | "bold";
 type WordmarkVariant = "horizontal" | "stacked";
+type AvatarVariant = "twilight" | "paper" | "transparent";
+type OgCardTheme = "twilight" | "paper";
 type SvgFactory<V extends string> = (size: number, color: string) => string;
 
 interface BrandSvgs {
   glyph: { [K in GlyphVariant]: SvgFactory<K> };
   wordmark: { [K in WordmarkVariant]: SvgFactory<K> };
-  ogCard: (opts: {
-    headline: string;
-    theme: "twilight" | "midnight";
-  }) => string;
+  avatar: { [K in AvatarVariant]: (size: number) => string };
+  ogCard: (opts: { headline: string; theme: OgCardTheme }) => string;
 }
 
 export const SRC: BrandSvgs = {
   /* ... */
 } as const satisfies BrandSvgs;
 ```
+
+All 13 variants per DESIGN.md §4.14 covered: 6 glyphs (incl. `bold` for ≤32 px favicons), 2 wordmarks, 3 avatars, 2 OG cards.
 
 The `as const satisfies` pattern preserves literal types while enforcing the interface — exact what the redesign's typed registry pattern uses for `STANDARDS`.
 
@@ -78,12 +86,22 @@ The brand gallery is a tooling page, not marketing content. It ships ~30 KB of i
 ### 5. Writing pipeline: build-time only, opt-in via env vars
 
 ```
-WRITING_REMOTE_REPO  default: artagon/content (set to empty string to disable)
-WRITING_REMOTE_REF   default: refs/heads/main (CI overrides with the merge SHA on dispatch)
+WRITING_REMOTE_REPO  default: "" (empty until artagon/content exists publicly; flip to artagon/content in a separate PR after upstream creation)
+WRITING_REMOTE_REF   no default (CI must supply the merge SHA on dispatch; local dev may set refs/heads/main)
 WRITING_REMOTE_PATH  default: posts/
 ```
 
-`scripts/fetch-content.mjs` runs `git clone --depth 1 --branch <REF> --no-tags --filter=blob:limit=10m https://github.com/$REPO .cache/content-repo` (sparse-checkout to `posts/`). Astro's content collection adds a glob loader pointing at `.cache/content-repo/posts/*.{md,mdx}` ALONGSIDE the existing local glob. Both are merged into the same `pages/writing` collection; Zod validates uniformly.
+`scripts/fetch-content.mjs` uses the SHA-pinned sequence (`git clone --branch <SHA>` is INVALID — `--branch` accepts only branch and tag names):
+
+```sh
+rm -rf .cache/content-repo
+git clone --no-checkout --depth 1 --filter=blob:none --sparse --no-tags <url> .cache/content-repo
+git -C .cache/content-repo sparse-checkout set $WRITING_REMOTE_PATH
+git -C .cache/content-repo fetch --depth 1 origin $WRITING_REMOTE_REF
+git -C .cache/content-repo checkout FETCH_HEAD
+```
+
+Astro's content collection adds a glob loader pointing at `.cache/content-repo/posts/*.{md,mdx}` ALONGSIDE the existing local glob. Both are merged into the same `pages/writing` collection; Zod validates uniformly. The collection's loader `digest` includes `entry.data.commit` so path-stable / commit-changed posts invalidate cache correctly.
 
 Tradeoff: Two source locations for one collection. Justified by the explicit `repo` frontmatter discriminating local from remote at render time (e.g., for the "Edit on GitHub" link).
 
@@ -106,9 +124,9 @@ The site repo's secret `CONTENT_DISPATCH_TOKEN` is a fine-grained PAT scoped to 
 
 The redesign's `pages/writing` Zod schema requires `title`, `description`, `eyebrow`, `headline`, `lede`, `ctas[]`, `published`, `tags[]` and accepts optional `updated`, `cover`, `accent`, `repo`. This change extends the optional set with `path` (path within `repo`) and `commit?` (the SHA at which the post was authored). Both are derived automatically by `fetch-content.mjs` for remote posts; local posts can omit them.
 
-### 8. MDX component allowlist enforced at parse time
+### 8. MDX component allowlist enforced via custom remark plugin (Astro built-in does NOT enforce)
 
-Remote posts can only use the same MDX components as local posts: `StandardChip`, `StandardsRow`, `TrustChain`, `Diagram`, `Callout`. The Astro MDX integration's `components` config gates this; `astro build` fails on unknown components in remote MDX. This is enforced by Astro itself; no custom validator needed. Documented in `docs/writing-pipeline.md`.
+Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustChain`, `Diagram`, `Callout`. **Astro's MDX `components` config does NOT reject unknown JSX** — it falls through and renders unknown JSX as plain HTML/custom-element. Enforcement therefore requires a custom remark/rehype plugin (`remark-mdx-restrict-jsx`) wired into `astro.config.mjs`'s `markdown.remarkPlugins`. The plugin walks the MDX AST and throws on disallowed AST kinds: `mdxJsxFlowElement`, `mdxJsxTextElement`, `mdxFlowExpression`, `mdxTextExpression`, plus `mdxjsEsm` for posts where `entry.data.repo` is set (remote ESM imports rejected unconditionally). Documented in `docs/writing-pipeline.md`.
 
 ### 9. Coordination with prior changes
 

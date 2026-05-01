@@ -44,7 +44,7 @@ The `/standards` route MUST emit a `schema.org/DefinedTermSet` containing one `D
 
 ### Requirement: JSON-LD Safety and Script-Tag Escape
 
-JSON-LD blocks MUST be emitted via `JsonLd.astro` using `JSON.stringify` and Astro's safe interpolation inside `<script type="application/ld+json">`. The `set:html` directive MUST NOT be used (already enforced by ast-grep `no-set-html-directive`). Before interpolation, the JSON-LD payload MUST escape `<` as `<` (and `>` as `>`, `&` as `&`) so that user-controlled MDX-frontmatter strings cannot terminate the script element via `</script>`. `scripts/validate-structured-data.mjs` MUST assert that no built HTML in `dist/` contains a literal `</script>`, `<!--`, or `<script` substring inside any `<script type="application/ld+json">` block.
+JSON-LD blocks MUST be emitted via `JsonLd.astro` using `JSON.stringify` and Astro's safe interpolation inside `<script type="application/ld+json">`. The `set:html` directive MUST NOT be used (already enforced by ast-grep `no-set-html-directive`). Before interpolation, the JSON-LD payload MUST replace `<` with the HTML entity `&lt;` (literal six characters: ampersand, l, t, semicolon), `>` with `&gt;`, and `&` with `&amp;` — escaping happens AFTER `JSON.stringify` returns and BEFORE the result is written into the `<script>` element body. This prevents user-controlled MDX-frontmatter strings from terminating the script element via `</script>`. `scripts/validate-structured-data.mjs` MUST assert that no built HTML in `dist/` contains the raw substrings `</script>`, `<!--`, or `<script` inside any `<script type="application/ld+json">` block; only the entity-escaped forms (`&lt;/script&gt;` etc.) are allowed.
 
 #### Scenario: ast-grep passes
 
@@ -54,7 +54,7 @@ JSON-LD blocks MUST be emitted via `JsonLd.astro` using `JSON.stringify` and Ast
 #### Scenario: Crafted MDX cannot break out of ld+json
 
 - **WHEN** an MDX author crafts an Article `headline` containing `</script><img src=x onerror=alert(1)>`
-- **THEN** the built `dist/writing/<slug>/index.html` contains the escaped sequence `</script>` and `scripts/validate-structured-data.mjs` confirms no raw `</script>` substring inside any ld+json block.
+- **THEN** the built `dist/writing/<slug>/index.html` contains `&lt;/script&gt;&lt;img src=x onerror=alert(1)&gt;` (entity-escaped) inside the ld+json block, and `scripts/validate-structured-data.mjs` confirms the raw bytes `</script>` are absent inside any `<script type="application/ld+json">` block.
 
 ### Requirement: JSON-LD Aggregate Size Budget
 

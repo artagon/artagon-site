@@ -105,7 +105,7 @@ The theme toggle SHALL be a `<button>` exposing its current state via `aria-pres
 
 ### Requirement: CSP Inline-Script Hash Drift Gate
 
-`scripts/csp.mjs` MUST emit a `script-src` directive containing only `'self'` plus SHA-256 hashes of every inline `<script>` in `dist/`; the directive MUST NOT contain `'unsafe-inline'`. The build MUST fail if any inline `<script>` in `dist/` has a SHA-256 not present in the emitted CSP header. Editing the theme-bootstrap script body without rerunning `scripts/csp.mjs` MUST fail CI.
+`scripts/csp.mjs` MUST emit a `script-src` directive containing only `'self'` plus SHA-256 hashes of every inline `<script>` in `dist/`; the directive MUST NOT contain `'unsafe-inline'`. The build MUST fail if any inline `<script>` in `dist/` has a SHA-256 not present in the emitted CSP header. The hash list MUST cover ALL inline script sources, including but not limited to: the pre-paint theme-bootstrap script, Astro island hydration scripts emitted for the `/brand` Copy-SVG button, `TrustChainTooltip` Esc/focus handler, `WritingWidget` interactive bits, `NavToggle` hamburger island, `ThemeToggle` persistence handler. Astro emits island hydration as either inline `<script>` blocks or external `/_astro/*.js` modules — both paths MUST be covered (inline → SHA-256 in `script-src`; external → covered by `'self'` + SRI hash from `scripts/sri.mjs`). Editing any of these script bodies without rerunning `scripts/csp.mjs` MUST fail CI.
 
 #### Scenario: Edited bootstrap without rehashing fails CI
 

@@ -9,3 +9,14 @@ dist
 test-results/
 playwright-report/
 playwright/.cache/
+
+# Working scratch — design handoff zip extracted at session start.
+# Tracked artifacts adopted into openspec/changes/add-brand-assets-and-writing-pipeline.
+# Directory deleted by follow-up cleanup-new-design-extracted change.
+new-design/
+
+# Writing-pipeline build cache (clone of artagon/content at WRITING_REMOTE_REF)
+.cache/
+
+# Playwright MCP
+.playwright-mcp/

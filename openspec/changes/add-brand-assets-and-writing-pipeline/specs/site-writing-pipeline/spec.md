@@ -43,6 +43,8 @@ git -C .cache/content-repo checkout FETCH_HEAD
 
 `src/content/config.ts` MUST configure the `pages/writing` collection with two glob loaders unified under one schema: (a) the local glob at `src/content/pages/writing/**/*.{md,mdx}`, (b) the remote glob at `.cache/content-repo/posts/**/*.{md,mdx}`. Both glob outputs MUST be validated by the same Zod schema (extended per `site-content`'s additive frontmatter requirement). Local and remote entries MUST coexist in the same collection without duplicate `id` collisions; CI MUST fail if duplicate ids are detected.
 
+The collection's content-layer cache key MUST include `entry.data.commit` (for remote posts) and a SHA-256 hash of the file body (for local posts). Astro's default `.astro/` cache is path-mtime-keyed; with the SHA-pinned remote pipeline, the SAME path can hold DIFFERENT commits across rebuilds (force-push, rebase) → without commit-aware caching, stale parses serve while the build-sha meta tag updates, producing a desynced page where users see old content with a new SHA. The loader MUST therefore emit a `digest` in its `loader.load` callback that incorporates `entry.data.commit ?? sha256(fileContent)`; cache invalidation tracks content, not path.
+
 #### Scenario: Dual sources merge cleanly
 
 - **WHEN** `src/content/pages/writing/local.mdx` and `.cache/content-repo/posts/remote.mdx` both exist with distinct slugs
@@ -55,7 +57,13 @@ git -C .cache/content-repo checkout FETCH_HEAD
 
 ### Requirement: Webhook-Triggered Redeploy (Hardened)
 
-`.github/workflows/content-redeploy.yml` MUST trigger on `repository_dispatch` with `event_type` of `pull-request-merged` only; other event types MUST NOT trigger this workflow. The workflow MUST hardcode `WRITING_REMOTE_REPO=artagon/content` and IGNORE any `client_payload.repo` value (defense against social-engineered or leaked-PAT dispatches that name an attacker-controlled repo). The workflow MUST validate `client_payload.sha` against `^[a-f0-9]{40}$`; malformed values MUST exit the workflow non-zero before any clone or build runs. `client_payload.ref` MUST NOT be passed to git as a branch argument; if used, it MUST be validated against `^refs/(heads|tags)/[A-Za-z0-9._/-]{1,200}$` and passed via the `--` boundary so it cannot be interpreted as a git option (defense against argument-injection attacks like `--upload-pack=…`, CVE-2017-1000117 family). Before clone, the workflow MUST verify the `sha` is reachable in `artagon/content` via `git ls-remote https://github.com/artagon/content "$sha"` (single positional, quoted) and exit non-zero if not present. The workflow MUST set `concurrency: { group: 'pages', cancel-in-progress: true }` to match the existing `deploy.yml` and avoid racing parallel deploys. The workflow MUST reuse the existing GitHub Pages deploy action.
+`.github/workflows/content-redeploy.yml` MUST trigger on `repository_dispatch` with `event_type` of `pull-request-merged` only; other event types MUST NOT trigger this workflow. The workflow MUST hardcode `WRITING_REMOTE_REPO=artagon/content` and IGNORE any `client_payload.repo` value (defense against social-engineered or leaked-PAT dispatches that name an attacker-controlled repo). The workflow MUST declare an explicit minimum-privilege `permissions:` block at workflow scope: `permissions: { contents: read, pages: write, id-token: write }` (the last two only on the deploy job). All `uses:` references in this workflow MUST be pinned by full 40-hex commit SHA (NOT by tag — tag pinning is reassignable); a comment on each line MUST record the human-readable version (e.g., `uses: actions/checkout@<sha>  # v4.2.0`). Dependabot's `package-ecosystem: github-actions` MUST be enabled at `.github/dependabot.yml` to surface SHA-pin upgrades.
+
+The workflow MUST validate `client_payload.sha` against `^[a-f0-9]{40}$`; malformed values MUST exit the workflow non-zero before any clone or build runs. `client_payload.ref` MUST NOT be passed to git as a branch argument; if used, it MUST be validated against `^refs/(heads|tags)/[A-Za-z0-9._/-]{1,200}$` and passed via the `--` boundary so it cannot be interpreted as a git option (defense against argument-injection attacks like `--upload-pack=…`, CVE-2017-1000117 family).
+
+Before fetch, the workflow MUST verify the `sha` is reachable in `artagon/content`. `git ls-remote <repo> <sha>` is NOT sufficient — `ls-remote` matches advertised refs only, and merge SHAs are not refs. The verification MUST instead use the GitHub Commits API: `gh api repos/artagon/content/commits/$sha --jq .sha` (returns the SHA on success, exits non-zero on 404 or malformed). After clone+fetch, an additional safety check `git -C .cache/content-repo cat-file -e "$sha"` MUST confirm the object exists locally; absence MUST exit the workflow non-zero. The workflow MUST set `concurrency: { group: 'pages', cancel-in-progress: true }` to match the existing `deploy.yml` and avoid racing parallel deploys. The workflow MUST reuse the existing GitHub Pages deploy action.
+
+Cross-repo commit-status posting (the "PR status check" referenced in the End-to-End Latency requirement) is NOT possible with the default site repo `GITHUB_TOKEN`. The workflow MUST authenticate the `gh api repos/artagon/content/statuses/$sha` call using a separate fine-grained PAT secret `CONTENT_STATUS_TOKEN` scoped to `Commit statuses: Read+Write` on `artagon/content` only; rotation policy ≤90 days documented in `docs/writing-pipeline.md` alongside `CONTENT_DISPATCH_TOKEN`.
 
 #### Scenario: Valid dispatch redeploys at hardcoded repo
 
@@ -77,10 +85,30 @@ git -C .cache/content-repo checkout FETCH_HEAD
 - **WHEN** a dispatch arrives with `client_payload.sha="../etc/passwd"` or any value not matching `^[a-f0-9]{40}$`
 - **THEN** the workflow exits non-zero before cloning; no build runs.
 
-#### Scenario: SHA not present in upstream rejected
+#### Scenario: SHA not present in upstream rejected (Commits API)
 
-- **WHEN** a dispatch arrives with a well-formed but non-existent `sha` (`git ls-remote artagon/content <sha>` returns empty)
+- **WHEN** a dispatch arrives with a well-formed but non-existent `sha` (`gh api repos/artagon/content/commits/$sha` returns 404)
 - **THEN** the workflow exits non-zero before fetch.
+
+#### Scenario: SHA passes Commits API but cat-file fails after fetch
+
+- **WHEN** the Commits API returns the SHA but the post-fetch `git cat-file -e "$sha"` fails (filtered/blocked)
+- **THEN** the workflow exits non-zero before build.
+
+#### Scenario: Workflow declares minimum permissions
+
+- **WHEN** `.github/workflows/content-redeploy.yml` is parsed
+- **THEN** it contains an explicit `permissions:` block with `contents: read` at workflow scope; `pages: write` and `id-token: write` only on the deploy job; no other permissions granted.
+
+#### Scenario: All actions SHA-pinned
+
+- **WHEN** the workflow YAML is scanned for `uses:` lines
+- **THEN** every `uses:` reference is `<owner>/<action>@<40-hex-sha>` form with a `# v<semver>` comment; no `@v4`, `@main`, or `@latest` tag references appear.
+
+#### Scenario: Cross-repo status uses fine-grained PAT
+
+- **WHEN** the workflow posts a commit status to `artagon/content`
+- **THEN** the call uses `CONTENT_STATUS_TOKEN` secret (NOT `GITHUB_TOKEN`); the token is fine-grained, scoped to `Commit statuses: Read+Write` on `artagon/content` only.
 
 #### Scenario: Malformed ref rejected
 
@@ -98,8 +126,8 @@ Each `/writing/[slug]` page MUST render a "View source on GitHub" link iff `entr
 
 #### Scenario: Remote post shows view-source link pinned to commit
 
-- **WHEN** a `/writing/[slug]` route renders a remote post with `repo="artagon/content"`, `path="posts/welcome.mdx"`, `commit="abc1234"`
-- **THEN** the page contains `<a href="https://github.com/artagon/content/blob/abc1234/posts/welcome.mdx">View source on GitHub</a>`.
+- **WHEN** a `/writing/[slug]` route renders a remote post with `repo="artagon/content"`, `path="posts/welcome.mdx"`, `commit="abc1234abc1234abc1234abc1234abc1234abc12"` (full 40-hex SHA per the schema's commit-format requirement)
+- **THEN** the page contains `<a href="https://github.com/artagon/content/blob/abc1234abc1234abc1234abc1234abc1234abc12/posts/welcome.mdx">View source on GitHub</a>`.
 
 #### Scenario: Local post hides view-source link
 
@@ -113,7 +141,7 @@ Each `/writing/[slug]` page MUST render a "View source on GitHub" link iff `entr
 
 ### Requirement: MDX Component Allowlist (AST-Enforced)
 
-Posts (local OR remote) MUST only use the MDX component allowlist `['StandardChip', 'StandardsRow', 'TrustChain', 'Diagram', 'Callout']`. Astro's MDX `components` config maps known names but does NOT reject unknown JSX (it falls through to render as plain HTML/custom-element); enforcement therefore MUST come from a remark/rehype plugin (e.g., a custom `remark-mdx-restrict-jsx`) that walks the MDX AST during build and throws on any `mdxJsxFlowElement` or `mdxJsxTextElement` whose `name` is not in the allowlist. The plugin MUST be wired into `astro.config.mjs`'s `markdown.remarkPlugins` (or `mdx.remarkPlugins`); `astro build` MUST fail before reaching the renderer when an unknown component is encountered. The allowlist MUST be documented in `docs/writing-pipeline.md`.
+Posts (local OR remote) MUST only use the MDX component allowlist `['StandardChip', 'StandardsRow', 'TrustChain', 'Diagram', 'Callout']`. Astro's MDX `components` config maps known names but does NOT reject unknown JSX (it falls through to render as plain HTML/custom-element); enforcement therefore MUST come from a remark/rehype plugin (e.g., a custom `remark-mdx-restrict-jsx`) that walks the MDX AST during build and throws on any AST node of these kinds whose `name` is not in the allowlist: `mdxJsxFlowElement` (block-position JSX), `mdxJsxTextElement` (inline JSX), `mdxFlowExpression` and `mdxTextExpression` (JSX wrapped in `{...}` expression position — bypass vector if not covered). Additionally, `mdxjsEsm` nodes (top-of-MDX `import` / `export` statements) MUST be rejected unconditionally for posts where `entry.data.repo` is defined (remote-source posts) — they could pull arbitrary remote modules. Local-source posts MAY use ESM imports for whitelisted helper modules, configured per-post by editor convention. The plugin MUST be wired into `astro.config.mjs`'s `markdown.remarkPlugins` (or `mdx.remarkPlugins`); `astro build` MUST fail before reaching the renderer when a disallowed AST node is encountered. The allowlist + rejected AST kinds MUST be documented in `docs/writing-pipeline.md`.
 
 #### Scenario: Disallowed component fails build at AST walk
 
@@ -146,7 +174,9 @@ When `WRITING_REMOTE_REPO=""` (or unset), the build MUST succeed using only loca
 
 ### Requirement: End-to-End Merge-to-Visible Latency
 
-From PR-merge in `artagon/content` (the dispatch trigger) to the live `/writing/[slug]` page on `artagon.com`, the pipeline MUST complete within 10 minutes (P95). Every NON-noindex marketing route (i.e. routes not in `NOINDEX_ROUTES` from `src/lib/indexation.ts`) MUST emit `<meta name="artagon:build-sha" content="${WRITING_REMOTE_REF}">` in the head so contributors can verify their merge SHA is live. Noindex routes (`/console`, `/search`, `/play`, `/404`, `/brand`) MUST NOT emit the build-sha meta — they are tooling/app-shell surfaces, not user-facing content. The `content-redeploy.yml` workflow MUST post a status check back to the dispatching repo's PR via `gh api repos/artagon/content/statuses/${sha}` so authors see "deployed" or "failed" without polling. Deploy failures MUST surface in the workflow's tracking issue.
+From PR-merge in `artagon/content` (the dispatch trigger) to the live `/writing/[slug]` page on **the production deployment at `https://artagon.com`** (NOT `astro preview`, NOT a CI-local synthesized URL — the latency target measures real user-facing time including GitHub Pages CDN propagation), the pipeline MUST complete within 10 minutes (P95). Every NON-noindex marketing route (i.e. routes not in `NOINDEX_ROUTES` from `src/lib/indexation.ts`) MUST emit `<meta name="artagon:build-sha" content="${WRITING_REMOTE_REF}">` in the head so contributors can verify their merge SHA is live. Noindex routes (`/console`, `/search`, `/play`, `/404`, `/brand`) MUST NOT emit the build-sha meta — they are tooling/app-shell surfaces, not user-facing content. The `content-redeploy.yml` workflow MUST post a status check back to the dispatching repo's PR via `gh api repos/artagon/content/statuses/${sha}` (using the fine-grained `CONTENT_STATUS_TOKEN` secret per the Webhook-Triggered Redeploy requirement) so authors see "deployed" or "failed" without polling. Deploy failures MUST surface in the workflow's tracking issue.
+
+The latency-measurement test (`tests/writing-pipeline-latency.spec.ts`) MUST poll `https://artagon.com/writing/<slug>` (the deployed URL, not a localhost preview) until the rendered HTML's `<meta name="artagon:build-sha">` matches `WRITING_REMOTE_REF`, with a poll interval of 30 seconds and a hard timeout of 15 minutes. Failure to match within 15 minutes MUST fail the test. The 10-minute P95 target leaves 5 minutes of headroom in the timeout for CDN propagation.
 
 #### Scenario: Merged PR is visible within 10 minutes
 

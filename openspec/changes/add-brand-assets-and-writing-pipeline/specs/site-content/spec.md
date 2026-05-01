@@ -2,7 +2,7 @@
 
 ### Requirement: Per-route Frontmatter Contract
 
-Each marketing-route MDX file MUST declare frontmatter `eyebrow`, `headline`, `lede`, `description` (80–160 chars), and a `ctas[]` array (each with `label` and `href`). Writing posts (under `pages/writing`) additionally accept optional `repo`, `path`, `commit`, and constrained `cover` fields per the requirements below.
+Each marketing-route MDX file MUST declare frontmatter `eyebrow` (string), `headline` (string), `lede` (string), `description` (string, 80–160 characters), and a `ctas[]` array where each element is an object with `label` (string) and `href` (string). Writing posts (under `pages/writing`) additionally accept optional `repo`, `path`, `commit`, and constrained `cover` fields per the requirements below.
 
 The `pages/writing` Zod schema MUST accept optional `repo` (Zod enum constrained to the allowlist `['artagon/content']` — extending the allowlist requires a separate OpenSpec change), `path` (string, relative path within `repo` matching `^posts/[A-Za-z0-9._/-]{1,200}$`), and `commit` (string, 40 hex characters — no truncated SHAs because the redeploy workflow pins on the merge SHA). These fields MUST be auto-populated by `scripts/fetch-content.mjs` for posts sourced from a remote content repo; local posts MAY omit all three. Posts that declare `repo` MUST also declare `path` and `commit`; the schema MUST fail the build if any one is present without the other two.
 
@@ -12,6 +12,16 @@ The `cover` field MUST match `^(\.\/assets\/|posts\/assets\/)[A-Za-z0-9._/-]+\.(
 
 - **WHEN** an editor commits an MDX file without the `description` field
 - **THEN** `astro build` fails with a Zod validation error citing the missing field.
+
+#### Scenario: description outside 80-160 chars fails build
+
+- **WHEN** an editor commits an MDX file with `description` of 50 characters or 200 characters
+- **THEN** `astro build` fails with a Zod validation error citing the offending length.
+
+#### Scenario: ctas[] missing label or href fails build
+
+- **WHEN** an editor commits frontmatter `ctas: [{ label: "Read more" }]` (no `href`)
+- **THEN** `astro build` fails with a Zod validation error naming the missing `href` field.
 
 #### Scenario: Local post omits remote-source fields
 

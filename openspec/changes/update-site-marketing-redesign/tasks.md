@@ -9,7 +9,7 @@
 - [ ] 0.3 `openspec validate update-site-marketing-redesign --strict` — fix all schema issues.
 - [ ] 0.4 Confirm CODEOWNERS includes the nine new capability dirs and the cross-cutting files (`public/assets/theme.css`, `src/layouts/BaseLayout.astro`, `astro.config.mjs`, `scripts/csp.mjs`, `scripts/sri.mjs`).
 - [ ] 0.5 Build `scripts/verify-prerequisites.mjs` (`npm run verify:prerequisites`): fails the build unless `openspec/changes/refactor-styling-architecture/` is archived OR its merge commit is an ancestor of `HEAD`. Wire into postbuild + PR CI.
-- [ ] 0.6 Tag the pre-redesign baseline of `BaseLayout.astro`, `theme.css`, and `csp.mjs` as `pre-redesign` once `refactor-styling-architecture` archives — used by the multi-phase rollback path documented in `proposal.md`.
+- [ ] 0.6 Tag the pre-redesign baseline of `BaseLayout.astro`, `theme.css`, and `csp.mjs` as `pre-redesign` once `refactor-styling-architecture` archives — used by the multi-phase rollback path documented in `proposal.md`. MUST `git push origin pre-redesign` so fresh CI clones see the tag (local-only tags break CI rollback). Add a CI pre-merge check `git rev-parse --verify pre-redesign 2>/dev/null` to confirm the tag exists on origin before any Phase 2+ task can run.
 
 ## Phase 1 — Capability scaffolding
 

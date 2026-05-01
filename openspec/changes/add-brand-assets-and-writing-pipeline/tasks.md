@@ -8,7 +8,7 @@
 - [ ] 0.2 Confirm both prerequisite changes are archived: `npm run verify:writing-prerequisites` exits 0.
 - [ ] 0.3 `openspec validate add-brand-assets-and-writing-pipeline --strict` passes.
 - [ ] 0.4 Confirm CODEOWNERS includes `src/data/brand-svgs.ts`, `public/assets/logos/`, `.github/workflows/content-redeploy.yml`, and `docs/writing-pipeline.md`. Acceptance: `grep -q '/src/data/brand-svgs.ts' .github/CODEOWNERS && grep -q 'content-redeploy.yml' .github/CODEOWNERS`.
-- [ ] 0.5 Tag `pre-brand-assets` git tag once `update-site-marketing-redesign` and `adopt-design-md-format` are both archived (multi-phase rollback baseline analogous to the redesign's `pre-redesign` tag). Acceptance: `git tag -l pre-brand-assets` returns the tag.
+- [ ] 0.5 Tag `pre-brand-assets` git tag once `update-site-marketing-redesign` and `adopt-design-md-format` are both archived (multi-phase rollback baseline analogous to the redesign's `pre-redesign` tag). MUST `git push origin pre-brand-assets` so fresh CI clones see the tag. Acceptance: `git ls-remote --tags origin pre-brand-assets` returns a non-empty result.
 - [ ] 0.6 **Consolidate the three prerequisite-verification scripts.** Build `scripts/verify-openspec-prereqs.mjs` taking `--change <id>` as the single source of truth for openspec ordering. Replace the three near-duplicate scripts (`verify:prerequisites` from the redesign, `verify:design-prerequisites` from `adopt-design-md-format`, `verify:writing-prerequisites` from this change) with thin npm-script wrappers: `"verify:prerequisites": "node scripts/verify-openspec-prereqs.mjs --change update-site-marketing-redesign"` (etc.). Document the consolidation in `docs/openspec-ordering.md`. Acceptance: `node scripts/verify-openspec-prereqs.mjs --change add-brand-assets-and-writing-pipeline` exits 0 only when both prerequisite changes are archived; the three legacy script names continue to work as wrappers; `package.json` has only one source-of-truth implementation.
 
 ## Phase 1 — Capability scaffolding
@@ -31,7 +31,7 @@
 
 - [ ] 3.1 Build `scripts/generate-favicons.mjs` (sharp-based): emits `public/favicon.ico`, `public/favicon.svg`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/mask-icon.svg` from `brand-svgs.ts`. Sub-32px sizes (`favicon-16.png`, `favicon-32.png`) MUST consume `SRC.glyph.bold` (NOT classic) per DESIGN.md §4.14 sizing rule.
 - [ ] 3.2 Build `scripts/generate-logo-pngs.mjs` (sharp-based): emits the 15 PNG outputs documented in `public/assets/logos/README.md`.
-- [ ] 3.3 Add `npm run build:favicons` and `npm run build:logos` scripts; wire both into `postbuild` AFTER `sri.mjs` + `csp.mjs` (PNGs/icons are static, don't need SRI hashing).
+- [ ] 3.3 Add `npm run build:favicons` and `npm run build:logos` scripts. Wire both into a NEW `prebuild` npm script (`"prebuild": "npm run build:favicons && npm run build:logos"`) that runs BEFORE `astro build`. Do NOT wire to `postbuild` — `astro build` copies `public/` to `dist/` early in its pipeline, so postbuild generation produces a stale deployed artifact. The drift-detection CI step (3.5) runs separately as a CI-only check, not in `postbuild`. PNGs/icons are static and do not need SRI hashing (which is why they don't need to live in postbuild's SRI/CSP chain).
 - [ ] 3.4 Run both generators once, commit the output PNGs + favicons.
 - [ ] 3.5 Add CI step: `npm run build:favicons && npm run build:logos && git diff --exit-code public/assets/logos/ public/favicon.svg public/icon-192.png public/icon-512.png public/apple-touch-icon.png public/mask-icon.svg`. Fails on drift between source and committed outputs.
 - [ ] 3.6 Replace the redesign's `site-branding` Phase 11.1 (favicon set hand-authoring) with reference to this generator. Note in archive.
@@ -83,7 +83,7 @@
 - [ ] 9.3 `npm run build:favicons && npm run build:logos && git diff --exit-code` exits 0.
 - [ ] 9.4 `npm run lint:sg:ci` passes — `no-inline-glyph` violations are zero on existing sources.
 - [ ] 9.5 Playwright: `/brand` route renders, copy-SVG buttons work, route is `noindex`.
-- [ ] 9.6 Playwright: home Writing widget shows latest post; remote posts show "Edit on GitHub" link; local posts do not.
+- [ ] 9.6 Playwright: home Writing widget shows latest post; remote posts show "View source on GitHub" link (commit-pinned 40-hex SHA); local posts do not.
 - [ ] 9.7 Playwright: build with `WRITING_REMOTE_REPO=""` succeeds and only renders local posts.
 - [ ] 9.8 Lighthouse CI passes for `/brand` at perf ≥ 0.8 (relaxed) and for all other routes at the redesign's thresholds.
 - [ ] 9.9 ast-grep, SRI/CSP postbuild, link checking, Lighthouse all pass on the merged build.

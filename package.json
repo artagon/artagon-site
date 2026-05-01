@@ -38,7 +38,7 @@
     "test:ci": "playwright test --reporter=github",
     "lint:sg": "./node_modules/.bin/sg scan",
     "lint:sg:fix": "./node_modules/.bin/sg scan --update-all",
-    "lint:sg:ci": "./node_modules/.bin/sg scan --error-exit-code 1"
+    "lint:sg:ci": "./node_modules/.bin/sg scan --error"
   },
   "dependencies": {
     "@astrojs/mdx": "4.3.13",
