@@ -27,7 +27,11 @@ The entire `.build/` tree MUST be a single `.gitignore` entry. Nested entries fo
 
 ### Requirement: Single Source of Truth Path Config
 
-A single `build.config.json` at the repo root MUST be the canonical source of truth for every path under `.build/`. A typed `build.config.ts` MUST wrap the JSON via `as const satisfies BuildPaths` to give TypeScript-aware tools a typed import surface. Tools that accept TS/JS configs (Astro, Playwright) MUST import `BUILD` from `build.config.ts`; they MUST NOT duplicate path strings. Tools that require JSON/YAML/TOML (Lighthouse CI, Lychee, GitHub Actions YAML) MUST consume paths via files generated from `build.config.json` by `scripts/sync-build-config.mjs`.
+A single `build.config.json` at the repo root MUST be the canonical source of truth for every path under `.build/`. A typed `build.config.ts` MUST load the JSON via `fs.readFileSync` + `JSON.parse` (NOT via `with { type: 'json' }` import-attribute syntax, which requires `module: "nodenext"` and is inconsistently supported by Astro's Vite-based config loader at the time of this change), then expose a typed `BUILD` constant via the `satisfies BuildPaths` type assertion against a `DeepReadonly<typeof data>` wrapper. Tools that accept TS/JS configs (Astro, Playwright) MUST import `BUILD` from `build.config.ts`; they MUST NOT duplicate path strings. Tools that require JSON/YAML/TOML (Lighthouse CI, Lychee, GitHub Actions YAML) MUST consume paths via files generated from `build.config.json` by `scripts/sync-build-config.mjs`.
+
+The `tsconfig.json` at the repo root MUST set `"resolveJsonModule": true`, `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, and `"target": "ES2022"` (or stricter). The `tsconfig.json` MUST be created if absent (the project currently has none at root); CI MUST run `astro check` post-rename to confirm typing.
+
+Path strings written to `build.config.json` MUST conform to the regex `^\.build/[a-z0-9/_-]+$`. The sync generator MUST validate every path string against this regex BEFORE writing any output file and MUST exit non-zero on violation. Paths containing `..`, newlines, backticks, `$()`, or absolute prefixes are rejected. This guards against path-traversal attacks where a malicious or typo'd path string is templated into committed workflow YAML.
 
 #### Scenario: TS config imports BUILD constant
 
@@ -44,11 +48,39 @@ A single `build.config.json` at the repo root MUST be the canonical source of tr
 - **WHEN** `build.config.json` is parsed by any JSON-aware tool (jq, Python, Starlark)
 - **THEN** the file is well-formed JSON containing only path strings — no comments, no JS expressions, no TS-only constructs — making it loadable from Starlark via `json.decode(read_file(...))` for future Bazel migration.
 
+#### Scenario: tsconfig.json supports JSON loading
+
+- **WHEN** `tsc --noEmit` runs against `build.config.ts`
+- **THEN** the type check passes; `tsconfig.json` declares `resolveJsonModule: true` and `module: "NodeNext"`; the `BUILD` export is typed as `DeepReadonly<BuildPaths>` and downstream importers see literal-string types where applicable.
+
+#### Scenario: Path validator rejects traversal
+
+- **WHEN** `scripts/sync-build-config.mjs` runs with a malicious `build.config.json` containing `"dist": "../../../etc/cron.d/x"` or any value with newline/backtick/`$()`/absolute prefix
+- **THEN** the sync generator exits non-zero before writing any file; CI fails with "build.config.json: invalid path string".
+
 ### Requirement: Sync Generator and Drift Gate
 
 `scripts/sync-build-config.mjs` MUST regenerate every JSON/YAML/TOML config that consumes BUILD paths from `build.config.json`. The script MUST be idempotent (re-running with no source change produces zero file system writes; verified by content-hash comparison before write). CI MUST run `npm run sync:build-config && git diff --exit-code` and fail the build if the post-sync diff is non-empty.
 
-The script MUST regenerate at minimum: `lighthouserc.json` (assertions + outputDir), `lychee.toml` (cache_path), `.github/workflows/deploy.yml` (`path:` field for `actions/upload-pages-artifact`), `.github/workflows/content-redeploy.yml` (cache mounts), `.github/workflows/design-md-drift.yml` (cache mounts).
+The script MUST regenerate at minimum: `lighthouserc.json` (assertions + outputDir, with assertion shape sourced from the redesign's `Lighthouse CI Performance Gate` Requirement and paths from this Requirement), `lychee.toml` (cache_path), `.github/workflows/deploy.yml` (path field only — see below), `.github/workflows/content-redeploy.yml` (cache mounts only), `.github/workflows/design-md-drift.yml` (cache mounts only).
+
+**Deterministic output.** Every generated file MUST be byte-identical across machines/OSes/contributor runs. The generator MUST:
+
+- Sort JSON keys lexicographically (or preserve `build.config.json` source order via a stable serializer) and emit LF-only line endings, UTF-8, no BOM, trailing newline.
+- Use a single pinned YAML library (`yaml@2.5.x`) with explicit options (`lineWidth: 0`, `singleQuote: false`, `defaultStringType: 'PLAIN'`); write workflow YAML via targeted key rewrite that preserves comments and source key order, NOT a full-file regeneration.
+- Use a pinned TOML library (`@iarna/toml@2.2.x`); alphabetize keys within sections.
+- Post-process JSON/YAML/TOML through `prettier --parser <kind>` (project-pinned prettier version) for canonicalization.
+- Emit a leading banner in every generated file: for JSON, a `"$generated": "build.config.json"` sentinel key; for YAML/TOML, a header comment `# AUTOGENERATED — do not edit. Source: build.config.json. Run: npm run sync:build-config`. CI MUST verify the banner SHA matches the current `build.config.json` SHA-256.
+
+**Workflow YAML regen is targeted, not whole-file.** For `.github/workflows/*.yml`, the generator MUST update ONLY the specific keys that derive from BUILD (e.g., `path:` for `actions/upload-pages-artifact`, cache mount paths). Human-authored steps, comments, and ordering MUST be preserved. Implementation uses `yaml@2.5.x` Document API to mutate target nodes in place; the generator MUST refuse to write if the parse-then-stringify roundtrip changes any node it did NOT explicitly target.
+
+**SHA-pinning enforcement.** The generator MUST refuse to emit any `uses:` line in generated workflow YAML that is not pinned to a 40-character commit SHA with a trailing version comment (e.g., `actions/upload-pages-artifact@abc123…full-sha # v3.0.1`). Floating tags (`@v3`, `@main`) are rejected. A separate Dependabot configuration is REQUIRED to keep these pins current.
+
+**CI write-block.** The sync generator MUST refuse to write workflow YAML when running under `GITHUB_ACTIONS=true`; sync mutations to `.github/` MUST originate from human-driven local invocation, not CI write-back. CI's drift gate runs sync in a read-only verification mode that diffs without committing.
+
+**Pre-commit safety net.** The repo MUST configure a pre-commit hook (via `husky` or `lefthook`) that runs `npm run sync:build-config` and aborts the commit if the post-sync diff is non-empty. `SKIP_BUILD_SYNC=1` opt-out applies to the hook only when explicitly set per-commit.
+
+The script MUST run unit tests asserting byte-identical output across 10 successive invocations on the same input, verifying determinism.
 
 #### Scenario: Sync is idempotent
 
@@ -65,19 +97,34 @@ The script MUST regenerate at minimum: `lighthouserc.json` (assertions + outputD
 - **WHEN** `SKIP_BUILD_SYNC=1 npm run build` runs (a hot-loop dev iteration)
 - **THEN** the prebuild hook detects the env var and exits 0 without regenerating; documented in `docs/build-artifacts.md`.
 
-### Requirement: prebuild Lifecycle Hook
+### Requirement: prebuild and predev Lifecycle Hooks
 
-`package.json` MUST declare a `prebuild` script that runs `node scripts/sync-build-config.mjs` BEFORE `astro build`. When other prebuild work exists (favicon and logo generation from `add-brand-assets-and-writing-pipeline`), the chain MUST run sync FIRST so dependent generators consume up-to-date paths.
+`package.json` MUST declare both a `prebuild` script and a `predev` script that run `node scripts/sync-build-config.mjs` BEFORE `astro build` and BEFORE `astro dev` respectively. When other prebuild work exists (favicon and logo generation from `add-brand-assets-and-writing-pipeline`), the chain MUST run sync FIRST so dependent generators consume up-to-date paths.
+
+To avoid implicit ordering coupling between this change and `add-brand-assets-and-writing-pipeline`, both changes MUST target a single named npm script `build:prebuild-chain` that orchestrates the ordered sequence (sync → favicons → logos). The `prebuild` lifecycle hook delegates to `build:prebuild-chain`. State table:
+
+| Archive state                               | `build:prebuild-chain` body                                                                       |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Only this change archived                   | `npm run sync:build-config`                                                                       |
+| This + brand-assets archived                | `npm run sync:build-config && npm run build:favicons && npm run build:logos`                      |
+| Brand-assets archived first, this in flight | brand-assets MUST insert `sync:build-config` at chain head when this change is also being applied |
+
+`SKIP_BUILD_SYNC=1` opt-out applies to both `prebuild` and `predev` for hot-loop dev iteration.
 
 #### Scenario: prebuild runs sync first
 
 - **WHEN** `npm run build` is invoked
 - **THEN** `scripts/sync-build-config.mjs` executes BEFORE `astro build`; `BUILD.dist` resolves to `.build/dist`; the build emits its output there.
 
+#### Scenario: predev runs sync before dev server
+
+- **WHEN** `npm run dev` is invoked after a contributor edits `build.config.json`
+- **THEN** sync runs first; the dev server starts with up-to-date generated configs; Lighthouse / Lychee / workflow YAML reflect the new paths immediately, not on the next `build`.
+
 #### Scenario: prebuild chains are ordered
 
 - **WHEN** both this change and `add-brand-assets-and-writing-pipeline` are archived
-- **THEN** `package.json`'s `prebuild` script runs `sync:build-config` first, then `build:favicons`, then `build:logos`, then `astro build`.
+- **THEN** `build:prebuild-chain` runs `sync:build-config` first, then `build:favicons`, then `build:logos`; `prebuild` delegates to `build:prebuild-chain` then `astro build` runs.
 
 ### Requirement: Clean Scripts
 
@@ -86,6 +133,8 @@ The script MUST regenerate at minimum: `lighthouserc.json` (assertions + outputD
 - `npm run clean` — removes `.build/` entirely.
 - `npm run clean:cache` — removes only `.build/cache/`.
 - `npm run clean:reports` — removes only `.build/reports/`.
+
+`clean:reports` MUST guard against mid-run race conditions. Playwright and Lighthouse runners write reports incrementally; deleting `.build/reports/` mid-run crashes the runner with `EACCES`/`ENOENT`. The clean script MUST check for a `.build/reports/.run.lock` sentinel file (created by test runners on start, removed on exit) and exit non-zero with "tests in flight" if present. Test runner integrations MUST acquire/release the lock; the lock file's TTL fallback (e.g., older than 2 hours) protects against stale locks from crashed runs.
 
 #### Scenario: clean nukes everything
 
@@ -97,19 +146,49 @@ The script MUST regenerate at minimum: `lighthouserc.json` (assertions + outputD
 - **WHEN** a contributor runs `npm run clean:cache` after a test run that produced reports
 - **THEN** `.build/cache/` is gone but `.build/reports/playwright/` still contains the test results.
 
-### Requirement: CI Artifact Upload
+#### Scenario: clean:reports refuses while tests run
 
-The CI workflow that runs Playwright + Lighthouse MUST upload `.build/reports/` as a single GitHub Actions artifact named `reports-${{ github.sha }}` with `if: always()` so reports are accessible regardless of test outcome.
+- **WHEN** `npm run clean:reports` is invoked while `.build/reports/.run.lock` exists (a test run is in flight)
+- **THEN** the script exits non-zero with "tests in flight; refusing to delete reports" and the report tree is untouched.
+
+### Requirement: CI Artifact Upload and Cache Strategy
+
+The CI workflow that runs Playwright + Lighthouse MUST upload `.build/reports/` as a single GitHub Actions artifact named `reports-${{ github.sha }}` with `if: always()` so reports are accessible regardless of test outcome. The upload step MUST set `retention-days: 14` to bound storage growth against the 2 GB org artifact quota.
+
+The CI cache step that mounts `.build/cache/` MUST use a semantic cache key that does NOT include cache contents. The key MUST be derived from `hashFiles('build.config.json', 'package-lock.json')`; `restore-keys` MAY add tool-version pins. Hashing `.build/cache/**` itself is forbidden — it produces a tautological self-hash that never invalidates.
+
+Playwright traces uploaded as artifacts MUST NOT contain real credentials. `playwright.config.ts` MUST configure trace/HAR sanitization to strip `Authorization`, `Cookie`, and `Set-Cookie` header values before persisting.
 
 #### Scenario: Reports uploaded on failure
 
 - **WHEN** a CI run fails because Playwright tests fail
-- **THEN** the workflow still uploads `.build/reports/` as an artifact; the failed run's PR shows the artifact link in the run summary.
+- **THEN** the workflow still uploads `.build/reports/` as an artifact with `retention-days: 14`; the failed run's PR shows the artifact link in the run summary.
 
 #### Scenario: Reports uploaded on success
 
 - **WHEN** a CI run passes
-- **THEN** `.build/reports/` is uploaded; reviewers can download to inspect Lighthouse + Playwright HTML reports.
+- **THEN** `.build/reports/` is uploaded with `retention-days: 14`; reviewers can download to inspect Lighthouse + Playwright HTML reports.
+
+#### Scenario: Cache key is content-derived, not self-hashed
+
+- **WHEN** the CI workflow's cache step is inspected
+- **THEN** `key:` resolves to `hashFiles('build.config.json', 'package-lock.json')` (or includes those files); the key does NOT include `hashFiles('.build/cache/**')` or any other glob over the cache contents themselves.
+
+### Requirement: CODEOWNERS Dual-Review for Generator-Adjacent Files
+
+`CODEOWNERS` MUST require dual review (security team + maintainers) for the set of files that compose the SSoT generator surface: `build.config.json`, `build.config.ts`, `scripts/sync-build-config.mjs`, and every file in `.github/workflows/`. A contributor PR that edits `build.config.json` effectively edits CI workflow YAML via the generator; a single-reviewer rubber-stamp on `build.config.json` would bypass `.github/` review. Dual review on both surfaces closes the workflow-injection vector.
+
+The drift gate's CI write-block (sync refuses to write under `GITHUB_ACTIONS=true`) is a defense-in-depth complement to the CODEOWNERS rule, not a substitute.
+
+#### Scenario: build.config.json edit requires security review
+
+- **WHEN** a PR edits `build.config.json`
+- **THEN** GitHub branch protection requires approval from BOTH `@maintainers` and `@security` teams before merge; CODEOWNERS encodes this dual-review requirement.
+
+#### Scenario: Workflow YAML edit requires security review
+
+- **WHEN** a PR edits any file under `.github/workflows/` (whether human-authored or sync-regenerated)
+- **THEN** the same dual-review CODEOWNERS rule applies.
 
 ### Requirement: Bazel-Readiness Hooks
 

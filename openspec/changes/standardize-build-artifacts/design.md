@@ -42,7 +42,11 @@ Splitting these prevents a "clean cache" from nuking a useful test report, and l
 
 ```typescript
 // build.config.ts
-import data from "./build.config.json" with { type: "json" };
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 interface BuildPaths {
   root: string;
@@ -50,6 +54,7 @@ interface BuildPaths {
     astro: string;
     content: string;
     lhci: string;
+    lychee: string;
     playwright: string;
     treeSitter: string;
     playwrightMcp: string;
@@ -62,8 +67,22 @@ interface BuildPaths {
   dist: string;
 }
 
-export const BUILD = data as const satisfies BuildPaths;
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
+};
+
+const data = JSON.parse(
+  readFileSync(join(__dirname, "build.config.json"), "utf8"),
+) as BuildPaths;
+
+export const BUILD: DeepReadonly<BuildPaths> = data;
+// Validate at module-load time; throws if shape drifts.
+const _validate: BuildPaths = data satisfies BuildPaths;
 ```
+
+**Why `readFileSync` + `JSON.parse` instead of `import data from './build.config.json' with { type: 'json' }`:** the `with` import-attribute syntax requires `module: "NodeNext"` AND is inconsistently supported by Astro's Vite-based config loader at the time of this change. `readFileSync` works under every TS module mode and avoids a brittle dependency on TS/Vite/Astro version alignment. Bazel-readiness is unaffected — the JSON file is still pure data, still loadable from Starlark.
+
+**Why `DeepReadonly<BuildPaths>` instead of `data as const satisfies BuildPaths`:** `as const` is a syntactic assertion that requires a literal expression — it cannot be applied to a value derived from `JSON.parse` (or from a JSON-modules import). The `DeepReadonly` utility wraps the parsed shape with full readonly typing while preserving the structural type check via `satisfies`. Downstream consumers see the readonly guarantee; the data itself is plain JS.
 
 `build.config.json` is the canonical data file:
 
@@ -74,8 +93,8 @@ export const BUILD = data as const satisfies BuildPaths;
     "astro": ".build/cache/astro",
     "content": ".build/cache/content",
     "lhci": ".build/cache/lhci",
+    "lychee": ".build/cache/lychee",
     "playwright": ".build/cache/playwright",
-    "treeSitter": ".build/cache/tree-sitter",
     "playwrightMcp": ".build/cache/playwright-mcp"
   },
   "reports": {
@@ -89,6 +108,8 @@ export const BUILD = data as const satisfies BuildPaths;
   "dist": ".build/dist"
 }
 ```
+
+**Tree-sitter grammars are explicitly excluded from `BUILD.cache`.** Tree-sitter grammar artifacts (`.tree-sitter/` cache, compiled grammar `.so`/`.dylib`/`.wasm` files, parser binaries) MUST NOT be installed at the repo level. They belong to the contributor's editor/IDE/global toolchain, not to the project's reproducible build surface. Rationale: (a) grammars are arch-specific binaries and would invalidate cross-OS CI cache keys; (b) grammar versions evolve independently of `build.config.json`; (c) the project does not invoke tree-sitter as a build step. The `.gitignore` collapse drops `.tree-sitter/` from the project-level entry list — contributors who use tree-sitter locally configure it via their global home directory or editor cache (`~/.cache/tree-sitter/`, IDE-managed). No `BUILD.cache.treeSitter` entry exists.
 
 The TS file is a typed wrapper over the JSON; the JSON is the single source of truth (Bazel-readable, npm-readable, pure data).
 
@@ -174,6 +195,40 @@ This change MUST land BEFORE `/opsx:apply` runs on any of:
 - `add-brand-assets-and-writing-pipeline` (touches `package.json` `prebuild`, `scripts/sync-build-config.mjs` overlap, content cache path)
 
 Phase 1 of this change inventories every reference to old paths in those changes' specs/tasks; Phase 6 cross-links so each apply phase consumes `BUILD.*` constants instead of hardcoded strings.
+
+### 11. Lighthouse CI config has two contributing specs
+
+`lighthouserc.json` is a generated file with TWO sources of truth:
+
+- **Paths** (output, cache, server URL prefixes) — governed by this change's `Lighthouse CI Ready Signal` Requirement (under `check-site-quality`). Sync emits paths from `BUILD.reports.lhci` and `BUILD.cache.lhci`.
+- **Assertion shape** (`assertMatrix`, per-URL category gates, `matchingUrlPattern` rules) — governed by the redesign's `Lighthouse CI Performance Gate` Requirement (under `style-system`). Sync emits assertions from a static fixture maintained alongside that Requirement.
+
+The sync script merges both at generation time. Spec text in either capability MUST cross-reference the other so future contributors editing one know the other exists. Neither Requirement is "the" canonical Lighthouse spec — they compose. Archive merge is straightforward because they describe disjoint slices of the same generated file (paths vs assertions) and live in different capabilities.
+
+### 12. Workflow YAML regen is targeted-mutation, not whole-file rewrite
+
+`.github/workflows/deploy.yml` already contains 22 lines of human-authored steps. Full-file regeneration from a template would clobber human edits whenever the template drifts. Instead the sync generator uses `yaml@2.5.x` Document API to mutate ONLY the specific keys derived from BUILD (e.g., `path:` value under `actions/upload-pages-artifact` step):
+
+1. Parse the existing workflow YAML preserving comments and node order.
+2. Locate the target node by path expression (e.g., `jobs.deploy.steps[name="Upload artifact"].with.path`).
+3. Replace ONLY that scalar value.
+4. Stringify with deterministic options.
+5. Refuse to write if any non-targeted node changes during the parse-stringify roundtrip (defense against library version drift).
+
+This avoids both whole-file clobber and AST-level surgery brittleness. It also enables CI to verify "human didn't edit a generated key" without forbidding human edits elsewhere in the file.
+
+### 13. Mid-run race on `clean:reports` resolved via lock file
+
+Playwright and Lighthouse runners write reports incrementally during a test run. A bare `rm -rf .build/reports/` issued from another shell mid-run crashes the runner with `EACCES`/`ENOENT`. Resolution: a `.build/reports/.run.lock` sentinel file:
+
+- Test runner integrations (Playwright `globalSetup`, LHCI wrapper) acquire the lock on start, release on exit.
+- `npm run clean:reports` invokes `scripts/clean-reports.mjs` which checks for the lock and refuses with non-zero exit if present.
+- Stale-lock TTL (e.g., 2 hours since mtime) lets recovered-from-crash runs not lock the directory permanently.
+- The plain `rm -rf .build/reports/` shortcut is forbidden — `clean:reports` always goes through the lock-aware script.
+
+### 14. Tree-sitter grammars excluded from build cache
+
+Contributor-machine concern only. Grammars are arch-specific binaries; cross-OS CI cache invalidation, version drift, and the project's lack of a tree-sitter build step all argue for keeping them out of `BUILD.cache.*`. Contributors install grammars via their editor/IDE/global home directory. The `.gitignore` collapse intentionally drops `.tree-sitter/` from the project-level entry list.
 
 ## Risks & Rollback
 

@@ -6,34 +6,43 @@
 
 - [ ] 0.1 `openspec validate standardize-build-artifacts --strict` passes.
 - [ ] 0.2 Inventory: `git grep -n -E "(^|[^.])dist/|playwright-report|test-results|\.lighthouseci|\.cache/content-repo|\.tree-sitter|\.playwright-mcp|playwright/\.cache" -- ':!*.md' ':!build.config.*'` records baseline references. Save to `~/.workspace/standardize-build-artifacts/baseline-refs.txt` for round-trip diff after Phase 5.
-- [ ] 0.3 Confirm CODEOWNERS includes `build.config.ts`, `build.config.json`, `scripts/sync-build-config.mjs`, `astro.config.ts`, `playwright.config.ts`, `lighthouserc.json`, `.github/workflows/*.yml`, `.gitignore`, `package.json`.
+- [ ] 0.3 Update `CODEOWNERS` to require **dual review** (`@maintainers` + `@security`) for the SSoT generator surface: `build.config.json`, `build.config.ts`, `scripts/sync-build-config.mjs`, `astro.config.ts`, `playwright.config.ts`, `lighthouserc.json`, `lychee.toml`, `.github/workflows/*.yml`, `.gitignore`, `package.json`. A single-reviewer rubber-stamp on `build.config.json` would bypass `.github/` review via the generator pathway; dual review on both surfaces closes the workflow-injection vector.
 - [ ] 0.4 Verify NO in-flight changes (three prerequisites in PR #28) reference the new `BUILD.*` constants yet — they consume new paths during their own apply phase, not now. Spec validates GREEN before this change merges.
 
 ## Phase 1 — Source-of-truth files
 
-- [ ] 1.1 Create `build.config.json` at repo root with the canonical paths object per `design.md` Decision #2.
-- [ ] 1.2 Create `build.config.ts` exporting typed `BUILD` constant via `as const satisfies BuildPaths`. Imports `build.config.json` with `import data from './build.config.json' with { type: 'json' };` (Node 22 native JSON-modules; works in TS via `tsconfig.json` `resolveJsonModule: true`).
-- [ ] 1.3 Add `BuildPaths` interface to `build.config.ts` with all path fields typed `string`.
-- [ ] 1.4 Verify `tsc --noEmit` (or `astro check`) accepts the typed import: `cat build.config.ts && rtk npx tsc --noEmit build.config.ts` exits 0.
+- [ ] 1.1 Create `build.config.json` at repo root with the canonical paths object per `design.md` Decision #2. Every value MUST conform to regex `^\.build/[a-z0-9/_-]+$`.
+- [ ] 1.2 Create `tsconfig.json` at repo root (project currently has none). Extends `astro/tsconfigs/strictest`; sets `"resolveJsonModule": true`, `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, `"target": "ES2022"`. Pins TS version in `package.json` devDependencies.
+- [ ] 1.3 Create `build.config.ts`. Load JSON via `fs.readFileSync` + `JSON.parse` (NOT `with { type: 'json' }` import attribute — Astro's Vite loader has inconsistent support). Define `BuildPaths` interface with all path fields typed `string`. Export `BUILD` as `DeepReadonly<BuildPaths>` via a small inline `DeepReadonly` utility, validated against the interface with `satisfies BuildPaths`.
+- [ ] 1.4 Verify `astro check` (or `rtk npx tsc --noEmit`) exits 0 with `build.config.ts` loaded; downstream consumers see literal-string types where the JSON values are recognized as such.
 
 ## Phase 2 — Sync generator
 
-- [ ] 2.1 Create `scripts/sync-build-config.mjs`. Inputs: `build.config.json`. Outputs (overwrites with content-hash skip when unchanged):
-  - `lighthouserc.json` (assertions + outputDirs from BUILD)
-  - `lychee.toml` (cache_path from BUILD.cache.content)
-  - `.github/workflows/deploy.yml` (`path:` field updated for upload-pages-artifact)
-  - `.github/workflows/content-redeploy.yml` (deploy step + cache mount paths)
-  - `.github/workflows/design-md-drift.yml` (cache mount paths)
-- [ ] 2.2 Sync writes are idempotent: re-running with no `build.config.json` change produces zero file system changes (verified via `mtime` on outputs).
-- [ ] 2.3 Sync respects `SKIP_BUILD_SYNC=1` env var (no-op exit 0). Document in `docs/build-artifacts.md`.
-- [ ] 2.4 Add `npm run sync:build-config` script. Wire as `prebuild` lifecycle hook (chained with existing `prebuild` content from `add-brand-assets-and-writing-pipeline` if archived: `node scripts/sync-build-config.mjs && npm run build:favicons && npm run build:logos`).
+- [ ] 2.1 Create `scripts/sync-build-config.mjs`. Inputs: `build.config.json`. Pin `yaml@2.5.x`, `@iarna/toml@2.2.x`, project prettier as devDependencies. Outputs (overwrites with content-hash skip when unchanged):
+  - `lighthouserc.json` (assertions + outputDirs from BUILD; assertion shape from redesign's `Lighthouse CI Performance Gate`)
+  - `lychee.toml` (cache_path from BUILD.cache.lychee)
+  - `.github/workflows/deploy.yml` (**targeted YAML key rewrite** of `path:` field for `actions/upload-pages-artifact` ONLY — preserves all human-authored steps, comments, ordering)
+  - `.github/workflows/content-redeploy.yml` (targeted cache mount path rewrites only)
+  - `.github/workflows/design-md-drift.yml` (targeted cache mount path rewrites only)
+- [ ] 2.2 **Path validation.** Generator MUST validate every path string in `build.config.json` against `^\.build/[a-z0-9/_-]+$`; reject `..`, newlines, backticks, `$()`, absolute prefixes. Exit non-zero before any write on violation.
+- [ ] 2.3 **Deterministic output.** Generator MUST: sort JSON keys, emit LF-only line endings + trailing newline + UTF-8 no-BOM; use `yaml@2.5.x` Document API for in-place node mutation (refuse to write if any non-targeted node changes during parse-stringify roundtrip); alphabetize TOML keys within sections; post-process all outputs through pinned `prettier --parser <kind>`.
+- [ ] 2.4 **Banner emission.** Every generated file MUST carry an `AUTOGENERATED` marker. JSON: `"$generated": "build.config.json"` sentinel key. YAML/TOML: leading comment `# AUTOGENERATED — do not edit. Source: build.config.json. Run: npm run sync:build-config`. CI step verifies banner SHA matches current `build.config.json` SHA-256.
+- [ ] 2.5 **SHA-pinning gate.** Generator MUST refuse to emit any `uses:` line without 40-char SHA pin and trailing `# vX.Y.Z` version comment. Add Dependabot config (`.github/dependabot.yml`) keyed to `github-actions` ecosystem to auto-bump pins.
+- [ ] 2.6 **CI write-block.** Generator detects `process.env.GITHUB_ACTIONS === 'true'` and refuses to write any file under `.github/`. CI's drift-gate step uses `--check` mode that diffs without writing.
+- [ ] 2.7 Sync writes are idempotent: re-running with no `build.config.json` change produces zero file system writes (verified via mtime on outputs and unit test asserting byte-identical output across 10 successive invocations).
+- [ ] 2.8 Sync respects `SKIP_BUILD_SYNC=1` env var (no-op exit 0). Document in `docs/build-artifacts.md`.
+- [ ] 2.9 Add `npm run sync:build-config` script. Add `npm run build:prebuild-chain` that orchestrates the ordered prebuild sequence; both `prebuild` and `predev` hooks delegate to `build:prebuild-chain` (see Phase 5).
+- [ ] 2.10 Configure `husky` (or `lefthook`) pre-commit hook running `npm run sync:build-config && git diff --exit-code`; commit aborts on non-empty diff. `SKIP_BUILD_SYNC=1` opt-out per-commit.
 
 ## Phase 3 — Tool config edits (TS imports)
 
-- [ ] 3.1 `git mv astro.config.mjs astro.config.ts` (preserves blame). Edit: `import { BUILD } from './build.config.ts'`; set `outDir: BUILD.dist`, `cacheDir: BUILD.cache.astro`.
-- [ ] 3.2 Edit `playwright.config.ts`: `import { BUILD } from './build.config.ts'`; set `outputDir: BUILD.reports.playwright.results`, `reporter: [['html', { outputFolder: BUILD.reports.playwright.html }]]`.
+- [ ] 3.1a `git mv astro.config.mjs astro.config.ts` as a **pure rename** commit, no content edits. Acceptance: `git log --follow astro.config.ts` shows pre-rename history; blame preserved.
+- [ ] 3.1b In a follow-up commit edit `astro.config.ts`: `import { BUILD } from './build.config.ts'`; set `outDir: BUILD.dist`, `cacheDir: BUILD.cache.astro`. Run `astro check` post-edit to confirm typing.
+- [ ] 3.2 Edit `playwright.config.ts`: `import { BUILD } from './build.config.ts'`; set `outputDir: BUILD.reports.playwright.results`, `reporter: [['html', { outputFolder: BUILD.reports.playwright.html }]]`. Add trace/HAR sanitization stripping `Authorization`, `Cookie`, `Set-Cookie` headers before persistence. Acquire `.build/reports/.run.lock` on `globalSetup`, release on `globalTeardown`.
 - [ ] 3.3 Set `PWTEST_CACHE_DIR=.build/cache/playwright` in CI workflow env (Playwright respects this env var for its install cache).
-- [ ] 3.4 Verify `astro build` produces output under `.build/dist/` (not `dist/`). Verify `playwright test` writes results to `.build/reports/playwright/results/`. Both commands exit 0.
+- [ ] 3.4 Update CI cache step `key:` to `hashFiles('build.config.json', 'package-lock.json')`; remove any `hashFiles('.build/cache/**')` self-hashing tautology. `path: .build/cache/`.
+- [ ] 3.5 Update CI artifact upload step: `retention-days: 14` on the `.build/reports/` upload. Document the 2 GB org quota math in `docs/build-artifacts.md`.
+- [ ] 3.6 Verify `astro build` produces output under `.build/dist/` (not `dist/`). Verify `playwright test` writes results to `.build/reports/playwright/results/`. Both commands exit 0.
 
 ## Phase 4 — Tool config edits (generated)
 
@@ -44,11 +53,19 @@
 
 ## Phase 5 — npm scripts + .gitignore
 
-- [ ] 5.1 Add `package.json` scripts: `clean: rm -rf .build`, `clean:cache: rm -rf .build/cache`, `clean:reports: rm -rf .build/reports`, `sync:build-config: node scripts/sync-build-config.mjs`.
-- [ ] 5.2 Update `package.json` `prebuild` to chain `sync:build-config` before any other prebuild work.
-- [ ] 5.3 Collapse `.gitignore`: remove `dist/`, `.astro/`, `.lighthouseci/`, `test-results/`, `playwright-report/`, `playwright/.cache/`, `.cache/`, `.tree-sitter/`, `.playwright-mcp/` entries; replace with single `.build/` line. Keep `node_modules`, `.env`, `.DS_Store`, fixture-cache lines.
-- [ ] 5.4 Sweep references: `git grep` for old paths in source files (NOT specs/proposals/design.md, those are historical records). Update each to `BUILD.*` import or relative path under `.build/`.
-- [ ] 5.5 Compare against Phase 0.2 baseline. Net diff: only the SSoT files + sync-generated configs reference paths; everywhere else imports from `build.config.ts`.
+- [ ] 5.1 Add `package.json` scripts:
+  - `clean: rm -rf .build`
+  - `clean:cache: rm -rf .build/cache`
+  - `clean:reports: node scripts/clean-reports.mjs` (race-guarded against `.build/reports/.run.lock`; bare `rm -rf` rejected)
+  - `sync:build-config: node scripts/sync-build-config.mjs`
+  - `build:prebuild-chain: npm run sync:build-config` (extended by brand-assets archive to `&& npm run build:favicons && npm run build:logos`)
+  - `prebuild: npm run build:prebuild-chain`
+  - `predev: npm run build:prebuild-chain`
+- [ ] 5.2 `git rm -rf --cached playwright-report test-results .lighthouseci .cache .tree-sitter .playwright-mcp dist` BEFORE collapsing `.gitignore` so previously-tracked artifact directories are removed from the index.
+- [ ] 5.3 Collapse `.gitignore`: remove `dist/`, `.astro/`, `.lighthouseci/`, `test-results/`, `playwright-report/`, `playwright/.cache/`, `.cache/`, `.tree-sitter/`, `.playwright-mcp/` entries; replace with single `.build/` line. Keep `node_modules`, `.env`, `.DS_Store`, fixture-cache lines. Verify `git status` clean post-collapse.
+- [ ] 5.4 Add `.gitattributes` `* text eol=lf` to neutralize CRLF on Windows contributors. Add `.nvmrc` pinning Node ≥22.12.
+- [ ] 5.5 Sweep references: `git grep` for old paths in source files (NOT specs/proposals/design.md, those are historical records). Update each to `BUILD.*` import or relative path under `.build/`.
+- [ ] 5.6 Compare against Phase 0.2 baseline. Net diff: only the SSoT files + sync-generated configs reference paths; everywhere else imports from `build.config.ts`.
 
 ## Phase 6 — In-flight change cross-references
 
@@ -58,9 +75,11 @@
 
 ## Phase 7 — Drift-gate test
 
-- [ ] 7.1 Author `tests/build-config.spec.ts` (Playwright) — runs `npm run sync:build-config && git diff --exit-code` and asserts exit 0. Wire into CI `test:ci` step.
+- [ ] 7.1 Author `tests/build-config.test.mjs` (node:test, NOT Playwright — Playwright is a browser harness; spinning a browser to shell-out is wasteful). Runs `npm run sync:build-config && git diff --exit-code` and asserts exit 0. Wire into CI `test:ci` step as a separate node-test job.
 - [ ] 7.2 Author negative test fixture: a script that mutates `build.config.json`, runs sync, asserts `git diff --exit-code` exits NON-zero. Reverts mutation. Confirms drift gate works.
-- [ ] 7.3 Add CI assertion `git grep -E "(^|[^.])dist/" -- ':!build.config.*' ':!*.md' ':!openspec/changes/*' ':!docs/*'` returns 0 hits — no source code references old paths.
+- [ ] 7.3 Author determinism test: invokes sync 10× on the same input, asserts byte-identical output across all runs (SHA-256 hash of every generated file matches across iterations).
+- [ ] 7.4 Author path-validator test: feeds malicious values (`../../../etc/cron.d/x`, newline-bearing string, `$()`, absolute path) into `build.config.json` and asserts sync exits non-zero with "invalid path string" before writing any file.
+- [ ] 7.5 Add CI assertion `git grep -E "(^|[^.])dist/" -- ':!build.config.*' ':!*.md' ':!openspec/changes/*' ':!docs/*'` returns 0 hits — no source code references old paths.
 
 ## Phase 8 — Documentation
 
@@ -68,8 +87,11 @@
   - Layout overview (`.build/{cache,reports,dist}` table).
   - SSoT contract: `build.config.json` is canonical; `build.config.ts` is its TS wrapper; tools either IMPORT or are GENERATED.
   - Generated-file list (lighthouserc.json, lychee.toml, deploy.yml `path`).
-  - "Add a tool" contributor checklist: (1) decide TS-import vs JSON-generate; (2) edit `build.config.json` with new paths; (3) run `npm run sync:build-config`; (4) commit the SSoT diff + generated diffs together.
-  - `clean`/`clean:cache`/`clean:reports` semantics.
+  - "Add a tool" contributor checklist with decision tree: (a) does the tool produce cache → add `BUILD.cache.<tool>`; (b) does it produce reports → add `BUILD.reports.<tool>`; (c) is its config TS/JS-importable → import BUILD; else → generate via sync. Worked examples for one tool of each class (Vitest, Storybook, Husky-style no-path).
+  - `clean`/`clean:cache`/`clean:reports` semantics + race-guard via `.build/reports/.run.lock`.
+  - **Tree-sitter exclusion rationale**: grammars are contributor-machine concerns (arch-specific binaries; editor/IDE managed) and MUST NOT be installed at the repo level. No `BUILD.cache.treeSitter` entry exists.
+  - **CI artifact quota math**: 50 MB Playwright report × N PRs × 14-day retention vs 2 GB org quota.
+  - **Generator-adjacent CODEOWNERS** dual-review rule with rationale (closes workflow-injection vector).
   - Future Bazel migration path (load `build.config.json` via Starlark).
 - [ ] 8.2 Update `README.md` with link to `docs/build-artifacts.md`.
 - [ ] 8.3 Update `AGENTS.md` "Build and Deploy" subsection: mention `.build/` umbrella + SSoT.
