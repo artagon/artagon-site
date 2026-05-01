@@ -1,0 +1,75 @@
+## ADDED Requirements
+
+### Requirement: Sitewide Organization and WebSite JSON-LD
+
+`BaseLayout.astro` MUST emit a `schema.org/Organization` JSON-LD block with `name`, `url`, `logo` (absolute URL), and `sameAs[]` (GitHub, X, etc.) on every route. It MUST also emit a `WebSite` block with `url` and `name`. The `WebSite` block MUST NOT include `potentialAction` SearchAction while `/search` is `noindex`; SearchAction MAY be added in a follow-up change once `/search` is indexable.
+
+#### Scenario: Organization JSON-LD validates
+
+- **WHEN** `scripts/validate-structured-data.mjs` parses any built route in `dist/`
+- **THEN** an `Organization` block is present and contains `name`, `url`, `logo` (https absolute), and `sameAs[]` non-empty.
+
+#### Scenario: WebSite has no SearchAction
+
+- **WHEN** the validator parses a built route's WebSite JSON-LD
+- **THEN** the block does NOT contain a `potentialAction` field.
+
+### Requirement: Article and BreadcrumbList on Writing Posts
+
+Every `/writing/[slug]` route MUST emit a `schema.org/Article` JSON-LD block with `headline`, `description`, `author` (Person), `datePublished` (ISO), `dateModified?` (ISO), `mainEntityOfPage` (canonical URL), and `publisher` (Organization with `name` and `logo`, resolved from the sitewide Organization block). The `image` field is REQUIRED for News / Top Stories rich-result eligibility; if a post lacks `cover` frontmatter the build MUST emit a warning naming the post and the eligibility loss. It MUST also emit a `BreadcrumbList` with two items: Writing → article title.
+
+#### Scenario: Article datePublished is ISO
+
+- **WHEN** the validator parses a built `/writing/[slug]` route
+- **THEN** `Article.datePublished` matches `^\d{4}-\d{2}-\d{2}` and is ≤ today.
+
+#### Scenario: Publisher is present and resolved
+
+- **WHEN** the validator parses a built `/writing/[slug]` route
+- **THEN** `Article.publisher` contains a `name` matching the sitewide Organization `name` and a `logo` matching the sitewide Organization `logo` URL.
+
+#### Scenario: Missing cover image emits build warning
+
+- **WHEN** a writing post lacks `cover` frontmatter
+- **THEN** `scripts/validate-structured-data.mjs` emits a non-fatal warning naming the slug and "Top Stories rich-result ineligibility"; the build does not fail.
+
+### Requirement: DefinedTerm on Standards Page
+
+The `/standards` route MUST emit a `schema.org/DefinedTermSet` containing one `DefinedTerm` per registry entry. Each `DefinedTerm` MUST include `@id` (matching the entry `id`), `name`, `description` (from `longSummary`), and `url` (absolute).
+
+#### Scenario: DefinedTerm count matches registry
+
+- **WHEN** the validator parses the built `/standards` route
+- **THEN** the `hasDefinedTerm` array length equals the registry entry count.
+
+### Requirement: JSON-LD Safety and Script-Tag Escape
+
+JSON-LD blocks MUST be emitted via `JsonLd.astro` using `JSON.stringify` and Astro's safe interpolation inside `<script type="application/ld+json">`. The `set:html` directive MUST NOT be used (already enforced by ast-grep `no-set-html-directive`). Before interpolation, the JSON-LD payload MUST escape `<` as `<` (and `>` as `>`, `&` as `&`) so that user-controlled MDX-frontmatter strings cannot terminate the script element via `</script>`. `scripts/validate-structured-data.mjs` MUST assert that no built HTML in `dist/` contains a literal `</script>`, `<!--`, or `<script` substring inside any `<script type="application/ld+json">` block.
+
+#### Scenario: ast-grep passes
+
+- **WHEN** `npm run lint:sg:ci` runs against the new components
+- **THEN** no `no-set-html-directive` violations are reported.
+
+#### Scenario: Crafted MDX cannot break out of ld+json
+
+- **WHEN** an MDX author crafts an Article `headline` containing `</script><img src=x onerror=alert(1)>`
+- **THEN** the built `dist/writing/<slug>/index.html` contains the escaped sequence `</script>` and `scripts/validate-structured-data.mjs` confirms no raw `</script>` substring inside any ld+json block.
+
+### Requirement: JSON-LD Aggregate Size Budget
+
+The aggregate size of all JSON-LD blocks per built route MUST NOT exceed 8 KB uncompressed. `JSON.stringify` MUST be invoked without indent argument (`JSON.stringify(data)`, not `JSON.stringify(data, null, 2)`). `scripts/validate-structured-data.mjs` MUST fail the build if any route exceeds the ceiling.
+
+#### Scenario: /standards under budget
+
+- **WHEN** the validator measures aggregate ld+json bytes on the built `/standards` route (DefinedTermSet × 8 + Organization + WebSite)
+- **THEN** the total is ≤ 8192 bytes uncompressed and the build passes.
+
+### Requirement: Absolute URLs in Structured Data
+
+Every URL in any JSON-LD block (logo, image, mainEntityOfPage, sameAs, DefinedTerm.url) MUST be absolute (`https://...`). Relative URLs are forbidden.
+
+#### Scenario: Validator catches relative URL
+
+- **WHEN** a JSON-LD block contains `"logo": "/assets/logo.svg"`
+- **THEN** `scripts/validate-structured-data.mjs` exits non-zero with the offending field.

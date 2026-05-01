@@ -1,0 +1,6 @@
+id: no-math-random-crypto
+language: typescript
+rule:
+  pattern: Math.random()
+message: "Do not use Math.random() for security or cryptographic purposes. It is not a cryptographically secure pseudo-random number generator (CSPRNG). Use crypto.getRandomValues() instead."
+severity: warning

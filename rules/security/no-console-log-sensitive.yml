@@ -1,0 +1,18 @@
+id: no-console-log-sensitive
+language: typescript
+severity: warning
+message: "console.log may expose sensitive identity data via '$VAR'. Remove before production."
+note: |
+  Variables named token, secret, credential, key, password, assertion, challenge,
+  or privateKey should never be logged. This risks leaking OIDC/WebAuthn credentials.
+files:
+  - "src/**/*.ts"
+  - "src/**/*.mjs"
+ignores:
+  - "**/*.test.ts"
+  - "tests/**"
+rule:
+  pattern: console.log($$$BEFORE, $VAR, $$$AFTER)
+constraints:
+  VAR:
+    regex: "(?i)(token|secret|credential|password|key|assertion|challenge|privateKey|jwk|dpop)"

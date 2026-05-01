@@ -1,0 +1,8 @@
+id: no-inner-html
+language: typescript
+rule:
+  any:
+    - pattern: $OBJ.innerHTML = $VAL
+    - pattern: $OBJ.outerHTML = $VAL
+message: "Do not use innerHTML or outerHTML. This can lead to Cross-Site Scripting (XSS) vulnerabilities. Use textContent or safe DOM manipulation instead."
+severity: error

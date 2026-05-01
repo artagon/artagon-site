@@ -1,0 +1,156 @@
+# Tasks — update-site-marketing-redesign
+
+> Numbered for cross-reference from `proposal.md`, `design.md`, and capability deltas. Each task lists files touched and the acceptance signal. Tasks within a phase MAY parallelize; phases MUST land in order.
+
+## Phase 0 — Pre-flight
+
+- [ ] 0.1 Confirm `refactor-styling-architecture` has merged; rebase on `main`.
+- [ ] 0.2 Resolve any `public/assets/theme.css` token-name conflicts; if rename needed, update §6 token names.
+- [ ] 0.3 `openspec validate update-site-marketing-redesign --strict` — fix all schema issues.
+- [ ] 0.4 Confirm CODEOWNERS includes the nine new capability dirs and the cross-cutting files (`public/assets/theme.css`, `src/layouts/BaseLayout.astro`, `astro.config.mjs`, `scripts/csp.mjs`, `scripts/sri.mjs`).
+- [ ] 0.5 Build `scripts/verify-prerequisites.mjs` (`npm run verify:prerequisites`): fails the build unless `openspec/changes/refactor-styling-architecture/` is archived OR its merge commit is an ancestor of `HEAD`. Wire into postbuild + PR CI.
+- [ ] 0.6 Tag the pre-redesign baseline of `BaseLayout.astro`, `theme.css`, and `csp.mjs` as `pre-redesign` once `refactor-styling-architecture` archives — used by the multi-phase rollback path documented in `proposal.md`.
+
+## Phase 1 — Capability scaffolding
+
+- [ ] 1.1 Spec deltas live under `openspec/changes/update-site-marketing-redesign/specs/{site-content,site-navigation,style-system,site-standards-registry,site-bridge-story,site-mobile-layout,site-structured-data,site-indexation,site-branding}/spec.md`.
+- [ ] 1.2 Update `openspec/project.md` with new routes, new capabilities, merge-order note with `refactor-styling-architecture`.
+- [ ] 1.3 Update `openspec/config.yaml` context block with new capability names.
+- [ ] 1.4 `openspec validate update-site-marketing-redesign --strict` passes — gate before any code lands.
+
+## Phase 2 — Design-system foundations (style-system)
+
+- [ ] 2.1 Add raw OKLCH palette + semantic aliases + token categories (motion, elevation, focus-ring, z-index, spacing, radius) to `public/assets/theme.css` behind cascade layers `@layer reset, tokens, utilities, components, overrides`.
+- [ ] 2.2 Define `twilight` (modified — extends existing requirement) and `midnight` (new) under `[data-theme="..."]`. WCAG AA contrast verified by Playwright + `@axe-core/playwright`.
+- [ ] 2.3 Self-host WOFF2 fonts under `public/assets/fonts/` (Inter Tight, Space Grotesk, Fraunces, Instrument Serif, JetBrains Mono); subset with `unicode-range`; ship `LICENSE.txt`. Non-display families (Fraunces, Instrument Serif) MUST NOT load on routes that don't use them.
+- [ ] 2.3a Emit exactly one `<link rel="preload" as="font" type="font/woff2" crossorigin>` per route, pinned to the LCP-critical face (Space Grotesk for marketing routes per DESIGN.md). Playwright asserts `getComputedStyle(document.querySelector('h1')).fontFamily` resolves to the preloaded family.
+- [ ] 2.3b Build `scripts/measure-font-payload.mjs` (`npm run measure:font-payload`): fails the build if total WOFF2 per route exceeds 180 KB OR per-family exceeds 60 KB. Wire into postbuild.
+- [ ] 2.4 `@font-face` blocks emit `size-adjust`, `ascent-override`, `descent-override`, `line-gap-override` derived from fallback-font metrics.
+- [ ] 2.5 Build `scripts/derive-font-metrics.mjs` and `scripts/verify-font-metrics.mjs`; wire into `npm run verify`.
+- [ ] 2.6 Emit fluid-type `clamp()` scale per `design.md` §6 table; floors at 360 px, ceilings at 1440 px.
+- [ ] 2.7 Update CSP `font-src` to `'self'` only — remove any third-party host. Update `scripts/csp.mjs` accordingly.
+- [ ] 2.8 Build `scripts/lint-tokens.mjs` (forbid hex/rgb/hsl/oklch literals, raw px/em/rem, spacing magic numbers in `.astro`/`.css`/`.mdx` outside `public/assets/theme.css`). Where the rule fits ast-grep, add a `rules/security/no-raw-color-literal.yaml` instead.
+- [ ] 2.9 Wire `lint:tokens` and `verify:font-metrics` into `npm run postbuild` and CI.
+
+## Phase 3 — Navigation + site chrome (site-navigation)
+
+- [ ] 3.0 Define the BaseLayout slot ABI: add `<slot name="json-ld">`, `<slot name="indexation">`, `<slot name="branding">` to `BaseLayout.astro`. After this lands, Phases 9, 10, 11 use `<JsonLd/>`, `<Indexation/>`, `<Branding/>` wrapper components and DO NOT directly edit `BaseLayout.astro`.
+- [ ] 3.1 `Nav.astro`: wordmark + 4 nav items (Platform · Use cases · Standards · Writing) + GitHub icon; `aria-current="page"`; sentence case; sticky 64 px backdrop-blurred.
+- [ ] 3.2 `SkipLink.astro` + `<main id="main-content" tabindex="-1">` wrapper in `BaseLayout.astro`. Skip link is first focusable element. Activation moves focus into `<main>` (verified by `scripts/lint-skip-link.mjs` AND a Playwright scenario asserting `document.activeElement === main` after click).
+- [ ] 3.3 CSS-only hamburger baseline (checkbox pattern) for `< 720 px`.
+- [ ] 3.4 `NavToggle.astro` progressively-enhanced Astro island (button + aria + focus trap + Esc close + reduced-motion respect).
+- [ ] 3.5 `Footer.astro`: 4-column layout (Platform · Developers · Company · Legal) + tagline + theme toggle + auto-year copyright + version string `v{semver} — build {7-char git sha}`.
+- [ ] 3.6 `ThemeToggle.astro` `<button>` Astro island with `aria-pressed` reflecting active theme + inline pre-paint script (CSP-hashed) reading `localStorage.theme`, validating against allow-list `['twilight', 'midnight']`, falling back to `twilight` on any other value, and applying `<html data-theme>` via `setAttribute` only (no `innerHTML`/`outerHTML`/string-concatenated attribute construction). Update `scripts/csp.mjs` to include the new inline-script SHA-256 AND to fail the build if any inline `<script>` SHA-256 in `dist/` is not present in the emitted `script-src` directive (orphan-hash detection); forbid `'unsafe-inline'`.
+- [ ] 3.7 `SiteHead.astro` (or extend `BaseLayout.astro`): title, description, canonical (path-only check at lint), viewport, OG/Twitter, robots prop, favicons.
+- [ ] 3.8 `scripts/lint-meta.mjs`: description 80–160 chars, canonical present (path-only against `https://artagon.com`, no `?` query strings), exactly one `<h1>` per page, and writing posts have a non-skipping h1→h2→h3 ladder.
+- [ ] 3.9 `scripts/lint-skip-link.mjs` (or Playwright equivalent): every built page in `dist/` has skip link as first tabbable element.
+- [ ] 3.10 `scripts/lint-taglines.mjs`: enforce single source for `tagline.short` and `tagline.triad` from `src/content/taglines.json`.
+
+## Phase 4 — Content collections (site-content)
+
+- [ ] 4.1 Extend Zod schemas in `src/content/config.ts` for `pages`, `pages/writing`, and `authors` collections (eyebrow, headline, lede, CTAs[], heroFont?, accent?, tags[]).
+- [ ] 4.2 Author `src/content/pages/{home,platform,use-cases,standards,roadmap,writing}.mdx` with frontmatter per `design.md` §4.
+- [ ] 4.3 Add `bridge: { sentence, variants[] }` frontmatter to `platform.mdx`.
+- [ ] 4.4 Author `src/content/taglines.json` with `tagline.short` (≤ 60 chars) and `tagline.triad` (3 clauses).
+- [ ] 4.5 Sample `src/content/pages/writing/welcome.mdx` (non-draft) to exercise the writing detail route.
+- [ ] 4.6 Wire `/writing`, `/writing/[slug]`, `/writing/feed.xml` (`@astrojs/rss`).
+- [ ] 4.7 Update `openspec/specs/site-content/spec.md` Purpose line during archive (replace TBD).
+
+## Phase 5 — Marketing routes (site-content + style-system)
+
+- [ ] 5.1 `/` hero (eyebrow · headline · lede · CTAs · trust-chain artefact) + on-ramp card + pillar grid + standards row + latest-writing strip + latest-roadmap-update card.
+- [ ] 5.2 `/platform` REDESIGN: pillar tri-band (Identity · Credentials · Authorization) + `#bridge` section + inline code examples per pillar via Shiki at build time.
+- [ ] 5.3 `/use-cases` ADD: scenario cards, one references `/platform#bridge`.
+- [ ] 5.4 `/standards` ADD: registry-driven sections + TOC anchor list.
+- [ ] 5.5 `/writing` ADD: index, sorted by `published` desc, empty state if no posts.
+- [ ] 5.6 `/writing/[slug]` ADD: breadcrumb, TOC sidebar if ≥ 3 `<h2>`, related posts (2-up), RSS CTA.
+- [ ] 5.7 `/roadmap` REDESIGN: lanes (now / next / later) + latest-update card reused on home.
+
+## Phase 6 — Standards registry (site-standards-registry)
+
+- [ ] 6.1 `src/data/standards.ts` typed registry with initial 8 entries (IETF GNAP, OpenID OID4VC, FIDO2, W3C DIDs, W3C VCs, NIST 800-63, eIDAS 2, RFC 9449 DPoP) + versions + summaries + longSummaries + extends/uses graph + `lastVerified?` ISO date.
+- [ ] 6.2 `StandardChip.astro`: mono label, external icon, `target="_blank" rel="noopener noreferrer"`, desktop hover + mobile-visible caption via `@media (hover: none)`, ≥ 44 px tap target via hit-area padding.
+- [ ] 6.3 `StandardsRow.astro`: `<ul role="list">` render.
+- [ ] 6.4 `/standards` page consumes the registry as the single source.
+- [ ] 6.5 Hero + footer consume the registry — no hand-rolled standards links.
+- [ ] 6.6 `scripts/lint-standards.mjs` (AST-aware `.astro` / `.mdx` / `.ts`; skips code fences, comments, frontmatter; honors `// lint-standards:allow` pragma).
+- [ ] 6.7 Configure `lychee.toml` weekly scheduled job for `STANDARDS[*].href`; exclude from per-PR Lychee.
+
+## Phase 7 — Bridge story (site-bridge-story)
+
+- [ ] 7.1 Canonical `bridge.sentence` + `bridge.variants[]` allow-list in `platform.mdx` frontmatter.
+- [ ] 7.2 `/platform#bridge` section + `BridgeFlow.astro` SVG diagram with `role="img"`, `<title>`, `<desc>`; semantic emphasis (not color-only); `forced-colors` mode tested.
+- [ ] 7.3 `scripts/lint-bridge.mjs` (AST-aware, phrase-count heuristic, allow-list).
+- [ ] 7.4 Deploy-host redirect: `/bridge` (and case/trailing-slash variants) → `/platform#bridge` (301). Add `public/_redirects`.
+- [ ] 7.5 `/get-started#bridge` onboarding path + curl example (Phase 5 dependency).
+- [ ] 7.6 `tests/bridge.spec.ts`: canonical sentence appears exactly once on `/platform`; never verbatim elsewhere; 301 verified for `/bridge` variants.
+
+## Phase 8 — Mobile layout (site-mobile-layout)
+
+- [ ] 8.1 Remove global `transform: scale()` fallback from any prototype page that still uses it (under `new-design/extracted/`).
+- [ ] 8.2 Implement `TwoCol.astro`, `ThreeCol.astro`, `CodePair.astro`, `PillarGrid.astro` with container queries + `@supports` fallbacks.
+- [ ] 8.3 `TrustChain.astro` primitive: `<ol role="list">`, stacks vertically `< 720 px`, no tab-stop on non-interactive `<li>`. `TrustChainTooltip.astro` per `DESIGN.md §4.13`.
+- [ ] 8.4 Audit hero, standards row, bridge diagram at 360 / 480 / 720 / 1080 / 1440 px; fix overflow, clipping, tap-target violations (≥ 44 × 44 CSS px).
+- [ ] 8.5 `tests/mobile-layout.spec.ts`: no horizontal overflow at 360 px, 44 px tap targets, single h1, skip-link first-tabbable, hamburger present `< 720 px`.
+- [ ] 8.6 Migrate any legacy HTML mocks under `new-design/extracted/` onto tokens + primitives; delete `transform: scale()` blocks.
+
+## Phase 9 — Structured data (site-structured-data)
+
+- [ ] 9.1 `JsonLd.astro` helper with HTML-safe escape (no `set:html`; uses `JSON.stringify` + Astro's safe `<script type="application/ld+json">{json}</script>` pattern).
+- [ ] 9.2 Sitewide Organization + WebSite JSON-LD emitted via `<JsonLd/>` wrapper into `BaseLayout.astro`'s `<slot name="json-ld">` (no direct BaseLayout edit). WebSite block does NOT include `potentialAction` SearchAction while `/search` is `noindex`.
+- [ ] 9.3 Article + BreadcrumbList on `/writing/[slug]`. Article MUST include `publisher` resolved from sitewide Organization. Missing `cover` frontmatter emits a non-fatal build warning naming Top Stories ineligibility.
+- [ ] 9.4 DefinedTerm / DefinedTermSet on `/standards`.
+- [ ] 9.5 `scripts/validate-structured-data.mjs`: parse built HTML in `dist/`, validate JSON shape, required fields, absolute URLs, ISO dates, **assert no raw `</script>` substring inside any `<script type="application/ld+json">` block** (escape `<` as `&lt;` before interpolation in `JsonLd.astro`), **enforce aggregate ld+json size ≤ 8 KB uncompressed per route**, **`Article.publisher` matches sitewide Organization**.
+- [ ] 9.6 (Optional) scheduled Google Rich Results check via GitHub Action.
+
+## Phase 10 — Indexation (site-indexation)
+
+- [ ] 10.0 Create `src/lib/indexation.ts` exporting `NOINDEX_ROUTES = ['/console', '/search', '/play', '/404'] as const`. Consumed by sitemap filter, BaseLayout `indexable` prop, robots.txt generator, and `validate-indexation.mjs` — single source.
+- [ ] 10.1 Configure `@astrojs/sitemap` `filter` (consumes `NOINDEX_ROUTES`) AND `serialize` hook (binds `<lastmod>` to MDX `updated`/`published` frontmatter, NOT CI mtime) in `astro.config.mjs`.
+- [ ] 10.2 `BaseLayout.astro` `indexable` prop; default true; set false on `/console`, `/search`, `/play`, `/404`.
+- [ ] 10.3 Author `public/robots.txt`.
+- [ ] 10.4 Confirm `astro.config.mjs` `trailingSlash: 'never'` (already set).
+- [ ] 10.5 Author `public/_redirects` (or host equivalent) with the bridge 301 + any other moves.
+- [ ] 10.6 `tests/redirects.spec.ts`: 301 on `/bridge` variants.
+- [ ] 10.7 `scripts/validate-indexation.mjs`: meta-robots presence/absence per route (against `NOINDEX_ROUTES`); `<lastmod>` parity with frontmatter; `public/_redirects` destinations are same-origin (begin with `/`, no `://`, no `//`).
+- [ ] 10.8 RSS `<link rel="alternate">` in `BaseLayout.astro`.
+
+## Phase 11 — Branding (site-branding)
+
+- [ ] 11.1 Generate favicon set (`favicon.ico`, `favicon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, optional `mask-icon.svg`).
+- [ ] 11.2 `src/data/brand-colors.ts` constants — single source for theme-color and OG.
+- [ ] 11.3 `scripts/generate-manifest.mjs` writes `public/site.webmanifest` from `brand-colors.ts`.
+- [ ] 11.4 `theme-color` meta with `media="(prefers-color-scheme: dark)"` / `light`.
+- [ ] 11.5 `scripts/generate-og-images.mjs` (satori-based) + fallback template; runs pre-build; per-slug OG outputs cached.
+- [ ] 11.6 OG/Twitter meta in `BaseLayout.astro`.
+- [ ] 11.7 Wordmark SVGs under `public/assets/brand/`.
+- [ ] 11.8 `scripts/lint-brand.mjs` (or `rules/security/no-inline-wordmark.yaml`): forbid inline wordmark SVG outside `Footer.astro` and `Nav.astro`.
+
+## Phase 12 — Quality gates
+
+- [ ] 12.1 Playwright: cover smoke (h1 visible per route), bridge canonical sentence, 301 redirects, mobile layout, accessibility (`@axe-core/playwright`), trust-chain ARIA, theme toggle persistence.
+- [ ] 12.2 **Edit `lighthouserc.json` first** (gates the rest of Phase 12): set `collect.url` to every marketing route plus `/writing/[slug]`; set assertions to `error` severity (not warn) at perf ≥ 0.9, a11y ≥ 0.95, SEO ≥ 0.95, best-practices ≥ 0.95; assert CWV: LCP ≤ 2500 ms, CLS ≤ 0.1, TBT ≤ 200 ms, INP ≤ 200 ms. Run desktop + mobile emulation. The current warn-only `/`-only config is a Critical defect — every other Phase 12 task assumes Lighthouse can fail CI.
+- [ ] 12.3 CLS budget < 0.1 on every marketing route (Playwright measurement gate).
+- [ ] 12.4 `@axe-core/playwright` sweep — zero serious violations.
+- [ ] 12.5 SRI + CSP postbuild (`scripts/sri.mjs`, `scripts/csp.mjs`) still green; CSP hash list updated for the pre-paint theme script.
+- [ ] 12.6 Lychee internal-only on PR; weekly full run.
+- [ ] 12.7 All new linters wired into `npm run postbuild` and CI: `lint:tokens`, `lint:standards`, `lint:bridge`, `lint:taglines`, `lint:meta`, `lint:brand`, `lint:skip-link`, `validate:structured-data`, `validate:indexation`, `verify:font-metrics`.
+- [ ] 12.8 ast-grep (`npm run lint:sg:ci`) passes — no new violations of `no-inner-html`, `no-set-html-directive`, `no-hardcoded-secrets`, `no-console-log-sensitive`.
+
+## Phase 13 — Docs & announce
+
+- [ ] 13.1 Update `README.md` with new routes, capability inventory, theme toggle, RSS feed.
+- [ ] 13.2 Launch post under `/writing/` covering the redesign + theming + standards registry.
+- [ ] 13.3 `openspec archive update-site-marketing-redesign` after deploy verification (use `--yes` for non-interactive).
+- [ ] 13.4 File follow-up changes for: author public pages, changelog page, `/writing/tag/[tag]`, i18n, PWA installability.
+
+## Parallelism notes
+
+- Phases 2 + 4 can start in parallel; Phase 5 depends on both.
+- Phases 6 and 7 are independent; both consume Phase 4.
+- Phase 8 consumes 3 + 5.
+- Phases 9, 10, 11 are independent after Phase 3, but share `BaseLayout.astro` — stage edits.
+
+## Rollback
+
+Revert PRs in reverse phase order. Per-phase revert is self-contained: each phase writes to its own capability dir and its own `src/` tree. The cross-cutting files (`BaseLayout.astro`, `theme.css`, `csp.mjs`) are touched by Phases 2/3/9/10/11 — if multiple revert, restore those files to the pre-Phase-2 baseline.

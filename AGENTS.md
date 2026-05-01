@@ -1,21 +1,99 @@
-<!-- OPENSPEC:START -->
 
-# OpenSpec Instructions
+<!-- MCP:START -->
+## MCP Servers
 
-These instructions are for AI assistants working in this project.
+Project MCP servers are declared in **`.mcp.json`** (repo root). All models (Claude, Gemini, Codex) load this file automatically when working in this project.
 
-Always open `@/openspec/AGENTS.md` when the request:
+### Active servers
 
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
+| Server | Purpose | How to use |
+|---|---|---|
+| `context7` | Live documentation for Astro, MDN, Playwright, and other libraries | Prefix queries with `use context7` or call `resolve-library-id` + `get-docs` |
 
-Use `@/openspec/AGENTS.md` to learn:
+### context7 usage
 
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
+```
+# Resolve a library to its context7 ID first:
+resolve-library-id: "astro"           → /withastro/astro
+resolve-library-id: "playwright"      → /microsoft/playwright
 
-Keep this managed block so 'openspec update' can refresh the instructions.
+# Then fetch docs:
+get-docs: /withastro/astro   topic="content collections"
+get-docs: /microsoft/playwright   topic="locators"
+```
 
-<!-- OPENSPEC:END -->
+Use context7 whenever working with Astro APIs, MDX content, Playwright selectors, or any library where your training data may be stale (Astro 5 changes frequently).
+
+### Adding new servers
+
+Add entries to `.mcp.json` following the existing format. Commit `.mcp.json` so all models and team members get the same servers automatically.
+
+<!-- MCP:END -->
+
+<!-- AST-GREP:START -->
+## Static Analysis — ast-grep
+
+This project uses **ast-grep** (`sg`) as its primary linter (no ESLint). All models must run and respect it.
+
+### Running the linter
+
+```bash
+npm run lint:sg          # scan (exits non-zero on any error-severity finding)
+npm run lint:sg:fix      # scan + auto-apply fixes where available
+npm run lint:sg:ci       # CI mode (explicit non-zero exit code on errors)
+```
+
+Direct binary (avoids npm script WouldBlock bug on macOS):
+```bash
+./node_modules/.bin/sg scan
+```
+
+### Configuration
+
+- **`sgconfig.yml`** (repo root) — rule directories, test config, language mappings
+- **`rules/security/`** — all project rules live here as YAML files
+- `.astro` files → scanned as `html` (template portion); frontmatter `---` blocks are NOT covered — keep security logic in `src/lib/*.ts`
+- `.mjs` and `.js` files → mapped to `typescript` parser
+
+### Rules in force
+
+| Rule ID | Severity | What it catches |
+|---|---|---|
+| `no-inner-html` | error | `innerHTML` / `outerHTML` assignment (XSS sink) |
+| `no-set-html-directive` | error | Astro `set:html` XSS escape hatch |
+| `no-math-random-crypto` | warning | `Math.random()` used for security |
+| `no-weak-hash` | error | `crypto.createHash('md5'\|'sha1')` (CWE-327) |
+| `no-jwt-decode-unverified` | error | `jwt.decode()` without signature verification (CWE-347) |
+| `no-console-log-sensitive` | warning | `console.log` with token/secret/key/credential vars |
+| `no-hardcoded-secrets` | error | API keys / JWTs hardcoded as string literals |
+
+### When to run
+
+- **Before committing** any `.ts`, `.mjs`, `.js`, or `.astro` file
+- **After writing new code** — run `npm run lint:sg` and fix all `error`-severity findings before considering the task done
+- **Adding a new security pattern?** Add a YAML rule in `rules/security/` following the existing format; do not suppress findings without an explicit approval
+
+### Search toolchain
+
+Claude and Gemini route shell search commands through `.claude/skills/search-toolchain` / `.gemini/skills/search-toolchain` hooks. Codex does not expose a native pre-tool hook in the installed CLI, so Codex agents must follow this policy directly:
+
+- Prefer `python3 .codex/skills/search-toolchain/scripts/search_router.py -- '<search command>'` for `grep`, `rg`, `ripgrep`, and `git grep` searches.
+- Prefer structural `ast-grep` searches for supported languages (`bash`, `rust`, `typescript`, `tsx`, `python`, `go`, `json`, `yaml`, `html`, `css`, and others configured by the shared skill).
+- Use bounded text fallback only when the language or file format is unsupported by `ast-grep` / tree-sitter.
+
+### Writing new rules
+
+```yaml
+id: my-rule-id          # kebab-case, unique
+language: typescript    # typescript | javascript | html
+severity: error         # error | warning | info
+message: "Description with $META_VAR interpolation"
+files:
+  - "src/**/*.ts"
+ignores:
+  - "**/*.test.ts"
+rule:
+  pattern: dangerousCall($ARG)
+```
+
+<!-- AST-GREP:END -->
