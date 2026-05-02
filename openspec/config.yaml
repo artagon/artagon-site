@@ -1,0 +1,52 @@
+schema: spec-driven
+
+context: |
+  Project: artagon-site (artagon.com) — Astro 5 static marketing & docs shell for the Artagon identity platform.
+
+  Tech stack:
+  - Astro 5 (output: "static", trailingSlash: "never", site: https://artagon.com)
+  - Node 20+, npm
+  - Integrations: @astrojs/mdx 4.3.13, @astrojs/sitemap ^3.6
+  - Tooling: Prettier, Cheerio (SRI/CSP postbuild), Lighthouse CI, Lychee
+  - Lint: ast-grep (sg) — primary linter, NO ESLint. Rules in rules/security/*.yml
+  - Tests: Playwright 1.57
+  - Deploy: GitHub Pages via withastro/action; CNAME → artagon.com
+
+  Layout:
+  - src/pages/ — Astro routes
+  - src/content/pages/ — MDX content (vision.mdx etc.) via Astro Content Collections + Zod
+  - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts
+  - src/components/ui/ — Card, SectionHeader, FeatureList primitives
+  - public/assets/theme.css — global tokens (--brand-teal, --bg, --surface, gradient tokens) + ui-* utility classes
+  - scripts/sri.mjs + scripts/csp.mjs — postbuild security (SRI + CSP meta with inline-script hashes)
+  - openspec/ — spec-driven workflow (this directory)
+
+  Conventions:
+  - Static-only output. No SSR, no runtime JS frameworks. Astro islands sparingly.
+  - Security-hardened: SRI hashes for local JS/CSS, CSP meta tag with hashes for inline scripts.
+  - CDN/origin minification MUST be disabled to avoid SRI mismatches.
+  - All postbuild changes must keep scripts/sri.mjs + scripts/csp.mjs in sync.
+  - ast-grep rules: no innerHTML, no Astro set:html, no Math.random for crypto, no MD5/SHA1, no unverified jwt.decode, no hardcoded secrets, no console.log of token/secret/key vars.
+  - WCAG 2.2 AA is the floor; visible focus, no color-only signal, prefers-reduced-motion respected.
+  - Lighthouse CI thresholds enforced; CLS budget < 0.1.
+
+  Active in-flight change:
+  - refactor-styling-architecture — extracts vision.css patterns into shared UI primitives + theme tokens.
+    Future changes that touch public/assets/theme.css MUST land AFTER this merges (CODEOWNERS sequencing).
+
+  Adjacent reference:
+  - new-design/extracted/ contains the canonical DESIGN.md (761 lines, OKLCH tokens, motion budgets,
+    component anatomy) plus a draft proposal/tasks/design for update-site-marketing-redesign.
+
+rules:
+  proposal:
+    - Mark BREAKING changes explicitly.
+    - Always include "Out of Scope" with rationale per item.
+    - Reference openspec/specs/<capability>/spec.md when proposing MODIFIED requirements.
+  tasks:
+    - Group by phase; phases land in order, tasks within a phase MAY parallelize.
+    - Each task lists files touched + acceptance signal.
+    - Include a Phase 0 "Pre-flight" with `openspec validate --strict <change-id>`.
+  design:
+    - Required when change affects 2+ capabilities, introduces new dependency, or has migration/security/perf risk.
+    - Document merge-order contracts when files overlap with other open changes.

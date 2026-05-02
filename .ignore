@@ -1,0 +1,6 @@
+.astro/
+.tree-sitter/grammars/
+dist/
+node_modules/
+playwright-report/
+test-results/

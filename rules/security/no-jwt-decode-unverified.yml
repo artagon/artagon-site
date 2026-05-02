@@ -1,0 +1,15 @@
+id: no-jwt-decode-unverified
+language: typescript
+severity: error
+message: "jwt.decode() skips signature verification (CWE-347). Use jwt.verify() with the IdP's public key."
+note: |
+  In OIDC/WebAuthn flows, decoding without verification allows token forgery.
+  Always verify the JWT signature using the issuer's JWKS endpoint.
+files:
+  - "src/**/*.ts"
+  - "src/**/*.mjs"
+ignores:
+  - "**/*.test.ts"
+  - "tests/**"
+rule:
+  pattern: jwt.decode($TOKEN)

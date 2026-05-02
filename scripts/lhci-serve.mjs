@@ -1,9 +1,17 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
 import http from "node:http";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const buildConfig = JSON.parse(
+  readFileSync(path.join(__dirname, "..", "build.config.json"), "utf8"),
+);
 
 const port = Number.parseInt(process.env.LHCI_PORT ?? "8081", 10);
-const dir = process.env.LHCI_DIR ?? "dist";
+const dir = process.env.LHCI_DIR ?? buildConfig.dist;
 const checkIntervalMs = Number.parseInt(
   process.env.LHCI_READY_INTERVAL_MS ?? "250",
   10,

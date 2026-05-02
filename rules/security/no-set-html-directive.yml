@@ -1,0 +1,13 @@
+id: no-set-html-directive
+language: html
+severity: error
+message: "set:html bypasses Astro's automatic XSS sanitization. Audit this usage — never pass user-controlled input."
+note: |
+  Astro's set:html is equivalent to innerHTML: it renders raw, unsanitized HTML.
+  Only use it with trusted, server-controlled strings.
+  References: https://docs.astro.build/en/reference/directives-reference/#sethtml
+files:
+  - "**/*.astro"
+rule:
+  kind: document
+  regex: "set:html"

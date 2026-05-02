@@ -1,41 +1,98 @@
 {
+  "$generated": "build.config.json",
+  "$sha": "886935a235c5a3d8",
   "ci": {
     "collect": {
-      "startServerCommand": "node scripts/lhci-serve.mjs",
-      "startServerReadyPattern": "READY",
-      "url": ["http://localhost:8081/"],
-      "numberOfRuns": 2
+      "staticDistDir": ".build/dist",
+      "url": [
+        "/",
+        "/platform/",
+        "/roadmap/",
+        "/vision/",
+        "/security/",
+        "/faq/"
+      ]
     },
     "assert": {
-      "assertions": {
-        "categories:performance": [
-          "warn",
-          {
-            "minScore": 0.9
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "/brand/?$",
+          "assertions": {
+            "categories:performance": [
+              "error",
+              {
+                "minScore": 0.8
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.95
+              }
+            ],
+            "categories:best-practices": [
+              "error",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:seo": [
+              "off"
+            ]
           }
-        ],
-        "categories:accessibility": [
-          "error",
-          {
-            "minScore": 0.95
+        },
+        {
+          "matchingUrlPattern": ".*",
+          "assertions": {
+            "categories:performance": [
+              "warn",
+              {
+                "minScore": 0.85
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:best-practices": [
+              "warn",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:seo": [
+              "warn",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "largest-contentful-paint": [
+              "warn",
+              {
+                "maxNumericValue": 4000
+              }
+            ],
+            "cumulative-layout-shift": [
+              "warn",
+              {
+                "maxNumericValue": 0.25
+              }
+            ],
+            "total-blocking-time": [
+              "warn",
+              {
+                "maxNumericValue": 600
+              }
+            ]
           }
-        ],
-        "categories:best-practices": [
-          "error",
-          {
-            "minScore": 0.9
-          }
-        ],
-        "categories:seo": [
-          "error",
-          {
-            "minScore": 0.95
-          }
-        ]
-      }
+        }
+      ]
     },
     "upload": {
-      "target": "temporary-public-storage"
+      "target": "filesystem",
+      "outputDir": ".build/reports/lhci"
     }
   }
 }

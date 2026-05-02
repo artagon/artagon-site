@@ -1,0 +1,45 @@
+# Dependabot configuration — keeps GitHub Actions SHA pins fresh and
+# bumps npm devDeps on a weekly schedule. Required by
+# openspec/changes/standardize-build-artifacts (Sync Generator and Drift
+# Gate Requirement) so the SHA-pin enforcement gate has an upgrade path.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Los_Angeles
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@artagon/owners"
+    commit-message:
+      prefix: "chore(actions)"
+      include: scope
+
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Los_Angeles
+    groups:
+      dev-deps:
+        dependency-type: development
+    open-pull-requests-limit: 5
+    reviewers:
+      - "@artagon/owners"
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    ignore:
+      # Major bumps gated on manual review (Astro 5 → 6, Playwright 1.x → 2.x)
+      - dependency-name: "astro"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@playwright/test"
+        update-types: ["version-update:semver-major"]

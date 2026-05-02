@@ -1,12 +1,38 @@
+# CODEOWNERS — required reviewers for protected file paths.
+# Branch protection on `main` requires `required_approving_review_count: 2`
+# AND `require_code_owner_reviews: true`.
+#
+# Team-handle policy (per `standardize-build-artifacts` spec):
+# Org has `commiters`, `owners`, `read-only-team`. No `security` or
+# `maintainers` slug. Fallback: pair `@artagon/owners` (admin team)
+# with named individual `@trumpyla` to enforce two-distinct-reviewer rule.
+
 # Default owner for everything in the repo
 * @trumpyla
 
 # Agent configuration and workflows
 /.agents/ @trumpyla
 
-# CI/CD workflows
-/.github/workflows/ @trumpyla
+# SSoT generator surface — DUAL REVIEW required (workflow-injection vector)
+/build.config.json @artagon/owners @trumpyla
+/build.config.ts @artagon/owners @trumpyla
+/scripts/sync-build-config.mjs @artagon/owners @trumpyla
+/scripts/clean.mjs @artagon/owners @trumpyla
+/scripts/sanitize-trace.mjs @artagon/owners @trumpyla
+/scripts/fixtures/lhci-assertions.json @artagon/owners @trumpyla
+/astro.config.ts @artagon/owners @trumpyla
+/playwright.config.ts @artagon/owners @trumpyla
+/lighthouserc.json @artagon/owners @trumpyla
+/lychee.toml @artagon/owners @trumpyla
+/.gitignore @artagon/owners @trumpyla
+/.gitattributes @artagon/owners @trumpyla
+/.nvmrc @artagon/owners @trumpyla
+/tsconfig.json @artagon/owners @trumpyla
+/package.json @artagon/owners @trumpyla
+/.github/workflows/ @artagon/owners @trumpyla
+/.github/dependabot.yml @artagon/owners @trumpyla
+/.github/CODEOWNERS @artagon/owners @trumpyla
 
-# Security-sensitive files
-/scripts/csp.mjs @trumpyla
-/scripts/sri.mjs @trumpyla
+# Security-sensitive scripts
+/scripts/csp.mjs @artagon/owners @trumpyla
+/scripts/sri.mjs @artagon/owners @trumpyla

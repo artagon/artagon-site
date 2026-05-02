@@ -1,0 +1,20 @@
+{
+  "root": ".build",
+  "cache": {
+    "astro": ".build/cache/astro",
+    "content": ".build/cache/content",
+    "lhci": ".build/cache/lhci",
+    "lychee": ".build/cache/lychee",
+    "playwright": ".build/cache/playwright",
+    "playwright-mcp": ".build/cache/playwright-mcp"
+  },
+  "reports": {
+    "playwright": {
+      "results": ".build/reports/playwright/results",
+      "html": ".build/reports/playwright/html"
+    },
+    "lhci": ".build/reports/lhci",
+    "coverage": ".build/reports/coverage"
+  },
+  "dist": ".build/dist"
+}

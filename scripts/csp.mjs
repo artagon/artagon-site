@@ -1,9 +1,15 @@
 #!/usr/bin/env node
-import { promises as fs } from "fs";
+import { promises as fs, readFileSync } from "fs";
 import path from "path";
 import crypto from "crypto";
 import * as cheerio from "cheerio";
-const distDir = "dist";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const buildConfig = JSON.parse(
+  readFileSync(path.join(__dirname, "..", "build.config.json"), "utf8"),
+);
+const distDir = buildConfig.dist;
 const sha = (buf) => crypto.createHash("sha256").update(buf).digest("base64");
 async function walk(dir) {
   const out = [];

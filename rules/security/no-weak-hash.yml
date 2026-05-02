@@ -1,0 +1,19 @@
+id: no-weak-hash
+language: typescript
+severity: error
+message: "Weak hash algorithm '$ALG' is cryptographically broken (CWE-327). Use SHA-256 or stronger."
+note: |
+  MD5 and SHA-1 must not be used for any security purpose in an identity platform.
+  Use crypto.createHash('sha256') (Node.js) or SubtleCrypto.digest('SHA-256') (browser).
+files:
+  - "src/**/*.ts"
+  - "src/**/*.mjs"
+  - "scripts/**/*.mjs"
+ignores:
+  - "**/*.test.ts"
+  - "tests/**"
+rule:
+  pattern: crypto.createHash($ALG)
+constraints:
+  ALG:
+    regex: "^['\"]?(md5|sha1|sha-1)['\"]?$"

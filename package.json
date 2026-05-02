@@ -27,7 +27,9 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "predev": "npm run build:prebuild-chain",
     "build": "astro build",
+    "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",
     "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs",
@@ -35,7 +37,17 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:update-snapshots": "playwright test --update-snapshots",
-    "test:ci": "playwright test --reporter=github"
+    "test:ci": "playwright test --reporter=github",
+    "test:build-config": "node --test tests/build-config.test.mjs",
+    "lint:sg": "./node_modules/.bin/sg scan",
+    "lint:sg:fix": "./node_modules/.bin/sg scan --update-all",
+    "lint:sg:ci": "./node_modules/.bin/sg scan --error",
+    "sync:build-config": "node scripts/sync-build-config.mjs",
+    "build:prebuild-chain": "npm run sync:build-config",
+    "clean": "node scripts/clean.mjs all",
+    "clean:cache": "node scripts/clean.mjs cache",
+    "clean:reports": "node scripts/clean.mjs reports",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/mdx": "4.3.13",
@@ -44,9 +56,11 @@
     "sharp": "0.34.5"
   },
   "devDependencies": {
+    "@ast-grep/cli": "^0.42.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "1.57.0",
     "cheerio": "^1.1.2",
+    "husky": "^9.1.7",
     "prettier": "^3.6.2"
   },
   "overrides": {

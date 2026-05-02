@@ -1,0 +1,36 @@
+ruleDirs:
+  - rules
+
+# testConfigs removed — no rule tests authored yet. Add back when
+# rules/__tests__/ + rules/__snapshots__/ are populated.
+#
+# .astro files: scanned as HTML (template portion only).
+# Frontmatter TypeScript (--- blocks) is NOT covered here — write TS rules
+# targeting src/**/*.ts for any logic extracted out of frontmatter.
+languageGlobs:
+  bash:
+    - "**/*.bash"
+    - "**/*.bats"
+    - "**/*.sh"
+    - "**/.envrc"
+  css:
+    - "**/*.css"
+  html:
+    - "**/*.html"
+    - "**/*.astro"
+  json:
+    - "**/*.json"
+  rust:
+    - "**/*.rs"
+  tsx:
+    - "**/*.jsx"
+    - "**/*.tsx"
+  typescript:
+    - "**/*.cts"
+    - "**/*.mjs"
+    - "**/*.mts"
+    - "**/*.js"
+    - "**/*.ts"
+  yaml:
+    - "**/*.yaml"
+    - "**/*.yml"
