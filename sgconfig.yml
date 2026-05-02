@@ -1,10 +1,9 @@
 ruleDirs:
   - rules
 
-testConfigs:
-  - testDir: rules/__tests__
-    snapshotDir: rules/__snapshots__
-
+# testConfigs removed — no rule tests authored yet. Add back when
+# rules/__tests__/ + rules/__snapshots__/ are populated.
+#
 # .astro files: scanned as HTML (template portion only).
 # Frontmatter TypeScript (--- blocks) is NOT covered here — write TS rules
 # targeting src/**/*.ts for any logic extracted out of frontmatter.

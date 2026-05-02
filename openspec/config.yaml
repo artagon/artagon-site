@@ -8,7 +8,7 @@ context: |
   - Node 20+, npm
   - Integrations: @astrojs/mdx 4.3.13, @astrojs/sitemap ^3.6
   - Tooling: Prettier, Cheerio (SRI/CSP postbuild), Lighthouse CI, Lychee
-  - Lint: ast-grep (sg) — primary linter, NO ESLint. Rules in rules/security/*.yaml
+  - Lint: ast-grep (sg) — primary linter, NO ESLint. Rules in rules/security/*.yml
   - Tests: Playwright 1.57
   - Deploy: GitHub Pages via withastro/action; CNAME → artagon.com
 
