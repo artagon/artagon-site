@@ -32,7 +32,7 @@
     "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs",
+    "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:design",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",

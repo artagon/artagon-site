@@ -21,3 +21,12 @@ if ! git diff --exit-code -- lighthouserc.json lychee.toml >/dev/null 2>&1; then
   echo "  Stage the changes (git add lighthouserc.json lychee.toml) and re-commit."
   exit 1
 fi
+
+# Run lint:design if DESIGN.md is in staged changes (Phase 2.3a).
+if git diff --cached --name-only | grep -q "^DESIGN\.md$"; then
+  echo "husky/pre-commit: DESIGN.md staged — running lint:design"
+  npm run lint:design || {
+    echo "husky/pre-commit: lint:design failed"
+    exit 1
+  }
+fi

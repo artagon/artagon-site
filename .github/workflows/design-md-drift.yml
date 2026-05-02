@@ -1,0 +1,108 @@
+name: Design.md Spec Drift Monitor
+
+on:
+  schedule:
+    # Weekly cron on Mondays at 06:00 LA time (UTC-7 or UTC-8 depending on DST)
+    # Matches dependabot schedule from standardize-build-artifacts spec
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-main
+  cancel-in-progress: false
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.x
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: "(2.7a) Regenerate design.md spec and check for drift"
+        id: spec-drift
+        run: |
+          npm run spec:cache
+          git diff --exit-code openspec/.cache/design-md-spec.md || echo "SPEC_DRIFTED=true" >> $GITHUB_ENV
+
+      - name: "(2.7b) Check upstream design.md repo health"
+        id: upstream-health
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch repository info from google-labs-code/design.md
+          REPO_INFO=$(gh api repos/google-labs-code/design.md --jq '{archived: .archived, pushed_at: .pushed_at}' 2>/dev/null || echo '{"archived":true}')
+          ARCHIVED=$(echo "$REPO_INFO" | jq -r '.archived // true')
+          PUSHED_AT=$(echo "$REPO_INFO" | jq -r '.pushed_at // ""')
+          
+          if [ "$ARCHIVED" = "true" ]; then
+            echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
+            echo "Repository is archived"
+            exit 1
+          fi
+          
+          if [ -n "$PUSHED_AT" ]; then
+            PUSH_DATE=$(date -d "$PUSHED_AT" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$PUSHED_AT" +%s)
+            NOW=$(date +%s)
+            DAYS_SINCE=$((($NOW - $PUSH_DATE) / 86400))
+            
+            if [ "$DAYS_SINCE" -gt 90 ]; then
+              echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
+              echo "Last push was $DAYS_SINCE days ago (threshold: 90)"
+              exit 1
+            fi
+            echo "Last push was $DAYS_SINCE days ago"
+          fi
+
+      - name: "(2.7c) Run design.md fixture snapshot tests"
+        id: fixture-tests
+        run: npm run test:design-fixtures || echo "FIXTURE_TESTS_FAILED=true" >> $GITHUB_ENV
+
+      - name: Collect drift findings
+        id: drift-findings
+        if: always()
+        run: |
+          FINDINGS=""
+          [ "${{ env.SPEC_DRIFTED }}" = "true" ] && FINDINGS="${FINDINGS}(2.7a) Design.md spec has drifted\n"
+          [ "${{ env.UPSTREAM_DRIFTED }}" = "true" ] && FINDINGS="${FINDINGS}(2.7b) Upstream design.md repo is archived or stale (>90 days)\n"
+          [ "${{ env.FIXTURE_TESTS_FAILED }}" = "true" ] && FINDINGS="${FINDINGS}(2.7c) Fixture snapshot tests failed\n"
+          
+          if [ -z "$FINDINGS" ]; then
+            echo "All checks passed"
+            exit 0
+          fi
+          
+          echo "DRIFT_FINDINGS<<EOF" >> $GITHUB_ENV
+          echo -e "$FINDINGS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          exit 1
+
+      - name: Open tracking issue on drift
+        if: failure()
+        uses: actions/github-script@37e671142ad4ba1c1c3a1a02e01b47e7af73dcd3 # v7.x
+        with:
+          script: |
+            const findings = process.env.DRIFT_FINDINGS || "Unknown drift detected";
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "[Design.md] Spec drift detected",
+              body: `**Automated drift detection (${new Date().toISOString().split('T')[0]})**\n\n${findings}\n\nSee workflow run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              labels: ["design-md", "drift"]
+            });
+            console.log(`Created tracking issue: #${issue.data.number}`);
