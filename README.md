@@ -132,9 +132,9 @@ artagon-site/
 
 ```javascript
 export default defineConfig({
-  site: "https://artagon.com",    // Canonical domain
-  output: "static",                // Static site generation
-  trailingSlash: "never",          // Clean URLs without trailing slashes
+  site: "https://artagon.com", // Canonical domain
+  output: "static", // Static site generation
+  trailingSlash: "never", // Clean URLs without trailing slashes
   integrations: [
     sitemap({
       filter: (page) => !page.includes("/_drafts/"),
@@ -189,15 +189,16 @@ timeout = 20
 
 ```json
 {
-  "dev": "astro dev",           // Start dev server
-  "build": "astro build",       // Build + run postbuild scripts
-  "preview": "astro preview",   // Preview production build
-  "format": "prettier --write .",  // Format all files
+  "dev": "astro dev", // Start dev server
+  "build": "astro build", // Build + run postbuild scripts
+  "preview": "astro preview", // Preview production build
+  "format": "prettier --write .", // Format all files
   "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs"
 }
 ```
 
 **Postbuild Pipeline:**
+
 1. `astro build` - Compiles to `dist/`
 2. `scripts/sri.mjs` - Injects SRI hashes and crossorigin attributes
 3. `scripts/csp.mjs` - Generates CSP meta tags with inline script hashes
@@ -249,11 +250,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 **Location:** `src/components/`
 
 All components are Astro components (`.astro` files) with:
+
 - Zero JavaScript by default (ships pure HTML/CSS)
 - Optional client-side JS via `<script>` tags
 - TypeScript support in frontmatter
 
 **Key Components:**
+
 - `Header.astro` - Main navigation with theme toggle
 - `Footer.astro` - Site footer with links
 - `SeoTags.astro` - Meta tags, Open Graph, JSON-LD schema
@@ -267,6 +270,7 @@ All components are Astro components (`.astro` files) with:
 TypeScript files exporting structured content:
 
 **`faq.ts`** - FAQ with JSON-LD schema:
+
 ```typescript
 export const faqData = {
   title: "Frequently Asked Questions",
@@ -280,6 +284,7 @@ export const faqData = {
 ```
 
 **`roadmap.ts`** - Product roadmap phases:
+
 ```typescript
 export const roadmapPhases = [
   {
@@ -300,12 +305,26 @@ npm run build
 ```
 
 **Build Process:**
-1. Astro compiles pages, components, and assets to `dist/`
-2. Sitemap generated at `dist/sitemap.xml`
-3. **Postbuild:** SRI script adds integrity hashes to `<script>` and `<link>` tags
-4. **Postbuild:** CSP script injects Content Security Policy meta tag
 
-**Output:** `dist/` directory with static HTML/CSS/JS
+1. **Prebuild:** `npm run sync:build-config` regenerates `lighthouserc.json` and `lychee.toml` from `build.config.json`
+2. Astro compiles pages, components, and assets to `.build/dist/`
+3. Sitemap generated at `.build/dist/sitemap.xml`
+4. **Postbuild:** SRI script adds integrity hashes to `<script>` and `<link>` tags
+5. **Postbuild:** CSP script injects Content Security Policy meta tag
+
+**Output:** `.build/dist/` directory with static HTML/CSS/JS
+
+All runtime artifacts live under `.build/{cache,reports,dist}/` — see [`docs/build-artifacts.md`](./docs/build-artifacts.md) for the full SSoT contract, generated-file list, and "add a tool" contributor checklist.
+
+### Clean
+
+```bash
+npm run clean          # remove .build/ entirely
+npm run clean:cache    # remove .build/cache/ only (keep reports + dist)
+npm run clean:reports  # remove .build/reports/ only
+```
+
+All clean scripts are lock-aware (refuse to delete while a test run holds `.build/.run.lock`).
 
 ### Preview Build Locally
 
@@ -313,7 +332,7 @@ npm run build
 npm run preview
 ```
 
-Serves `dist/` on `http://localhost:4321` to test production build.
+Serves `.build/dist/` on `http://localhost:4321` to test production build.
 
 ### GitHub Pages Deployment
 
@@ -333,6 +352,7 @@ Serves `dist/` on `http://localhost:4321` to test production build.
 **Required Pages setting:** set **Source** to **GitHub Actions** so deployments run from `.github/workflows/deploy.yml` (branch-based Jekyll builds are not supported).
 
 **Configuration:**
+
 - **Custom domain:** `artagon.com` (set in repo settings)
 - **CNAME:** `artagon.com` (in `public/CNAME`)
 - **HTTPS:** Enforced via GitHub Pages settings
@@ -341,6 +361,7 @@ Serves `dist/` on `http://localhost:4321` to test production build.
 ### Release Bundles
 
 Tagged releases (e.g., `v0.1.0`) automatically:
+
 1. Build the site
 2. Create GitHub release
 3. Attach `dist.zip` to release
@@ -360,7 +381,11 @@ Automatically adds cryptographic hashes to local JS/CSS resources:
 <script src="/assets/app.js"></script>
 
 <!-- After -->
-<script src="/assets/app.js" integrity="sha256-..." crossorigin="anonymous"></script>
+<script
+  src="/assets/app.js"
+  integrity="sha256-..."
+  crossorigin="anonymous"
+></script>
 ```
 
 **Important:** Disable CDN minification to avoid SRI mismatches.
@@ -370,6 +395,7 @@ Automatically adds cryptographic hashes to local JS/CSS resources:
 **Script:** `scripts/csp.mjs`
 
 Generates strict CSP as `<meta>` tag with:
+
 - `default-src 'self'` - Only same-origin resources
 - `script-src 'self' 'sha256-...'` - Inline scripts hashed
 - `style-src 'self' 'unsafe-inline'` - Styles allowed (Astro scoped styles)
@@ -435,6 +461,7 @@ Generates multi-size favicons from source SVG.
 Creates app icons, touch icons, and PWA assets.
 
 **Documentation:**
+
 - `scripts/icons/README.md` - Icon generation overview
 - `scripts/icons/VERIFICATION.md` - Icon verification checklist
 
@@ -455,6 +482,7 @@ Batch converts SVG to multiple PNG sizes.
 Generates logo variants from source files.
 
 **Documentation:**
+
 - `public/assets/logos/README.md` - Logo usage guidelines
 - `docs/LOGO_USAGE.md` - Detailed logo documentation
 - `docs/LOGO_CONVERSION_SUMMARY.md` - Conversion process
@@ -490,6 +518,7 @@ Generates logo variants from source files.
 **Trigger:** Push to `main` or manual dispatch
 
 **Jobs:**
+
 1. **Build** - Install deps, build site, upload artifact
 2. **Deploy** - Deploy to GitHub Pages
 
@@ -500,6 +529,7 @@ Generates logo variants from source files.
 **Trigger:** Push to `main`
 
 **Process:**
+
 1. Build site
 2. Start HTTP server on port 8081
 3. Run Lighthouse audits (2 runs)
@@ -507,6 +537,7 @@ Generates logo variants from source files.
 5. Upload results to temporary storage
 
 **Thresholds:**
+
 - Performance: ≥90% (warn)
 - Accessibility: ≥95% (error)
 - Best Practices: ≥90% (error)
@@ -517,6 +548,7 @@ Generates logo variants from source files.
 **Trigger:** Scheduled (weekly) or manual
 
 **Process:**
+
 1. Build site
 2. Run `lychee` link checker on:
    - Markdown files (`**/*.md`)
@@ -542,6 +574,7 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 **Trigger:** Push tag matching `v*.*.*`
 
 **Process:**
+
 1. Build site
 2. Create zip of `dist/`
 3. Create GitHub release
@@ -615,23 +648,27 @@ See **[openspec/contributing.md](./openspec/contributing.md)** for:
 ### Quick Contribution Guide
 
 1. **Check existing work:**
+
    ```bash
    openspec list          # Active changes
    openspec list --specs  # Existing capabilities
    ```
 
 2. **Create issue and include spec content:**
+
    ```bash
    # Issue description must link to or include the OpenSpec change
    gh issue create --title "Spec: <change-id>" --body "..."
    ```
 
 3. **Create feature branch** (spec# = GitHub issue number):
+
    ```bash
    git checkout -b feature/site(<spec#>)-<feature-short-name>
    ```
 
 4. **Make changes, commit:**
+
    ```bash
    git commit -m "feat(<spec-id>): description
 
@@ -642,6 +679,7 @@ See **[openspec/contributing.md](./openspec/contributing.md)** for:
    ```
 
 5. **Run local checks:**
+
    ```bash
    npm run format
    npm run build
@@ -649,6 +687,7 @@ See **[openspec/contributing.md](./openspec/contributing.md)** for:
    ```
 
 6. **Create PR:**
+
    ```bash
    gh pr create --title "feat(<spec-id>): Title" --body "..."
    ```
@@ -721,6 +760,7 @@ Private repository - All rights reserved.
 ## Support
 
 For issues or questions:
+
 - Open an issue on GitHub
 - Review existing OpenSpec changes and specs
 - Check `.agents/policies/` for guardrails and checklists
