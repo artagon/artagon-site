@@ -30,6 +30,22 @@ Add entries to `.mcp.json` following the existing format. Commit `.mcp.json` so 
 
 <!-- MCP:END -->
 
+<!-- DESIGN-CONTRACT:START -->
+
+## Design contract
+
+openspec/specs/\* govern behavior; DESIGN.md governs visual presentation; implementation traces to both. On conflict, the spec wins and DESIGN.md is updated in the same change.
+
+DESIGN.md is at the repo root (governed by `adopt-design-md-format`).
+
+- **DESIGN.md** — canonical visual identity contract per [google-labs-code/design.md](https://github.com/google-labs-code/design.md) format spec (alpha). Pinned to upstream commit `97b4df92901b9353fbc71cfe1b51dad1ece01708` and npm `@google/design.md@0.1.1`.
+- **`openspec/.cache/design-md-spec.md`** — committed mirror of `npx @google/design.md spec --format markdown`. Kept in sync via the weekly `design-md-drift.yml` workflow (Phase 2.7).
+- **`docs/design-md.md`** — authoring + maintenance guide: precedence chain, how to add a token, how to bump the upstream version, OKLCH↔hex hybrid policy, upstream attribution, and the `check:design-drift` allow-list.
+
+Edits to `DESIGN.md` trigger the postbuild lint gate (`npm run lint:design`) and the PR-scoped diff workflow that posts changes as a PR comment. The `check:oklch-hex-parity` precondition gate fails if frontmatter hex values drift from the prose-cited OKLCH triples by more than 1 LSB per channel.
+
+<!-- DESIGN-CONTRACT:END -->
+
 <!-- AST-GREP:START -->
 
 ## Static Analysis — ast-grep
