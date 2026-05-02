@@ -56,7 +56,6 @@ interface BuildPaths {
     lhci: string;
     lychee: string;
     playwright: string;
-    treeSitter: string;
     playwrightMcp: string;
   };
   reports: {
