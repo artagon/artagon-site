@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+# Pre-commit drift gate per `standardize-build-artifacts` spec.
+# Aborts commit if generated configs (lighthouserc.json, lychee.toml) drift
+# from build.config.json + scripts/fixtures/lhci-assertions.json.
+#
+# Bypass per-commit with `SKIP_BUILD_SYNC=1 git commit ...` (documented as
+# a hot-loop opt-out, not for landing PRs — CI re-runs the same check).
+
+if [ "${SKIP_BUILD_SYNC:-0}" = "1" ]; then
+  echo "husky/pre-commit: SKIP_BUILD_SYNC=1 — skipping drift gate"
+  exit 0
+fi
+
+npm run sync:build-config || {
+  echo "husky/pre-commit: sync-build-config failed"
+  exit 1
+}
+
+if ! git diff --exit-code -- lighthouserc.json lychee.toml >/dev/null 2>&1; then
+  echo "husky/pre-commit: build config drift — generated files were updated"
+  echo "  Stage the changes (git add lighthouserc.json lychee.toml) and re-commit."
+  exit 1
+fi

@@ -5,12 +5,12 @@
     "collect": {
       "staticDistDir": ".build/dist",
       "url": [
-        "http://localhost:8081/",
-        "http://localhost:8081/platform/",
-        "http://localhost:8081/roadmap/",
-        "http://localhost:8081/vision/",
-        "http://localhost:8081/security/",
-        "http://localhost:8081/faq/"
+        "/",
+        "/platform/",
+        "/roadmap/",
+        "/vision/",
+        "/security/",
+        "/faq/"
       ]
     },
     "assert": {
@@ -42,7 +42,6 @@
           }
         },
         {
-          "$comment": "Pre-redesign baselines. Tighten to perf:0.9 / a11y:0.95 / etc. once `update-site-marketing-redesign` archives — those are the spec-mandated targets per redesign Lighthouse Performance Gate Requirement.",
           "matchingUrlPattern": ".*",
           "assertions": {
             "categories:performance": [

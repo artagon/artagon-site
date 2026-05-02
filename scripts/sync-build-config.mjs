@@ -125,15 +125,35 @@ function writeIfChanged(targetPath, content) {
 }
 
 // ---------- lighthouserc.json ----------
+// Strip $comment* keys recursively from fixture data before merging into
+// generated output. The fixture uses comment sentinels for human readers;
+// LHCI tolerates them but they pollute the generated artifact.
+function stripComments(value) {
+  if (Array.isArray(value)) return value.map(stripComments);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([k]) => !k.startsWith("$comment"))
+        .map(([k, v]) => [k, stripComments(v)]),
+    );
+  }
+  return value;
+}
+
 let lhciAssertions = {};
 if (existsSync(FIXTURE_PATH)) {
-  lhciAssertions = JSON.parse(readFileSync(FIXTURE_PATH, "utf8"));
+  lhciAssertions = stripComments(
+    JSON.parse(readFileSync(FIXTURE_PATH, "utf8")),
+  );
 }
 const lhci = {
   ci: {
     collect: {
       staticDistDir: buildConfig.dist,
-      url: lhciAssertions.urls ?? ["http://localhost:8081/"],
+      // LHCI auto-prepends its internal server's host:port to relative URLs.
+      // The fixture supplies path-only entries (e.g. "/platform/") so the
+      // generated rc doesn't bake in a host that may collide with the runner.
+      url: lhciAssertions.urls ?? ["/"],
     },
     assert: lhciAssertions.assert ?? {},
     upload: {

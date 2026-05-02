@@ -28,7 +28,9 @@ if (!target || !VALID.has(target)) {
 }
 
 // ---------- Lock check ----------
+import { execFileSync } from "node:child_process";
 const STALE_MS = 2 * 60 * 60 * 1000; // 2 hours
+const PID_REUSE_WINDOW_MS = 60 * 1000; // 1 minute slack for clock skew
 
 function pidAlive(pid) {
   try {
@@ -36,6 +38,24 @@ function pidAlive(pid) {
     return true;
   } catch {
     return false;
+  }
+}
+
+// Returns the process's start time as a unix-ms timestamp, or null if the
+// PID is dead or `ps` is unavailable. Used to detect PID-reuse: if a lock
+// file says "PID 12345 at t=1000" but PID 12345's actual start time is
+// t=2000, the process running today is NOT the one that took the lock.
+function pidStartTimeMs(pid) {
+  try {
+    const out = execFileSync("ps", ["-o", "lstart=", "-p", String(pid)], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    if (!out) return null;
+    const t = Date.parse(out);
+    return Number.isFinite(t) ? t : null;
+  } catch {
+    return null;
   }
 }
 
@@ -61,6 +81,17 @@ function checkLock() {
   }
   if (lockHost !== hostname()) {
     return { held: true, reason: `foreign-host lock (${lockHost})` };
+  }
+  // PID-reuse defense: if `ps` reports a start time, the lock-taker MUST
+  // have started before (or within slack of) the lock timestamp. Reused
+  // PIDs (process exited, OS recycled the number) have a later start
+  // time. When ps is unavailable (rare unix), fall back to bare PID-alive.
+  const startMs = pidStartTimeMs(pid);
+  if (startMs !== null && startMs > ts + PID_REUSE_WINDOW_MS) {
+    try {
+      unlinkSync(LOCK);
+    } catch {}
+    return { held: false, note: "stale: PID reused" };
   }
   if (!pidAlive(pid)) {
     try {

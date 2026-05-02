@@ -14,7 +14,9 @@ permissions:
 
 concurrency:
   group: playwright-${{ github.ref }}
-  cancel-in-progress: true
+  # Cancel only in-progress PR runs (rapid pushes); main and workflow_dispatch
+  # runs complete to avoid interrupting snapshot commits or release workflows.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   TOTAL_SHARDS: 3

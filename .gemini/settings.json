@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "root=${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}; [ -n \"$root\" ] || exit 0; skill=\"$root/.claude/skills/search-toolchain/scripts/search_hook.py\"; [ -f \"$skill\" ] || skill=\"${ARTAGON_SKILLS_ROOT:-$HOME/Projects/Artagon/artagon-ai-skills}/skills/search-toolchain/scripts/search_hook.py\"; [ -f \"$skill\" ] || exit 0; SEARCH_TOOLCHAIN_ROOT=\"$root\" python3 \"$skill\" claude",
+            "command": "root=${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}; [ -n \"$root\" ] || exit 0; skill=\"$root/.claude/skills/search-toolchain/scripts/search_hook.py\"; if [ ! -f \"$skill\" ]; then fb=\"${ARTAGON_SKILLS_ROOT:-$HOME/Projects/Artagon/artagon-ai-skills}\"; case \"$fb\" in \"$HOME\"/*) skill=\"$fb/skills/search-toolchain/scripts/search_hook.py\";; *) exit 0;; esac; fi; [ -f \"$skill\" ] || exit 0; SEARCH_TOOLCHAIN_ROOT=\"$root\" python3 \"$skill\" claude",
             "statusMessage": "Routing code search through ast-grep/tree-sitter"
           }
         ]

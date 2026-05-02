@@ -1,14 +1,7 @@
 {
   "$comment": "Lighthouse CI assertion fixture — second SSoT. Paths come from build.config.json; assertion shape comes from this fixture. Sync merges both.",
-  "$comment-urls": "Marketing routes that exist TODAY in .build/dist/. The redesign change adds /use-cases/, /standards/, /writing/ — those URLs land here when their /opsx:apply phases ship.",
-  "urls": [
-    "http://localhost:8081/",
-    "http://localhost:8081/platform/",
-    "http://localhost:8081/roadmap/",
-    "http://localhost:8081/vision/",
-    "http://localhost:8081/security/",
-    "http://localhost:8081/faq/"
-  ],
+  "$comment-urls": "Marketing routes that exist TODAY in .build/dist/. LHCI internal server (started via staticDistDir) substitutes its own host:port; URLs are path-only. The redesign change adds /use-cases/, /standards/, /writing/ — those land here when their /opsx:apply phases ship.",
+  "urls": ["/", "/platform/", "/roadmap/", "/vision/", "/security/", "/faq/"],
   "$comment-assert": "LHCI rejects `preset` + `assertMatrix` simultaneously. The matrix is canonical; per-URL assertions inline below.",
   "assert": {
     "assertMatrix": [
