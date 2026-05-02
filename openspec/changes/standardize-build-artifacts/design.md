@@ -219,7 +219,7 @@ This avoids both whole-file clobber and AST-level surgery brittleness. It also e
 
 ### 13. Mid-run race on `clean:reports` resolved via lock file
 
-Playwright and Lighthouse runners write reports incrementally during a test run. A bare `rm -rf .build/reports/` issued from another shell mid-run crashes the runner with `EACCES`/`ENOENT`. Resolution: a `.build/reports/.run.lock` sentinel file:
+Playwright and Lighthouse runners write reports incrementally during a test run. A bare `rm -rf .build/reports/` (or `.build/cache/` while Playwright installs browser binaries to `PWTEST_CACHE_DIR`) issued from another shell mid-run crashes the runner with `EACCES`/`ENOENT`. Resolution: a `.build/.run.lock` sentinel file (single lock covering BOTH cache and reports surfaces):
 
 - Test runner integrations (Playwright `globalSetup`, LHCI wrapper) acquire the lock on start, release on exit.
 - `npm run clean:reports` invokes `scripts/clean-reports.mjs` which checks for the lock and refuses with non-zero exit if present.

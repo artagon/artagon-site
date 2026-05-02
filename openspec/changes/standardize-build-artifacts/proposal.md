@@ -22,7 +22,7 @@ The change lands AFTER the three in-flight changes (`adopt-design-md-format`, `u
 - **Path-traversal validator** in the sync generator: every value in `build.config.json` MUST match `^\.build/[a-z0-9/_-]+$`; sync exits non-zero on `..`, newline, backtick, `$()`, or absolute prefixes BEFORE writing any output file.
 - **SHA-pinned Actions** enforced by sync: any `uses:` line emitted in generated workflow YAML MUST be 40-char SHA-pinned with trailing `# vX.Y.Z` version comment. Floating tags (`@v3`, `@main`) rejected. Dependabot config keeps pins current.
 - **Targeted YAML mutation** for workflow regen: sync mutates only specific keys (e.g., `path:` value) using `yaml@2.5.x` Document API; never whole-file rewrite. Refuses to write if any non-targeted node changes during parse-stringify roundtrip.
-- **`clean:reports` race-guard** via `.build/reports/.run.lock` sentinel: test runners acquire on start, release on exit; clean script refuses while lock held.
+- **All-clean race-guard** via `.build/.run.lock` sentinel (single lock file covers both cache and reports surfaces): test runners acquire on start, release on exit; ALL THREE clean scripts (`clean`, `clean:cache`, `clean:reports`) refuse while lock held by a live PID.
 - **CI cache key** is content-derived: `hashFiles('build.config.json', 'package-lock.json')` — never `hashFiles('.build/cache/**')` (tautological self-hash).
 - **Artifact retention** bounded: `retention-days: 14` on the `.build/reports/` upload step to bound storage growth against the 2 GB org artifact quota.
 - **Pre-commit hook** (husky/lefthook) runs sync + diff-check; aborts commit on drift. `SKIP_BUILD_SYNC=1` opt-out per-commit.

@@ -47,20 +47,30 @@
       reviewers: ["@artagon/maintainers"]
       commit-message: { prefix: "chore(actions)", include: "scope" }
   ```
-- [ ] 2.5a **SHA existence verification.** Generator MUST verify each emitted SHA actually resolves in the action's source repo via `gh api repos/<owner>/<repo>/commits/<sha>`. Network-failure fallback: skip verification with a warning when offline (CI MUST run with verification enabled).
+- [ ] 2.5a **SHA existence verification.** Generator MUST verify each emitted SHA actually resolves in the action's source repo via `gh api repos/<owner>/<repo>/commits/<sha>`. Failure-mode taxonomy:
+  - HTTP 200: SHA exists, proceed.
+  - HTTP 403 (rate-limit): exponential backoff (max 3 retries, 5s/15s/45s); after exhaustion warn + proceed with a `# unverified-rate-limit` comment in the emitted line.
+  - HTTP 401 (token invalid/expired): FATAL exit with "GH_TOKEN expired or insufficient scope; need `repo:read`".
+  - HTTP 404 (commit/repo not found): FATAL exit with "SHA <sha> not found in <owner>/<repo> — typo or repo deleted".
+  - Network unreachable / DNS failure: warn + skip verification with `# unverified-offline` comment; CI MUST set `SYNC_REQUIRE_SHA_VERIFY=1` to upgrade this to FATAL.
+  - Private action repos: documented requirement that the GH_TOKEN has at least read access to the action's repo; missing scope falls into 401 path.
 - [ ] 2.6 **CI write-block.** Generator detects `process.env.GITHUB_ACTIONS === 'true'` and refuses to write any file under `.github/`. CI's drift-gate step uses `--check` mode that diffs without writing.
 - [ ] 2.7 Sync writes are idempotent: re-running with no `build.config.json` change produces zero file system writes (verified via mtime on outputs and unit test asserting byte-identical output across 10 successive invocations).
 - [ ] 2.8 Sync respects `SKIP_BUILD_SYNC=1` env var (no-op exit 0). Document in `docs/build-artifacts.md`.
 - [ ] 2.9 Add `npm run sync:build-config` script. Add `npm run build:prebuild-chain` that orchestrates the ordered prebuild sequence; both `prebuild` and `predev` hooks delegate to `build:prebuild-chain` (see Phase 5).
 - [ ] 2.10 Add `husky@^9` to `package.json` devDependencies (or `lefthook@^1.7` — pick one and pin). Run `npx husky init`. Add `.husky/pre-commit` hook running `npm run sync:build-config && git diff --exit-code`; commit aborts on non-empty diff. `SKIP_BUILD_SYNC=1` opt-out per-commit. Document the `--no-verify` opt-out as forbidden in `docs/build-artifacts.md`; CI re-runs the same drift check so `--no-verify` only delays the failure.
-- [ ] 2.11 **Fast-path mtime check.** Generator runs in <5 ms when `build.config.json` + `package-lock.json` + `tsconfig.json` mtimes are all older than the youngest generated output file. Implementation: `Math.max(...inputs.map(mtimeMs)) <= Math.min(...outputs.map(mtimeMs))` → exit 0 immediately. Full content-hash check runs only when stale.
+- [ ] 2.11 **Fast-path mtime check.** Generator runs in <5 ms when `build.config.json` + `package-lock.json` + `tsconfig.json` mtimes are all older than the youngest generated output file. Implementation: `Math.max(...inputs.map(mtimeMs)) <= Math.min(...outputs.map(mtimeMs))` → exit 0 immediately. Full content-hash check runs only when stale. **CI fallback:** the 5 ms ceiling is best-effort on slow filesystems (overlayfs, NFS, GitHub-hosted runners). When the fast-path itself takes >50 ms (timed via `process.hrtime.bigint()`), emit a `# slow-fastpath` warning to stderr and continue. CI MUST NOT FAIL on slow fast-path; it falls back to the full-hash path silently.
 
 ## Phase 3 — Tool config edits (TS imports)
 
-- [ ] 3.1a `git mv astro.config.mjs astro.config.ts` as a **pure rename** commit, no content edits. Acceptance: `git log --follow astro.config.ts` shows pre-rename history; blame preserved.
-- [ ] 3.1b In a follow-up commit edit `astro.config.ts`: `import { BUILD } from './build.config.ts'`; set `outDir: BUILD.dist`, `cacheDir: BUILD.cache.astro`. Run `astro check` post-edit to confirm typing.
-- [ ] 3.2 Edit `playwright.config.ts`: `import { BUILD } from './build.config.ts'`; set `outputDir: BUILD.reports.playwright.results`, `reporter: [['html', { outputFolder: BUILD.reports.playwright.html }]]`. Add trace/HAR sanitization stripping `Authorization`, `Cookie`, `Set-Cookie`, `Proxy-Authorization`, `X-Auth-Token`, `X-Api-Key` headers AND OAuth-style URL query params (`access_token`, `id_token`, `code`, `state`) AND known JWT/SAML body fields before persistence. Acquire `.build/.run.lock` (PID + timestamp content) atomically via `mkdir -p .build && fs.openSync('.build/.run.lock', 'wx')` on `globalSetup`; release via `unlinkSync` on `globalTeardown` (unconditional).
-- [ ] 3.2a Add stable `name:` keys to every step in `.github/workflows/*.yml` that the sync generator targets. Example: the upload-pages-artifact step in `deploy.yml` MUST have `name: Upload Pages artifact`. Sync uses these names as selectors; missing-name aborts sync with "target step not found".
+- [ ] 3.1a `git mv astro.config.mjs astro.config.ts` as a **pure rename** commit. PRE-CHECK: run `astro check` against the existing `.mjs` content under the new `.ts` name — if the existing syntax is not valid TS under `moduleResolution: NodeNext` (e.g., uses `import.meta.env` with implicit-any, `__dirname` polyfills, or other `.mjs`-only constructs), the pre-check fails. In that case fall back to an **atomic single commit** (3.1a + 3.1b combined) and accept the blame-loss tradeoff documented in `docs/build-artifacts.md` rollback section. Acceptance: `astro check` passes after the rename commit (whether two-commit or atomic).
+- [ ] 3.1b If the pre-check passed, follow-up commit edits `astro.config.ts`: `import { BUILD } from './build.config.ts'`; set `outDir: BUILD.dist`, `cacheDir: BUILD.cache.astro`. Run `astro check` post-edit to confirm typing.
+- [ ] 3.2 Edit `playwright.config.ts`: `import { BUILD } from './build.config.ts'`; set `outputDir: BUILD.reports.playwright.results`, `reporter: [['html', { outputFolder: BUILD.reports.playwright.html }], ['./tests/sanitizing-reporter.ts']]`. Sanitization implementation (Playwright config has NO native header-filter API — sanitization MUST be active code, not config):
+  - Author `tests/sanitizing-reporter.ts` — a custom Reporter that subscribes to `onTestEnd` and rewrites the persisted trace `.zip` in place via the `@playwright/trace-viewer` parser, redacting headers + URL query params + body fields per the redaction list in `specs/check-site-quality/spec.md`.
+  - Author `tests/fixtures/auth-redact.ts` — a `fixtures.beforeEach` hook that calls `context.route('**/*', async route => …)` and rewrites request/response headers/bodies before they hit the recorder.
+  - Author `scripts/sanitize-trace.mjs` — a Phase-9 CI step that grep-asserts persisted `.zip` traces contain none of the redaction tokens; non-zero on hit.
+- [ ] 3.2-lock Acquire `.build/.run.lock` atomically in `globalSetup`. Lock content is `${hostname}:${process.pid}:${Date.now()}` (hostname disambiguates containerized CI where PID 1 collides). Stale-lock detection compares hostname first; if same hostname + PID dead, replace. If different hostname, treat as foreign-process lock and refuse with hostname mismatch error. Release via `unlinkSync` on `globalTeardown` (unconditional).
+- [ ] 3.2a Add stable, **unique** `name:` keys to every step in `.github/workflows/*.yml` that the sync generator targets. Example: the upload-pages-artifact step in `deploy.yml` MUST have `name: Upload Pages artifact`. Sync uses these names as selectors. Generator MUST: (a) abort with "target step not found" if the selector matches zero nodes; (b) abort with "ambiguous selector: multiple steps with name X" if it matches more than one node. Phase 7.7 test fixture MUST cover both cases.
 - [ ] 3.2b **SHA-pin pre-pass.** BEFORE the first `npm run sync:build-config` run, audit every existing `.github/workflows/*.yml` and convert every floating-tag `uses:` line (`@v3`, `@main`) to a 40-char SHA pin with trailing `# vX.Y.Z` comment. Use `gh api repos/<owner>/<repo>/commits/<tag>` to resolve each tag to its current SHA. Without this pre-pass the round-1 generator's SHA-pin gate fails on first invocation. Emit a Phase-4 commit titled `chore: SHA-pin all workflow Actions (precondition for sync gate)`.
 - [ ] 3.3 Set `PWTEST_CACHE_DIR=.build/cache/playwright` in CI workflow env (Playwright respects this env var for its install cache).
 - [ ] 3.4 Update CI cache step `key:` to `hashFiles('build.config.json', 'package-lock.json')`; remove any `hashFiles('.build/cache/**')` self-hashing tautology. `path: .build/cache/`.
@@ -72,7 +82,7 @@
 - [ ] 4.1 Run `npm run sync:build-config`. Confirm `lighthouserc.json`, `lychee.toml`, workflow YAMLs are written with `BUILD.*`-derived paths.
 - [ ] 4.2 Commit generated outputs.
 - [ ] 4.3 Run `git diff --exit-code` on generated files immediately after a fresh sync run; expect zero output (drift gate validates itself).
-- [ ] 4.4 Update `lighthouserc.json` `assertMatrix` per redesign + brand-gallery requirements (matchingUrlPattern for `/brand` ≥0.8, marketing routes ≥0.9). Sync regenerates this from `build.config.json` plus the static assertion shape.
+- [ ] 4.4 Author `scripts/fixtures/lhci-assertions.json` — the static assertion-shape fixture. This file is the SECOND source-of-truth for `lighthouserc.json` (paths from `build.config.json`, assertions from this fixture). Contents: the `assertMatrix` array with `matchingUrlPattern` per route, `minScore` thresholds, and Core Web Vitals budgets per the redesign's `Lighthouse CI Performance Gate` Requirement and brand-gallery's `/brand` exception (≥0.8). The sync generator merges `build.config.json` paths + `scripts/fixtures/lhci-assertions.json` shape → `lighthouserc.json`. Manual edits to `lighthouserc.json` are clobbered on the next sync; assertion changes MUST go through the fixture file. The fixture MUST be listed in CODEOWNERS dual-review.
 
 ## Phase 5 — npm scripts + .gitignore
 
@@ -84,10 +94,40 @@
   - `build:prebuild-chain: npm run sync:build-config` (extended by brand-assets archive — see merge-order constraint in spec)
   - `prebuild: npm run build:prebuild-chain`
   - `predev: npm run build:prebuild-chain`
-    Lock file `.build/.run.lock` covers BOTH cache and reports. Acquire is atomic: `mkdir -p .build && fs.openSync('.build/.run.lock', 'wx')` with PID + ISO-timestamp content. Stale-lock detection reads the PID; if no longer running OR mtime > 2h, atomic-replace via tmp-file + rename. Helper exits non-zero with "tests in flight; refusing to delete <target>" when held by a live PID.
+
+  **`scripts/clean.mjs` API contract:**
+  - Argv: exactly one positional argument, one of `all` | `cache` | `reports`. Any other value MUST exit with code 64 (EX_USAGE) and message `usage: clean.mjs <all|cache|reports>`.
+  - Return codes: `0` success; `64` usage error; `73` (EX_CANTCREAT) lock held by live PID; `1` filesystem error.
+  - `target=all` removes `.build/` entirely (after lock check).
+  - `target=cache` removes `.build/cache/` only.
+  - `target=reports` removes `.build/reports/` only.
+  - Lock file `.build/.run.lock` covers BOTH cache and reports surfaces. Acquire content is `${hostname}:${pid}:${Date.now()}` (hostname disambiguates containerized CI). Stale-lock detection: if hostname matches AND PID is dead, atomic-replace via tmp-file + rename; if hostname differs, refuse with "foreign-host lock" error; if mtime > 2 hours regardless of host, atomic-replace.
+  - Helper exits 73 with "tests in flight; refusing to delete <target>" when held by a live PID on the same host.
+
 - [ ] 5.2 `git rm -rf --cached playwright-report test-results .lighthouseci .cache .tree-sitter .playwright-mcp dist` BEFORE collapsing `.gitignore` so previously-tracked artifact directories are removed from the index.
 - [ ] 5.3 Collapse `.gitignore`: remove `dist/`, `.astro/`, `.lighthouseci/`, `test-results/`, `playwright-report/`, `playwright/.cache/`, `.cache/`, `.tree-sitter/`, `.playwright-mcp/` entries; replace with single `.build/` line. Keep `node_modules`, `.env`, `.DS_Store`, fixture-cache lines. Verify `git status` clean post-collapse.
-- [ ] 5.4 Add `.gitattributes` `* text eol=lf` to neutralize CRLF on Windows contributors. Add `.nvmrc` pinning Node ≥22.12.
+- [ ] 5.4 Add `.gitattributes` with text/binary discrimination, NOT a blanket `* text eol=lf`:
+  ```
+  * text=auto eol=lf
+  *.png binary
+  *.jpg binary
+  *.jpeg binary
+  *.gif binary
+  *.ico binary
+  *.woff binary
+  *.woff2 binary
+  *.ttf binary
+  *.otf binary
+  *.eot binary
+  *.zip binary
+  *.gz binary
+  *.tar binary
+  *.pdf binary
+  *.mp4 binary
+  *.mov binary
+  ```
+  Add `.nvmrc` pinning Node ≥22.12.
+- [ ] 5.4a Document in `docs/build-artifacts.md` the **enforcement bypass set** that the drift gate cannot prevent: `git commit --no-verify` (skips husky), `[skip ci]` commit message (skips CI), `git push --force-with-lease` to admin-protected branches, and explicit branch-protection admin override. Remediation: CI re-runs the drift gate so `--no-verify` only delays the failure; `[skip ci]` is monitored via a daily `gh api` workflow that flags PRs missing the drift-gate status check.
 - [ ] 5.5 Sweep references: `git grep` for old paths in source files (NOT specs/proposals/design.md, those are historical records). Update each to `BUILD.*` import or relative path under `.build/`.
 - [ ] 5.6 Compare against Phase 0.2 baseline. Net diff: only the SSoT files + sync-generated configs reference paths; everywhere else imports from `build.config.ts`.
 - [ ] 5.7 Configure GitHub branch protection on `main`: disable "Allow squash merging" OR mandate merge commit so the two-commit rename pattern (3.1a + 3.1b) survives. Document in `docs/build-artifacts.md` rollback section.
@@ -103,8 +143,8 @@
 - [ ] 7.1 Author `tests/build-config.test.mjs` (node:test, NOT Playwright — Playwright is a browser harness; spinning a browser to shell-out is wasteful). Runs `npm run sync:build-config && git diff --exit-code` and asserts exit 0. Wire into CI `test:ci` step as a separate node-test job.
 - [ ] 7.2 Author negative test fixture: a script that mutates `build.config.json`, runs sync, asserts `git diff --exit-code` exits NON-zero. Reverts mutation. Confirms drift gate works.
 - [ ] 7.3 Author determinism test: invokes sync 10× **serially within a single test()** (or runs the file with `--test-concurrency=1`) on the same input; asserts byte-identical output across all runs (SHA-256 hash of every generated file matches). Concurrent invocation forbidden — node:test default parallelism would race writes to the same generated files.
-- [ ] 7.6 Author lock-acquire test: spawns two workers, both call the lock-acquire primitive; asserts exactly one succeeds (`fs.openSync(..., 'wx')` semantics) and the other gets `EEXIST`. Cover the mkdir-then-O_EXCL atomicity claim.
-- [ ] 7.7 Author target-name selector test: parses `.github/workflows/deploy.yml`; asserts the generator's selector path resolves to a node; mutates the upload step's `name:` value and asserts sync exits non-zero with "target step not found".
+- [ ] 7.6 Author lock-acquire test: spawns two child processes via `child_process.fork()` (NOT `worker_threads` — same-process threads share fd table and bypass O_EXCL semantics). Both call the lock-acquire primitive; asserts exactly one succeeds (`fs.openSync(..., 'wx')` semantics) and the other gets `EEXIST`. Cover the mkdir-then-O_EXCL atomicity claim. Add a containerized-CI variant that runs the test under Docker with two distinct hostnames to validate the foreign-host refusal path.
+- [ ] 7.7 Author target-name selector test (THREE fixtures): (a) happy-path — selector matches exactly one node; sync writes successfully. (b) missing-name — mutate the upload step's `name:` value; assert sync exits non-zero with "target step not found". (c) duplicate-name — add a second step with the same `name:` as the targeted step; assert sync exits non-zero with "ambiguous selector: multiple steps with name X".
 - [ ] 7.8 Author yaml roundtrip-tolerance test: feeds the generator a workflow YAML with deliberately weird formatting (mixed quoting styles, unusual indentation, blank-line patterns); asserts the TOLERATED-vs-FATAL classification holds (sync writes succeed for whitespace-only roundtrip changes; fails when a non-targeted node is mutated).
 - [ ] 7.4 Author path-validator test: feeds malicious values (`../../../etc/cron.d/x`, newline-bearing string, `$()`, absolute path) into `build.config.json` and asserts sync exits non-zero with "invalid path string" before writing any file.
 - [ ] 7.5 Add CI assertion `git grep -E "(^|[^.])dist/" -- ':!build.config.*' ':!*.md' ':!openspec/changes/*' ':!docs/*'` returns 0 hits — no source code references old paths.

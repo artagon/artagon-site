@@ -62,7 +62,7 @@ Path strings written to `build.config.json` MUST conform to the regex `^\.build/
 
 `scripts/sync-build-config.mjs` MUST regenerate every JSON/YAML/TOML config that consumes BUILD paths from `build.config.json`. The script MUST be idempotent (re-running with no source change produces zero file system writes; verified by content-hash comparison before write). CI MUST run `npm run sync:build-config && git diff --exit-code` and fail the build if the post-sync diff is non-empty.
 
-The script MUST regenerate at minimum: `lighthouserc.json` (assertions + outputDir, with assertion shape sourced from the redesign's `Lighthouse CI Performance Gate` Requirement and paths from this Requirement), `lychee.toml` (cache_path), `.github/workflows/deploy.yml` (path field only — see below), `.github/workflows/content-redeploy.yml` (cache mounts only), `.github/workflows/design-md-drift.yml` (cache mounts only).
+The script MUST regenerate at minimum: `lighthouserc.json` (paths from `build.config.json` + assertion shape from `scripts/fixtures/lhci-assertions.json` — the assertion fixture is the second source-of-truth governed by the redesign's `Lighthouse CI Performance Gate` Requirement; manual edits to `lighthouserc.json` are clobbered, assertion changes go through the fixture), `lychee.toml` (cache_path), `.github/workflows/deploy.yml` (path field only — see below), `.github/workflows/content-redeploy.yml` (cache mounts only), `.github/workflows/design-md-drift.yml` (cache mounts only).
 
 **Deterministic output.** Every generated file MUST be byte-identical across machines/OSes/contributor runs. The generator MUST:
 

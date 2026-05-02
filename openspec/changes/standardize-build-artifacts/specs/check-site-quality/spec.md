@@ -41,7 +41,13 @@ The link checker SHALL use a Lychee configuration compatible with current CLI sc
 
 Playwright tests MUST emit per-test results to `.build/reports/playwright/results/` and HTML reports to `.build/reports/playwright/html/`. The test cache MUST live at `.build/cache/playwright/`. All three paths MUST be sourced from `build.config.ts` via `import { BUILD } from './build.config.ts'` in `playwright.config.ts`; no string literals duplicating these paths may appear in the config file. The CI workflow MUST upload `.build/reports/playwright/` as part of the `reports-${{ github.sha }}` artifact with `retention-days: 14`.
 
-Playwright traces, HARs, and screenshots uploaded as artifacts MUST NOT contain real credentials. `playwright.config.ts` MUST configure trace sanitization to strip `Authorization` and `Cookie` headers before persisting recordings.
+Playwright traces, HARs, and screenshots uploaded as artifacts MUST NOT contain real credentials. Sanitization MUST strip the following before any trace/HAR/screenshot is persisted to `.build/reports/playwright/`:
+
+- Headers: `Authorization`, `Proxy-Authorization`, `Cookie`, `Set-Cookie`, `X-Auth-Token`, `X-Api-Key`, `X-Csrf-Token`.
+- URL query parameters: `access_token`, `id_token`, `code`, `state`, `refresh_token`, `client_secret`.
+- Request/response body fields commonly carrying secrets: `password`, `token`, `jwt`, `samlResponse`, `client_secret`.
+
+Playwright's TS config has no native header-filter API; sanitization MUST be implemented as a custom Reporter (`reporter: [['./tests/sanitizing-reporter.ts']]`) plus per-context `context.route()` redactors that mutate the recorded request/response before the trace is written. A post-trace processor (`scripts/sanitize-trace.mjs`) MUST run as a Phase 9 CI step that grep-asserts the persisted `.zip` traces contain none of the above tokens; the assertion MUST exit non-zero on any hit.
 
 #### Scenario: Playwright reports under .build/reports
 
@@ -53,12 +59,12 @@ Playwright traces, HARs, and screenshots uploaded as artifacts MUST NOT contain 
 - **WHEN** CI workflow env is inspected
 - **THEN** `PWTEST_CACHE_DIR=.build/cache/playwright` is set so Playwright's install cache shares the umbrella cache key.
 
-#### Scenario: Trace sanitization redacts auth headers
+#### Scenario: Trace sanitization redacts credentials across surfaces
 
-- **WHEN** a test exercises an authenticated request and persists a Playwright trace
-- **THEN** the resulting `.zip` trace contains no `Authorization`, `Cookie`, or `Set-Cookie` header values; redaction is verified by an automated grep over a sample trace in CI
+- **WHEN** a test exercises an authenticated request (with auth header, OAuth callback URL, or password body field) and persists a Playwright trace
+- **THEN** the resulting `.zip` trace contains none of the listed headers, URL query params, or body field values; verification is an automated grep run by `scripts/sanitize-trace.mjs` against the persisted `.zip` in CI; the grep MUST exit non-zero on any hit
 
 #### Scenario: clean:reports race-condition guard
 
 - **WHEN** `npm run clean:reports` is invoked while a Playwright test run is writing to `.build/reports/playwright/html/`
-- **THEN** the script detects an in-flight run via the `.build/reports/.run.lock` sentinel file and exits non-zero with a "tests in flight" message rather than deleting the partially-written report tree
+- **THEN** the script detects an in-flight run via the `.build/.run.lock` sentinel file (single sentinel covering both cache and reports surfaces) and exits non-zero with a "tests in flight; refusing to delete reports" message rather than deleting the partially-written report tree
