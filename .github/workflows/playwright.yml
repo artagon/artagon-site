@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -58,15 +58,15 @@ jobs:
         if: always()
         with:
           name: playwright-report-shard-${{ strategy.job-index }}
-          path: playwright-report/
-          retention-days: 30
+          path: .build/reports/playwright/html/
+          retention-days: 14
 
       - name: Upload screenshots on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-screenshots-shard-${{ strategy.job-index }}
-          path: test-results/
+          path: .build/reports/playwright/results/
           retention-days: 7
 
   merge-reports:
@@ -91,8 +91,8 @@ jobs:
         if: always()
         with:
           name: playwright-report-merged
-          path: playwright-report/
-          retention-days: 30
+          path: .build/reports/playwright/html/
+          retention-days: 14
 
   visual-regression:
     runs-on: ubuntu-latest
@@ -104,7 +104,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -129,7 +129,7 @@ jobs:
       - name: Run visual regression tests
         run: npx playwright test --grep "visual regression" --project=chromium --update-snapshots
         env:
-          VISUAL_REGRESSION: '1'
+          VISUAL_REGRESSION: "1"
         continue-on-error: true
 
       - name: Commit updated snapshots
@@ -146,7 +146,7 @@ jobs:
         if: failure()
         with:
           name: visual-regression-diffs
-          path: test-results/
+          path: .build/reports/playwright/results/
           retention-days: 7
 
   accessibility:
@@ -159,7 +159,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -189,5 +189,5 @@ jobs:
         if: failure()
         with:
           name: accessibility-failures
-          path: test-results/
+          path: .build/reports/playwright/results/
           retention-days: 7

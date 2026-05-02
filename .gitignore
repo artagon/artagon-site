@@ -1,21 +1,26 @@
 .DS_Store
 node_modules
-dist
 .env
-.astro
 
-# Playwright
-test-results/
+# Build umbrella — all runtime artifacts (cache, reports, dist) live here.
+# See openspec/changes/standardize-build-artifacts.
+.build/
+
+# Legacy cache locations not yet migrated to .build/ (Astro/MCP write here
+# until their tooling supports the new paths). Tracked separately so the
+# umbrella line doesn't need exceptions.
+.astro/
+.playwright-mcp/
+
+# Legacy runtime dirs (Playwright + Astro emitted these before .build/
+# migration). Astro now writes to .build/dist/, Playwright to
+# .build/reports/playwright/, but stale local copies may linger.
+dist/
 playwright-report/
+test-results/
 playwright/.cache/
 
 # Working scratch — design handoff zip extracted at session start.
 # Tracked artifacts adopted into openspec/changes/add-brand-assets-and-writing-pipeline.
 # Directory deleted by follow-up cleanup-new-design-extracted change.
 new-design/
-
-# Writing-pipeline build cache (clone of artagon/content at WRITING_REMOTE_REF)
-.cache/
-
-# Playwright MCP
-.playwright-mcp/

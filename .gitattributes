@@ -1,0 +1,20 @@
+* text=auto eol=lf
+
+# Binary files — never apply EOL conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.pdf binary
+*.mp4 binary
+*.mov binary
