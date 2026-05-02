@@ -1,0 +1,29 @@
+id: no-untraceable-token
+language: html
+severity: warning
+message: "Inline hex literal inside an Astro <style> block. Use a CSS custom property declared in DESIGN.md frontmatter (e.g., var(--color-bg)) so the token is traceable through `check:design-drift`."
+note: |
+  Per `adopt-design-md-format` Phase 6.3, every visual token MUST trace to
+  DESIGN.md. Hex literals (e.g. `#0b1220`, `#22e3c5`) embedded directly in
+  component <style> blocks bypass the design contract — they cannot be
+  retheme-d via `[data-theme]` and they will not be caught by the OKLCH↔hex
+  parity check.
+
+  Fix path:
+    1. If the colour already exists as a token, reference it via var(--name).
+    2. If it is new, add it to DESIGN.md frontmatter (under `colors:`) and
+       declare its CSS custom property in `public/assets/theme.css`.
+    3. If it is genuinely a one-off (e.g. external brand asset, embedded
+       SVG mark), document the false positive in `docs/design-md.md`
+       Section 6 with a rationale.
+
+  Severity is `warning` (not `error`) so the seed pass can land without
+  blocking the build; promote to `error` once Section 6 lists every
+  intentional exception.
+files:
+  - "**/*.astro"
+rule:
+  pattern: <style $$$>$$$BODY</style>
+  has:
+    regex: "#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?([0-9a-fA-F]{2})?\\b"
+    stopBy: end

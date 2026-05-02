@@ -136,11 +136,83 @@ If `@google/design.md` is unpublished from npm or its repository archives for mo
 
 ## 6 · Allow-list for `check:design-drift`
 
-The `check:design-drift` script (`scripts/check-design-drift.mjs`) asserts that every `--color-*`, typography, spacing, and rounded token in `public/assets/theme.css` resolves to a DESIGN.md frontmatter token. Tokens in `public/assets/theme.css` that exist outside DESIGN.md frontmatter are tracked here with a one-paragraph rationale per entry.
+The `check:design-drift` script (`scripts/check-design-drift.mjs`) asserts that every CSS custom property declared in `public/assets/theme.css` resolves to a DESIGN.md frontmatter token under one of the four namespaces — `colors`, `typography`, `spacing`, or `rounded` — using either the bare-name form (e.g., `--bg` → `colors.bg`) or the namespaced form (e.g., `--color-bg` → `colors.bg`, `--rounded-md` → `rounded.md`, `--font-display-family` → `typography.display.fontFamily`). Tokens in `public/assets/theme.css` that resolve to neither shape MUST appear here with a one-paragraph rationale before the script will exit 0.
 
-Initial seed is empty until TG-B (Phase 6.1) authors `scripts/check-design-drift.mjs` and seeds the list against the current `theme.css`.
+The script reads this section by parsing every backtick-quoted CSS-custom-property name (e.g., `` `--brand-teal` ``) under the `## 6 ·` heading. The rationale-prose presence is enforced by humans in PR review, not by the script — this is the soft contract end of the allow-list. To re-seed after a `theme.css` change, run `node scripts/check-design-drift.mjs --seed-allow-list` and paste new entries into the appropriate sub-section below.
 
 This section governs the **drift** gate (CSS tokens outside DESIGN.md), not the **lint** gate (DESIGN.md internal warnings). For accepted `lint:design` warnings, see Section 7.
+
+### 6.1 Legacy theme primitives
+
+Tokens: `` `--ink` ``, `` `--bg-alt` ``, `` `--surface` ``, `` `--muted` ``, `` `--primary` ``, `` `--text` ``, `` `--border` ``, `` `--ring` ``, `` `--maxw` ``, `` `--radius` ``, `` `--shadow` ``.
+
+Pre-existing theme primitives that pre-date DESIGN.md adoption. They power the legacy `:root` and `:root[data-theme="…"]` blocks that ship the twilight/midnight/slate palette switch the marketing site relies on today. Each one will either fold into a DESIGN.md frontmatter token (e.g. `--text` → `colors.fg`, `--surface` → `colors.bg-1`) or be retired entirely as the redesign in `update-site-marketing-redesign` lands. Until that work concludes the names cannot be removed without breaking every component that references them, so they live on this allow-list with no rationale beyond "transitional, scheduled for removal in TG-D and the redesign change."
+
+### 6.2 Brand triad
+
+Tokens: `` `--brand-teal` ``, `` `--brand-teal-rgb` ``, `` `--brand-violet` ``, `` `--brand-sky` ``.
+
+The brand-mark colours that drive the hero gradient, glow-tag halo, and CTA button. They are NOT part of the DESIGN.md `colors` namespace because they are theme-pack-specific (the tuple changes per `[data-theme]`, where the DESIGN.md `colors` set is theme-invariant intent — `accent` resolves differently per theme through these). `--brand-teal-rgb` exists because `rgba(var(--brand-teal-rgb), 0.2)` is the only fallback that works in `color-mix`-unsupported browsers; it is mathematically the same colour as `--brand-teal` but in `R, G, B` triplet form.
+
+### 6.3 Teal opacity ramps
+
+Tokens: `` `--teal-5` ``, `` `--teal-5-fallback` ``, `` `--teal-8` ``, `` `--teal-8-fallback` ``, `` `--teal-10` ``, `` `--teal-10-fallback` ``, `` `--teal-12` ``, `` `--teal-12-fallback` ``, `` `--teal-15` ``, `` `--teal-15-fallback` ``, `` `--teal-20` ``, `` `--teal-20-fallback` ``, `` `--teal-30` ``, `` `--teal-30-fallback` ``, `` `--teal-40` ``, `` `--teal-40-fallback` ``.
+
+Pre-mixed `color-mix(in srgb, var(--brand-teal) N%, transparent)` ramps with `rgba(var(--brand-teal-rgb), 0.NN)` fallbacks for browsers that lack `color-mix` support. The percentage is encoded in the token name to keep the call-site self-documenting (`background: var(--teal-15)` reads as "15% teal tint" without context). DESIGN.md does not model opacity tints because the upstream `@google/design.md` schema has no opacity-ramp namespace; agents that need a tint should reach for these directly rather than re-derive them.
+
+### 6.4 Surface-teal mixes
+
+Tokens: `` `--surface-teal-5` ``, `` `--surface-teal-5-fallback` ``, `` `--surface-teal-8` ``, `` `--surface-teal-8-fallback` ``, `` `--surface-teal-10` ``, `` `--surface-teal-10-fallback` ``, `` `--surface-teal-15` ``, `` `--surface-teal-15-fallback` ``.
+
+Same pattern as §6.3 except the second mix-component is `var(--surface)` instead of `transparent` — these produce a teal-tinted surface rather than a teal tint over whatever sits behind. Used by hover/active states on cards and chips. Same rationale as §6.3 for living outside DESIGN.md: surface-tint ramps are a CSS pattern, not a design intent.
+
+### 6.5 Border presets
+
+Tokens: `` `--border-teal-solid` ``, `` `--border-teal-solid-thick` ``, `` `--border-teal-subtle` ``, `` `--border-teal-subtle-fallback` ``, `` `--border-teal-subtle-thin` ``, `` `--border-teal-subtle-thin-fallback` ``, `` `--border-teal-faint` ``, `` `--border-teal-faint-fallback` ``, `` `--border-teal-table` ``, `` `--border-teal-table-fallback` ``, `` `--border-left-accent` ``.
+
+Compound `border` shorthand presets — `Npx solid var(--teal-N)` — that exist so component CSS can write `border: var(--border-teal-subtle)` instead of repeating the width and style triple. DESIGN.md `colors` declares the colour intent; these tokens declare the _border-shorthand_ intent, which is a different axis. They are not promotable to DESIGN.md until the upstream schema grows a `borders` namespace.
+
+### 6.6 Gradient presets
+
+Tokens: `` `--gradient-hero` ``, `` `--gradient-hero-fallback` ``, `` `--gradient-surface` ``, `` `--gradient-surface-fallback` ``, `` `--gradient-accent` ``, `` `--gradient-accent-fallback` ``, `` `--gradient-inline` ``, `` `--gradient-inline-fallback` ``, `` `--gradient-vision-2030` ``, `` `--gradient-vision-2030-fallback` ``.
+
+Named multi-stop linear gradients used by the hero, surface, accent, inline-CTA, and vision-2030 sections. Each pairs a `color-mix`-based primary with a `rgba()`-based fallback. DESIGN.md `colors` is single-stop only; gradients are component-level visual primitives that the upstream schema does not model. Per DESIGN.md §1.2 ("Editorial, not SaaS"), gradients are _minimised_, but the few we ship live here.
+
+### 6.7 Shadow scale
+
+Tokens: `` `--shadow-sm` ``, `` `--shadow-md` ``, `` `--shadow-lg` ``, `` `--shadow-xl` ``, `` `--shadow-glow-teal` ``, `` `--shadow-glow-teal-fallback` ``.
+
+Four-level shadow ramp plus a brand-tinted accent glow. DESIGN.md §3.4 states the site's flat aesthetic restricts shadows to specific affordances (dropdowns, the Tweaks panel, accent glow on interactive elements); these tokens are how that policy is implemented. Shadows are not in the upstream `@google/design.md` schema, so they cannot be promoted to frontmatter without a schema extension.
+
+### 6.8 Section / hero spacing utilities
+
+Tokens: `` `--spacing-section` ``, `` `--spacing-section-simple` ``, `` `--spacing-section-large` ``, `` `--spacing-hero-block` ``, `` `--spacing-hero-top` ``, `` `--spacing-hero-inline` ``, `` `--spacing-hero-bottom` ``, `` `--padding-card` ``, `` `--padding-card-compact` ``, `` `--padding-card-inline` ``, `` `--margin-section-header` ``, `` `--margin-content-block` ``, `` `--margin-subsection` ``.
+
+Page-rhythm spacing utilities (the 120px section rhythm from DESIGN.md §3.3, plus card-padding and section-header margins). The DESIGN.md `spacing` namespace declares the _atomic_ spacing scale (`xs`/`sm`/`md`/`lg`/`xl`/`2xl`); these tokens compose those atoms into named _page-level_ utilities. They are intentionally one layer up from the design contract — promoting them would let designers redefine "section padding" by editing CSS, which is the wrong abstraction layer for the contract.
+
+### 6.9 Gap tokens
+
+Tokens: `` `--gap-tiny` ``, `` `--gap-small` ``, `` `--gap-medium` ``, `` `--gap-large` ``.
+
+T-shirt-sized `gap` aliases used inside grid and flex layouts. They map onto the same atoms as §6.8 (`--gap-medium` = `1.5rem`, `--gap-large` = `2rem`) but expose a layout-vocabulary alias rather than a design-token alias. Same architectural rationale: layout vocabulary lives in CSS; design intent lives in DESIGN.md.
+
+### 6.10 Radius variants
+
+Tokens: `` `--radius` ``, `` `--radius-card` ``, `` `--radius-sm` ``, `` `--radius-tiny` ``, `` `--radius-lg` ``, `` `--radius-xl` ``, `` `--radius-full` ``.
+
+The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; TG-D will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
+
+### 6.11 Layout chrome
+
+Tokens: `` `--nav-h` ``, `` `--ctl-h` ``, `` `--section-pad` ``, `` `--container-max` ``.
+
+Layout-chrome constants — sticky-header height, control-row height, section padding-block via `clamp()`, content max-width. These are layout primitives, not design tokens; DESIGN.md models the _aesthetic_ contract, not the layout grid (which lives in §3.3 prose: 8-point grid, 1240px max-width, 120px section rhythm). Codifying them as CSS custom properties is a CSS implementation detail.
+
+### 6.12 Roadmap module-local tokens
+
+Tokens: `` `--rm-card-bg` ``, `` `--rm-card-stroke` ``, `` `--rm-chip-bg` ``.
+
+Tokens scoped to the `/roadmap` page's card grid (`--rm-` prefix = roadmap-module). Module-local tokens deliberately stay out of DESIGN.md to avoid polluting the global token namespace with one-page concerns. The `--rm-` prefix is the contract that signals "do not reference outside the roadmap module"; the allow-list entry confirms the prefix is intentional, not a typo.
 
 ## 7 · Accepted `lint:design` warnings
 
