@@ -206,26 +206,50 @@ function resolveToken(name, fm) {
 
 // ---------- Parse the allow-list from docs/design-md.md Section 6 ----------
 //
-// Soft contract: extract every ``--token-name`` (backtick-fenced CSS custom
-// property) found between the `## 6 ·` heading and the next `## ` heading at
-// the same level. Tokens listed in Section 7 (the lint-warning table) are
-// ignored.
+// Contract: extract every `--token-name` (backtick-fenced CSS custom
+// property) found between the Section 6 heading and the next top-level
+// heading. Section 7 (the lint-warning table) is excluded.
+//
+// Robustness:
+// - Heading regex matches BOTH `## 6 ·` (U+00B7 middle dot, current style)
+//   AND `## 6.` / `## 6 -` / `## 6` alone, so editor-normalized variants
+//   don't silently skip the section.
+// - Fenced code blocks (``` ... ```) are tracked: backtick token references
+//   inside a fenced block are NOT part of the allow-list (they're examples).
+// - If Section 6 is missing entirely or empty, exit 2 (env error) — silent
+//   fallback to an empty allow-list would mask a doc-rot bug.
 
 function parseAllowList(docs) {
   const lines = docs.split("\n");
   let inSection6 = false;
+  let inFencedBlock = false;
+  let section6Seen = false;
   const allow = new Set();
   for (const line of lines) {
-    const heading = line.match(/^##\s+(\d+)\s+·/);
+    // Track fenced code blocks. A line that starts with ``` toggles state.
+    if (/^```/.test(line)) {
+      inFencedBlock = !inFencedBlock;
+      continue;
+    }
+    // Section 6 detection — accept several middle-dot-or-not variants so
+    // editor normalization doesn't silently break the gate.
+    const heading = line.match(/^##\s+(\d+)(?:\s*[·.\-]\s*|\s+)/);
     if (heading) {
       inSection6 = heading[1] === "6";
+      if (inSection6) section6Seen = true;
       continue;
     }
     if (!inSection6) continue;
-    // Backtick-quoted `--token-name` references.
+    if (inFencedBlock) continue;
     for (const m of line.matchAll(/`--([a-zA-Z][\w-]+)`/g)) {
       allow.add(m[1]);
     }
+  }
+  if (!section6Seen) {
+    console.error(
+      "✗ docs/design-md.md is missing Section 6 (allow-list). Refusing to silently treat allow-list as empty.",
+    );
+    exit(2);
   }
   return allow;
 }

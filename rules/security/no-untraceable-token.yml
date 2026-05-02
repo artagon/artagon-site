@@ -20,6 +20,13 @@ note: |
   Severity is `warning` (not `error`) so the seed pass can land without
   blocking the build; promote to `error` once Section 6 lists every
   intentional exception.
+
+  TRACKING (deferred follow-up):
+    - Promote severity: warning → error
+    - Tracker: openspec/changes/adopt-design-md-format/tasks.md Phase 6.3
+    - Promotion gate: zero ast-grep `lint:sg:ci` warnings on this rule
+      against current sources; verify via
+      `npx sg scan --rule rules/security/no-untraceable-token.yml`.
 files:
   - "**/*.astro"
 rule:
