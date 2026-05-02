@@ -11,5 +11,5 @@ jobs:
       - run: npm ci || npm i
       - run: npm run build
       - run: cd dist && zip -r ../artagon-site-dist.zip .
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with: { files: artagon-site-dist.zip, generate_release_notes: true }
