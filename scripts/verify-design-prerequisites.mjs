@@ -24,7 +24,7 @@
  *   2 — usage error (cannot find openspec tree)
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { argv, exit } from "node:process";
@@ -37,7 +37,27 @@ const REDESIGN_DIR = join(
   "openspec/changes/update-site-marketing-redesign",
 );
 const REDESIGN_TASKS = join(REDESIGN_DIR, "tasks.md");
+const ARCHIVE_DIR = join(ROOT, "openspec/changes/archive");
 const STALE_PATH_PATTERN = /new-design\/extracted\/DESIGN\.md/g;
+
+// Returns true if openspec/changes/archive/ contains a directory whose name
+// ends in `-update-site-marketing-redesign` (the openspec archive convention
+// is `<timestamp>-<change-id>`).
+function isRedesignArchived() {
+  if (!existsSync(ARCHIVE_DIR)) return false;
+  try {
+    return readdirSync(ARCHIVE_DIR).some((entry) => {
+      if (!entry.endsWith("-update-site-marketing-redesign")) return false;
+      try {
+        return statSync(join(ARCHIVE_DIR, entry)).isDirectory();
+      } catch {
+        return false;
+      }
+    });
+  } catch {
+    return false;
+  }
+}
 
 function main() {
   if (!existsSync(join(ROOT, "openspec"))) {
@@ -45,12 +65,27 @@ function main() {
     exit(2);
   }
 
+  const inFlight = existsSync(REDESIGN_DIR);
+  const archived = isRedesignArchived();
+
   // State (c): redesign archived → exit 0 unconditionally.
-  if (!existsSync(REDESIGN_DIR)) {
+  // We require positive evidence of an archive entry (not just the absence
+  // of the in-flight directory) so a missing/empty openspec tree doesn't
+  // silently pass the gate.
+  if (archived) {
     console.log(
-      "✓ update-site-marketing-redesign is archived; design-md prerequisites satisfied.",
+      "✓ update-site-marketing-redesign is archived (entry found in openspec/changes/archive/); design-md prerequisites satisfied.",
     );
     exit(0);
+  }
+
+  // Redesign is neither archived nor in flight — likely an empty/incomplete
+  // openspec tree. Refuse to silently pass; surface as exit 2 (usage).
+  if (!inFlight) {
+    console.error(
+      "✗ update-site-marketing-redesign is neither in flight (openspec/changes/) nor archived (openspec/changes/archive/). The openspec tree appears incomplete.",
+    );
+    exit(2);
   }
 
   // Redesign is in flight. Check live tasks.md for stale path references.

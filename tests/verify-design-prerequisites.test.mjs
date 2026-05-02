@@ -52,7 +52,19 @@ test("state (b): redesign in flight + tasks updated → exit 0", () => {
 test("state (c): redesign archived → exit 0 regardless of historical refs", () => {
   // state-c has the redesign directory ONLY under archive/, not under changes/.
   // Historical refs in archived tasks.md MUST NOT trigger failure.
+  // The script positively verifies the archive entry exists (not just
+  // the absence of the in-flight directory) per adversarial review fix.
   const result = runVerify("state-c");
   assert.equal(result.code, 0, "expected zero exit");
-  assert.match(result.stdout, /archived/);
+  assert.match(result.stdout, /archived \(entry found/);
+});
+
+test("state (d) [adversarial-r1 fix]: empty openspec tree → exit 2 (not silently 0)", () => {
+  // Regression guard: an openspec tree with neither in-flight nor archived
+  // redesign MUST NOT silently pass the gate. This was the original
+  // state-(c) test's bug — it would pass for an empty tree because the
+  // script only checked `!existsSync(in_flight_dir)`.
+  const result = runVerify("state-d-empty");
+  assert.equal(result.code, 2, "expected exit 2 (usage error)");
+  assert.match(result.stderr, /neither in flight.*nor archived/);
 });
