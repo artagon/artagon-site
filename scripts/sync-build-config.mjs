@@ -20,7 +20,11 @@ const ROOT = join(__dirname, "..");
 const CONFIG_PATH = join(ROOT, "build.config.json");
 const FIXTURE_PATH = join(ROOT, "scripts/fixtures/lhci-assertions.json");
 
-const CHECK_MODE = argv.includes("--check");
+// CI auto-promotes to --check: sync MUST NOT write generated files in CI;
+// any drift is the contributor's responsibility to commit locally. CI's
+// drift gate fails the build on non-empty diff.
+const CI = env.GITHUB_ACTIONS === "true";
+const CHECK_MODE = argv.includes("--check") || CI;
 const SKIP = env.SKIP_BUILD_SYNC === "1";
 
 if (SKIP) {
@@ -88,13 +92,9 @@ if (allOutputsExist && !CHECK_MODE) {
   }
 }
 
-// ---------- CI write-block ----------
-if (env.GITHUB_ACTIONS === "true" && !CHECK_MODE) {
-  console.error(
-    "✗ sync-build-config refuses to write under GITHUB_ACTIONS=true; use --check",
-  );
-  exit(2);
-}
+// CI write-block has been replaced by CHECK_MODE auto-promotion above.
+// In CI, sync runs in check-only mode: any required regeneration becomes
+// a non-zero exit (drift gate). Local writes stay enabled.
 
 // ---------- Generators ----------
 function emitJson(targetPath, obj) {
