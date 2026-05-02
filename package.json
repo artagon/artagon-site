@@ -39,6 +39,8 @@
     "test:update-snapshots": "playwright test --update-snapshots",
     "test:ci": "playwright test --reporter=github",
     "test:build-config": "node --test tests/build-config.test.mjs",
+    "test:design-prerequisites": "node --test tests/verify-design-prerequisites.test.mjs",
+    "verify:design-prerequisites": "node scripts/verify-design-prerequisites.mjs",
     "lint:sg": "./node_modules/.bin/sg scan",
     "lint:sg:fix": "./node_modules/.bin/sg scan --update-all",
     "lint:sg:ci": "./node_modules/.bin/sg scan --error",
