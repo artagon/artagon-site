@@ -1,12 +1,13 @@
 {
   "$comment": "Lighthouse CI assertion fixture — second SSoT. Paths come from build.config.json; assertion shape comes from this fixture. Sync merges both.",
+  "$comment-urls": "Marketing routes that exist TODAY in .build/dist/. The redesign change adds /use-cases/, /standards/, /writing/ — those URLs land here when their /opsx:apply phases ship.",
   "urls": [
     "http://localhost:8081/",
     "http://localhost:8081/platform/",
-    "http://localhost:8081/use-cases/",
-    "http://localhost:8081/standards/",
     "http://localhost:8081/roadmap/",
-    "http://localhost:8081/writing/"
+    "http://localhost:8081/vision/",
+    "http://localhost:8081/security/",
+    "http://localhost:8081/faq/"
   ],
   "assert": {
     "preset": "lighthouse:no-pwa",

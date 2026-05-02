@@ -108,10 +108,13 @@ jobs:
 
   visual-regression:
     runs-on: ubuntu-latest
-    # Only this job needs contents: write (snapshot auto-commit) — and only
-    # on workflow_dispatch (manual). PR pushes get read-only comparison.
+    # GitHub Actions does NOT support expressions in `permissions:` values
+    # — must be static. The job-level grant is `contents: write`; ALL
+    # write-effecting steps below are guarded by
+    # `if: github.event_name == 'workflow_dispatch'` so PR pushes have
+    # write capability available but never exercise it.
     permissions:
-      contents: ${{ github.event_name == 'workflow_dispatch' && 'write' || 'read' }}
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.x

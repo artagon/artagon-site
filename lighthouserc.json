@@ -7,10 +7,10 @@
       "url": [
         "http://localhost:8081/",
         "http://localhost:8081/platform/",
-        "http://localhost:8081/use-cases/",
-        "http://localhost:8081/standards/",
         "http://localhost:8081/roadmap/",
-        "http://localhost:8081/writing/"
+        "http://localhost:8081/vision/",
+        "http://localhost:8081/security/",
+        "http://localhost:8081/faq/"
       ]
     },
     "assert": {
