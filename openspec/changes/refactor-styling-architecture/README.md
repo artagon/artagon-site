@@ -65,7 +65,7 @@ All documentation is in `openspec/changes/refactor-styling-architecture/`:
    - Copy-paste ready token definitions
    - Migration strategy with find/replace patterns
 
-7. **[styling-guide.md](./styling-guide.md)** ⭐ NEW
+7. **[styling-guide.md](/docs/guides/styling-guide.md)** ⭐ NEW
    - **Developer guide** for using the new system
    - Component vs utility decision tree
    - Theme token reference
@@ -91,7 +91,7 @@ approval or completion.
 - [x] ✅ Token inventory complete ([token-inventory.md](./token-inventory.md))
 - [x] ✅ Acceptance criteria defined ([tasks.md](./tasks.md))
 - [x] ✅ Component API designed ([decisions.md](./decisions.md) Section 3)
-- [x] ✅ Documentation created ([styling-guide.md](./styling-guide.md))
+- [x] ✅ Documentation created ([styling-guide.md](/docs/guides/styling-guide.md))
 - [ ] ⏳ **Validation prompt run** ([validation instructions](./validation-prompt.md))
 - [ ] ⏳ Team review and approval
 - [ ] ⏳ Baseline screenshots captured
@@ -114,14 +114,14 @@ Follow [tasks.md](./tasks.md) phases:
 
 Note: Baselines are measured; targets assume ~19% reduction and may be recalibrated during approval.
 
-| Metric | Baseline (measured) | Target | Status |
-|--------|----------|--------|--------|
-| CSS Bundle Size | 43.0KB | ≤ 35.0KB (~19%) | ⏳ TBD |
-| Gzipped CSS | 8.7KB | ≤ 7.0KB (~19%) | ⏳ TBD |
-| vision.css LOC | 1,013 lines | ≤ 250 lines | ⏳ TBD |
-| Lighthouse A11y | _TBD_ | ≥ 95 | ⏳ TBD |
-| Visual Regression | N/A | < 2% pixel diff | ⏳ TBD |
-| Build Time Delta | Baseline | < +10% | ⏳ TBD |
+| Metric            | Baseline (measured) | Target          | Status |
+| ----------------- | ------------------- | --------------- | ------ |
+| CSS Bundle Size   | 43.0KB              | ≤ 35.0KB (~19%) | ⏳ TBD |
+| Gzipped CSS       | 8.7KB               | ≤ 7.0KB (~19%)  | ⏳ TBD |
+| vision.css LOC    | 1,013 lines         | ≤ 250 lines     | ⏳ TBD |
+| Lighthouse A11y   | _TBD_               | ≥ 95            | ⏳ TBD |
+| Visual Regression | N/A                 | < 2% pixel diff | ⏳ TBD |
+| Build Time Delta  | Baseline            | < +10%          | ⏳ TBD |
 
 ---
 
@@ -171,7 +171,7 @@ Note: Baselines are measured; targets assume ~19% reduction and may be recalibra
 
 **Rationale**: Prevents naming collisions, clearly identifies global utilities.
 
-📄 **Details**: [styling-guide.md Naming Conventions](./styling-guide.md#naming-conventions)
+📄 **Details**: [styling-guide.md Naming Conventions](/docs/guides/styling-guide.md#naming-conventions)
 
 ---
 
@@ -184,7 +184,8 @@ Note: Baselines are measured; targets assume ~19% reduction and may be recalibra
 --border-teal-subtle: 2px solid rgba(34, 227, 197, 0.2);
 
 /* Modern override */
---border-teal-subtle: 2px solid color-mix(in srgb, var(--brand-teal) 20%, transparent);
+--border-teal-subtle: 2px solid
+  color-mix(in srgb, var(--brand-teal) 20%, transparent);
 ```
 
 **Rationale**: Supports Safari < 16.2, Firefox < 113 gracefully.
@@ -202,7 +203,7 @@ All tokens defined in [token-inventory.md](./token-inventory.md):
 - **Spacing**: 10 tokens (section, hero, card, gaps, margins)
 - **Border Radius**: 6 tokens (card, lg, sm, xl, tiny, full)
 - **Shadows**: 6 tokens (sm, md, lg, xl, glow-teal)
-- **Color Opacity**: 15 tokens (teal-5 through teal-40, surface-teal-*)
+- **Color Opacity**: 15 tokens (teal-5 through teal-40, surface-teal-\*)
 
 **Total**: ~50 new tokens to add to `public/assets/theme.css`
 
@@ -214,18 +215,18 @@ All tokens defined in [token-inventory.md](./token-inventory.md):
 
 ### Planned Components
 
-| Component | Props | Usage Count | Priority |
-|-----------|-------|-------------|----------|
-| **Card** | variant, hover, badge, number | 20+ instances | HIGH |
-| **SectionHeader** | title, number, intro | 11 instances | HIGH |
-| **FeatureList** | variant (feature/numbered/bulleted) | 8 instances | MEDIUM |
+| Component         | Props                               | Usage Count   | Priority |
+| ----------------- | ----------------------------------- | ------------- | -------- |
+| **Card**          | variant, hover, badge, number       | 20+ instances | HIGH     |
+| **SectionHeader** | title, number, intro                | 11 instances  | HIGH     |
+| **FeatureList**   | variant (feature/numbered/bulleted) | 8 instances   | MEDIUM   |
 
 ### API Example
 
 ```typescript
 // Card.astro
 interface Props {
-  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product';
+  variant?: "default" | "domain" | "pillar" | "component" | "product";
   hover?: boolean;
   badge?: string;
   badgeIcon?: string;
@@ -243,23 +244,25 @@ interface Props {
 ### Scope Boundaries
 
 **In Scope**:
+
 - ✅ Vision page styles (src/styles/vision.css)
 - ✅ Global theme tokens (public/assets/theme.css)
 - Planned UI component primitives (`src/components/ui/`)
 
 **Out of Scope**:
+
 - ❌ Visual redesign
 - ❌ Refactoring other pages (beyond shared utilities)
 - ❌ New CSS frameworks
 
 ### Risk Mitigation
 
-| Risk | Mitigation |
-|------|------------|
-| Global utilities affect other pages | Prefer existing utilities; use `ui-` prefix; scope page rules |
-| Visual regression | Pixel diff testing across 9 scenarios (3 themes × 3 breakpoints) |
-| Performance degradation | Build time monitoring; CSS bundle size tracking |
-| Browser compatibility | color-mix() fallbacks for all tokens |
+| Risk                                | Mitigation                                                       |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| Global utilities affect other pages | Prefer existing utilities; use `ui-` prefix; scope page rules    |
+| Visual regression                   | Pixel diff testing across 9 scenarios (3 themes × 3 breakpoints) |
+| Performance degradation             | Build time monitoring; CSS bundle size tracking                  |
+| Browser compatibility               | color-mix() fallbacks for all tokens                             |
 
 📄 **Full risk analysis**: [design.md Risks/Trade-offs](./design.md#risks--trade-offs)
 
@@ -270,6 +273,7 @@ interface Props {
 ### Visual Regression
 
 **Required**: 9 screenshot comparisons
+
 - 3 themes (midnight, twilight, slate)
 - 3 breakpoints (desktop 1920, tablet 768, mobile 375)
 - < 2% pixel difference threshold
@@ -277,6 +281,7 @@ interface Props {
 ### Accessibility Audit
 
 **Required checks**:
+
 - ✅ axe DevTools scan (0 violations)
 - ✅ Keyboard navigation
 - ✅ Screen reader (NVDA/VoiceOver)
@@ -286,6 +291,7 @@ interface Props {
 ### Performance Validation
 
 **Targets**:
+
 - CSS bundle: ≤ 35.0KB (~19% reduction)
 - Gzipped CSS: ≤ 7.0KB (~19% reduction)
 - Build time: < +10% delta
@@ -334,7 +340,7 @@ If visual parity cannot be achieved:
 - ✅ `openspec/changes/refactor-styling-architecture/tasks.md`
 - ✅ `openspec/changes/refactor-styling-architecture/decisions.md`
 - ✅ `openspec/changes/refactor-styling-architecture/token-inventory.md`
-- ✅ `openspec/changes/refactor-styling-architecture/styling-guide.md`
+- ✅ `docs/guides/styling-guide.md` (moved post-implementation)
 
 ---
 
@@ -342,7 +348,7 @@ If visual parity cannot be achieved:
 
 ### For Developers
 
-1. **Read**: [styling-guide.md](./styling-guide.md) - Understand system usage
+1. **Read**: [styling-guide.md](/docs/guides/styling-guide.md) - Understand system usage
 2. **Review**: [token-inventory.md](./token-inventory.md) - See what tokens are available
 3. **Implement**: Follow [tasks.md](./tasks.md) phases sequentially
 4. **Reference**: [decisions.md](./decisions.md) - Check architectural decisions
@@ -365,17 +371,17 @@ If visual parity cannot be achieved:
 
 ## Pre-Implementation Planning Status
 
-| Requirement | Status | Document |
-|-------------|--------|----------|
-| Open questions answered | Draft | [decisions.md](./decisions.md) |
-| Token inventory | Draft | [token-inventory.md](./token-inventory.md) |
-| Acceptance criteria | Draft | [tasks.md](./tasks.md) |
-| Component API design | Draft | [decisions.md#3](./decisions.md#3-component-api-specifications) |
-| Developer documentation | Draft | [styling-guide.md](./styling-guide.md) |
-| Browser compatibility | Planned | [decisions.md#5](./decisions.md#5-browser-compatibility-strategy) |
-| Performance targets | Draft | [tasks.md#2](./tasks.md#2-success-metrics-summary) |
-| Accessibility requirements | Draft | [decisions.md#7](./decisions.md#7-accessibility-audit-requirements) |
-| Rollback strategy | Draft | [tasks.md#4](./tasks.md#4-rollback-plan) |
+| Requirement                | Status  | Document                                                            |
+| -------------------------- | ------- | ------------------------------------------------------------------- |
+| Open questions answered    | Draft   | [decisions.md](./decisions.md)                                      |
+| Token inventory            | Draft   | [token-inventory.md](./token-inventory.md)                          |
+| Acceptance criteria        | Draft   | [tasks.md](./tasks.md)                                              |
+| Component API design       | Draft   | [decisions.md#3](./decisions.md#3-component-api-specifications)     |
+| Developer documentation    | Draft   | [styling-guide.md](/docs/guides/styling-guide.md)                   |
+| Browser compatibility      | Planned | [decisions.md#5](./decisions.md#5-browser-compatibility-strategy)   |
+| Performance targets        | Draft   | [tasks.md#2](./tasks.md#2-success-metrics-summary)                  |
+| Accessibility requirements | Draft   | [decisions.md#7](./decisions.md#7-accessibility-audit-requirements) |
+| Rollback strategy          | Draft   | [tasks.md#4](./tasks.md#4-rollback-plan)                            |
 
 **Overall Status**: Draft (awaiting approval)
 
@@ -391,7 +397,7 @@ outside tolerance, update `token-inventory.md` and the success metrics in `tasks
 - **Architecture**: See [decisions.md](./decisions.md)
 - **Token usage**: See [token-inventory.md](./token-inventory.md)
 - **Implementation**: See [tasks.md](./tasks.md)
-- **Developer guide**: See [styling-guide.md](./styling-guide.md)
+- **Developer guide**: See [styling-guide.md](/docs/guides/styling-guide.md)
 - **Original proposal**: See [proposal.md](./proposal.md)
 - **Validation**: Run prompt above to verify estimates
 

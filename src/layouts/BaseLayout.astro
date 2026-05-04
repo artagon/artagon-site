@@ -36,6 +36,7 @@ const { title, description, path='/', image, robots } = Astro.props;
 })();
     </script>
     <link rel="stylesheet" href="/assets/theme.css" />
+    <slot name="head" />
     <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
     <script is:inline>
 window.__setTheme = function(t){
