@@ -11,6 +11,11 @@ context: |
   - Lint: ast-grep (sg) — primary linter, NO ESLint. Rules in rules/security/*.yml
   - Tests: Playwright 1.57
   - Deploy: GitHub Pages via withastro/action; CNAME → artagon.com
+  - Design contract: DESIGN.md (repo root) per @google/design.md format
+    spec, alpha, pinned to upstream commit
+    97b4df92901b9353fbc71cfe1b51dad1ece01708 and npm @0.1.1.
+    See docs/design-md.md (authored in adopt-design-md-format Phase 5.1).
+    Spec cache mirrored at openspec/.cache/design-md-spec.md.
 
   Layout:
   - src/pages/ — Astro routes

@@ -6,6 +6,9 @@ node_modules
 # build.config.json; restored on test exit / SIGTERM).
 build.config.json.bak
 
+# Claude Code session-state (in-memory cron lock; should not be tracked).
+.claude/scheduled_tasks.lock
+
 # Build umbrella — all runtime artifacts (cache, reports, dist) live here.
 # See openspec/changes/standardize-build-artifacts.
 .build/

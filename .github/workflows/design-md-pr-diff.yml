@@ -1,0 +1,99 @@
+name: Design.md PR Diff Comment
+
+on:
+  pull_request:
+    branches: [main]
+    paths: [DESIGN.md]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  pr-diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.x
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.x
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run design.md diff (Phase 2.8)
+        id: design-diff
+        run: |
+          npm run diff:design > /tmp/diff-output.txt 2>&1 || true
+          DIFF_OUTPUT=$(cat /tmp/diff-output.txt)
+          DIFF_OUTPUT="${DIFF_OUTPUT//'%'/'%25'}"
+          DIFF_OUTPUT="${DIFF_OUTPUT//$'\n'/'%0A'}"
+          DIFF_OUTPUT="${DIFF_OUTPUT//$'\r'/'%0D'}"
+          echo "diff-result=${DIFF_OUTPUT}" >> $GITHUB_OUTPUT
+
+      - name: Post diff as PR comment (Phase 2.8)
+        if: always()
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const diffFile = '/tmp/diff-output.txt';
+            let diffContent = '';
+            
+            try {
+              if (fs.existsSync(diffFile)) {
+                diffContent = fs.readFileSync(diffFile, 'utf8');
+              }
+            } catch (e) {
+              console.log('No diff output file');
+            }
+            
+            if (!diffContent || !diffContent.trim()) {
+              console.log('No changes in design.md');
+              return;
+            }
+            
+            const body = `### Design.md Changes\n\n\`\`\`\n${diffContent}\n\`\`\``;
+            
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.data.find(c =>
+              c.user.type === 'Bot' && c.body.includes('### Design.md Changes')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body,
+              });
+              console.log(`Updated comment #${existingComment.id}`);
+            } else {
+              const newComment = await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+              console.log(`Created comment #${newComment.data.id}`);
+            }
