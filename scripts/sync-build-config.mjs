@@ -174,6 +174,27 @@ retry_wait_time = 2
 accept = [200, 204, 206, 301, 302, 304, 307, 308, 403, 429]
 include_verbatim = true
 no_progress = true
+
+# URL exclusions (regex patterns).
+exclude = [
+  # Development/preview URLs — no server running during link-check.
+  "^https?://localhost(?::[0-9]+)?(?:/.*)?$",
+  "^https?://127\\\\.0\\\\.0\\\\.1(?::[0-9]+)?(?:/.*)?$",
+  # Template-literal placeholders in markdown code samples
+  # (e.g. \${repo}, \${commit}, \${path}, percent-encoded variants).
+  "\\\\$\\\\{[^}]*\\\\}",
+  "%7B.*%7D",
+  # Planned future repos (referenced in spec text but not yet created).
+  "^https?://github\\\\.com/artagon/content(?:[/?#].*)?$",
+  # Routes that ship with update-site-marketing-redesign / brand-assets
+  # (not yet on production). Remove after those changes archive.
+  "^https?://artagon\\\\.com/(writing|use-cases|standards|brand)(?:[/?#].*)?$",
+  "^https?://artagon\\\\.com/og/(use-cases|standards|brand|writing)\\\\.png$",
+  # Upstream link rot (acceptable; pinned reference is in archive.org).
+  "^https?://playwright\\\\.dev/docs/test-patterns/?$",
+  # mailto and external services we shouldn't probe.
+  "^mailto:",
+]
 `;
 
 // ---------- Run ----------
