@@ -94,7 +94,7 @@ jobs:
 
       - name: Open tracking issue on drift
         if: failure()
-        uses: actions/github-script@37e671142ad4ba1c1c3a1a02e01b47e7af73dcd3 # v7.x
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.0.1
         with:
           script: |
             const findings = process.env.DRIFT_FINDINGS || "Unknown drift detected";
