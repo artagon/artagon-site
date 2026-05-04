@@ -368,6 +368,15 @@ Tagged releases (e.g., `v0.1.0`) automatically:
 
 **Workflow:** `.github/workflows/release.yml`
 
+## Design contract
+
+openspec/specs/\* govern behavior; DESIGN.md governs visual presentation; implementation traces to both. On conflict, the spec wins and DESIGN.md is updated in the same change.
+
+- **[`DESIGN.md`](./DESIGN.md)** — canonical visual identity contract: color tokens (OKLCH prose + sRGB hex frontmatter), typography, spacing, rounded scale, and component visual contracts.
+- **[`docs/design-md.md`](./docs/design-md.md)** — authoring and maintenance guide: precedence chain, how to add a token, how to bump the upstream `@google/design.md` version, OKLCH↔hex hybrid policy, upstream attribution, and the `check:design-drift` allow-list.
+
+The `npm run lint:design` gate runs in `postbuild` and on every PR that touches `DESIGN.md`. See `docs/design-md.md` for full details.
+
 ## Security & Performance
 
 ### Subresource Integrity (SRI)
