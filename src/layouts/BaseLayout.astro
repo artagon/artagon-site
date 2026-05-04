@@ -2,6 +2,7 @@
 import Seo from '../components/SeoTags.astro';
 import SeoIcons from '../components/SeoIcons.astro';
 import ThemePreview from '../components/ThemePreviewPanel.astro';
+import Tweaks from '../components/Tweaks.astro';
 const DEV = import.meta.env.DEV;
 export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
 const { title, description, path='/', image, robots } = Astro.props;
@@ -61,5 +62,6 @@ window.__setTheme = function(t){
     <slot name="footer" />
     <noscript>Your browser has JavaScript disabled. The site still works.</noscript>
     {DEV && <ThemePreview />}
+    <Tweaks />
   </body>
 </html>

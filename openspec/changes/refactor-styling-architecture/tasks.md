@@ -110,6 +110,13 @@
   - [x] 1.12.6 After implementation, move the guide to `docs/guides/styling-guide.md` and update references
   - **Acceptance**: Complete guide created (19.1KB); migrated to `docs/guides/styling-guide.md` via `git mv`; active references in `README.md` retargeted; historical references in `decisions.md`/`proposal.md`/`tasks.md`/glossary preserved as authoring record.
 
+- [x] 1.13 Adversarial multi-agent CSS review (Claude + Codex + Gemini, 2 rounds).
+  - [x] 1.13.1 Round 1: surfaced 8 dead/duplicate rules. Removed `.menu-icon`, `.menu-text`, `.nav-icon`, `.vision-cta`, `.ui-info-box`, duplicate `.skip-link`, duplicate `.card` (L481), duplicate `.section` padding rule. Saved ~770 bytes raw.
+  - [x] 1.13.2 Round 2 caught 2 silent regressions from Round 1: `.card` rule deleted from `theme.css` (used by `/console`, `/get-started`, `/platform`, `/docs`); `.section`/`.container.narrow`/`.lead` global utilities swept into `roadmap.css` (broke faq, vision, Difference component on 13 of 16 pages). Both restored. Net win: −700 B more.
+  - [x] 1.13.3 Round 2 also removed dead `.btn[type="submit"]`, dead `.btn[href*="playground"]` branch, dead `.logo`, and 5 dead utilities scoped into `roadmap.css` (~960 B).
+  - [x] 1.13.4 Page-scope split: extracted `.rm-*` block (5.2 KB raw / 1.6 KB gz) to `public/assets/roadmap.css`; loaded only on `/roadmap` via new `head` slot in `BaseLayout.astro`. 13/16 pages drop from ~33 KB to ~28.6 KB raw per-page CSS.
+  - **Acceptance**: theme.css 35.4 KB → 28.8 KB raw / 7.29 KB → 5.94 KB gz (19% reduction). Build time 1.16s. Two near-miss regressions caught and fixed before commit.
+
 ## 2. Success Metrics Summary
 
 Note: Baselines are measured via the validation prompt. Targets assume ~19% reduction and

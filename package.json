@@ -41,6 +41,7 @@
     "test:build-config": "node --test tests/build-config.test.mjs",
     "test:design-prerequisites": "node --test tests/verify-design-prerequisites.test.mjs",
     "test:design-fixtures": "node --test tests/design-md-fixtures.test.mjs",
+    "test:tweaks": "node --test tests/tweaks-parse.test.mjs",
     "verify:design-prerequisites": "node scripts/verify-design-prerequisites.mjs",
     "verify:design-md-telemetry": "node scripts/verify-design-md-telemetry.mjs",
     "lint:design": "npm run check:oklch-hex-parity && design.md lint DESIGN.md",
