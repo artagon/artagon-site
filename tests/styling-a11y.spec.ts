@@ -3,10 +3,11 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * Styling-architecture accessibility suite.
  *
- * Covers tasks 1.11.2 (keyboard navigation) and 1.11.5 (focus indicators)
- * from the refactor-styling-architecture change. Runs in chromium-only —
- * focus-visible styles are not browser-dependent, and the Lighthouse a11y
- * audit (run separately via lhci) covers cross-engine concerns.
+ * Covers keyboard navigation and focus-visible indicators for the
+ * styling architecture (rationale + history archived under
+ * `refactor-styling-architecture`). Runs in chromium-only — focus-visible
+ * styles are not browser-engine-dependent, and the Lighthouse a11y audit
+ * (run separately via lhci) covers cross-engine concerns.
  */
 
 test.describe("Styling architecture - keyboard navigation + focus indicators", () => {
@@ -77,7 +78,7 @@ test.describe("Styling architecture - keyboard navigation + focus indicators", (
   test("focus rings render on links, and :focus-within lights up parent cards", async ({
     page,
   }) => {
-    // theme.css uses `.ui-card:focus-within` (around line 679) — cards
+    // theme.css uses `.ui-card:focus-within` (greppable) — cards
     // aren't focusable themselves; an inner anchor takes focus and the
     // card outline appears via :focus-within. Test the actual mechanism.
     // Use the skip-link first focusable, falling back to any anchor in main.

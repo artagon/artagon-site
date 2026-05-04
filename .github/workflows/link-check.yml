@@ -20,6 +20,10 @@ jobs:
       - name: Run lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
         with:
-          args: --config lychee.toml --no-progress --cache './**/*.md' './public/**/*.html' './src/**/*.astro'
+          # `--base .` lets lychee resolve root-relative paths (e.g.
+          # `/docs/guides/styling-guide.md` in archived openspec READMEs)
+          # against the repo root. Without it, lychee errors on every
+          # root-relative href because it has no origin to anchor against.
+          args: --base . --config lychee.toml --no-progress --cache './**/*.md' './public/**/*.html' './src/**/*.astro'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

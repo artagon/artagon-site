@@ -1,6 +1,20 @@
 /**
  * Tweaks state — pure parse + persist logic, no DOM or browser globals.
- * Imported by both `tweaks.ts` (browser) and node:test files (server).
+ * Imported by `src/components/TweaksPanel.tsx` (the dev-only React island)
+ * and the node:test suite (`tests/tweaks-state.test.mts`,
+ * `tests/tweaks-parse.test.mjs`).
+ *
+ * Vocabulary contract: this module mirrors the upstream new-design state
+ * shape verbatim (`new-design/extracted/src/layouts/BaseLayout.jsx`).
+ * The `Theme` keyword set is `dark`/`light` to match upstream. NOTE: the
+ * live `public/assets/theme.css` currently keys off
+ * `:root[data-theme="midnight|twilight|slate"]` — those selectors are
+ * the pre-USMR theme system. Until USMR ports the upstream
+ * `dark`/`light` token sheets, selecting "Theme: dark" in the dev panel
+ * writes a `data-theme` value that the live CSS does not match, leaving
+ * the page in a tokens-only state. This is a documented mid-flight
+ * vocabulary gap, not a bug to fix here. See
+ * `openspec/changes/add-tweaks-panel/proposal.md` Out-of-Scope §3.
  */
 
 export type Accent = "cyan" | "violet" | "amber" | "lime";

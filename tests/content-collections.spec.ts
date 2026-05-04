@@ -21,16 +21,28 @@ function assertSpawnFailure(error: unknown): asserts error is SpawnFailure {
 
 test.describe("Content Collections - Schema Validation", () => {
   const contentPath = "src/content/pages/vision.mdx";
-  const runAstroBuild = () => {
+
+  // Run an isolated `astro build` against a temp outDir. Returns the outDir
+  // (still on disk after the build) so the caller can assert observable
+  // post-conditions like "vision/index.html was emitted." The caller is
+  // responsible for cleanup; we don't auto-rm in the success path because
+  // a Buffer-truthiness assertion is a no-op (HIGH-3).
+  const runAstroBuild = (): { stdout: Buffer; outDir: string } => {
     const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "astro-build-"));
     try {
-      return execFileSync("npx", ["astro", "build", "--outDir", outDir], {
-        stdio: "pipe",
-      });
-    } finally {
+      const stdout = execFileSync(
+        "npx",
+        ["astro", "build", "--outDir", outDir],
+        { stdio: "pipe" },
+      );
+      return { stdout, outDir };
+    } catch (err) {
+      // Failure path: clean up and re-throw so the catch site can narrow.
       fs.rmSync(outDir, { recursive: true, force: true });
+      throw err;
     }
   };
+
   const withVisionContent = (content: string, run: () => void) => {
     const originalContent = fs.readFileSync(contentPath, "utf-8");
     fs.writeFileSync(contentPath, content);
@@ -41,6 +53,35 @@ test.describe("Content Collections - Schema Validation", () => {
     }
   };
 
+  // Helpers that wrap the assertSpawnFailure narrowing in informative
+  // error messages so a re-thrown spawn-time failure (ENOENT, EACCES)
+  // doesn't surface as an opaque stack trace.
+  const expectBuildFailureContaining = (
+    runBuild: () => void,
+    expectedSubstring: string,
+  ): void => {
+    try {
+      runBuild();
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) throw error;
+      if (!("status" in error) || !("stderr" in error)) {
+        throw new Error(
+          `Expected astro build spawn failure, got ${error.constructor.name}: ${error.message}`,
+          { cause: error },
+        );
+      }
+      assertSpawnFailure(error);
+      expect(error.status).not.toBe(0);
+      if (expectedSubstring.length > 0) {
+        expect(error.stderr.toString("utf8")).toContain(expectedSubstring);
+      }
+      return;
+    }
+    throw new Error(
+      "Astro build unexpectedly succeeded with invalid frontmatter",
+    );
+  };
+
   test.beforeEach(({}, testInfo) => {
     test.skip(
       testInfo.project.name !== "chromium",
@@ -49,7 +90,6 @@ test.describe("Content Collections - Schema Validation", () => {
   });
 
   test("should validate required frontmatter fields", () => {
-    // Create invalid content (missing title)
     const invalidContent = `---
 description: "Test description"
 hero:
@@ -62,20 +102,13 @@ Test content
 `;
 
     withVisionContent(invalidContent, () => {
-      // Try to build - should fail
-      try {
+      expectBuildFailureContaining(() => {
         runAstroBuild();
-        expect(false).toBe(true); // Should not reach here
-      } catch (error: unknown) {
-        assertSpawnFailure(error);
-        expect(error.status).not.toBe(0);
-        expect(error.stderr.toString("utf8")).toContain("title");
-      }
+      }, "title");
     });
   });
 
   test("should validate hero object schema", () => {
-    // Create content with invalid hero structure
     const invalidContent = `---
 title: "Test Title"
 description: "Test description"
@@ -88,19 +121,13 @@ Test content
 `;
 
     withVisionContent(invalidContent, () => {
-      // Try to build - should fail
-      try {
+      expectBuildFailureContaining(() => {
         runAstroBuild();
-        expect(false).toBe(true); // Should not reach here
-      } catch (error: unknown) {
-        assertSpawnFailure(error);
-        expect(error.status).not.toBe(0);
-      }
+      }, "");
     });
   });
 
   test("should accept valid frontmatter", () => {
-    // Create valid content
     const validContent = `---
 title: "Valid Title"
 description: "Valid description"
@@ -116,14 +143,22 @@ This is valid markdown content.
 `;
 
     withVisionContent(validContent, () => {
-      // Build should succeed
-      const result = runAstroBuild();
-      expect(result).toBeTruthy();
+      const { outDir } = runAstroBuild();
+      try {
+        // Observable post-condition: the vision page actually rendered.
+        // Buffer-truthiness was a no-op (Buffer is always truthy); HTML
+        // emission proves the schema accepted the frontmatter AND the
+        // page was generated without runtime errors.
+        expect(fs.existsSync(path.join(outDir, "vision/index.html"))).toBe(
+          true,
+        );
+      } finally {
+        fs.rmSync(outDir, { recursive: true, force: true });
+      }
     });
   });
 
   test("should allow optional hero field", () => {
-    // Create valid content without hero
     const validContent = `---
 title: "Valid Title"
 description: "Valid description"
@@ -135,9 +170,14 @@ This is valid markdown content without a hero section.
 `;
 
     withVisionContent(validContent, () => {
-      // Build should succeed
-      const result = runAstroBuild();
-      expect(result).toBeTruthy();
+      const { outDir } = runAstroBuild();
+      try {
+        expect(fs.existsSync(path.join(outDir, "vision/index.html"))).toBe(
+          true,
+        );
+      } finally {
+        fs.rmSync(outDir, { recursive: true, force: true });
+      }
     });
   });
 });
@@ -167,7 +207,7 @@ test.describe("Content Collections - File Structure", () => {
     expect(fs.existsSync(visionPath)).toBe(true);
 
     const content = fs.readFileSync(visionPath, "utf-8");
-    expect(content).toContain("---"); // Has frontmatter
+    expect(content).toContain("---");
     expect(content).toContain("title:");
     expect(content).toContain("description:");
   });

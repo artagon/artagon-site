@@ -150,22 +150,34 @@ jobs:
       # On PR/push: read-only comparison (asserts pixel parity, fails on diff).
       # On workflow_dispatch: --update-snapshots (rebases the baseline images).
       #
+      # Two test files run under VISUAL_REGRESSION=1:
+      #   - tests/vision-page.spec.ts          (test titles match "visual regression")
+      #   - tests/styling-snapshots.spec.ts    (test titles like "midnight @ desktop")
+      # The older grep `"visual regression"` only matched the first file, so
+      # the styling-snapshots baseline never ran in CI. Pass the spec files
+      # explicitly to cover both surfaces.
+      #
       # `continue-on-error: true` on compare-only is INTENTIONAL until the
       # redesign change (`update-site-marketing-redesign`) lands — the
       # current vision-page tests reference selectors (`.three-domains`,
       # etc.) that ship with the redesign. Failure surface is the artifact
       # upload below, which reviewers inspect manually. Once the redesign
       # archives, drop `continue-on-error` so PR signal blocks on diffs.
+      #
+      # Baselines are Linux-pinned (Playwright names files `*-chromium-linux.png`
+      # on ubuntu runners). Local darwin runs produce `*-chromium-darwin.png`
+      # which are NOT authoritative — committed baselines come from this
+      # workflow's `workflow_dispatch` --update-snapshots run only.
       - name: Run visual regression tests (compare-only)
         if: github.event_name != 'workflow_dispatch'
-        run: npx playwright test --grep "visual regression" --project=chromium
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium
         env:
           VISUAL_REGRESSION: "1"
         continue-on-error: true
 
       - name: Run visual regression tests (update snapshots)
         if: github.event_name == 'workflow_dispatch'
-        run: npx playwright test --grep "visual regression" --project=chromium --update-snapshots
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --update-snapshots
         env:
           VISUAL_REGRESSION: "1"
 

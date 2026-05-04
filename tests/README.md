@@ -6,10 +6,33 @@ This directory contains automated tests for the Artagon Web site using [Playwrig
 
 ```
 tests/
-├── vision-page.spec.ts          # Vision page functional and visual regression tests
-├── content-collections.spec.ts  # Content Collections schema validation tests
-└── README.md                    # This file
+├── Playwright (npm test, npm run test:ci)
+│   ├── vision-page.spec.ts             # Vision page functional + gated visual regression
+│   ├── styling-snapshots.spec.ts       # 3 themes × 3 breakpoints visual baseline (gated on VISUAL_REGRESSION=1)
+│   ├── styling-a11y.spec.ts            # Keyboard traversal + focus-ring contract (chromium-only)
+│   ├── content-collections.spec.ts     # Content Collections schema validation (chromium-only)
+│   └── faq-markdown.spec.ts            # FAQ markdown rendering
+│
+├── node:test (npm run test:tweaks, test:tweaks-prod-noship, test:build-config, …)
+│   ├── tweaks-state.test.mts           # Pure state-module logic + type guards
+│   ├── tweaks-parse.test.mjs           # parse() boundary cases + prototype-pollution probe
+│   ├── tweaks-prod-noship.test.mjs     # Asserts dev-only Tweaks panel doesn't reach prod HTML
+│   ├── build-config.test.mjs           # SSoT drift gate + sync-determinism
+│   ├── design-md-fixtures.test.mjs     # design.md linter fixture snapshots
+│   └── verify-design-prerequisites.test.mjs  # openspec ordering preconditions
+│
+├── fixtures/                           # Test fixtures (design.md good/bad, etc.)
+├── styling-snapshots.spec.ts-snapshots/  # Linux-pinned visual baselines (regenerate via workflow_dispatch)
+├── vision-page.spec.ts-snapshots/        # ditto
+└── README.md                           # This file
 ```
+
+**Gating notes**:
+
+- **Visual regression** (`vision-page.spec.ts` + `styling-snapshots.spec.ts`) requires `VISUAL_REGRESSION=1`. Test bodies are skipped without it. CI runs them in a dedicated job under `.github/workflows/playwright.yml`. Baselines are Linux-pinned; local darwin runs produce non-authoritative `*-darwin.png` files (do not commit).
+- **`styling-a11y.spec.ts`** is chromium-only — focus-visible behavior is browser-engine-dependent but the rules under test are not.
+- **`content-collections.spec.ts`** is chromium-only because tests mutate `src/content/pages/vision.mdx` and would race across parallel browser projects.
+- **node:test files** (`*.test.mts`, `*.test.mjs`) are NOT run by `npm test` (which runs Playwright). Each has a dedicated `npm run test:<name>` script in `package.json`. CI runs them as separate jobs.
 
 ## Running Tests Locally
 
@@ -36,6 +59,7 @@ npm run test:ui
 ```
 
 This opens the Playwright UI where you can:
+
 - See all tests
 - Run tests individually
 - Debug failures
@@ -78,6 +102,7 @@ npx playwright test --project=chromium
 ### 1. Functional Tests
 
 Test that page functionality works correctly:
+
 - Page title and meta tags
 - Content rendering
 - Section structure
@@ -85,9 +110,10 @@ Test that page functionality works correctly:
 - Interactive elements
 
 **Example:**
+
 ```typescript
-test('should render three domain cards', async ({ page }) => {
-  const domainCards = page.locator('.domain-card');
+test("should render three domain cards", async ({ page }) => {
+  const domainCards = page.locator(".domain-card");
   await expect(domainCards).toHaveCount(3);
 });
 ```
@@ -95,21 +121,24 @@ test('should render three domain cards', async ({ page }) => {
 ### 2. Visual Regression Tests
 
 Compare screenshots against baselines to detect unintended visual changes:
+
 - Full page screenshots
 - Component screenshots
 - Different viewport sizes
 
 **Example:**
+
 ```typescript
-test('visual regression - full page screenshot', async ({ page }) => {
-  await expect(page).toHaveScreenshot('vision-page-full.png', {
+test("visual regression - full page screenshot", async ({ page }) => {
+  await expect(page).toHaveScreenshot("vision-page-full.png", {
     fullPage: true,
-    animations: 'disabled',
+    animations: "disabled",
   });
 });
 ```
 
 When visual changes are intentional, update baselines:
+
 ```bash
 npm run test:update-snapshots
 ```
@@ -117,13 +146,15 @@ npm run test:update-snapshots
 ### 3. Schema Validation Tests
 
 Test Content Collections schema enforcement:
+
 - Required fields validation
 - Type checking
 - Optional field handling
 
 **Example:**
+
 ```typescript
-test('should validate required frontmatter fields', () => {
+test("should validate required frontmatter fields", () => {
   // Test that missing required fields cause build failure
 });
 ```
@@ -131,16 +162,18 @@ test('should validate required frontmatter fields', () => {
 ### 4. Accessibility Tests
 
 Test accessibility features:
+
 - Semantic HTML
 - Heading hierarchy
 - ARIA attributes
 - Keyboard navigation
 
 **Example:**
+
 ```typescript
-test('should have proper accessibility attributes', async ({ page }) => {
-  await expect(page.locator('article.vision-doc')).toBeVisible();
-  const h1 = page.locator('h1');
+test("should have proper accessibility attributes", async ({ page }) => {
+  await expect(page.locator("article.vision-doc")).toBeVisible();
+  const h1 = page.locator("h1");
   await expect(h1).toHaveCount(1);
 });
 ```
@@ -148,13 +181,15 @@ test('should have proper accessibility attributes', async ({ page }) => {
 ### 5. Responsive Tests
 
 Test layout at different viewport sizes:
+
 - Mobile (375x667)
 - Tablet (768x1024)
 - Desktop (1920x1080)
 
 **Example:**
+
 ```typescript
-test('should be responsive on mobile viewport', async ({ page }) => {
+test("should be responsive on mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   // Test mobile layout
 });
@@ -163,6 +198,7 @@ test('should be responsive on mobile viewport', async ({ page }) => {
 ## CI/CD Integration
 
 Tests run automatically in GitHub Actions on:
+
 - Push to `main` or `feature/*` branches
 - Pull requests to `main`
 - Manual workflow dispatch
@@ -170,17 +206,20 @@ Tests run automatically in GitHub Actions on:
 ### Workflow: `.github/workflows/playwright.yml`
 
 **Jobs:**
+
 1. **test** - Run all tests in parallel (3 shards)
 2. **visual-regression** - Run visual regression tests
 3. **accessibility** - Run accessibility tests
 4. **merge-reports** - Combine test reports from shards
 
 **Artifacts:**
+
 - Test reports (HTML)
 - Screenshots on failure
 - Visual regression diffs
 
 View test results:
+
 1. Go to GitHub Actions tab
 2. Click on the workflow run
 3. Download artifacts or view in-line results
@@ -194,6 +233,7 @@ npx playwright show-report
 ```
 
 Opens an HTML report with:
+
 - Test results
 - Screenshots
 - Video recordings
@@ -204,6 +244,7 @@ Opens an HTML report with:
 Install [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) extension.
 
 Features:
+
 - Run/debug tests from editor
 - Set breakpoints
 - Step through tests
@@ -217,6 +258,7 @@ npx playwright show-trace test-results/.../trace.zip
 ```
 
 Interactive trace viewer shows:
+
 - Actions taken
 - DOM snapshots at each step
 - Network activity
@@ -227,22 +269,22 @@ Interactive trace viewer shows:
 ### Test File Template
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Feature Name', () => {
+test.describe("Feature Name", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/your-page/');
+    await page.goto("/your-page/");
   });
 
-  test('should do something', async ({ page }) => {
+  test("should do something", async ({ page }) => {
     // Arrange
-    const element = page.locator('.some-element');
+    const element = page.locator(".some-element");
 
     // Act
     await element.click();
 
     // Assert
-    await expect(element).toHaveText('Expected text');
+    await expect(element).toHaveText("Expected text");
   });
 });
 ```
@@ -250,6 +292,7 @@ test.describe('Feature Name', () => {
 ### Best Practices
 
 1. **Use descriptive test names**
+
    ```typescript
    // Good
    test('should render hero section with mission statement', ...)
@@ -259,18 +302,20 @@ test.describe('Feature Name', () => {
    ```
 
 2. **Use proper locators**
+
    ```typescript
    // Prefer role-based or text-based locators
-   page.getByRole('button', { name: 'Submit' })
-   page.getByText('Welcome')
+   page.getByRole("button", { name: "Submit" });
+   page.getByText("Welcome");
 
    // Avoid brittle CSS selectors when possible
-   page.locator('.btn.btn-primary.btn-lg') // brittle
+   page.locator(".btn.btn-primary.btn-lg"); // brittle
    ```
 
 3. **Wait for proper states**
+
    ```typescript
-   await page.waitForLoadState('networkidle');
+   await page.waitForLoadState("networkidle");
    await expect(element).toBeVisible();
    ```
 
@@ -280,13 +325,14 @@ test.describe('Feature Name', () => {
    - Clean up in `afterEach` if needed
 
 5. **Group related tests**
+
    ```typescript
-   test.describe('Vision Page', () => {
-     test.describe('Hero Section', () => {
+   test.describe("Vision Page", () => {
+     test.describe("Hero Section", () => {
        // Hero-related tests
      });
 
-     test.describe('Domain Cards', () => {
+     test.describe("Domain Cards", () => {
        // Card-related tests
      });
    });
@@ -297,6 +343,7 @@ test.describe('Feature Name', () => {
 Playwright configuration: `playwright.config.ts`
 
 Key settings:
+
 - **testDir**: `./tests`
 - **workers**: Parallel execution (1 on CI, unlimited locally)
 - **retries**: 2 on CI, 0 locally
@@ -308,8 +355,9 @@ Key settings:
 ### Tests timing out
 
 Increase timeout in test or config:
+
 ```typescript
-test('slow test', async ({ page }) => {
+test("slow test", async ({ page }) => {
   test.setTimeout(60000); // 60 seconds
   // ...
 });
@@ -318,6 +366,7 @@ test('slow test', async ({ page }) => {
 ### Flaky tests
 
 Use auto-waiting and proper assertions:
+
 ```typescript
 // Don't use hard waits
 await page.waitForTimeout(1000); // Bad
@@ -338,6 +387,7 @@ await expect(element).toBeVisible(); // Good
 ### Browser not found
 
 Reinstall browsers:
+
 ```bash
 npx playwright install --with-deps
 ```

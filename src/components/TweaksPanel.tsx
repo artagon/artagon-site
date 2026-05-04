@@ -25,13 +25,34 @@ import {
   type Tweaks,
 } from "../scripts/tweaks-state.ts";
 
+// Expected DOMException classes when localStorage is blocked. Anything else
+// is unexpected and surfaced to the dev-console — silent catch-all on every
+// state change would mask future bugs (e.g. JSON.stringify on a circular
+// value, polyfill throws in test contexts).
+const EXPECTED_STORAGE_ERROR_NAMES = new Set([
+  "QuotaExceededError",
+  "SecurityError",
+]);
+
+function isExpectedStorageError(err: unknown): boolean {
+  return (
+    err instanceof DOMException && EXPECTED_STORAGE_ERROR_NAMES.has(err.name)
+  );
+}
+
 function loadInitial(): Tweaks {
   if (typeof window === "undefined") return { ...DEFAULTS };
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULTS };
     return parse(JSON.parse(raw));
-  } catch {
+  } catch (err) {
+    // Dev-only panel: surface failures so a maintainer can tell
+    // "JSON corrupted" from "storage blocked" from "parse() bug".
+    if (!isExpectedStorageError(err)) {
+      // eslint-disable-next-line no-console
+      console.warn("[TweaksPanel] loadInitial fell back to DEFAULTS:", err);
+    }
     return { ...DEFAULTS };
   }
 }
@@ -48,8 +69,14 @@ function applyToDom(t: Tweaks): void {
 function persist(t: Tweaks): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(t));
-  } catch {
-    /* ignore quota / security errors */
+  } catch (err) {
+    // Quota and SecurityError are expected on private-mode browsers and
+    // when storage is blocked; everything else (TypeError from a circular
+    // value, polyfill bug, etc.) is a real defect we want to see.
+    if (!isExpectedStorageError(err)) {
+      // eslint-disable-next-line no-console
+      console.warn("[TweaksPanel] persist failed unexpectedly:", err);
+    }
   }
 }
 

@@ -173,7 +173,17 @@ const lhci = {
 // umbrella. `.gitignore` also lists `.lycheecache/` as defense-in-depth in
 // case a future workflow change drops the flag.
 const lycheeBody = `cache = true
-exclude_path = ["${buildConfig.dist}", "node_modules", "${buildConfig.root}"]
+exclude_path = [
+  "${buildConfig.dist}",
+  "node_modules",
+  "${buildConfig.root}",
+  # Skill source files contain template placeholders (\$s, \$variable) and
+  # blog-style root-relative paths (/posts/...) that aren't real links —
+  # they're documentation snippets meant to be copy-edited by skill
+  # consumers. Lychee can't distinguish doc-template from real href.
+  ".agents/skills",
+  ".claude/skills",
+]
 timeout = 30
 retry_wait_time = 2
 accept = [200, 204, 206, 301, 302, 304, 307, 308, 403, 429]

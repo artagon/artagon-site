@@ -4,12 +4,21 @@ import { test, expect, type Page } from "@playwright/test";
  * Styling-architecture visual reference suite.
  *
  * Captures /vision rendered across 3 themes × 3 breakpoints. These snapshots
- * are NOT a refactor diff — the styling refactor (`refactor-styling-architecture`)
- * already shipped weeks ago, and no pre-refactor baseline exists. This suite
- * is a forward baseline: future styling changes diff against these images.
+ * are NOT a refactor diff — the styling refactor already shipped, and no
+ * pre-refactor baseline exists. This suite is a forward baseline: future
+ * styling changes diff against these images. When intentional redesigns
+ * land, regenerate via `--update-snapshots` and commit the new baseline as
+ * part of that change.
  *
- * Run with: VISUAL_REGRESSION=1 npx playwright test styling-snapshots.spec.ts
- * Update:   VISUAL_REGRESSION=1 npx playwright test styling-snapshots.spec.ts --update-snapshots
+ * Authoritative baselines are Linux-pinned (Playwright names files
+ * `*-chromium-linux.png` on ubuntu runners). Run via the
+ * `.github/workflows/playwright.yml` visual-regression job's
+ * `workflow_dispatch` mode to regenerate; the workflow auto-commits on
+ * that path. Local darwin runs produce `*-chromium-darwin.png` which are
+ * useful for spot-checks but NOT committed — they would not match CI.
+ *
+ * Run locally:  VISUAL_REGRESSION=1 npx playwright test styling-snapshots.spec.ts
+ * Update (CI):  workflow_dispatch on .github/workflows/playwright.yml
  */
 
 const runVisualRegression = process.env.VISUAL_REGRESSION === "1";
