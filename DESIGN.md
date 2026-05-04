@@ -105,47 +105,55 @@ may diverge where platform context requires it.
 
 ## 1 · Overview
 
+This section establishes the design philosophy and voice that govern every decision in this document. The five principles define what we optimize for; the voice and tone guidelines define how we speak. Both are in force on every surface.
+
+### 1.1 Principles
+
 Five principles, in order of precedence when they conflict.
 
-### 1.1 Proof over promise
+#### 1.1.1 Proof over promise
 
 Every claim on the site must be demonstrable. The hero animates a _live
 decision_ (5-stage trust chain, PERMIT/DENY with reasons). Pricing, benchmarks,
 and standards claims link to primary sources. No decorative metrics.
 
-### 1.2 Editorial, not SaaS
+#### 1.1.2 Editorial, not SaaS
 
 Typographic hierarchy, numbered sections, mono eyebrows, generous whitespace.
 No stock 3D blobs, no pastel gradients, no AI-slop hero art. The page reads
 like a trade publication, not a product page.
 
-### 1.3 Dense without crowded
+#### 1.1.3 Dense without crowded
 
 Target information density is high, but every block has air. Line-length caps,
 1200px max-width, 120px section rhythm, 8pt spacing grid. The eye always has a
 place to land.
 
-### 1.4 Accessible by default
+#### 1.1.4 Accessible by default
 
 WCAG 2.2 AA is the floor, not the goal. 4.5:1 text contrast, 3:1 UI contrast,
 visible focus, no information conveyed by color alone, `prefers-reduced-motion`
 respected on every animated surface.
 
-### 1.5 Portable aesthetic
+#### 1.1.5 Portable aesthetic
 
 The tokens travel. The same OKLCH palette, the same four font families, and
 the same `.glow-tag` / `.num-h2` primitives render identically across Astro
 components, static HTML prototypes, and third-party embeds. No design lives in
 one file.
 
-### 1.6 Positioning line
+### 1.2 Voice & tone
+
+Artagon writes like a trade publication, not a product page. The voice is direct, specific, and technical. The tone is confident without being promotional.
+
+#### 1.2.1 Positioning line
 
 > **Trusted identity for machines and humans — verified, private, attested.**
 
 This is the elevator pitch. Appears in: footer, `<meta name="description">`,
 OpenGraph, favicon tooltip. Do not paraphrase.
 
-### 1.7 Headline formula
+#### 1.2.2 Headline formula
 
 The home hero uses the **triad**:
 
@@ -155,7 +163,7 @@ Each clause maps to one pillar (Identity · Credentials · Authorization).
 Use the full triad on the home page. Use single clauses as section eyebrows
 when introducing a pillar.
 
-### 1.8 Editorial rules
+#### 1.2.3 Editorial rules
 
 - **Active voice, present tense.** "Artagon verifies…" not "Identity is verified by…".
 - **Specific over abstract.** "IAL2 → IAL3 step-up in 180ms" beats "fast, secure, seamless".
@@ -165,7 +173,7 @@ when introducing a pillar.
 - **Serif italic for accent.** Emphasis within mono eyebrows (`& humans`, `or human`).
 - **Em-dash, not hyphen** for parenthetical thought. No Oxford commas.
 
-### 1.9 Forbidden phrases
+#### 1.2.4 Forbidden phrases
 
 - "Unified platform for the modern enterprise" (generic)
 - "AI-native" / "AI-first" (we use crypto, not LLMs)
@@ -279,6 +287,8 @@ The override adjusts tracking and weight per family — see `src/styles/global.c
 
 ## 4 · Layout
 
+The layout system is built on an 8-point spacing grid with a fixed max-width container and density variants. Spacing tokens and section rhythm are defined here; responsive breakpoints are in §8.2.
+
 **8-point grid.** All spacing tokens are multiples of 4px (half-steps allowed
 for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 **24–32px**. Gutter: **32px** desktop, **20px** dense, **44px** roomy (via
@@ -377,7 +387,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 - Failing stage halts the chain (subsequent stages show `skip`, not `pass`).
 - Decision badge uses `--ok` for PERMIT, `--bad` for DENY.
 - Final claim line uses mono and shows the actual decision string + latency.
-- Must be simplifiable to a static component on mobile <640px (see §5.2).
+- Must be simplifiable to a static component on mobile <640px (see §9.2).
 
 **A11y.** Each scenario narrated via `aria-live="polite"`. Reduce-motion users see the full scenario statically with no cycling.
 
@@ -457,7 +467,7 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 1. Numbered chip (`01`…`05`) — mono, accent-tinted, matches the row's node circle.
 2. Stage title (sans, 14px/500).
 3. Body — _what_ paragraph (plain), _why_ paragraph (`<em>` for emphasis, **not** italic).
-4. Footer: standard tag (mono, accent, uppercase) + `Read spec →` link to the canonical document. Link uses `target="_blank"` and `rel="noopener noreferrer"` (cf. §5.4).
+4. Footer: standard tag (mono, accent, uppercase) + `Read spec →` link to the canonical document. Link uses `target="_blank"` and `rel="noopener noreferrer"` (cf. §9.4).
 5. Close button (`×`) — visible on locked-open state; required on mobile sheet.
 
 **Persistence model.** Two states:
@@ -559,7 +569,7 @@ the entry point; this component renders the destination page.
 ```
 Nav
   Article header   eyebrow · h1 · meta strip (date · author · reading time · "Edit on GitHub")
-  Hero figure?     optional cover image OR diagram (intrinsic dims required, §7.4)
+  Hero figure?     optional cover image OR diagram (intrinsic dims required, §11.4)
   Body             prose column · 65ch max · numbered §-headings (.num-h2)
     ├ Paragraphs   16px / 1.7 · max-inline-size: 65ch
     ├ Code         see "Code blocks" below
@@ -616,7 +626,7 @@ borders), `--f-mono` (code, captions, eyebrow), `--f-display` (h1, h2),
 **A11y.**
 
 - `<main>` wraps article body; aside is `<aside aria-label="Table of contents">`.
-- Headings are a clean h1 → h2 → h3 ladder; the SEO lint (§9.2) checks this.
+- Headings are a clean h1 → h2 → h3 ladder; the SEO lint (§13.2) checks this.
 - Code copy buttons announce success via `aria-live`.
 - Diagrams: SVGs carry `<title>`/`<desc>`; Mermaid/D2 outputs are wrapped in `<figure role="img" aria-label="…">` with the figcaption serving as the textual fallback.
 - All link targets in code/diagrams have visible text. Bare URLs are linkified but visually compressed.
@@ -643,9 +653,59 @@ borders), `--f-mono` (code, captions, eyebrow), `--f-display` (h1, h2),
 
 ---
 
-## 7 · Motion
+## 7 · Do's and Don'ts
 
-### 7.1 Timing
+These rules apply site-wide. Component-specific do's/don'ts appear in the relevant §6 component entries.
+
+### 7.1 Writing and voice
+
+**Do**
+
+- Use active voice, present tense: "Artagon verifies…" not "Identity is verified by…".
+- Be specific: "IAL2 → IAL3 step-up in 180ms" beats "fast, secure, seamless".
+- Cite at least one concrete number (latency, IAL level, RFC number) per page.
+- Use sentence case for nav labels, buttons, and body copy.
+- Use the full positioning triad on the home page; single clauses as section eyebrows.
+- Use `<StandardChip>` every time a standard (FIDO2, W3C VCs, etc.) is mentioned.
+
+**Don't**
+
+- Use marketing adverbs: _truly, simply, easily, seamlessly, revolutionary, next-generation_.
+- Use these phrases: "Unified platform for the modern enterprise", "AI-native", "AI-first", "Zero-trust" as a noun, "Passwordless" without context.
+- Paraphrase the positioning line — use it verbatim or omit it.
+
+### 7.2 Links and external resources
+
+**Do**
+
+- Always pair `rel="noopener noreferrer"` with `target="_blank"` on external links.
+- Link standards through the registry in `src/layouts/BaseLayout.jsx` — URLs are curated and versioned there.
+
+**Don't**
+
+- Use `rel="noreferrer"` alone (it also strips the `Referer` header but omitting `noopener` leaves a security gap in older browsers).
+- Hand-roll pill styles for standards — use `<StandardChip>` or `<StandardsRow>`.
+
+### 7.3 Visual and aesthetic
+
+**Do**
+
+- Use shadows only for: dropdowns, the Tweaks panel, and the accent glow on interactive elements.
+- Keep one accent per page. The accent carries signal; everything else is neutral.
+- Use real post metadata in the Writing widget. Mock copy is forbidden.
+
+**Don't**
+
+- Use shadows to imply elevation — this is a flat, typographic aesthetic.
+- Use more than one accent on a page.
+- Place two primary buttons adjacent to each other.
+- Use `body { transform: scale() }` for responsive — it breaks text and hit targets.
+
+---
+
+## 8 · Motion
+
+### 8.1 Timing
 
 | Token  | Value    | Role                            |
 | ------ | -------- | ------------------------------- |
@@ -657,7 +717,7 @@ borders), `--f-mono` (code, captions, eyebrow), `--f-display` (h1, h2),
 Easing: `cubic-bezier(.2,.6,.2,1)` for UI; `ease-in-out` for loops; `linear`
 for spinners only.
 
-### 7.2 Motion principles
+### 8.2 Motion principles
 
 1. **Motion is informational, not decorative.** The trust chain animates
    because the order matters. The eyebrow glow breathes because it's the
@@ -670,9 +730,9 @@ for spinners only.
 
 ---
 
-## 8 · Patterns
+## 9 · Patterns
 
-### 8.1 Page structure
+### 9.1 Page structure
 
 Every long-form page follows this skeleton:
 
@@ -688,7 +748,7 @@ Footer
 
 Section count: **5–8 per page**. Fewer feels thin; more is a sign the page should split.
 
-### 8.2 Responsive
+### 9.2 Responsive
 
 **Strategy: real reflow.** No global `transform: scale()`, no zoom hacks, no
 fixed-width body. Every page reflows at each breakpoint via media queries.
@@ -727,15 +787,15 @@ deliberately don't match the global breakpoints.
 - Tap targets smaller than 44×44 (WCAG 2.2 SC 2.5.8 Target Size Minimum).
 - Hiding nav under `display: none` without a discoverable replacement.
 
-### 8.3 Empty & error states
+### 9.3 Empty & error states
 
 Every data surface (roadmap list, blog index, standards page) must render a designed empty state — never blank div, never "No results.". Minimum: an illustration-free mono message + a suggested next action.
 
-### 8.4 External links
+### 9.4 External links
 
 External links use `rel="noopener noreferrer"` (both, always) and `target="_blank"`. Standards chips and footer GitHub link comply; verify via automated lint.
 
-### 8.5 Opengraph & metadata
+### 9.5 Opengraph & metadata
 
 - `<title>` format: `{Page Title} — Artagon` (home: just `Artagon`)
 - `<meta name="description">`: 150–160 chars, includes the positioning line or a paraphrase
@@ -744,7 +804,7 @@ External links use `rel="noopener noreferrer"` (both, always) and `target="_blan
 
 ---
 
-## 9 · Content model
+## 10 · Content model
 
 Copy lives in Astro content collections. Editorial surfaces — the home, pillar pages, use-case pages, blog posts — are MDX files under `src/content/pages/` and `src/content/posts/`.
 
@@ -766,28 +826,28 @@ Copy lives in Astro content collections. Editorial surfaces — the home, pillar
 
 ---
 
-## 10 · Accessibility
+## 11 · Accessibility
 
-### 10.1 Floor
+### 11.1 Floor
 
 WCAG 2.2 AA across every page. No exceptions for marketing surfaces.
 
-### 10.2 Contrast targets
+### 11.2 Contrast targets
 
 - Body text on `--bg`: ≥ 7.0:1 (AAA)
 - Secondary text on `--bg`: ≥ 4.5:1 (AA)
 - UI borders: ≥ 3.0:1
 - Accent on `--bg-1`: ≥ 4.5:1 (verified in both themes)
 
-### 10.3 Keyboard
+### 11.3 Keyboard
 
 Every interactive element reachable via Tab in source order. Focus rings are 2px solid `--accent` with 2px offset. No custom outline removal without a replacement.
 
-### 10.4 Reduced motion
+### 11.4 Reduced motion
 
 All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled under `prefers-reduced-motion: reduce`. The trust chain renders statically with the current scenario visible.
 
-### 10.5 Screen readers
+### 11.5 Screen readers
 
 - Eyebrows use real text, not decorative ASCII.
 - The trust chain uses `aria-live="polite"` for scenario transitions.
@@ -796,7 +856,7 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 
 ---
 
-## 11 · Performance
+## 12 · Performance
 
 | Metric     | Target                  | Rationale                                                          |
 | ---------- | ----------------------- | ------------------------------------------------------------------ |
@@ -814,9 +874,9 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 
 ---
 
-## 12 · Governance
+## 13 · Governance
 
-### 12.1 Change process
+### 13.1 Change process
 
 Design changes follow OpenSpec:
 
@@ -825,7 +885,7 @@ Design changes follow OpenSpec:
 3. Update DESIGN.md in the same PR if the change touches brand, voice, or primitives.
 4. Ship; archive proposal.
 
-### 12.2 Review gates
+### 13.2 Review gates
 
 A PR cannot merge without:
 
@@ -835,7 +895,7 @@ A PR cannot merge without:
 - [ ] DESIGN.md updated if any §2 foundation or §6 component changed
 - [ ] Screenshots at 360px, 768px, 1440px attached to the PR
 
-### 12.3 What this document is not
+### 13.3 What this document is not
 
 - Not a code style guide (see `AGENTS.md`, `CONTRIBUTING.md`)
 - Not a component API reference (see JSDoc in source)
@@ -843,7 +903,7 @@ A PR cannot merge without:
 
 ---
 
-## 13 · Open questions
+## 14 · Open questions
 
 1. **UI icon library.** Distinct from the brand mark (§6.14). The site still has no UI icon set for product nav, dashboard, or docs sidebar. Propose: adopt **Lucide** at AA minimum with a 16/20/24 size scale, and override only where Lucide has no semantic equivalent (e.g. `dpop`, `passkey`). **Needs decision.**
 2. **Illustration strategy.** The site uses zero illustration today. If/when we need them, what's the style? Proposal: technical diagrams only (like the trust chain), no character illustrations. **Needs direction.**
@@ -852,7 +912,7 @@ A PR cannot merge without:
 
 ---
 
-## 14 · Changelog
+## 15 · Changelog
 
 ### 2026-05-01
 
@@ -867,9 +927,9 @@ A PR cannot merge without:
 - **§6.14 Brand icon system** added. Enumerates every variant of the Artagon
   glyph: 3 avatars, 4 favicons, 2 OG cards, monochrome, 3 wordmark lockups,
   2 remix concepts. Sizing, colour, and a11y rules. Reference gallery:
-  `brand-icons.html`. Resolves §13 question 1's brand-mark half; question 1
+  `brand-icons.html`. Resolves §14 question 1's brand-mark half; question 1
   rewritten to scope the remaining UI-icon decision.
-- **§8.2 Responsive — Strategy A locked.** Mobile reflow committed: scale-fit
+- **§9.2 Responsive — Strategy A locked.** Mobile reflow committed: scale-fit
   shim removed from `index.html`; inline `gridTemplateColumns` swapped for
   `grid-*` utility classes; hamburger nav added at `< 720px`; trust chain,
   explore grid, footer, hero, writing variants all reflow via media queries.
@@ -881,7 +941,7 @@ A PR cannot merge without:
 ### 2026-04-30
 
 - **Added §6.11 Writing widget.** Five placements (`h1` in-hero default, `a/b/c/d` lower section, `off`) wired through the Tweaks panel. Replaces the earlier ad-hoc "Latest writing" mention.
-- **Open question.** Mobile reflow strategy: the current build uses `body { transform: scale() }` to fit narrow viewports, which §8.2 forbids. Tracked separately in `explorations/Mobile Optimization.html`. _(Resolved 2026-05-01 — see above.)_
+- **Open question.** Mobile reflow strategy: the current build uses `body { transform: scale() }` to fit narrow viewports, which §9.2 forbids. Tracked separately in `explorations/Mobile Optimization.html`. _(Resolved 2026-05-01 — see above.)_
 
 ---
 
