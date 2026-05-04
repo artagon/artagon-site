@@ -7,6 +7,7 @@ Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.
 | Skill                                                       | Purpose                                                                | Applies to                                                             |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [agent-dx-cli-scale](agent-dx-cli-scale/SKILL.md)           | Score CLI/npm scripts on agent-friendliness (0–21 scale, ≥18 required) | `package.json` scripts, any script in `scripts/`                       |
+| [design-md](design-md/SKILL.md)                             | Synthesize semantic design systems into `DESIGN.md`                    | DESIGN.md authoring, design-token reconciliation                       |
 | [ink](ink/SKILL.md)                                         | Ink terminal renderer for JSON specs                                   | N/A — terminal UI; site is web. Skip.                                  |
 | [tdd](tdd/SKILL.md)                                         | Red-Green-Refactor for TS/Node                                         | All component conversions, all `src/lib/*.ts` and `src/data/*.ts` work |
 | [typed-service-contracts](typed-service-contracts/SKILL.md) | Spec & Handler pattern with `Result<T, E>`                             | `src/data/*.ts`, `src/lib/*.ts`, any data parsing/validation           |

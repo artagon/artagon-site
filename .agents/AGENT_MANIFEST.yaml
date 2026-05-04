@@ -1,10 +1,14 @@
 skills:
-  source: https://github.com/google-labs-code/design.md/tree/main/.agents/skills
+  sources:
+    - https://github.com/google-labs-code/design.md/tree/main/.agents/skills
+    - https://github.com/google-labs-code/stitch-skills # design-md
   installed: .agents/skills/
+  lockfile: skills-lock.json
   mandatory:
     - tdd # red-green-refactor for new code
     - typed-service-contracts # parse-don't-validate, Result<T, E> for data layer
     - agent-dx-cli-scale # score npm scripts >= 18/21
+    - design-md # synthesize semantic design systems into DESIGN.md
   not-applicable:
     - ink # terminal UI; project is web
 
