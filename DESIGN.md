@@ -88,10 +88,6 @@ components:
 > Single source of truth for visual, content, and interaction decisions.
 > Updated: 2026-04-30
 
----
-
-## 0 · About this document
-
 DESIGN.md is the site's **design contract**. It records the _intent_ behind every
 token, component, and pattern — so reviewers, contributors, and AI assistants
 can answer "is this on-brand?" without guessing.
@@ -107,7 +103,7 @@ may diverge where platform context requires it.
 
 ---
 
-## 1 · Principles
+## 1 · Overview
 
 Five principles, in order of precedence when they conflict.
 
@@ -142,18 +138,14 @@ the same `.glow-tag` / `.num-h2` primitives render identically across Astro
 components, static HTML prototypes, and third-party embeds. No design lives in
 one file.
 
----
-
-## 2 · Voice & tone
-
-### 2.1 Positioning line
+### 1.6 Positioning line
 
 > **Trusted identity for machines and humans — verified, private, attested.**
 
 This is the elevator pitch. Appears in: footer, `<meta name="description">`,
 OpenGraph, favicon tooltip. Do not paraphrase.
 
-### 2.2 Headline formula
+### 1.7 Headline formula
 
 The home hero uses the **triad**:
 
@@ -163,7 +155,7 @@ Each clause maps to one pillar (Identity · Credentials · Authorization).
 Use the full triad on the home page. Use single clauses as section eyebrows
 when introducing a pillar.
 
-### 2.3 Editorial rules
+### 1.8 Editorial rules
 
 - **Active voice, present tense.** "Artagon verifies…" not "Identity is verified by…".
 - **Specific over abstract.** "IAL2 → IAL3 step-up in 180ms" beats "fast, secure, seamless".
@@ -173,7 +165,7 @@ when introducing a pillar.
 - **Serif italic for accent.** Emphasis within mono eyebrows (`& humans`, `or human`).
 - **Em-dash, not hyphen** for parenthetical thought. No Oxford commas.
 
-### 2.4 Forbidden phrases
+### 1.9 Forbidden phrases
 
 - "Unified platform for the modern enterprise" (generic)
 - "AI-native" / "AI-first" (we use crypto, not LLMs)
@@ -182,16 +174,14 @@ when introducing a pillar.
 
 ---
 
-## 3 · Foundations
-
-### 3.1 Color
+## 2 · Colors
 
 Site uses the **OKLCH** color space throughout. Tokens live in
 `src/styles/tokens.css` (canonical), inlined into each `src/pages/*.html` while we are
 in HTML-mock staging. After Astro conversion, `BaseLayout.astro` will pull from the same
 file.
 
-#### 3.1.1 Base palette (dark, default)
+### 2.1 Base palette (dark, default)
 
 | Token         | OKLCH                   | Role                  |
 | ------------- | ----------------------- | --------------------- |
@@ -209,7 +199,7 @@ Cool-neutral background (hue 260) under warm-neutral foreground (hue 85).
 The slight temperature shift makes text feel like ink on paper, not pixels on
 a screen.
 
-#### 3.1.2 Accent
+### 2.2 Accent
 
 | Token          | OKLCH                  | Role                       |
 | -------------- | ---------------------- | -------------------------- |
@@ -223,7 +213,7 @@ Default accent is cyan-teal (`185°`). Alternate accents are available via
 it for: primary CTAs, hover states, the trust-chain's current stage, chart
 series 1. Everything else is neutral.
 
-#### 3.1.3 Semantic
+### 2.3 Semantic
 
 | Token    | OKLCH                  | Role                      |
 | -------- | ---------------------- | ------------------------- |
@@ -234,15 +224,17 @@ series 1. Everything else is neutral.
 Semantic colors appear in the trust chain, logs, and status badges. They are
 **never** used for decoration.
 
-#### 3.1.4 Light theme
+### 2.4 Light theme
 
 Activated via `[data-theme="light"]`. All `--bg-*` and `--fg-*` swap; accent
 and semantic tokens stay constant (they are designed to read on both themes).
 Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
 
-### 3.2 Typography
+---
 
-#### 3.2.1 Type families
+## 3 · Typography
+
+### 3.1 Type families
 
 | Family               | Role           | Weight     | Notes                                                                   |
 | -------------------- | -------------- | ---------- | ----------------------------------------------------------------------- |
@@ -255,7 +247,7 @@ Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
 Each family loads with `font-display: swap`. Preload the display face used
 above-the-fold. The site **must not** ship more than four custom families.
 
-#### 3.2.2 Type scale
+### 3.2 Type scale
 
 ```
 h1    clamp(56px,  7.2vw, 108px)  line-height 0.94   tracking -0.035em
@@ -270,20 +262,22 @@ micro 11px (mono, caps)           line-height 1.40   tracking  0.14em
 Fluid steps use `clamp()`. Min/max are tested at 360px and 1920px viewports.
 Never ship a heading that reflows more than 3× between breakpoints.
 
-#### 3.2.3 Tracking rules
+### 3.3 Tracking rules
 
 - **Display** (h1/h2): negative tracking (-0.025 to -0.035em) for optical balance at large sizes.
 - **Mono UPPERCASE**: positive tracking (+0.12 to +0.26em). Mono is too tight otherwise.
 - **Body**: default (0).
 - **Serif italic accents**: default (0). Fraunces is already optically loose.
 
-#### 3.2.4 Hero display override
+### 3.4 Hero display override
 
 Users can swap the display face via `[data-hero-font]`:
 `grotesk` (default) · `fraunces` · `dmserif` · `mono`.
 The override adjusts tracking and weight per family — see `src/styles/global.css`.
 
-### 3.3 Spacing
+---
+
+## 4 · Layout
 
 **8-point grid.** All spacing tokens are multiples of 4px (half-steps allowed
 for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
@@ -292,7 +286,9 @@ for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 
 `.wrap` caps content at `--maxw: 1240px`. Never nest `.wrap` inside `.wrap`.
 
-### 3.4 Radius & borders
+---
+
+## 5 · Shapes
 
 | Token   | Value | Role                            |
 | ------- | ----- | ------------------------------- |
@@ -306,39 +302,14 @@ shadows to imply depth — this is a flat, typographic aesthetic. Use shadows
 only for: dropdowns, the Tweaks panel, and the accent glow on interactive
 elements.
 
-### 3.5 Motion
-
-#### 3.5.1 Timing
-
-| Token  | Value    | Role                            |
-| ------ | -------- | ------------------------------- |
-| Micro  | 180ms    | Hover, focus, small transitions |
-| Short  | 220ms    | Card lift, chip press           |
-| Medium | 500ms    | Stage transitions, reveals      |
-| Long   | 5.2–7.0s | Breath / halo / shimmer loops   |
-
-Easing: `cubic-bezier(.2,.6,.2,1)` for UI; `ease-in-out` for loops; `linear`
-for spinners only.
-
-#### 3.5.2 Motion principles
-
-1. **Motion is informational, not decorative.** The trust chain animates
-   because the order matters. The eyebrow glow breathes because it's the
-   product's signature. Nothing else animates unless it helps the user.
-2. **Reduced motion is first-class.** Every `@keyframes` block has a
-   `@media (prefers-reduced-motion: reduce)` counterpart that disables or
-   freezes it. Test with the toggle on.
-3. **No parallax.** No scroll-hijacking. No scroll-triggered animations that
-   block reading.
-
 ---
 
-## 4 · Components
+## 6 · Components
 
 Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 **do/don't**.
 
-### 4.1 Nav
+### 6.1 Nav
 
 **Purpose.** Primary wayfinding. Sticky, backdrop-blurred, 64px tall.
 
@@ -354,7 +325,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 **Do** use sentence case for link labels.
 **Don't** add a seventh top-level link without deleting one — the ceiling is 5 text links + 1 icon + 2 CTAs.
 
-### 4.2 Footer
+### 6.2 Footer
 
 **Purpose.** Sitemap + legal + trust signals.
 
@@ -366,7 +337,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 - Version string format: `v{semver} — build {7-char git sha}`.
 - "Built on Astro · Open-source core · Apache 2.0" is the stack credit line. Do not edit.
 
-### 4.3 Glow-tag (eyebrow)
+### 6.3 Glow-tag (eyebrow)
 
 **Purpose.** The site's signature micro-element. Appears above the hero and at select section breaks. Communicates "this is alive, this is premium" without a single gradient blob.
 
@@ -379,7 +350,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 **Do** use for the positioning line, section breakpoints, and "new" announcements.
 **Don't** use more than one per viewport. Don't stack two glow-tags.
 
-### 4.4 Standards chip
+### 6.4 Standards chip
 
 **Purpose.** Clickable pill linking to a canonical spec document. Always opens in a new tab with `rel="noopener noreferrer"` (never `noreferrer` alone).
 
@@ -393,7 +364,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 **Do** use `<StandardChip>` / `<StandardsRow>` everywhere a standard is mentioned — hero, standards page, footer, blog posts.
 **Don't** hand-roll pill styles. Don't link to a standard without going through the registry (the URL will drift).
 
-### 4.5 Trust chain
+### 6.5 Trust chain
 
 **Purpose.** The hero's centerpiece. Animated 5-stage decision that cycles through 6 real scenarios (some PERMIT, some DENY with specific, technical reasons).
 
@@ -410,9 +381,9 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **A11y.** Each scenario narrated via `aria-live="polite"`. Reduce-motion users see the full scenario statically with no cycling.
 
-**Explain layer.** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §4.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol.
+**Explain layer.** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §6.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol.
 
-### 4.6 Explore grid
+### 6.6 Explore grid
 
 **Purpose.** Home page sub-navigation. 4-up card grid linking to the four top-level surfaces.
 
@@ -420,7 +391,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **Rules.** Always 4 cards, always in this order: Platform · Bridge · Use cases · Standards. Cards hover with a subtle accent tint and 2px lift.
 
-### 4.7 Numbered section heading
+### 6.7 Numbered section heading
 
 **Purpose.** The audit-page signature. Every `<h2>` in a long-form page is numbered.
 
@@ -428,7 +399,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **Class.** `.num-h2` with `.num` span. See `src/styles/tokens.css`.
 
-### 4.8 Buttons
+### 6.8 Buttons
 
 | Variant        | Style                              | Use                              |
 | -------------- | ---------------------------------- | -------------------------------- |
@@ -438,17 +409,17 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 Height: 40px (primary) · 38px (secondary) · 34px (icon). Minimum tap target: 44×44 via hit-area padding. Never place two primary buttons adjacent.
 
-### 4.9 Code block
+### 6.9 Code block
 
 Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, `--line-soft` border, 16px padding, 8px radius. Line numbers optional (mono, `--fg-3`). No syntax highlighting in marketing pages — it fights the editorial tone. Syntax highlighting is allowed on docs pages only.
 
-### 4.10 Tweaks panel
+### 6.10 Tweaks panel
 
 **Purpose.** Hidden design QA surface. Toggleable panel in the bottom-right lets reviewers switch theme, accent, display font, density, background grid, and writing-widget placement without touching code.
 
 **Not a user-facing feature.** The panel is off by default and only appears when the Tweaks mode is active. Do not link to it from the site.
 
-### 4.11 Writing widget
+### 6.11 Writing widget
 
 **Purpose.** Surface the latest blog post(s) on the home page. Communicates editorial cadence ("we publish") without becoming a full blog index.
 
@@ -470,7 +441,7 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 - The strip card uses `var(--bg-1)` with `--line` border that lifts to `--accent-dim` on hover.
 - Title font follows `--f-display` so it inherits the hero-font tweak.
 
-### 4.13 TrustChain tooltip
+### 6.13 TrustChain tooltip
 
 **Purpose.** A teaching layer over the trust chain. Each stage exposes 2–3 sentences explaining what's happening cryptographically, why it matters, the standard it implements, and a link to the canonical spec. The chain itself stays dense — the tooltip is the on-demand decompression.
 
@@ -506,13 +477,13 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 - Reduced motion: open/close transitions drop to opacity-only at 80ms (no transform).
 - The `<em>` tag in the _why_ paragraph is semantic emphasis, not visual italic — styled to inherit weight 500 and `--fg`. Italic Fraunces would compete with the chain's mono labels.
 
-**Content rules.** Stage explanations live in `STAGES[i].explain = { what, why, standard, link }`. Copy authored against three constraints: (1) explain _what's happening cryptographically_, not the marketing benefit; (2) `why` answers "so what"; (3) `standard` is the registry name (e.g. `WebAuthn L3 · FIDO2`, `RFC 9449 · DPoP`), `link` resolves through the standards registry (§4.4).
+**Content rules.** Stage explanations live in `STAGES[i].explain = { what, why, standard, link }`. Copy authored against three constraints: (1) explain _what's happening cryptographically_, not the marketing benefit; (2) `why` answers "so what"; (3) `standard` is the registry name (e.g. `WebAuthn L3 · FIDO2`, `RFC 9449 · DPoP`), `link` resolves through the standards registry (§6.4).
 
 **Do.** Use sentence case. Cite at least one published spec per stage. Keep `what` under 30 words. Update `link` only when the registry's canonical URL changes.
 
 **Don't.** Stack two tooltips. Animate the tip's content (motion teaches nothing here). Reuse this primitive for non-explanatory popovers — use a separate component if you need a menu, picker, or confirmation.
 
-### 4.14 Brand icon system
+### 6.14 Brand icon system
 
 **Purpose.** A single mark, seven contexts. The Artagon glyph (circle + triangle + baseline + dot) is the only logo we ship; this section enumerates every variant and the rules that govern it.
 
@@ -564,11 +535,11 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 
 **Don't.** Re-draw the mark. Skew, rotate, or flip the mark. Place the mark on a busy photographic background without first dropping it into a tile from this table. Use the filled remix as a default — it is reserved for app-icon tiles and physical swag.
 
-### 4.12 Long-form reader (GitHub-sourced writing & docs)
+### 6.12 Long-form reader (GitHub-sourced writing & docs)
 
 **Purpose.** Render the full article body for blog posts and longer technical
 documents that live as Markdown / MDX in a separate GitHub repo
-(`artagon/content` or `artagon/docs`). The home-page Writing widget (§4.11) is
+(`artagon/content` or `artagon/docs`). The home-page Writing widget (§6.11) is
 the entry point; this component renders the destination page.
 
 **Source contract.**
@@ -602,11 +573,11 @@ Footer
 **Code blocks (the load-bearing requirement).**
 
 - **Highlighter:** Shiki (build-time, themed). Two themes registered: a
-  dark `artagon-dark` and light `artagon-light` derived from §3.1 tokens.
+  dark `artagon-dark` and light `artagon-light` derived from §2 tokens.
   Never use Prism or Highlight.js — Shiki produces no runtime JS.
 - **Per-block frame:** mono caption strip (language · filename · "copy"),
   scrollable body, line numbers optional, line-highlight via `{2,5-7}` syntax.
-- **No syntax-highlighted code on marketing pages** (§4.9 still holds). This
+- **No syntax-highlighted code on marketing pages** (§6.9 still holds). This
   variant is **only** for `/writing/*`, `/docs/*`, and pages opted into via
   `frontmatter: layout: article`.
 - **Long lines wrap** at the prose width on mobile; horizontal scroll only
@@ -624,7 +595,7 @@ Footer
   4. **PNG/WebP screenshots** with intrinsic `width`/`height` attrs and `alt`. Last resort.
 - **No client-side diagram libraries.** Anything that requires runtime JS to render is rejected — it inflates bundles and breaks under reduced-motion and `prefers-color-scheme`.
 - **Caption.** Every diagram has a `<figcaption>` in mono, max 1 line, format: `Fig. <n> · <description>`. Numbering is per-article.
-- **Dark/light parity.** SVG diagrams must use the §3.1 token names via
+- **Dark/light parity.** SVG diagrams must use the §2 token names via
   `currentColor` and CSS variables, not hardcoded hex. The diagram's
   background should be transparent — the article surface provides it.
 
@@ -672,9 +643,36 @@ borders), `--f-mono` (code, captions, eyebrow), `--f-display` (h1, h2),
 
 ---
 
-## 5 · Patterns
+## 7 · Motion
 
-### 5.1 Page structure
+### 7.1 Timing
+
+| Token  | Value    | Role                            |
+| ------ | -------- | ------------------------------- |
+| Micro  | 180ms    | Hover, focus, small transitions |
+| Short  | 220ms    | Card lift, chip press           |
+| Medium | 500ms    | Stage transitions, reveals      |
+| Long   | 5.2–7.0s | Breath / halo / shimmer loops   |
+
+Easing: `cubic-bezier(.2,.6,.2,1)` for UI; `ease-in-out` for loops; `linear`
+for spinners only.
+
+### 7.2 Motion principles
+
+1. **Motion is informational, not decorative.** The trust chain animates
+   because the order matters. The eyebrow glow breathes because it's the
+   product's signature. Nothing else animates unless it helps the user.
+2. **Reduced motion is first-class.** Every `@keyframes` block has a
+   `@media (prefers-reduced-motion: reduce)` counterpart that disables or
+   freezes it. Test with the toggle on.
+3. **No parallax.** No scroll-hijacking. No scroll-triggered animations that
+   block reading.
+
+---
+
+## 8 · Patterns
+
+### 8.1 Page structure
 
 Every long-form page follows this skeleton:
 
@@ -690,7 +688,7 @@ Footer
 
 Section count: **5–8 per page**. Fewer feels thin; more is a sign the page should split.
 
-### 5.2 Responsive
+### 8.2 Responsive
 
 **Strategy: real reflow.** No global `transform: scale()`, no zoom hacks, no
 fixed-width body. Every page reflows at each breakpoint via media queries.
@@ -729,15 +727,15 @@ deliberately don't match the global breakpoints.
 - Tap targets smaller than 44×44 (WCAG 2.2 SC 2.5.8 Target Size Minimum).
 - Hiding nav under `display: none` without a discoverable replacement.
 
-### 5.3 Empty & error states
+### 8.3 Empty & error states
 
 Every data surface (roadmap list, blog index, standards page) must render a designed empty state — never blank div, never "No results.". Minimum: an illustration-free mono message + a suggested next action.
 
-### 5.4 External links
+### 8.4 External links
 
 External links use `rel="noopener noreferrer"` (both, always) and `target="_blank"`. Standards chips and footer GitHub link comply; verify via automated lint.
 
-### 5.5 Opengraph & metadata
+### 8.5 Opengraph & metadata
 
 - `<title>` format: `{Page Title} — Artagon` (home: just `Artagon`)
 - `<meta name="description">`: 150–160 chars, includes the positioning line or a paraphrase
@@ -746,7 +744,7 @@ External links use `rel="noopener noreferrer"` (both, always) and `target="_blan
 
 ---
 
-## 6 · Content model
+## 9 · Content model
 
 Copy lives in Astro content collections. Editorial surfaces — the home, pillar pages, use-case pages, blog posts — are MDX files under `src/content/pages/` and `src/content/posts/`.
 
@@ -768,28 +766,28 @@ Copy lives in Astro content collections. Editorial surfaces — the home, pillar
 
 ---
 
-## 7 · Accessibility
+## 10 · Accessibility
 
-### 7.1 Floor
+### 10.1 Floor
 
 WCAG 2.2 AA across every page. No exceptions for marketing surfaces.
 
-### 7.2 Contrast targets
+### 10.2 Contrast targets
 
 - Body text on `--bg`: ≥ 7.0:1 (AAA)
 - Secondary text on `--bg`: ≥ 4.5:1 (AA)
 - UI borders: ≥ 3.0:1
 - Accent on `--bg-1`: ≥ 4.5:1 (verified in both themes)
 
-### 7.3 Keyboard
+### 10.3 Keyboard
 
 Every interactive element reachable via Tab in source order. Focus rings are 2px solid `--accent` with 2px offset. No custom outline removal without a replacement.
 
-### 7.4 Reduced motion
+### 10.4 Reduced motion
 
 All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled under `prefers-reduced-motion: reduce`. The trust chain renders statically with the current scenario visible.
 
-### 7.5 Screen readers
+### 10.5 Screen readers
 
 - Eyebrows use real text, not decorative ASCII.
 - The trust chain uses `aria-live="polite"` for scenario transitions.
@@ -798,7 +796,7 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 
 ---
 
-## 8 · Performance
+## 11 · Performance
 
 | Metric     | Target                  | Rationale                                                          |
 | ---------- | ----------------------- | ------------------------------------------------------------------ |
@@ -816,9 +814,9 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 
 ---
 
-## 9 · Governance
+## 12 · Governance
 
-### 9.1 Change process
+### 12.1 Change process
 
 Design changes follow OpenSpec:
 
@@ -827,17 +825,17 @@ Design changes follow OpenSpec:
 3. Update DESIGN.md in the same PR if the change touches brand, voice, or primitives.
 4. Ship; archive proposal.
 
-### 9.2 Review gates
+### 12.2 Review gates
 
 A PR cannot merge without:
 
 - [ ] axe-core passes on changed pages
 - [ ] Lighthouse ≥ 95 on Performance, Accessibility, Best Practices
 - [ ] No new external link missing `rel="noopener noreferrer"`
-- [ ] DESIGN.md updated if any §3 foundation or §4 component changed
+- [ ] DESIGN.md updated if any §2 foundation or §6 component changed
 - [ ] Screenshots at 360px, 768px, 1440px attached to the PR
 
-### 9.3 What this document is not
+### 12.3 What this document is not
 
 - Not a code style guide (see `AGENTS.md`, `CONTRIBUTING.md`)
 - Not a component API reference (see JSDoc in source)
@@ -845,45 +843,45 @@ A PR cannot merge without:
 
 ---
 
-## 10 · Open questions
+## 13 · Open questions
 
-1. **UI icon library.** Distinct from the brand mark (§4.14). The site still has no UI icon set for product nav, dashboard, or docs sidebar. Propose: adopt **Lucide** at AA minimum with a 16/20/24 size scale, and override only where Lucide has no semantic equivalent (e.g. `dpop`, `passkey`). **Needs decision.**
+1. **UI icon library.** Distinct from the brand mark (§6.14). The site still has no UI icon set for product nav, dashboard, or docs sidebar. Propose: adopt **Lucide** at AA minimum with a 16/20/24 size scale, and override only where Lucide has no semantic equivalent (e.g. `dpop`, `passkey`). **Needs decision.**
 2. **Illustration strategy.** The site uses zero illustration today. If/when we need them, what's the style? Proposal: technical diagrams only (like the trust chain), no character illustrations. **Needs direction.**
 3. **Docs design system.** The docs shell is out of scope. It should inherit tokens but can diverge on density, nav, and code block treatments. **Separate DESIGN.md.**
-4. **PNG export pipeline for icon variants.** §4.14 documents the variants but the SVG→PNG→ICO pipeline is not codified. Propose: a `scripts/export-icons.mjs` (Sharp + sharp-ico) that consumes `brand-icons.html`'s source SVGs and writes `public/favicon.ico`, `public/apple-touch-icon.png`, `public/og-default.png`. **Needs scope.**
+4. **PNG export pipeline for icon variants.** §6.14 documents the variants but the SVG→PNG→ICO pipeline is not codified. Propose: a `scripts/export-icons.mjs` (Sharp + sharp-ico) that consumes `brand-icons.html`'s source SVGs and writes `public/favicon.ico`, `public/apple-touch-icon.png`, `public/og-default.png`. **Needs scope.**
 
 ---
 
-## 11 · Changelog
+## 14 · Changelog
 
 ### 2026-05-01
 
-- **§4.5 Trust chain — explain prop added.** New opt-in `<TrustChain explain>`
+- **§6.5 Trust chain — explain prop added.** New opt-in `<TrustChain explain>`
   attribute layers an explanatory tooltip over each stage. Off by default
   everywhere; turned on for the public hero and `/how`. Behaviour spec lives
-  in §4.13.
-- **§4.13 TrustChain tooltip** added. Hover/tap/keyboard tooltip primitive
+  in §6.13.
+- **§6.13 TrustChain tooltip** added. Hover/tap/keyboard tooltip primitive
   with what+why+standard content, smart side-flip positioning, mobile bottom
   sheet, locked-open vs hover-open states, Esc/outside-click dismiss.
   Reference prototype: `trust-chain-tooltips.html`.
-- **§4.14 Brand icon system** added. Enumerates every variant of the Artagon
+- **§6.14 Brand icon system** added. Enumerates every variant of the Artagon
   glyph: 3 avatars, 4 favicons, 2 OG cards, monochrome, 3 wordmark lockups,
   2 remix concepts. Sizing, colour, and a11y rules. Reference gallery:
-  `brand-icons.html`. Resolves §10 question 1's brand-mark half; question 1
+  `brand-icons.html`. Resolves §13 question 1's brand-mark half; question 1
   rewritten to scope the remaining UI-icon decision.
-- **§5.2 Responsive — Strategy A locked.** Mobile reflow committed: scale-fit
+- **§8.2 Responsive — Strategy A locked.** Mobile reflow committed: scale-fit
   shim removed from `index.html`; inline `gridTemplateColumns` swapped for
   `grid-*` utility classes; hamburger nav added at `< 720px`; trust chain,
   explore grid, footer, hero, writing variants all reflow via media queries.
-- **§4.12 Long-form reader** added. Articles and docs are sourced from a
+- **§6.12 Long-form reader** added. Articles and docs are sourced from a
   separate GitHub repo as Markdown/MDX, build-time only. Defines code-block
   rendering (Shiki), diagram pipeline (Mermaid → SVG, D2 → SVG, hand SVG),
   and frontmatter contract.
 
 ### 2026-04-30
 
-- **Added §4.11 Writing widget.** Five placements (`h1` in-hero default, `a/b/c/d` lower section, `off`) wired through the Tweaks panel. Replaces the earlier ad-hoc "Latest writing" mention.
-- **Open question.** Mobile reflow strategy: the current build uses `body { transform: scale() }` to fit narrow viewports, which §5.2 forbids. Tracked separately in `explorations/Mobile Optimization.html`. _(Resolved 2026-05-01 — see above.)_
+- **Added §6.11 Writing widget.** Five placements (`h1` in-hero default, `a/b/c/d` lower section, `off`) wired through the Tweaks panel. Replaces the earlier ad-hoc "Latest writing" mention.
+- **Open question.** Mobile reflow strategy: the current build uses `body { transform: scale() }` to fit narrow viewports, which §8.2 forbids. Tracked separately in `explorations/Mobile Optimization.html`. _(Resolved 2026-05-01 — see above.)_
 
 ---
 
