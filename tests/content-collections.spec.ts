@@ -151,12 +151,15 @@ test.describe("Content Collections - File Structure", () => {
   });
 
   test("should have content config file", () => {
-    const configPath = "src/content/config.ts";
+    // Astro v6 moved the config from src/content/config.ts to src/content.config.ts.
+    const configPath = "src/content.config.ts";
     expect(fs.existsSync(configPath)).toBe(true);
 
     const content = fs.readFileSync(configPath, "utf-8");
     expect(content).toContain("defineCollection");
     expect(content).toContain("pages");
+    // v6 requires the loader API; legacy `type: 'content'` is removed.
+    expect(content).toContain("loader");
   });
 
   test("should have vision.mdx in pages collection", () => {
@@ -169,13 +172,15 @@ test.describe("Content Collections - File Structure", () => {
     expect(content).toContain("description:");
   });
 
-  test("vision page should use getEntry API", () => {
+  test("vision page should use Content Layer render API", () => {
     const pagePath = "src/pages/vision/index.astro";
     expect(fs.existsSync(pagePath)).toBe(true);
 
     const content = fs.readFileSync(pagePath, "utf-8");
-    expect(content).toContain("import { getEntry } from 'astro:content'");
+    // v6 uses getEntry + the standalone render() function. The legacy
+    // entry.render() method was removed.
+    expect(content).toContain("getEntry, render");
     expect(content).toContain("getEntry('pages', 'vision')");
-    expect(content).toContain("await entry.render()");
+    expect(content).toContain("render(entry)");
   });
 });
