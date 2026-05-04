@@ -12,8 +12,7 @@
  * trigger button.
  */
 
-import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   ACCENT_SWATCH,
   ACCENTS,
@@ -54,7 +53,7 @@ function persist(t: Tweaks): void {
   }
 }
 
-export default function TweaksPanel(): React.JSX.Element {
+export default function TweaksPanel() {
   const [tweaks, setTweaks] = useState<Tweaks>(loadInitial);
   const [open, setOpen] = useState(false);
 
@@ -77,12 +76,9 @@ export default function TweaksPanel(): React.JSX.Element {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const setTweak = useCallback(
-    <K extends keyof Tweaks>(key: K, value: Tweaks[K]): void => {
-      setTweaks((prev) => ({ ...prev, [key]: value }));
-    },
-    [],
-  );
+  const setTweak = <K extends keyof Tweaks>(key: K, value: Tweaks[K]): void => {
+    setTweaks((prev) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <>
@@ -183,13 +179,7 @@ export default function TweaksPanel(): React.JSX.Element {
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}): React.JSX.Element {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <fieldset className="tweaks-field">
       <legend>{label}</legend>
@@ -207,8 +197,8 @@ function Opt({
 }: {
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
-}): React.JSX.Element {
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
