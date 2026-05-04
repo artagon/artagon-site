@@ -164,7 +164,10 @@ const lhci = {
 };
 
 // ---------- lychee.toml ----------
-const lycheeBody = `cache_path = "${buildConfig.cache.lychee}"
+// NOTE: lychee v0.23 dropped `cache_path` as a config key; caching is enabled
+// via `cache = true` and the path is controlled by --cache-dir CLI flag (or
+// LYCHEE_CACHE_DIR env). The CI workflow sets that env from BUILD.cache.lychee.
+const lycheeBody = `cache = true
 exclude_path = ["${buildConfig.dist}", "node_modules", "${buildConfig.root}"]
 timeout = 30
 retry_wait_time = 2
