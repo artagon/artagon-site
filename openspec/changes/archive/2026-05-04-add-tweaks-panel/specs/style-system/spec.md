@@ -9,15 +9,15 @@ The site MUST provide a runtime "Tweaks" panel during development that lets desi
 #### Scenario: Tweaks panel renders in dev
 
 - **WHEN** a developer runs `npm run dev` and loads any route in a browser
-- **THEN** an `<artagon-tweaks>` element is present in the DOM
+- **THEN** a `<div class="tweaks-host">` is present in the DOM hosting an `<astro-island>` for `TweaksPanel` (the React island)
 - **AND** a trigger button labeled "⚙ tweaks" is fixed at the bottom-right corner of the viewport
 - **AND** clicking the trigger opens a panel containing fieldsets for Accent, Density, Theme, Display font, and Background grid.
 
 #### Scenario: Tweaks panel does not ship in production
 
 - **WHEN** `npm run build` completes
-- **THEN** `grep -r 'artagon-tweaks\|tweaks-panel\|tweaks-trigger' .build/dist/` returns no matches in any HTML, CSS, or JS file
-- **AND** no network request for `tweaks.ts` or `tweaks-state.ts` is made by any production page.
+- **THEN** no production HTML file under `.build/dist/` contains `tweaks-host`, `tweaks-trigger`, or `TweaksPanel` references
+- **AND** no production page fetches the Tweaks island chunk at runtime (the orphan `_astro/TweaksPanel.[hash].js` may exist on disk but no HTML references it).
 
 #### Scenario: Tweaks panel state persists across reloads
 
@@ -45,7 +45,7 @@ The Tweaks panel state schema MUST be parseable from arbitrary `unknown` input (
 
 #### Scenario: parse handles malformed input
 
-- **WHEN** the `parse` function from `src/scripts/tweaks-state.ts` receives `null`, `undefined`, a string, a number, or a non-object value
+- **WHEN** the `parse` function from `src/scripts/tweaks-state.ts` (used by both the React island in `src/components/TweaksPanel.tsx` and the node:test suite) receives `null`, `undefined`, a string, a number, or a non-object value
 - **THEN** it returns the `DEFAULTS` object
 - **AND** does not throw.
 
