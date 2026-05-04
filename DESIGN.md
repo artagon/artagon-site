@@ -92,10 +92,7 @@ DESIGN.md is the site's **design contract**. It records the _intent_ behind ever
 token, component, and pattern — so reviewers, contributors, and AI assistants
 can answer "is this on-brand?" without guessing.
 
-Precedence: **DESIGN.md → `openspec/specs/*` → implementation**.
-If this file disagrees with the code, the code is wrong — fix the code or
-propose a spec change. If this file disagrees with an OpenSpec `specs/*`
-requirement, the spec is authoritative; update DESIGN.md to match.
+Precedence (canonical): openspec/specs/\* govern behavior; DESIGN.md governs visual presentation; implementation traces to both. On conflict, the spec wins and DESIGN.md is updated in the same change.
 
 Scope: the public site (`artagon.com`) and its preview/prototype artefacts in
 this repo. Product UI (dashboard, admin, docs app) follows a separate spec and
@@ -185,7 +182,7 @@ when introducing a pillar.
 ## 2 · Colors
 
 Site uses the **OKLCH** color space throughout. Tokens live in
-`src/styles/tokens.css` (canonical), inlined into each `src/pages/*.html` while we are
+`public/assets/theme.css` (canonical), inlined into each `src/pages/*.html` while we are
 in HTML-mock staging. After Astro conversion, `BaseLayout.astro` will pull from the same
 file.
 
@@ -366,7 +363,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Anatomy.** Dot · label. Two sizes: `sm` (11px) · `md` (12px).
 
-**Registry.** Defined once in `src/layouts/BaseLayout.jsx` (`STANDARDS` array). Seven canonical entries:
+**Registry.** Defined once in `src/layouts/BaseLayout.astro` (`STANDARDS` array). Seven canonical entries:
 IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eIDAS 2.
 
 **Hover.** Accent border + accent-tinted background + soft glow + 1px lift.
@@ -407,7 +404,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **Format.** `01.` mono grey · then the heading in Space Grotesk.
 
-**Class.** `.num-h2` with `.num` span. See `src/styles/tokens.css`.
+**Class.** `.num-h2` with `.num` span. See `public/assets/theme.css`.
 
 ### 6.8 Buttons
 
@@ -679,7 +676,7 @@ These rules apply site-wide. Component-specific do's/don'ts appear in the releva
 **Do**
 
 - Always pair `rel="noopener noreferrer"` with `target="_blank"` on external links.
-- Link standards through the registry in `src/layouts/BaseLayout.jsx` — URLs are curated and versioned there.
+- Link standards through the registry in `src/layouts/BaseLayout.astro` — URLs are curated and versioned there.
 
 **Don't**
 

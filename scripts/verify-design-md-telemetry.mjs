@@ -20,7 +20,7 @@
  *   2 — environment unsupported (no unshare/no docker on the platform)
  */
 
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

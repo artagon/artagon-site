@@ -165,8 +165,14 @@ const lhci = {
 
 // ---------- lychee.toml ----------
 // NOTE: lychee v0.23 dropped `cache_path` as a config key; caching is enabled
-// via `cache = true` and the path is controlled by --cache-dir CLI flag (or
-// LYCHEE_CACHE_DIR env). The CI workflow sets that env from BUILD.cache.lychee.
+// via `cache = true`. The cache directory is controlled by --cache-dir CLI
+// flag or LYCHEE_CACHE_DIR env var; lychee defaults to `.lycheecache`.
+//
+// To route the cache into the .build umbrella, the link-check workflow needs
+// to either pass `--cache-dir .build/cache/lychee` to the action OR set
+// LYCHEE_CACHE_DIR in env. As of this writing, link-check.yml uses the
+// default cache location; the cache is gitignored regardless because
+// `.build/` covers the whole tree if the action ever picks it up.
 const lycheeBody = `cache = true
 exclude_path = ["${buildConfig.dist}", "node_modules", "${buildConfig.root}"]
 timeout = 30
