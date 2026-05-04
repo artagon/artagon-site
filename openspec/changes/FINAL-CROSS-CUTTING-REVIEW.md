@@ -52,4 +52,26 @@ After consolidation per finding #4, a single `verify:openspec-prereqs.mjs --chan
 
 The three changes are coherently authored, validate strict-green, and compose into a deterministic merge sequence. The MODIFIED `Per-route Frontmatter Contract` header text is byte-identical between the redesign and the third change, so archive composition is clean. The three prereq scripts are the most concerning artifact — they work but they're brittle and will accumulate. After fixes #4, #5, #12 land in their respective change's `tasks.md`, this set ships.
 
+## Resolution Status (2026-05-04)
+
+Audited live spec text vs. the review's findings.
+
+**Must-fix:**
+
+- ✅ #4 — `add-brand-assets-and-writing-pipeline/tasks.md:12` (Phase 0.6) creates `scripts/verify-openspec-prereqs.mjs --change <id>` consolidator with the three legacy scripts becoming thin wrappers. Already in spec text.
+- ✅ #5 — `add-brand-assets-and-writing-pipeline/specs/site-writing-pipeline/spec.md:177` explicitly scopes build-sha meta to non-noindex routes only; lists `/console`, `/search`, `/play`, `/404`, `/brand` as MUST NOT emit. Lines 186 and 191 carry separate Scenario blocks for each case.
+- ✅ #12 — `adopt-design-md-format/tasks.md:12` (Phase 0.6) explicitly scopes the path-grep to redesign's live `tasks.md` only, with a unit-test fixture proving (a) in-flight + old paths → exit 1; (b) in-flight + updated → exit 0; (c) archived → exit 0 regardless. The wording predates this audit; the review may have been against an older draft.
+
+**Should-fix:**
+
+- ✅ #1 — Replaced "Phase 11.1" citations in `add-brand-assets-and-writing-pipeline/{tasks.md:37,proposal.md:18,design.md:80}` with capability+requirement-name references (`Deterministic Favicon Generation` requirement of `site-branding`).
+- ✅ #2 — Replaced "Phase 2.7-2.8" citation in `adopt-design-md-format/design.md:80` with capability+requirement-name reference (the redesign's `Token Categories` requirement and its `scripts/lint-tokens.mjs`).
+- ✅ #6 — `add-brand-assets-and-writing-pipeline/tasks.md:11` (Phase 0.5) creates `pre-brand-assets` git tag. Already in spec text.
+- ✅ #7 — `adopt-design-md-format/specs/design-system-format/spec.md:127` explicitly states the drift workflow MUST NOT auto-PR and MUST NOT push commits — the review's exact remediation. No concurrency group needed.
+- ✅ #11 — `add-brand-assets-and-writing-pipeline/tasks.md:97` (Phase 10.5) now includes the concrete `rtk rg -c '^### Requirement: Per-route Frontmatter Contract' openspec/specs/site-content/spec.md` check that returns exactly `1`.
+
+**Result:** All must-fixes and should-fixes resolved. The 4 optional findings (#3, #8, #9, #10) are accepted as low-priority breadcrumbs that don't block ship; future work on the relevant changes can address them opportunistically.
+
+`openspec validate --changes --strict`: 4 passed, 0 failed (after the `refactor-styling-architecture` and `add-tweaks-panel` archives).
+
 Confidence: 88%.
