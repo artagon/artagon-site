@@ -23,10 +23,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.x
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.x
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -49,13 +49,13 @@ jobs:
           REPO_INFO=$(gh api repos/google-labs-code/design.md --jq '{archived: .archived, pushed_at: .pushed_at}' 2>/dev/null || echo '{"archived":true}')
           ARCHIVED=$(echo "$REPO_INFO" | jq -r '.archived // true')
           PUSHED_AT=$(echo "$REPO_INFO" | jq -r '.pushed_at // ""')
-          
+
           if [ "$ARCHIVED" = "true" ]; then
             echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
             echo "Repository is archived"
             exit 1
           fi
-          
+
           if [ -n "$PUSHED_AT" ]; then
             PUSH_DATE=$(date -d "$PUSHED_AT" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$PUSHED_AT" +%s)
             NOW=$(date +%s)
@@ -76,17 +76,21 @@ jobs:
       - name: Collect drift findings
         id: drift-findings
         if: always()
+        env:
+          SPEC_DRIFTED: ${{ env.SPEC_DRIFTED }}
+          UPSTREAM_DRIFTED: ${{ env.UPSTREAM_DRIFTED }}
+          FIXTURE_TESTS_FAILED: ${{ env.FIXTURE_TESTS_FAILED }}
         run: |
           FINDINGS=""
-          [ "${{ env.SPEC_DRIFTED }}" = "true" ] && FINDINGS="${FINDINGS}(2.7a) Design.md spec has drifted\n"
-          [ "${{ env.UPSTREAM_DRIFTED }}" = "true" ] && FINDINGS="${FINDINGS}(2.7b) Upstream design.md repo is archived or stale (>90 days)\n"
-          [ "${{ env.FIXTURE_TESTS_FAILED }}" = "true" ] && FINDINGS="${FINDINGS}(2.7c) Fixture snapshot tests failed\n"
-          
+          [ "$SPEC_DRIFTED" = "true" ] && FINDINGS="${FINDINGS}(2.7a) Design.md spec has drifted\n"
+          [ "$UPSTREAM_DRIFTED" = "true" ] && FINDINGS="${FINDINGS}(2.7b) Upstream design.md repo is archived or stale (>90 days)\n"
+          [ "$FIXTURE_TESTS_FAILED" = "true" ] && FINDINGS="${FINDINGS}(2.7c) Fixture snapshot tests failed\n"
+
           if [ -z "$FINDINGS" ]; then
             echo "All checks passed"
             exit 0
           fi
-          
+
           echo "DRIFT_FINDINGS<<EOF" >> $GITHUB_ENV
           echo -e "$FINDINGS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV

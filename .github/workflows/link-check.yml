@@ -1,12 +1,25 @@
 name: Link check (lychee)
-on: { pull_request: {}, push: { branches: ["main"] }, workflow_dispatch: {} }
+on:
+  pull_request: {}
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: link-check-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   lychee:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
-      - uses: lycheeverse/lychee-action@v1.9.0
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+      - name: Run lychee
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
         with:
-          args: --config lychee.toml --no-progress --cache-dir .build/cache/lychee './**/*.md' './public/**/*.html' './src/**/*.astro'
+          args: --config lychee.toml --no-progress --cache './**/*.md' './public/**/*.html' './src/**/*.astro'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
