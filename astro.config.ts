@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
 import { BUILD } from "./build.config.ts";
 
 export default defineConfig({
@@ -11,6 +12,7 @@ export default defineConfig({
   cacheDir: BUILD.cache.astro,
   integrations: [
     mdx(),
+    react(),
     sitemap({
       filter: (page) => !page.includes("/_drafts/"),
       customPages: [],

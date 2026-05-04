@@ -2,28 +2,38 @@
 /**
  * Tweaks — dev-only design tinkerer panel.
  *
- * The script is gated on `import.meta.env.DEV`. In production builds, Astro
- * statically eliminates the entire conditional block (and its dynamic import),
- * so neither the inline custom-element registration nor `tweaks.ts` ever
- * reaches the production bundle. CSP/SRI surface stays clean.
+ * Renders as a React island faithful to upstream
+ * `new-design/extracted/src/layouts/BaseLayout.jsx:312-359`.
+ *
+ * Mount is gated on `import.meta.env.DEV`: the `{isDev && …}` conditional
+ * is statically evaluated in production builds, so no HTML references the
+ * island and no browser fetches it. (Vite still emits the compiled chunk
+ * to `_astro/TweaksPanel.[hash].js` because the static `import` statement
+ * is reachable; that chunk is orphaned — ~4KB unreferenced — and is not
+ * worth a dynamic-import workaround.)
+ *
+ * The React runtime IS shipped to production. Other interactive surfaces
+ * (`/play`, `/console`, `/search`) will use it; Tweaks pays the entry cost.
  *
  * State persists in localStorage under `artagon.tweaks.v1` and projects
  * onto `data-accent`, `data-density`, `data-theme`, `data-hero-font` on
- * `<html>` plus `.no-grid` on `<body>` — the same contract the upstream
- * design's CSS already keys off.
+ * `<html>` plus `.no-grid` on `<body>` — the same contract upstream CSS
+ * keys off.
  *
- * Toggle: `⌘⇧T` (or `Ctrl+Shift+T` on non-mac), or click the trigger button.
+ * Toggle: `⌘.` (or `Ctrl+.` on non-mac), `Esc` to close.
  */
+import TweaksPanel from "./TweaksPanel.tsx";
 const isDev = import.meta.env.DEV;
 ---
 
 {
   isDev && (
     <>
-      <artagon-tweaks aria-live="polite"></artagon-tweaks>
-      <script>import "../scripts/tweaks.ts";</script>
-      <style>
-        artagon-tweaks {
+      <div class="tweaks-host" aria-live="polite">
+        <TweaksPanel client:idle />
+      </div>
+      <style is:global>
+        .tweaks-host {
           position: fixed;
           right: 12px;
           bottom: 12px;
