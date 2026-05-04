@@ -26,7 +26,7 @@ The panel is genuinely useful during conversion — designers and review agents 
 
 - CSS overrides for the new `data-accent`, `data-density`, `data-hero-font` attributes — those land with the new-design conversion (USMR). Until that conversion lands, toggling `density` or `accent` has no visible effect; the panel is harmless.
 - Any change to the existing `data-theme` switcher (`midnight`/`twilight`/`slate`). The Tweaks panel writes `dark`/`light` via `data-theme`, which conflicts with the live theme system. **This is a known limitation** — the panel is a USMR conversion-period tool, and the live `data-theme` triplet (`midnight`/`twilight`/`slate`) will be the source of truth until USMR retires it.
-- React/`@astrojs/react` integration. Explicitly avoided.
+- React/`@astrojs/react` integration. Not used by THIS change (Tweaks panel ships as vanilla TS for the dev-only/zero-dep posture). Future interactive surfaces (`/play`, `/console`, `/search`, hero animation, Bridge carousel) will install `@astrojs/react` as part of USMR or a dedicated change. The Tweaks panel does not block that adoption.
 - iframe `postMessage` integration with the upstream "edit mode" — out of scope; the upstream code at `new-design/extracted/src/layouts/BaseLayout.jsx:378-385` is bound to a Stitch design canvas that this repo does not host.
 
 ## Rollback

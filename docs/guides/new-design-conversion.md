@@ -125,7 +125,7 @@ The new design ships as a React + HTML mock staging area. You are converting the
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `new-design/extracted/DESIGN.md`                         | 39KB design spec (intent, tokens, components, voice)                                                                                    | Read only. Run `npx design.md lint` against it for warnings.                                                                                                                                                           |
 | `new-design/extracted/MIGRATION.md`                      | Historical migration notes                                                                                                              | Read only. STALE — many claims about postbuild/scripts/assets are wrong. Use only as visual reference.                                                                                                                 |
-| `new-design/extracted/src/components/*.jsx` (8 files)    | React components: `Hero.jsx`, `Pillars.jsx`, `Bridge.jsx`, `UseCases.jsx`, `Standards.jsx`, `Roadmap.jsx`, `HomeExplore.jsx`, `Cta.jsx` | `.astro` components under `src/components/` (post-Phase 5). Each has hooks — see "React interactivity ban" below.                                                                                                      |
+| `new-design/extracted/src/components/*.jsx` (8 files)    | React components: `Hero.jsx`, `Pillars.jsx`, `Bridge.jsx`, `UseCases.jsx`, `Standards.jsx`, `Roadmap.jsx`, `HomeExplore.jsx`, `Cta.jsx` | `.astro` components under `src/components/` (post-Phase 5). Each has hooks — see "React interactivity — guidance" below for the decision tree (CSS-only → vanilla script → React island).                              |
 | `new-design/extracted/src/layouts/BaseLayout.jsx`        | React layout (Nav, Footer, GLOSSARY, ArtagonGlyph host)                                                                                 | Merge content INTO existing `src/layouts/BaseLayout.astro` and `src/components/{Header,Footer}.astro`. Do NOT replace BaseLayout wholesale (preserve theme persistence script, slots — see BaseLayout contract below). |
 | `new-design/extracted/src/pages/*.html` (16 files)       | HTML mocks with inlined `<script type="text/babel">` React                                                                              | Replace content of `src/pages/<route>/index.astro` per the route map below. Some have NO live counterpart — discard or defer per USMR.                                                                                 |
 | `new-design/extracted/src/styles/tokens.css` (82 lines)  | OKLCH design tokens, fonts, base elements                                                                                               | Sed-rename to `--nd-*` prefix, append to `public/assets/theme.css` under a `/* ===== NEW-DESIGN TOKENS (OKLCH) ===== */` section. See "CSS token namespace collision" below.                                           |
@@ -150,7 +150,7 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 | `HomeExplore.jsx` | 7    | mostly static                         | Direct JSX → Astro template                                               |
 | `Cta.jsx`         | 7    | static markup                         | Direct JSX → Astro template                                               |
 
-**See "React interactivity ban" below.** No `client:*` directives. No `@astrojs/react` install during this conversion.
+**See "React interactivity — guidance" below.** React islands are permitted; choose the cheapest pattern that satisfies the requirement.
 
 ## Live site state — DO NOT BREAK
 
@@ -251,18 +251,33 @@ There ARE plain `:root {}` blocks in theme.css (L2, L72, L475, L980 — verified
 4. Run `npm run build` after EACH alias. Verify the page in browser. Verify all 3 themes (midnight/twilight/slate) still work.
 5. Do NOT merge new-design `--bg` directly into a plain `:root` — it would shadow themed variants.
 
-### 3. React interactivity ban
+### 3. React interactivity — guidance
 
-This repo has **NO `@astrojs/react` integration installed**. `package.json` lacks the package. Adding it requires CSP/SRI updates + bundle-budget impact + dependency review.
+This repo has **`@astrojs/react` NOT YET installed** but React islands are PERMITTED for components that genuinely need state. The Tweaks panel shipped as vanilla TS as an existence proof, not as a precedent that bans React for everything.
 
-**`client:load`, `client:visible`, `client:idle`, `client:only` are FORBIDDEN.** If a new-design React component uses hooks (Hero, Pillars, Bridge, UseCases, BaseLayout, GLOSSARY all do — verified), translate them to:
+**Forward-looking use cases that justify React islands:**
 
-1. CSS-only state via `:checked`, `:has()`, `:hover`, `:focus-within`, `:target`
-2. Native HTML elements: `<details>`, `<dialog>`, `<input type="radio|checkbox">`, `popover` API
-3. Vanilla JS in `<script>` blocks (Astro auto-bundles inline scripts)
-4. Web components if state machinery is non-trivial
+- `/play` — token issuance + VC presentation playground (live OIDC/GNAP/DPoP flows, multi-step state machines, response inspectors)
+- `/console` — admin operations (forms with cross-field validation, optimistic updates, server-state caching)
+- `/search` — typeahead/facet UI (debounced queries, results virtualization, keyboard navigation)
+- Bridge SVG carousel (auto-cycling phases, gesture-driven scrubbing)
+- Hero animation (live trust-chain decision visualization that the marketing site advertises)
 
-If none of those work, file a separate openspec change to add `@astrojs/react` BEFORE this conversion proceeds. Do NOT mix.
+These ship as React islands because rebuilding state machines + form validation + animation orchestration in vanilla DOM costs more in maintenance than the ~120KB shared React runtime. The marketing routes (`/`, `/platform`, `/vision`, `/roadmap`, etc.) STAY static — only interactive surfaces hydrate.
+
+**Decision tree for any new-design React component**:
+
+1. **Cheapest path first** — try CSS-only state (`:checked`/`:has()`/`:hover`/`:focus-within`/`:target`) or native HTML elements (`<details>`/`<dialog>`/`<input type="radio|checkbox">`/`popover` API). If it works, ship that.
+2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/scripts/tweaks.ts` (custom element) or `src/scripts/tweaks-state.ts` (pure logic).
+3. **React island** — if the component has non-trivial state (e.g. carousel timing, multi-step form, focus-trap dialog), use a React island. Cost per island:
+   - Add deps once: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (~120KB minified+gzipped for the React runtime, shared across all islands)
+   - Add `react()` to `astro.config.mjs` integrations
+   - Each island re-runs CSP/SRI hash regen at build time — verify `scripts/csp.mjs` and `scripts/sri.mjs` postbuild succeed
+   - Use `client:visible` (lazy hydration, IntersectionObserver-based) BEFORE `client:load` (eager) unless the island is above the fold
+   - Document the cost in the conversion commit message — bundle delta and CSP changes
+4. **Hybrid** — render the island statically with `client:only="react"` if SSR is impossible, OR render the static markup server-side and use `client:visible` for hydration. Prefer the hybrid because it ships visible content even if JS fails.
+
+**One blocker remains**: Google Fonts. Per Phase 2.3, **self-host all WOFF2 fonts under `public/assets/fonts/`**. This removes `font-src` from CSP entirely (just `'self'`), eliminates the third-party hash chain, and makes SRI deterministic. Do NOT load fonts from `fonts.googleapis.com` or any CDN — that's the only externality this repo refuses.
 
 ### 4. CSS class collision resolution
 
@@ -327,7 +342,7 @@ Run ALL of these. None optional.
 - ❌ Add Tailwind — site is hand-written CSS by design
 - ❌ Touch `new-design/extracted/` directory — frozen reference material
 - ❌ Convert a page without running ALL success criteria
-- ❌ Use any `client:*` directive — no React integration installed
+- ❌ Use `client:*` directives without first justifying the cost (bundle delta, CSP/SRI hash regen, dep additions); when justified, prefer `client:visible` over `client:load`
 - ❌ Create new routes (`/bridge`, `/blog`, `/brand-icons`) — they're either superseded or out of scope
 - ❌ Edit `DESIGN.md` mid-conversion without filing an openspec change
 - ❌ Edit USMR `tasks.md` to mark tasks done without proof — proof goes in commit messages
@@ -338,7 +353,7 @@ Run ALL of these. None optional.
 
 1. **DESIGN.md disagrees with USMR spec** → spec wins. File separate change to update DESIGN.md.
 2. **Live class collides with new-design class** → favor live unless DESIGN.md explicitly supersedes for that class.
-3. **React hook can't translate** → CSS-only / `<details>` / `<dialog>` / `popover` / vanilla `<script>` / web component. NEVER `client:*`.
+3. **React hook can't translate cheaply** → escalation path: CSS-only / `<details>` / `<dialog>` / `popover` / vanilla `<script>` / web component / React island. Document the bundle + CSP cost in the conversion commit message.
 4. **Build breaks** → `git restore --source HEAD --staged --worktree <file>` (NOT `git checkout` — that's ambiguous between branch and file). Re-read this prompt's relevant section before retrying.
 5. **Test ambiguous** → write a stricter test before continuing. TDD skill applies.
 
