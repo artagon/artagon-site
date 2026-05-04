@@ -27,6 +27,12 @@ playwright-report/
 test-results/
 playwright/.cache/
 
+# Lychee link-checker cache. The CI workflow now passes
+# `--cache-dir .build/cache/lychee` so the cache lives under the .build
+# umbrella, but lychee defaults to `.lycheecache/` at repo root if the
+# flag is dropped — keep this entry as defense-in-depth.
+.lycheecache/
+
 # Working scratch — design handoff zip extracted at session start.
 # Tracked artifacts adopted into openspec/changes/add-brand-assets-and-writing-pipeline.
 # Directory deleted by follow-up cleanup-new-design-extracted change.

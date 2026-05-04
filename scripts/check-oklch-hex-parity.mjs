@@ -10,9 +10,11 @@
  * Invoked as a precondition of `npm run lint:design`.
  *
  * Exit codes:
- *   0 — frontmatter hex values match derived hex (within 1-LSB tolerance)
- *   1 — drift detected (one or more tokens are out of tolerance)
- *   2 — usage error (DESIGN.md missing or no frontmatter)
+ *   0 — frontmatter hex values match derived hex within 1-LSB tolerance,
+ *       OR DESIGN.md has no YAML frontmatter / no color tokens (skip with
+ *       a warning, since there's nothing to compare).
+ *   1 — drift detected (one or more tokens are out of tolerance).
+ *   2 — usage error (DESIGN.md file missing entirely).
  */
 
 import { readFileSync, existsSync } from "node:fs";
