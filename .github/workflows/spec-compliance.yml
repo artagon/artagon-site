@@ -16,11 +16,11 @@ jobs:
     steps:
       # Checkout for local scripts
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
 
       # Node is required for the validation script
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
           node-version: "20"
           cache: "npm"
@@ -34,7 +34,7 @@ jobs:
 
       # Use GitHub Script for API interactions (labels, comments, enforcement)
       - name: Comment and enforce spec compliance
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
