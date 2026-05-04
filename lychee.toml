@@ -24,6 +24,10 @@ exclude = [
   "^https?://artagon\\.com/og/(use-cases|standards|brand|writing)\\.png$",
   # Upstream link rot (acceptable; pinned reference is in archive.org).
   "^https?://playwright\\.dev/docs/test-patterns/?$",
+  # AWS EC2 instance metadata service (IMDSv1) — referenced verbatim in
+  # security review docs as the SSRF attack vector the cover-field regex
+  # mitigates. Unreachable + non-routable from CI runners; do not probe.
+  "^https?://169\\.254\\.169\\.254(?::[0-9]+)?(?:/.*)?$",
   # mailto and external services we shouldn't probe.
   "^mailto:",
 ]
