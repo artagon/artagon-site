@@ -182,9 +182,10 @@ when introducing a pillar.
 ## 2 · Colors
 
 Site uses the **OKLCH** color space throughout. Tokens live in
-`public/assets/theme.css` (canonical), inlined into each `src/pages/*.html` while we are
-in HTML-mock staging. After Astro conversion, `BaseLayout.astro` will pull from the same
-file.
+`public/assets/theme.css` (canonical, served from `public/` and copied
+verbatim into the build output). `src/layouts/BaseLayout.astro` references
+the file via a `<link rel="stylesheet" href="/assets/theme.css">` tag, so
+every Astro page in `src/pages/*.astro` picks up the same token set.
 
 ### 2.1 Base palette (dark, default)
 
@@ -363,7 +364,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Anatomy.** Dot · label. Two sizes: `sm` (11px) · `md` (12px).
 
-**Registry.** Defined once in `src/layouts/BaseLayout.astro` (`STANDARDS` array). Seven canonical entries:
+**Registry (planned).** A `STANDARDS` array — single source of truth for the seven canonical entries below — will land in `src/data/standards.ts` (or equivalent) when the `update-site-marketing-redesign` change applies its `site-standards-registry` capability. Until then, references to specific standards are scattered in MDX prose; the redesign change consolidates them. Canonical entries:
 IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eIDAS 2.
 
 **Hover.** Accent border + accent-tinted background + soft glow + 1px lift.
@@ -676,7 +677,7 @@ These rules apply site-wide. Component-specific do's/don'ts appear in the releva
 **Do**
 
 - Always pair `rel="noopener noreferrer"` with `target="_blank"` on external links.
-- Link standards through the registry in `src/layouts/BaseLayout.astro` — URLs are curated and versioned there.
+- Link standards through the planned `STANDARDS` registry (lands with `update-site-marketing-redesign` per the `site-standards-registry` capability). Until that change archives, link standards inline; once the registry exists, references should resolve through it for curation + versioning.
 
 **Don't**
 

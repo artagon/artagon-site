@@ -24,7 +24,7 @@ This phrasing is canonical and used verbatim in `README.md`, `AGENTS.md`, and `o
 ## 2 · Adding a new color token
 
 1. Edit the OKLCH triple in `DESIGN.md` prose under section "## 2 · Colors" (or its subsections — "Base palette", "Accent", "Semantic"). Record the token name, perceptual lightness (L), chroma (C), and hue (H) using the format `--token-name = oklch(L C H)`.
-2. Run `node scripts/oklch-to-hex.mjs --write` (`npm run derive:hex` prints to stdout — pass `--write` to update the conversion table in this document; see Section 4).
+2. Run `node scripts/oklch-to-hex.mjs --write` to update the conversion table in this document (Section 4). The bare `npm run derive:hex` script prints to stdout — use the `node` command above for the table-write path.
 3. Confirm the YAML frontmatter hex in `DESIGN.md` has been updated to match the derived value. The `npm run check:oklch-hex-parity` script will fail if the frontmatter hex deviates by more than 1 LSB per channel from the derived hex.
 4. Update `public/assets/theme.css` — add the CSS custom property declaration for the new token.
 5. Run `npm run check:design-drift` and confirm it passes (or add an entry to the allow-list in Section 6 with a one-paragraph rationale if the token belongs outside the DESIGN.md frontmatter).
