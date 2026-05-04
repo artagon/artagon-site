@@ -40,7 +40,7 @@ Then in the consumer:
 @import "tailwindcss";
 
 @theme {
-  /* Generated from DESIGN.md — see https://github.com/artagon/artagon-site/DESIGN.md */
+  /* Generated from DESIGN.md — see https://github.com/artagon/artagon-site/blob/main/DESIGN.md */
   --color-bg: oklch(0.14 0.008 260);
   --color-fg: oklch(0.96 0.005 85);
   --color-accent: oklch(0.86 0.14 185);
