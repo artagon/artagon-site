@@ -20,6 +20,12 @@ jobs:
       - name: Run lychee
         uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
         with:
-          args: --config lychee.toml --no-progress --cache './**/*.md' './public/**/*.html' './src/**/*.astro'
+          # `--root-dir ${{ github.workspace }}` lets lychee resolve
+          # root-relative paths (e.g. `/docs/guides/styling-guide.md` in
+          # archived openspec READMEs) against the repo checkout. lychee
+          # rejects `--base .` as invalid (`--base` requires URL or
+          # absolute path); `--root-dir` is the correct flag for
+          # repo-anchored relative paths.
+          args: --root-dir ${{ github.workspace }} --config lychee.toml --no-progress --cache './**/*.md' './public/**/*.html' './src/**/*.astro'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

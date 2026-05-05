@@ -52,14 +52,14 @@ Use this decision tree when styling new pages or features:
 
 ### Quick Reference
 
-| Scenario | Use | Example |
-|----------|-----|---------|
-| MDX content file | **Component** | `<Card variant="domain">...</Card>` |
-| Astro layout file | **Utilities** | `<div class="ui-card ui-card--domain">` |
-| Need prop validation | **Component** | TypeScript props with defaults |
-| One-off variation | **Utilities** | Override individual CSS properties |
-| Repeated strict pattern | **Component** | Enforces consistency |
-| Performance critical (100+ instances) | **Utilities** | No component overhead |
+| Scenario                              | Use           | Example                                 |
+| ------------------------------------- | ------------- | --------------------------------------- |
+| MDX content file                      | **Component** | `<Card variant="domain">...</Card>`     |
+| Astro layout file                     | **Utilities** | `<div class="ui-card ui-card--domain">` |
+| Need prop validation                  | **Component** | TypeScript props with defaults          |
+| One-off variation                     | **Utilities** | Override individual CSS properties      |
+| Repeated strict pattern               | **Component** | Enforces consistency                    |
+| Performance critical (100+ instances) | **Utilities** | No component overhead                   |
 
 ---
 
@@ -79,7 +79,7 @@ title: "Vision Document"
   number="01"
   intro="The digital landscape is in crisis...">
 
-  <p>Section content goes here...</p>
+<p>Section content goes here...</p>
 
 </SectionHeader>
 ```
@@ -161,12 +161,12 @@ Always prefer theme tokens over hardcoded values:
 
 #### Gradients
 
-| Token | Visual | Use Case |
-|-------|--------|----------|
-| `--gradient-hero` | 20% strong | Page heroes, section backgrounds |
-| `--gradient-surface` | 10% medium | Card highlights, emphasized sections |
-| `--gradient-accent` | 5% subtle | Subtle overlays, accents |
-| `--gradient-inline` | 8% specialized | Border-left highlight boxes |
+| Token                | Visual         | Use Case                             |
+| -------------------- | -------------- | ------------------------------------ |
+| `--gradient-hero`    | 20% strong     | Page heroes, section backgrounds     |
+| `--gradient-surface` | 10% medium     | Card highlights, emphasized sections |
+| `--gradient-accent`  | 5% subtle      | Subtle overlays, accents             |
+| `--gradient-inline`  | 8% specialized | Border-left highlight boxes          |
 
 ```css
 .hero {
@@ -180,13 +180,13 @@ Always prefer theme tokens over hardcoded values:
 
 #### Borders
 
-| Token | Value | Use Case |
-|-------|-------|----------|
-| `--border-teal-solid` | 2px solid teal | Primary borders, emphasis |
-| `--border-teal-solid-thick` | 4px solid teal | Left accent borders |
-| `--border-teal-subtle` | 2px 20% opacity | Standard card borders |
-| `--border-teal-subtle-thin` | 1px 20% opacity | Subtle dividers |
-| `--border-teal-faint` | 1px 10% opacity | Minimal separation |
+| Token                       | Value           | Use Case                  |
+| --------------------------- | --------------- | ------------------------- |
+| `--border-teal-solid`       | 2px solid teal  | Primary borders, emphasis |
+| `--border-teal-solid-thick` | 4px solid teal  | Left accent borders       |
+| `--border-teal-subtle`      | 2px 20% opacity | Standard card borders     |
+| `--border-teal-subtle-thin` | 1px 20% opacity | Subtle dividers           |
+| `--border-teal-faint`       | 1px 10% opacity | Minimal separation        |
 
 ```css
 .card {
@@ -200,15 +200,15 @@ Always prefer theme tokens over hardcoded values:
 
 #### Spacing
 
-| Token | Value | Use Case |
-|-------|-------|----------|
-| `--spacing-section` | 5rem (80px) | Section margin-top/bottom |
-| `--spacing-hero-block` | 80px 20px 60px | Hero section padding |
-| `--padding-card` | 2rem (32px) | Standard card padding |
-| `--padding-card-compact` | 1.5rem (24px) | Compact cards |
-| `--gap-large` | 2rem (32px) | Grid gaps |
-| `--gap-medium` | 1.5rem (24px) | Standard gaps |
-| `--gap-small` | 1rem (16px) | Tight spacing |
+| Token                    | Value          | Use Case                  |
+| ------------------------ | -------------- | ------------------------- |
+| `--spacing-section`      | 5rem (80px)    | Section margin-top/bottom |
+| `--spacing-hero-block`   | 80px 20px 60px | Hero section padding      |
+| `--padding-card`         | 2rem (32px)    | Standard card padding     |
+| `--padding-card-compact` | 1.5rem (24px)  | Compact cards             |
+| `--gap-large`            | 2rem (32px)    | Grid gaps                 |
+| `--gap-medium`           | 1.5rem (24px)  | Standard gaps             |
+| `--gap-small`            | 1rem (16px)    | Tight spacing             |
 
 ```css
 .section {
@@ -222,12 +222,12 @@ Always prefer theme tokens over hardcoded values:
 
 #### Border Radius
 
-| Token | Value | Use Case |
-|-------|-------|----------|
-| `--radius-card` | 12px | Standard cards |
-| `--radius-lg` | 14px | Large cards, emphasized |
-| `--radius-sm` | 8px | Small elements |
-| `--radius-xl` | 16px | Extra large sections |
+| Token           | Value | Use Case                |
+| --------------- | ----- | ----------------------- |
+| `--radius-card` | 12px  | Standard cards          |
+| `--radius-lg`   | 14px  | Large cards, emphasized |
+| `--radius-sm`   | 8px   | Small elements          |
+| `--radius-xl`   | 16px  | Extra large sections    |
 | `--radius-full` | 999px | Pills, badges, circular |
 
 ```css
@@ -242,13 +242,13 @@ Always prefer theme tokens over hardcoded values:
 
 #### Shadows
 
-| Token | Elevation | Use Case |
-|-------|-----------|----------|
-| `--shadow-sm` | Low | Subtle lift |
-| `--shadow-md` | Medium | Standard cards |
-| `--shadow-lg` | High | Hover states |
-| `--shadow-xl` | Extra high | Emphasized hover |
-| `--shadow-glow-teal` | Colored | Teal glow effect |
+| Token                | Elevation  | Use Case         |
+| -------------------- | ---------- | ---------------- |
+| `--shadow-sm`        | Low        | Subtle lift      |
+| `--shadow-md`        | Medium     | Standard cards   |
+| `--shadow-lg`        | High       | Hover states     |
+| `--shadow-xl`        | Extra high | Emphasized hover |
+| `--shadow-glow-teal` | Colored    | Teal glow effect |
 
 ```css
 .card {
@@ -262,14 +262,14 @@ Always prefer theme tokens over hardcoded values:
 
 #### Color Opacity
 
-| Token | Opacity | Use Case |
-|-------|---------|----------|
-| `--teal-5` | 5% | Very subtle tint |
-| `--teal-10` | 10% | Subtle backgrounds |
-| `--teal-20` | 20% | Standard borders/backgrounds |
-| `--teal-30` | 30% | Emphasized elements |
-| `--surface-teal-8` | 8% on surface | Surface highlights |
-| `--surface-teal-15` | 15% on surface | Table headers |
+| Token               | Opacity        | Use Case                     |
+| ------------------- | -------------- | ---------------------------- |
+| `--teal-5`          | 5%             | Very subtle tint             |
+| `--teal-10`         | 10%            | Subtle backgrounds           |
+| `--teal-20`         | 20%            | Standard borders/backgrounds |
+| `--teal-30`         | 30%            | Emphasized elements          |
+| `--surface-teal-8`  | 8% on surface  | Surface highlights           |
+| `--surface-teal-15` | 15% on surface | Table headers                |
 
 ```css
 .subtle-bg {
@@ -294,7 +294,8 @@ Planned components will live in `src/components/ui/` once implemented. For MDX f
 ---
 title: "My Page"
 ---
-import { Card, SectionHeader, FeatureList } from '../../components/ui';
+
+import { Card, SectionHeader, FeatureList } from "../../components/ui";
 
 <SectionHeader title="Overview" number="01">
   <Card variant="domain">
@@ -308,16 +309,24 @@ import { Card, SectionHeader, FeatureList } from '../../components/ui';
 **Planned file**: `src/components/ui/Card.astro`
 
 **Props**:
+
 ```typescript
 interface Props {
-  variant?: 'default' | 'domain' | 'pillar' | 'component' | 'product' | 'vision' | 'solid';
-  hover?: boolean;           // Enable hover lift (default: true)
-  badge?: string;            // Badge text (top-right)
-  badgeIcon?: string;        // Badge icon/emoji
-  highlight?: boolean;       // Accent border/background
-  number?: string | number;  // Circular number badge (left)
-  class?: string;            // Additional classes
-  className?: string;        // Additional classes
+  variant?:
+    | "default"
+    | "domain"
+    | "pillar"
+    | "component"
+    | "product"
+    | "vision"
+    | "solid";
+  hover?: boolean; // Enable hover lift (default: true)
+  badge?: string; // Badge text (top-right)
+  badgeIcon?: string; // Badge icon/emoji
+  highlight?: boolean; // Accent border/background
+  number?: string | number; // Circular number badge (left)
+  class?: string; // Additional classes
+  className?: string; // Additional classes
 }
 ```
 
@@ -325,35 +334,41 @@ interface Props {
 
 ```mdx
 <!-- Basic card -->
+
 <Card>
   <h3>Simple Card</h3>
   <p>Content here</p>
 </Card>
 
 <!-- Domain card with icon badge -->
+
 <Card variant="domain" badgeIcon="🔐">
   <h3>High-Assurance Identity</h3>
   <p>Phishing-resistant authentication...</p>
 </Card>
 
 <!-- Pillar card with number -->
+
 <Card variant="pillar" number="1">
   <h4>Verifiable Everything</h4>
   <p>Cryptographically verified identities...</p>
 </Card>
 
 <!-- Highlighted component card -->
+
 <Card variant="component" badge="4.6" highlight>
   <h3>Advanced Delegation Engine</h3>
   <p>The capstone feature...</p>
 </Card>
 
 <!-- Disable hover effect -->
+
 <Card hover={false}>
   <p>Static card</p>
 </Card>
 
 <!-- Solid card -->
+
 <Card variant="solid" className="mission-statement">
   <p>Trusted Identity for Machines and Humans - Verified, Private, Attested</p>
 </Card>
@@ -376,12 +391,13 @@ interface Props {
 **Planned file**: `src/components/ui/SectionHeader.astro`
 
 **Props**:
+
 ```typescript
 interface Props {
   title: string;
-  number?: string;      // Section number (e.g., "01")
-  intro?: string;       // Section intro paragraph
-  id?: string;          // Optional anchor id
+  number?: string; // Section number (e.g., "01")
+  intro?: string; // Section intro paragraph
+  id?: string; // Optional anchor id
   class?: string;
   className?: string;
 }
@@ -430,9 +446,10 @@ interface Props {
 **Planned file**: `src/components/ui/FeatureList.astro`
 
 **Props**:
+
 ```typescript
 interface Props {
-  variant?: 'feature' | 'numbered' | 'bulleted';
+  variant?: "feature" | "numbered" | "bulleted";
   class?: string;
   className?: string;
 }
@@ -442,24 +459,24 @@ interface Props {
 
 ```mdx
 <!-- Feature list (arrow bullets) -->
+
 <FeatureList variant="feature">
-  - **Protocol Unification**: OIDC 2.1 & GNAP
-  - **Hardened Security**: PAR, JAR, JARM, DPoP
-  - **Passkey-Primary**: WebAuthn/FIDO2
+  - **Protocol Unification**: OIDC 2.1 & GNAP - **Hardened Security**: PAR, JAR,
+  JARM, DPoP - **Passkey-Primary**: WebAuthn/FIDO2
 </FeatureList>
 
 <!-- Numbered list (circular badges) -->
+
 <FeatureList variant="numbered">
-  1. **High-Assurance by Default**: Security for all tenants
-  2. **Cryptographic Agility**: Modular Rust sidecars
-  3. **Policy-as-Code**: Git-backed policies
+  1. **High-Assurance by Default**: Security for all tenants 2. **Cryptographic
+  Agility**: Modular Rust sidecars 3. **Policy-as-Code**: Git-backed policies
 </FeatureList>
 
 <!-- Bulleted list (large bullets) -->
+
 <FeatureList variant="bulleted">
-  - Native Verifiable Credentials
-  - Machine identity parity
-  - Graph-native authorization
+  - Native Verifiable Credentials - Machine identity parity - Graph-native
+  authorization
 </FeatureList>
 ```
 
@@ -540,6 +557,7 @@ Page-specific styles use the page name as prefix and remain in page CSS file:
 **Scenario**: Need a "highlight box" for callouts.
 
 **Structure**:
+
 ```html
 <div class="highlight-box">
   <p>Important information</p>
@@ -547,6 +565,7 @@ Page-specific styles use the page name as prefix and remain in page CSS file:
 ```
 
 **CSS**:
+
 ```css
 .highlight-box {
   background: var(--gradient-inline);
@@ -557,6 +576,7 @@ Page-specific styles use the page name as prefix and remain in page CSS file:
 ```
 
 **Decision**: **Utility class** ✅
+
 - Simple structure (single div)
 - No props needed (content is just `<slot/>`)
 - Used in both MDX and HTML
@@ -591,6 +611,7 @@ Page-specific styles use the page name as prefix and remain in page CSS file:
 ### 2. Test Across All Themes
 
 Artagon has 3 themes. Always verify visuals in:
+
 1. **Midnight** (default)
 2. **Twilight** (indigo variant)
 3. **Slate** (blue variant)
@@ -598,9 +619,15 @@ Artagon has 3 themes. Always verify visuals in:
 **How**: Use theme toggle in header, or manually add `data-theme` attribute:
 
 ```html
-<html data-theme="midnight">  <!-- Default -->
-<html data-theme="twilight">  <!-- Alt 1 -->
-<html data-theme="slate">     <!-- Alt 2 -->
+<html data-theme="midnight">
+  <!-- Default -->
+  <html data-theme="twilight">
+    <!-- Alt 1 -->
+    <html data-theme="slate">
+      <!-- Alt 2 -->
+    </html>
+  </html>
+</html>
 ```
 
 ---
@@ -615,7 +642,8 @@ For browser compatibility (Safari < 16.2, Firefox < 113):
   --border-teal-subtle: 2px solid rgba(34, 227, 197, 0.2);
 
   /* Modern override (only in supporting browsers) */
-  --border-teal-subtle: 2px solid color-mix(in srgb, var(--brand-teal) 20%, transparent);
+  --border-teal-subtle: 2px solid
+    color-mix(in srgb, var(--brand-teal) 20%, transparent);
 }
 ```
 
@@ -627,10 +655,18 @@ For browser compatibility (Safari < 16.2, Firefox < 113):
 
 All interactive components must have:
 
-- ✅ Visible focus states (`:focus-visible`)
-- ✅ Sufficient color contrast (WCAG AA minimum)
-- ✅ Keyboard navigation support
+- ✅ Visible focus states (`:focus-visible`, or `:focus-within` on parent containers like `.ui-card`)
+- ✅ Sufficient color contrast (WCAG AA minimum — checked by Lighthouse `color-contrast` audit, threshold ≥ 0.95)
+- ✅ Keyboard navigation support (no focus traps, skip-link first)
 - ✅ ARIA labels where appropriate
+
+**Automated checks** (run in CI):
+
+- `npx lhci autorun --config=lighthouserc.json` — Lighthouse a11y audit incl. axe-core scan, color contrast, ARIA attributes. Asserts score ≥ 0.95 per route.
+- `npx playwright test tests/styling-a11y.spec.ts --project=chromium` — keyboard tab traversal + focus-ring presence on links and `.ui-card:focus-within`.
+- `VISUAL_REGRESSION=1 npx playwright test tests/styling-snapshots.spec.ts --project=chromium` — drift detection across 3 themes × 3 breakpoints.
+
+**Manual gate before release** (not automated): test the page with a screen reader (VoiceOver on macOS, NVDA on Windows). Verify logical reading order — section number → title → intro → body — and that decorative icons (`.ui-card-badge-icon` emojis) are skipped or labeled. The Playwright AT-SPI / NSAccessibility bridge is browser-specific and CI-flaky; SR testing stays manual until that situation improves upstream.
 
 ```css
 /* ✅ GOOD: Focus state */
@@ -684,6 +720,7 @@ export interface Props {
 **Component overhead**: Each Astro component adds ~50-100 bytes to build output.
 
 **When to optimize**:
+
 - **< 10 instances**: Component overhead negligible
 - **10-50 instances**: Monitor build time
 - **50+ instances**: Consider utilities for performance
@@ -709,16 +746,16 @@ When refactoring existing pages:
 
 ## Quick Reference Cheat Sheet
 
-| Need | Use | Location |
-|------|-----|----------|
-| Card in MDX | `<Card variant="domain">` | Import from `../../components/ui` |
-| Card in HTML | `.ui-card .ui-card--domain` | `public/assets/theme.css` |
-| Section header | `<SectionHeader title="..." number="01">` | Import from `../../components/ui` |
-| Gradient bg | `background: var(--gradient-surface);` | CSS token |
-| Border | `border: var(--border-teal-subtle);` | CSS token |
-| Spacing | `padding: var(--padding-card);` | CSS token |
-| Custom token | Add to `:root` in `theme.css` | `public/assets/theme.css` |
-| Page-specific style | Scope under `.page-name` | `src/styles/page-name.css` |
+| Need                | Use                                       | Location                          |
+| ------------------- | ----------------------------------------- | --------------------------------- |
+| Card in MDX         | `<Card variant="domain">`                 | Import from `../../components/ui` |
+| Card in HTML        | `.ui-card .ui-card--domain`               | `public/assets/theme.css`         |
+| Section header      | `<SectionHeader title="..." number="01">` | Import from `../../components/ui` |
+| Gradient bg         | `background: var(--gradient-surface);`    | CSS token                         |
+| Border              | `border: var(--border-teal-subtle);`      | CSS token                         |
+| Spacing             | `padding: var(--padding-card);`           | CSS token                         |
+| Custom token        | Add to `:root` in `theme.css`             | `public/assets/theme.css`         |
+| Page-specific style | Scope under `.page-name`                  | `src/styles/page-name.css`        |
 
 ---
 
@@ -733,6 +770,7 @@ When refactoring existing pages:
    - Identify page-specific layout rules
 
 2. **Extract to utilities** (if not already in theme.css)
+
    ```css
    /* In theme.css */
    .ui-team-grid {
@@ -743,6 +781,7 @@ When refactoring existing pages:
    ```
 
 3. **Create components** (if pattern is complex)
+
    ```astro
    <!-- src/components/ui/TeamMember.astro -->
    <div class="ui-card ui-card--team">
@@ -751,8 +790,9 @@ When refactoring existing pages:
    ```
 
 4. **Update MDX** (src/content/pages/about.mdx)
+
    ```mdx
-   import { TeamMember } from '../../components/ui';
+   import { TeamMember } from "../../components/ui";
 
    <div class="ui-team-grid">
      <TeamMember>

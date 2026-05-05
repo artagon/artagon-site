@@ -77,7 +77,7 @@ Tradeoff: ~5–10 MB of binary PNGs in git history. Acceptable for a 15-asset se
 
 ### 3. Favicons generated from same source
 
-`scripts/generate-favicons.mjs` produces `favicon.ico` (multi-size), `favicon.svg` (uses `currentColor` so it themes naturally), `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, `mask-icon.svg`. The redesign's `site-branding` Phase 11.1 task is REPLACED by this deterministic generator (no hand-authored favicons).
+`scripts/generate-favicons.mjs` produces `favicon.ico` (multi-size), `favicon.svg` (uses `currentColor` so it themes naturally), `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, `mask-icon.svg`. The `site-branding` capability's `Deterministic Favicon Generation` requirement (added by this change) supersedes the redesign's hand-authored favicon task; cite by capability + requirement name, not by the redesign's task number — once the redesign archives, numeric phase references go stale but capability requirements remain canonical.
 
 ### 4. `/brand` route is `noindex` and exempted from default Lighthouse perf budget
 

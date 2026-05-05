@@ -34,7 +34,7 @@
 - [ ] 3.3 Add `npm run build:favicons` and `npm run build:logos` scripts. Wire both into a NEW `prebuild` npm script (`"prebuild": "npm run build:favicons && npm run build:logos"`) that runs BEFORE `astro build`. Do NOT wire to `postbuild` — `astro build` copies `public/` to `dist/` early in its pipeline, so postbuild generation produces a stale deployed artifact. The drift-detection CI step (3.5) runs separately as a CI-only check, not in `postbuild`. PNGs/icons are static and do not need SRI hashing (which is why they don't need to live in postbuild's SRI/CSP chain).
 - [ ] 3.4 Run both generators once, commit the output PNGs + favicons.
 - [ ] 3.5 Add CI step: `npm run build:favicons && npm run build:logos && git diff --exit-code public/assets/logos/ public/favicon.svg public/icon-192.png public/icon-512.png public/apple-touch-icon.png public/mask-icon.svg`. Fails on drift between source and committed outputs.
-- [ ] 3.6 Replace the redesign's `site-branding` Phase 11.1 (favicon set hand-authoring) with reference to this generator. Note in archive.
+- [ ] 3.6 The `site-branding` capability's `Deterministic Favicon Generation` requirement (added by this change) supersedes the redesign's hand-authored favicon task. Cite by capability + requirement name, not by task number — the redesign's `tasks.md` moves to archive once it lands and numeric phase references go stale.
 
 ## Phase 4 — Brand gallery route
 
@@ -94,7 +94,7 @@
 - [ ] 10.2 `openspec/specs/site-brand-gallery/spec.md` Purpose line replaced (no longer "TBD").
 - [ ] 10.3 `openspec/specs/site-writing-pipeline/spec.md` Purpose line replaced.
 - [ ] 10.4 `openspec/specs/site-content/spec.md` Purpose line rewritten to cover BOTH local AND remote authoring (resolves the long-standing TBD).
-- [ ] 10.5 Verify `site-content/spec.md` `Per-route Frontmatter Contract` requirement is the merged form (this change's MODIFIED text replaced the redesign's ADDED text in place — no duplicate-purpose blocks).
+- [ ] 10.5 Verify `site-content/spec.md` `Per-route Frontmatter Contract` requirement is the merged form (this change's MODIFIED text replaced the redesign's ADDED text in place — no duplicate-purpose blocks). Concrete check: `rtk rg -c '^### Requirement: Per-route Frontmatter Contract' openspec/specs/site-content/spec.md` returns exactly `1`. The redesign's ADDED text and this change's MODIFIED text use byte-identical headers (verified during cross-cutting review), so a clean merge produces exactly one block; ≥ 2 means the archive composition duplicated the requirement and needs manual reconciliation.
 - [ ] 10.6 Verify `site-branding/spec.md` reflects the new ADDED requirements (inline-glyph ban, no-external-href, glyph parity with coordinated-update gate, static OG default).
 - [ ] 10.7 File a follow-up `cleanup-new-design-extracted` change scaffold to delete `new-design/extracted/` after this change archives (the inventory in `proposal.md` Appendix is the audit trail).
 

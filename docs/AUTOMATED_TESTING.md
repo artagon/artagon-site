@@ -13,6 +13,7 @@ Automated testing ensures code quality, prevents regressions, and validates that
 **Package:** `@playwright/test@1.57.0`
 
 Playwright provides:
+
 - Cross-browser testing (Chromium, Firefox, WebKit)
 - Visual regression testing with screenshot comparison
 - Built-in auto-waiting and retry logic
@@ -26,6 +27,7 @@ Playwright provides:
 Comprehensive testing for the refactored Vision page using Content Collections:
 
 **Functional Tests:**
+
 - Page title and meta tags validation
 - Hero section rendering
 - All 7 sections with numbered headers (01-07)
@@ -37,16 +39,19 @@ Comprehensive testing for the refactored Vision page using Content Collections:
 - CSS loading verification
 
 **Visual Regression Tests:**
+
 - Full page screenshot
 - Hero section screenshot
 - Domain cards screenshot
 
 **Accessibility Tests:**
+
 - Semantic HTML validation (article, h1 hierarchy)
 - Heading structure (single h1, multiple h2s)
 - ARIA attributes
 
 **Responsive Tests:**
+
 - Mobile viewport (375x667)
 - Tablet viewport
 - Desktop viewport
@@ -58,15 +63,17 @@ Comprehensive testing for the refactored Vision page using Content Collections:
 Tests Content Collections schema enforcement:
 
 **Schema Validation:**
+
 - Required fields (`title`, `description`)
 - Optional fields (`hero`)
 - Nested object validation (`hero.title`, `hero.subtitle`, `hero.missionText`)
 - Build failure on invalid schema
 
 **File Structure:**
-- Config file existence (`src/content/config.ts`)
-- Content file existence (`src/content/pages/vision.md`)
-- Page template using `getEntry()` API
+
+- Config file existence (`src/content.config.ts` — Astro v6 path; was `src/content/config.ts` pre-v6)
+- Content file existence (`src/content/pages/vision.mdx`)
+- Page template using `getEntry()` + standalone `render()` API (v6 replaced `entry.render()`)
 
 ### 3. GitHub Actions Workflow
 
@@ -95,11 +102,13 @@ Tests Content Collections schema enforcement:
    - Uploads failures for review
 
 **Triggers:**
+
 - Push to `main` or `feature/*` branches
 - Pull requests to `main`
 - Manual workflow dispatch
 
 **Artifacts Retention:**
+
 - Test reports: 30 days
 - Screenshots/failures: 7 days
 
@@ -120,6 +129,7 @@ Added to `package.json`:
 ### 5. Configuration
 
 **playwright.config.ts:**
+
 - Test directory: `./tests`
 - Base URL: `http://localhost:4321`
 - Auto-start preview server before tests
@@ -133,6 +143,7 @@ Added to `package.json`:
 ### 6. .gitignore
 
 Added Playwright artifacts:
+
 ```
 test-results/
 playwright-report/
@@ -172,10 +183,12 @@ npx playwright test --project=chromium
 ### CI/CD
 
 Tests run automatically on:
+
 - Every push to `main` or `feature/*` branches
 - Every pull request to `main`
 
 View results:
+
 1. Go to GitHub Actions tab
 2. Click on workflow run
 3. View inline results or download HTML report artifact
@@ -183,11 +196,13 @@ View results:
 ### Debugging
 
 **View Test Report:**
+
 ```bash
 npx playwright show-report
 ```
 
 **Trace Viewer (for failures):**
+
 ```bash
 npx playwright test --trace on
 npx playwright show-trace test-results/.../trace.zip
@@ -195,6 +210,7 @@ npx playwright show-trace test-results/.../trace.zip
 
 **VS Code Extension:**
 Install [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) for:
+
 - Run/debug from editor
 - Breakpoints
 - Step-through debugging
@@ -212,20 +228,21 @@ Install [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?
 
 ### Test Types
 
-| Type | Count | Coverage |
-|------|-------|----------|
-| Functional | 12 | Vision page structure, content, interactions |
-| Visual Regression | 3 | Full page, hero, cards |
-| Accessibility | 2 | Semantic HTML, heading hierarchy |
-| Responsive | 1 | Mobile viewport layout |
-| Schema Validation | 4 | Content Collections schema enforcement |
-| **Total** | **22** | **Vision page + Content Collections** |
+| Type              | Count  | Coverage                                     |
+| ----------------- | ------ | -------------------------------------------- |
+| Functional        | 12     | Vision page structure, content, interactions |
+| Visual Regression | 3      | Full page, hero, cards                       |
+| Accessibility     | 2      | Semantic HTML, heading hierarchy             |
+| Responsive        | 1      | Mobile viewport layout                       |
+| Schema Validation | 4      | Content Collections schema enforcement       |
+| **Total**         | **22** | **Vision page + Content Collections**        |
 
 ## Benefits
 
 ### 1. Regression Prevention
 
 Visual regression tests catch unintended changes:
+
 - Layout shifts
 - Styling regressions
 - Component breakage
@@ -234,6 +251,7 @@ Visual regression tests catch unintended changes:
 ### 2. Confidence in Refactoring
 
 Tests ensure refactoring doesn't break functionality:
+
 - Content Collections migration validated
 - Original rendering preserved
 - Schema validation working
@@ -241,6 +259,7 @@ Tests ensure refactoring doesn't break functionality:
 ### 3. Faster Feedback
 
 Automated tests provide immediate feedback:
+
 - PRs show test status
 - Failures visible before merge
 - No manual testing required
@@ -248,12 +267,14 @@ Automated tests provide immediate feedback:
 ### 4. Cross-Browser Coverage
 
 Tests run on 5 browser configurations:
+
 - Desktop: Chromium, Firefox, WebKit
 - Mobile: Chrome (Pixel 5), Safari (iPhone 12)
 
 ### 5. Documentation
 
 Tests serve as living documentation:
+
 - Expected page structure
 - Required elements
 - Schema requirements
@@ -274,11 +295,11 @@ test('test1', ...)
 
 ```typescript
 // Prefer role-based or text-based
-page.getByRole('heading', { level: 1 })
-page.getByText('Executive Summary')
+page.getByRole("heading", { level: 1 });
+page.getByText("Executive Summary");
 
 // Avoid brittle selectors
-page.locator('div.container > div:nth-child(3)') // Bad
+page.locator("div.container > div:nth-child(3)"); // Bad
 ```
 
 ### 3. Leverage Auto-Waiting
@@ -294,15 +315,17 @@ await page.waitForTimeout(1000); // Avoid
 ### 4. Test Isolation
 
 Each test should be independent:
+
 ```typescript
 test.beforeEach(async ({ page }) => {
-  await page.goto('/vision/'); // Fresh page for each test
+  await page.goto("/vision/"); // Fresh page for each test
 });
 ```
 
 ### 5. Update Snapshots Intentionally
 
 Only update visual snapshots after reviewing changes:
+
 ```bash
 # Review diffs first
 npm test
@@ -338,11 +361,11 @@ When adding new Content Collections:
 Use Playwright's accessibility features:
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
-test('should have no accessibility violations', async ({ page }) => {
-  await page.goto('/vision/');
+test("should have no accessibility violations", async ({ page }) => {
+  await page.goto("/vision/");
 
   const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
 
@@ -355,12 +378,14 @@ test('should have no accessibility violations', async ({ page }) => {
 ### Parallel Execution
 
 Tests run in parallel for speed:
+
 - **Local:** Unlimited workers (based on CPU cores)
 - **CI:** 3 shards (1/3, 2/3, 3/3)
 
 ### Browser Optimization
 
 For faster local development:
+
 ```bash
 # Run only Chromium (fastest)
 npx playwright test --project=chromium
@@ -372,6 +397,7 @@ npx playwright test --grep-invert "visual regression"
 ### Caching
 
 CI caches:
+
 - npm dependencies
 - Playwright browsers
 - Build artifacts
@@ -381,6 +407,7 @@ CI caches:
 ### Tests Timeout
 
 Increase timeout:
+
 ```typescript
 test.setTimeout(60000); // 60 seconds
 ```
@@ -390,6 +417,7 @@ Or globally in `playwright.config.ts`.
 ### Flaky Tests
 
 If tests are flaky:
+
 1. Check for race conditions
 2. Use proper auto-waiting (`expect().toBeVisible()`)
 3. Avoid hard-coded waits
@@ -405,6 +433,7 @@ If tests are flaky:
 ### CI Failures, Local Pass
 
 Common causes:
+
 - Different viewport sizes
 - Font rendering differences
 - Timing issues (use retries on CI)
@@ -453,6 +482,7 @@ Common causes:
 ## Support
 
 For testing questions or issues:
+
 1. Check `tests/README.md`
 2. Review test output and traces
 3. Consult Playwright documentation

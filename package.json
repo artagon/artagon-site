@@ -41,6 +41,9 @@
     "test:build-config": "node --test tests/build-config.test.mjs",
     "test:design-prerequisites": "node --test tests/verify-design-prerequisites.test.mjs",
     "test:design-fixtures": "node --test tests/design-md-fixtures.test.mjs",
+    "test:tweaks": "node --test tests/tweaks-parse.test.mjs tests/tweaks-state.test.mts",
+    "test:tweaks-prod-noship": "node --test tests/tweaks-prod-noship.test.mjs",
+    "test:node": "node --test tests/build-config.test.mjs tests/design-md-fixtures.test.mjs tests/tweaks-parse.test.mjs tests/tweaks-state.test.mts tests/tweaks-prod-noship.test.mjs tests/verify-design-prerequisites.test.mjs",
     "verify:design-prerequisites": "node scripts/verify-design-prerequisites.mjs",
     "verify:design-md-telemetry": "node scripts/verify-design-md-telemetry.mjs",
     "lint:design": "npm run check:oklch-hex-parity && design.md lint DESIGN.md",
@@ -61,9 +64,12 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@astrojs/mdx": "4.3.13",
+    "@astrojs/mdx": "5.0.4",
+    "@astrojs/react": "5.0.4",
     "@astrojs/sitemap": "3.7.2",
-    "astro": "5.18.1",
+    "astro": "6.2.1",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "sharp": "0.34.5"
   },
   "devDependencies": {
@@ -71,6 +77,8 @@
     "@google/design.md": "0.1.1",
     "@lhci/cli": "0.15.1",
     "@playwright/test": "1.59.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "cheerio": "1.2.0",
     "husky": "9.1.7",
     "prettier": "3.8.3"
@@ -79,6 +87,7 @@
     "chrome-launcher": "^1.2.1",
     "tmp": "^0.2.5",
     "rimraf": "^6.0.1",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "uuid": "^14.0.0"
   }
 }

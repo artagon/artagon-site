@@ -77,7 +77,7 @@ Tradeoff: A failing `lint:design` blocks build success even when DESIGN.md is th
 
 ### 6. Drift detection ships at error severity with an explicit allow-list
 
-`scripts/check-design-drift.mjs` (Phase 6) asserts every `--color-*`, typography, spacing, and rounded token in `theme.css` resolves to a DESIGN.md token. This works cleanly for primitives but fragments at higher-order tokens (gradient compositions, theme-aware fallbacks). The `lint-tokens.mjs` script from `update-site-marketing-redesign` Phase 2.7-2.8 enforces "no raw color literals in component CSS." Drift detection adds a second layer: "every token name in CSS exists in DESIGN.md."
+`scripts/check-design-drift.mjs` (Phase 6) asserts every `--color-*`, typography, spacing, and rounded token in `theme.css` resolves to a DESIGN.md token. This works cleanly for primitives but fragments at higher-order tokens (gradient compositions, theme-aware fallbacks). The redesign's `Token Categories` requirement and its `scripts/lint-tokens.mjs` enforce "no raw color literals in component CSS." Drift detection adds a second layer: "every token name in CSS exists in DESIGN.md." Cite the redesign's requirement by name, not by task number — task numbers go stale once the redesign archives.
 
 Decision: Ship drift detection at **`error` severity from day one** with an explicit allow-list seeded from current orphans. Adding to the allow-list requires a comment citing the rationale; CI fails on unallow-listed orphans. The requirement lives ONCE in `style-system` (Token Traceability to DESIGN.md), NOT duplicated in `design-system-format` — drift is a CSS-token concern owned by `style-system`. `design-system-format` is the format contract; `style-system` is the token contract.
 

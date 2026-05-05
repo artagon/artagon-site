@@ -1,3 +1,29 @@
+skills:
+  sources:
+    - https://github.com/google-labs-code/design.md/tree/main/.agents/skills
+    - https://github.com/google-labs-code/stitch-skills # design-md
+  installed: .agents/skills/
+  lockfile: skills-lock.json
+  mandatory:
+    - tdd # red-green-refactor for new code
+    - typed-service-contracts # parse-don't-validate, Result<T, E> for data layer
+    - agent-dx-cli-scale # score npm scripts >= 18/21
+    - design-md # synthesize semantic design systems into DESIGN.md
+  not-applicable:
+    - ink # terminal UI; project is web
+
+tools:
+  design-md-cli:
+    package: "@google/design.md"
+    version: 0.1.1
+    binaries: [design.md, designmd]
+    commands:
+      lint: "npx design.md lint DESIGN.md"
+      diff: "npx design.md diff <old> <new>"
+      export-dtcg: "npx design.md export DESIGN.md --format dtcg"
+      export-tailwind: "npx design.md export DESIGN.md --format tailwind"
+      spec: "npx design.md spec"
+
 tasks:
   - id: update-hero
     title: Update homepage hero
