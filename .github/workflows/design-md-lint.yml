@@ -23,6 +23,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # USMR Phase 0.5 needs full git history so `git merge-base
+          # --is-ancestor <pinned-sha> HEAD` can resolve commits beyond
+          # the shallow window. The pinned SHA is the squash-merge of
+          # PR #39; without `fetch-depth: 0` the ancestor branch of
+          # verify-prerequisites silently falls back to "not ancestor"
+          # and the gate is degraded.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -33,6 +41,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # OpenSpec ordering gates run FIRST — they are the cheapest checks
+      # (~50ms) and gate the most fundamental invariants. Failing here
+      # surfaces the root cause before slow lint steps run.
+
+      # adopt-design-md-format Phase 7.4: verify openspec ordering. The
+      # script exits 0 when update-site-marketing-redesign is archived
+      # OR its in-flight tasks.md no longer references the old
+      # new-design/extracted/DESIGN.md path.
+      - name: Verify design-md prerequisites (Phase 7.4)
+        run: npm run verify:design-prerequisites
+
+      # update-site-marketing-redesign Phase 0.5: verify the styling
+      # refactor's tokens, utility classes, and BaseLayout slot ABI are
+      # available before USMR code lands. Exits 0 when
+      # refactor-styling-architecture is archived OR its archive merge
+      # SHA is an ancestor of HEAD.
+      - name: Verify redesign prerequisites (USMR Phase 0.5)
+        run: npm run verify:prerequisites
+
       - name: Run design.md lint (Phase 2.4)
         run: npm run lint:design
 
@@ -41,20 +68,3 @@ jobs:
 
       - name: Check design drift (Phase 2.4)
         run: npm run check:design-drift
-
-      # adopt-design-md-format Phase 7.4: verify openspec ordering. The
-      # script exits 0 when update-site-marketing-redesign is archived
-      # OR its in-flight tasks.md no longer references the old
-      # new-design/extracted/DESIGN.md path. Fails loudly when the
-      # ordering would silently regress.
-      - name: Verify design-md prerequisites (Phase 7.4)
-        run: npm run verify:design-prerequisites
-
-      # update-site-marketing-redesign Phase 0.5: verify the styling
-      # refactor's tokens, utility classes, and BaseLayout slot ABI are
-      # available before USMR code lands. Exits 0 when
-      # refactor-styling-architecture is archived OR its commit is an
-      # ancestor of HEAD. Wired alongside design-md prerequisites so
-      # both ordering gates run in the same CI step block.
-      - name: Verify redesign prerequisites (USMR Phase 0.5)
-        run: npm run verify:prerequisites

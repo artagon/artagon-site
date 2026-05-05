@@ -4,6 +4,17 @@
 //
 // Run: node --test tests/verify-prerequisites.test.mjs
 //      (or: npm run test:prerequisites)
+//
+// State machine:
+//   - state (a): archived (entry under openspec/changes/archive/) → exit 0
+//   - state (b): not archived + ancestor SHA in HEAD → exit 0
+//   - state (c): not archived + ancestor SHA NOT in HEAD → exit 2
+//   - state (d): in flight (openspec/changes/<change>/) → exit 1
+//
+// Note on phrasing-coupled assertions: each test matches on a STABLE
+// substring per state (e.g. "USMR prerequisites satisfied", "in flight",
+// "is not an ancestor of HEAD"). If the script copy changes, update the
+// regexes here in lockstep — these are the load-bearing assertion targets.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -16,6 +27,10 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const SCRIPT = join(ROOT, "scripts", "verify-prerequisites.mjs");
+
+// Pinned SHA — must match STYLING_ARCHIVE_SHA in the script. Tests for
+// state (b) commit at this SHA so `git merge-base --is-ancestor` succeeds.
+const STYLING_ARCHIVE_SHA = "989e5c4fa01db092ea560f5b39f2857bc438d236";
 
 function buildFixture({ inFlight, archived }) {
   const root = mkdtempSync(join(tmpdir(), "verify-prereq-"));
@@ -62,11 +77,33 @@ function buildFixture({ inFlight, archived }) {
   return root;
 }
 
-function runScript(rootArg) {
+// Run a sequence of git commands against a fixture tmpdir. Used by
+// state-(b) tests to plant a synthetic ancestor commit.
+function git(cwd, ...args) {
+  return execFileSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    env: {
+      ...process.env,
+      GIT_AUTHOR_NAME: "test",
+      GIT_AUTHOR_EMAIL: "test@example.com",
+      GIT_COMMITTER_NAME: "test",
+      GIT_COMMITTER_EMAIL: "test@example.com",
+    },
+  });
+}
+
+function runScript(rootArg, opts = {}) {
+  // opts.noArgv2 — invoke without argv[2] to test the default-ROOT path.
+  // opts.env — extra env vars (used to disable git PATH for test (c)).
+  const args = opts.noArgv2 ? [SCRIPT] : [SCRIPT, rootArg];
   try {
-    const out = execFileSync(process.execPath, [SCRIPT, rootArg], {
+    const out = execFileSync(process.execPath, args, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
+      env: { ...process.env, ...(opts.env ?? {}) },
+      cwd: opts.cwd ?? process.cwd(),
     });
     return { code: 0, stdout: out, stderr: "" };
   } catch (err) {
@@ -78,6 +115,10 @@ function runScript(rootArg) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// state (a) — archive directory present
+// ─────────────────────────────────────────────────────────────────────────
+
 test("state (a): refactor-styling-architecture archived → exit 0", () => {
   const root = buildFixture({ inFlight: false, archived: true });
   try {
@@ -87,35 +128,94 @@ test("state (a): refactor-styling-architecture archived → exit 0", () => {
       0,
       `expected exit 0; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
     );
-    assert.match(result.stdout, /archived.*USMR prerequisites satisfied/);
+    assert.match(result.stdout, /USMR prerequisites satisfied/);
+    assert.match(result.stdout, /entry found in openspec\/changes\/archive/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
-test("state (d): refactor-styling-architecture in flight + not archived → exit 1", () => {
-  const root = buildFixture({ inFlight: true, archived: false });
+test("state (a) precedence: archive dir wins even when in-flight dir lingers", () => {
+  // openspec sometimes leaves the in-flight directory behind briefly
+  // during archive. Verify the archive-dir check takes precedence so the
+  // gate doesn't false-positive during that window. Was previously named
+  // "state (b)" — but state (b) is the ancestor branch, not this case.
+  const root = buildFixture({ inFlight: true, archived: true });
   try {
+    const result = runScript(root);
+    assert.equal(result.code, 0);
+    assert.match(result.stdout, /USMR prerequisites satisfied/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// state (b) — archive dir absent, ancestor SHA in HEAD's history
+// ─────────────────────────────────────────────────────────────────────────
+
+test("state (b): archive dir absent + pinned SHA is HEAD ancestor → exit 0", () => {
+  // Build a real git repo in the tmpdir whose HEAD is the pinned
+  // STYLING_ARCHIVE_SHA. Since `git merge-base --is-ancestor X HEAD`
+  // succeeds when X equals HEAD, this exercises the ancestor branch.
+  // We use `git update-ref` to set HEAD's sha directly (avoids needing
+  // to reproduce the original commit).
+  //
+  // Approach: init bare-ish repo, fetch the pinned commit from this
+  // working repo (which has it in history), point HEAD at it.
+  const root = buildFixture({ inFlight: false, archived: false });
+  try {
+    git(root, "init", "-q", "-b", "main");
+    // Fetch the pinned commit from THIS repo's .git into the fixture's
+    // .git so `merge-base --is-ancestor` can find it.
+    git(root, "remote", "add", "origin", ROOT);
+    git(root, "fetch", "-q", "origin", STYLING_ARCHIVE_SHA);
+    // Set HEAD to that commit.
+    git(root, "update-ref", "HEAD", STYLING_ARCHIVE_SHA);
+
     const result = runScript(root);
     assert.equal(
       result.code,
-      1,
-      `expected exit 1; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
+      0,
+      `expected exit 0; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
     );
-    assert.match(result.stderr, /in flight.*not yet archived/);
+    assert.match(result.stdout, /ancestor of HEAD/);
+    assert.match(result.stdout, /USMR prerequisites satisfied/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
-test("state (c): neither in flight nor archived + no commit evidence → exit 2", () => {
-  // Build a tree where openspec exists but neither the in-flight dir nor
-  // an archive entry. Note: the script also checks `git log` for commit
-  // evidence, which will succeed against the actual repo since
-  // refactor-styling-architecture WAS archived in PR #39. Our test fixture
-  // path is /tmp/..., which `git log` runs against — and the script's
-  // `cwd` for git is `ROOT` (the fixture root), where `git` is not a
-  // repo, so `hasStylingArchiveAncestor()` returns false (try/catch).
+test("state (b) negative: archive dir absent + pinned SHA NOT in history → exit 2", () => {
+  // git repo exists but the pinned SHA is not fetched. `merge-base
+  // --is-ancestor` fails with "Not a valid object name" → fallback path
+  // returns "not-ancestor" → exit 2.
+  const root = buildFixture({ inFlight: false, archived: false });
+  try {
+    git(root, "init", "-q", "-b", "main");
+    // Plant a different commit so HEAD exists but the pinned SHA is
+    // unreachable.
+    writeFileSync(join(root, "README"), "test\n");
+    git(root, "add", "README");
+    git(root, "commit", "-q", "-m", "test commit");
+
+    const result = runScript(root);
+    assert.equal(
+      result.code,
+      2,
+      `expected exit 2; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
+    );
+    assert.match(result.stderr, /not present in this clone|not an ancestor/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// state (c) — archive dir absent, no git repo (or no ancestor info)
+// ─────────────────────────────────────────────────────────────────────────
+
+test("state (c): archive dir absent + cwd not a git repo → exit 2", () => {
   const root = buildFixture({ inFlight: false, archived: false });
   try {
     const result = runScript(root);
@@ -124,32 +224,36 @@ test("state (c): neither in flight nor archived + no commit evidence → exit 2"
       2,
       `expected exit 2; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
     );
-    assert.match(
-      result.stderr,
-      /neither archived nor in flight.*no archive commit/,
-    );
+    assert.match(result.stderr, /neither archived nor in flight/);
+    assert.match(result.stderr, /not an ancestor of HEAD/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
-test("state (b): both archived AND in flight → exit 0 (archive wins)", () => {
-  // Edge case: openspec sometimes leaves the in-flight directory behind
-  // briefly during archive. Verify the archive check takes precedence so
-  // the gate doesn't false-positive during that window.
-  const root = buildFixture({ inFlight: true, archived: true });
+// ─────────────────────────────────────────────────────────────────────────
+// state (d) — in-flight directory present, not yet archived
+// ─────────────────────────────────────────────────────────────────────────
+
+test("state (d): in flight + not archived → exit 1", () => {
+  const root = buildFixture({ inFlight: true, archived: false });
   try {
     const result = runScript(root);
     assert.equal(
       result.code,
-      0,
-      `expected exit 0; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
+      1,
+      `expected exit 1; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
     );
-    assert.match(result.stdout, /archived.*USMR prerequisites satisfied/);
+    assert.match(result.stderr, /in flight/);
+    assert.match(result.stderr, /not yet archived/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// usage / environment errors
+// ─────────────────────────────────────────────────────────────────────────
 
 test("usage error: openspec tree missing → exit 2", () => {
   const root = mkdtempSync(join(tmpdir(), "verify-prereq-noopenspec-"));
@@ -164,4 +268,36 @@ test("usage error: openspec tree missing → exit 2", () => {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("usage error: ROOT path is not a directory → exit 2", () => {
+  // argv[2] points at a regular file. Tests the path.resolve + statSync
+  // hardening (LO-1).
+  const root = mkdtempSync(join(tmpdir(), "verify-prereq-notdir-"));
+  const file = join(root, "not-a-dir");
+  writeFileSync(file, "");
+  try {
+    const result = runScript(file);
+    assert.equal(
+      result.code,
+      2,
+      `expected exit 2; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
+    );
+    assert.match(result.stderr, /not a directory/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("default ROOT (no argv[2]): runs against repo and finds archive → exit 0", () => {
+  // Smoke test for the argv[2] default path. The actual repo has
+  // refactor-styling-architecture archived (PR #39 squash) so this
+  // exercises state (a) without an explicit ROOT.
+  const result = runScript(undefined, { noArgv2: true });
+  assert.equal(
+    result.code,
+    0,
+    `expected exit 0; got ${result.code}.\nstdout=${result.stdout}\nstderr=${result.stderr}`,
+  );
+  assert.match(result.stdout, /USMR prerequisites satisfied/);
 });

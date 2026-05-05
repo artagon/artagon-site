@@ -24,40 +24,21 @@
  *   2 — usage error (cannot find openspec tree)
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { argv, exit } from "node:process";
+import { isChangeArchived } from "./lib/openspec-archive.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = argv[2] ? argv[2] : join(__dirname, "..");
+const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
 
 const REDESIGN_DIR = join(
   ROOT,
   "openspec/changes/update-site-marketing-redesign",
 );
 const REDESIGN_TASKS = join(REDESIGN_DIR, "tasks.md");
-const ARCHIVE_DIR = join(ROOT, "openspec/changes/archive");
 const STALE_PATH_PATTERN = /new-design\/extracted\/DESIGN\.md/g;
-
-// Returns true if openspec/changes/archive/ contains a directory whose name
-// ends in `-update-site-marketing-redesign` (the openspec archive convention
-// is `<timestamp>-<change-id>`).
-function isRedesignArchived() {
-  if (!existsSync(ARCHIVE_DIR)) return false;
-  try {
-    return readdirSync(ARCHIVE_DIR).some((entry) => {
-      if (!entry.endsWith("-update-site-marketing-redesign")) return false;
-      try {
-        return statSync(join(ARCHIVE_DIR, entry)).isDirectory();
-      } catch {
-        return false;
-      }
-    });
-  } catch {
-    return false;
-  }
-}
 
 function main() {
   if (!existsSync(join(ROOT, "openspec"))) {
@@ -66,7 +47,22 @@ function main() {
   }
 
   const inFlight = existsSync(REDESIGN_DIR);
-  const archived = isRedesignArchived();
+
+  // Read failures from openspec/changes/archive/ surface as exit-2
+  // (usage / environment), not as "not archived" — hiding a permission
+  // denial behind "not archived" mis-directs the user.
+  let archived;
+  try {
+    archived = isChangeArchived("update-site-marketing-redesign", ROOT);
+  } catch (err) {
+    console.error(
+      `✗ failed to read openspec/changes/archive/ under ${ROOT}: ${err.code ?? "unknown"} ${err.message}`,
+    );
+    console.error(
+      "  This is an environment / permissions error, not an openspec ordering issue.",
+    );
+    exit(2);
+  }
 
   // State (c): redesign archived → exit 0 unconditionally.
   // We require positive evidence of an archive entry (not just the absence
