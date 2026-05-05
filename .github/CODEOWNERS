@@ -36,3 +36,9 @@
 # Security-sensitive scripts
 /scripts/csp.mjs @artagon/owners @trumpyla
 /scripts/sri.mjs @artagon/owners @trumpyla
+
+# update-site-marketing-redesign cross-cutting files (Phase 0.4).
+# These touch CSP/SRI hash regen + the BaseLayout slot ABI; redesign
+# phases 2/3/9/10/11 all stage edits here.
+/src/layouts/BaseLayout.astro @artagon/owners @trumpyla
+/public/assets/theme.css @artagon/owners @trumpyla
