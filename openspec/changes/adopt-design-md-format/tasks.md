@@ -102,9 +102,9 @@
 
 ## Phase 8 — Archive
 
-- [x] 8.1 `openspec archive adopt-design-md-format --yes` after deploy verification.
-- [x] 8.2 `openspec/specs/design-system-format/spec.md` Purpose line replaced (no longer "TBD").
-- [x] 8.3 `openspec/specs/style-system/spec.md` reflects the new ADDED requirement (Token Traceability to DESIGN.md).
+- [~] 8.1 `openspec archive adopt-design-md-format --yes` after deploy verification; defer until the change is actually archived.
+- [~] 8.2 `openspec/specs/design-system-format/spec.md` Purpose line replaced (no longer "TBD"); pending archive output/sync landing in-repo.
+- [~] 8.3 `openspec/specs/style-system/spec.md` reflects the new ADDED requirement (Token Traceability to DESIGN.md); pending archive output/sync landing in-repo.
 - [~] 8.4 Create `openspec/changes/bump-design-md-to-beta/proposal.md` with only a `## Why` header citing "track upstream version transition; this change is intentionally a placeholder until upstream graduates and the weekly cron opens a tracking issue."
 
 ## Parallelism notes
