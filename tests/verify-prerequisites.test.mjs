@@ -156,13 +156,14 @@ test("state (b): archive dir absent + pinned SHA is HEAD ancestor → exit 0", (
   // VERIFY_PREREQ_ARCHIVE_SHA via env so the script treats that commit as
   // the archive ancestor. This avoids fetching the upstream hardcoded SHA
   // which is unreachable in shallow clones (e.g. agent sandboxes, CI with
-  // fetch-depth != 0 but grafted history).
+  // fetch-depth: 1 / default checkout where the upstream commit is not
+  // present in the object store).
   const root = buildFixture({ inFlight: false, archived: false });
   try {
     git(root, "init", "-q", "-b", "main");
     // Plant a commit so HEAD is non-empty.
-    writeFileSync(join(root, "README"), "squash: refactor-styling-architecture\n");
-    git(root, "add", "README");
+    writeFileSync(join(root, "README.md"), "squash: refactor-styling-architecture\n");
+    git(root, "add", "README.md");
     git(root, "commit", "-q", "-m", "squash: refactor-styling-architecture");
     // The commit we just made IS HEAD, so `merge-base --is-ancestor sha HEAD`
     // trivially succeeds.
