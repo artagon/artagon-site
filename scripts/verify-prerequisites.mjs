@@ -45,7 +45,14 @@ const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
 // "refactor-styling-architecture archived" condition. Pinning a SHA
 // (instead of grepping commit messages) makes the gate deterministic
 // and immune to subject-line wording changes.
-const STYLING_ARCHIVE_SHA = "989e5c4fa01db092ea560f5b39f2857bc438d236";
+//
+// VERIFY_PREREQ_ARCHIVE_SHA may be set by tests to override the
+// production SHA. This allows state-(b) tests to plant a locally-created
+// commit without fetching from the upstream repo (needed in shallow
+// clone environments where the original SHA is not reachable).
+const STYLING_ARCHIVE_SHA =
+  process.env.VERIFY_PREREQ_ARCHIVE_SHA ??
+  "989e5c4fa01db092ea560f5b39f2857bc438d236";
 
 const STYLING_DIR = join(
   ROOT,

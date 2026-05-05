@@ -28,10 +28,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const SCRIPT = join(ROOT, "scripts", "verify-prerequisites.mjs");
 
-// Pinned SHA — must match STYLING_ARCHIVE_SHA in the script. Tests for
-// state (b) commit at this SHA so `git merge-base --is-ancestor` succeeds.
-const STYLING_ARCHIVE_SHA = "989e5c4fa01db092ea560f5b39f2857bc438d236";
-
 function buildFixture({ inFlight, archived }) {
   const root = mkdtempSync(join(tmpdir(), "verify-prereq-"));
   mkdirSync(join(root, "openspec", "changes"), { recursive: true });
@@ -155,25 +151,24 @@ test("state (a) precedence: archive dir wins even when in-flight dir lingers", (
 // ─────────────────────────────────────────────────────────────────────────
 
 test("state (b): archive dir absent + pinned SHA is HEAD ancestor → exit 0", () => {
-  // Build a real git repo in the tmpdir whose HEAD is the pinned
-  // STYLING_ARCHIVE_SHA. Since `git merge-base --is-ancestor X HEAD`
-  // succeeds when X equals HEAD, this exercises the ancestor branch.
-  // We use `git update-ref` to set HEAD's sha directly (avoids needing
-  // to reproduce the original commit).
-  //
-  // Approach: init bare-ish repo, fetch the pinned commit from this
-  // working repo (which has it in history), point HEAD at it.
+  // Build a real git repo in the tmpdir whose HEAD IS the "pinned" SHA.
+  // We create a fresh commit in the fixture, capture its SHA, then override
+  // VERIFY_PREREQ_ARCHIVE_SHA via env so the script treats that commit as
+  // the archive ancestor. This avoids fetching the upstream hardcoded SHA
+  // which is unreachable in shallow clones (e.g. agent sandboxes, CI with
+  // fetch-depth != 0 but grafted history).
   const root = buildFixture({ inFlight: false, archived: false });
   try {
     git(root, "init", "-q", "-b", "main");
-    // Fetch the pinned commit from THIS repo's .git into the fixture's
-    // .git so `merge-base --is-ancestor` can find it.
-    git(root, "remote", "add", "origin", ROOT);
-    git(root, "fetch", "-q", "origin", STYLING_ARCHIVE_SHA);
-    // Set HEAD to that commit.
-    git(root, "update-ref", "HEAD", STYLING_ARCHIVE_SHA);
+    // Plant a commit so HEAD is non-empty.
+    writeFileSync(join(root, "README"), "squash: refactor-styling-architecture\n");
+    git(root, "add", "README");
+    git(root, "commit", "-q", "-m", "squash: refactor-styling-architecture");
+    // The commit we just made IS HEAD, so `merge-base --is-ancestor sha HEAD`
+    // trivially succeeds.
+    const sha = git(root, "rev-parse", "HEAD").trim();
 
-    const result = runScript(root);
+    const result = runScript(root, { env: { VERIFY_PREREQ_ARCHIVE_SHA: sha } });
     assert.equal(
       result.code,
       0,
