@@ -130,7 +130,21 @@ function checkStylingAncestor() {
 }
 
 function main() {
-  if (!existsSync(ROOT) || !statSync(ROOT).isDirectory()) {
+  // statSync can throw (EACCES, EIO, ELOOP) even when existsSync returns
+  // true — guard explicitly so the script exits 2 with a useful message
+  // instead of crashing with an unhandled fs error. Per Copilot review on
+  // commit 587c737.
+  let rootStat;
+  try {
+    rootStat = statSync(ROOT);
+  } catch (err) {
+    console.error(
+      `✗ failed to stat ROOT (${ROOT}): ${err.code ?? "unknown"} ${err.message}`,
+    );
+    console.error(REMEDIATION_HINT_FOR_ROOT_PATH);
+    exit(2);
+  }
+  if (!rootStat.isDirectory()) {
     console.error(`✗ ROOT path is not a directory: ${ROOT}`);
     console.error(REMEDIATION_HINT_FOR_ROOT_PATH);
     exit(2);
