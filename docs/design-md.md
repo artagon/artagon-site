@@ -19,6 +19,10 @@ When a code change conflicts with `DESIGN.md`, the code changes (or a `DESIGN.md
 
 This phrasing is canonical and used verbatim in `README.md`, `AGENTS.md`, and `openspec/project.md`. Do not paraphrase.
 
+### Origin: promotion from `new-design/extracted/DESIGN.md`
+
+The repo-root `DESIGN.md` was promoted from `new-design/extracted/DESIGN.md` on 2026-05-04 per the `adopt-design-md-format` openspec change. The earlier copy at `new-design/extracted/DESIGN.md` is retained for diff history but is no longer authoritative — the root `DESIGN.md` supersedes it. Edits MUST go to the root file. The `new-design/extracted/` directory (including the historical `DESIGN.md` copy) is gitignored on `main` and slated for deletion by the `cleanup-new-design-extracted` follow-up change once `update-site-marketing-redesign` and `add-brand-assets-and-writing-pipeline` archive.
+
 ---
 
 ## 2 · Adding a new color token
