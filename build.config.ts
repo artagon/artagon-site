@@ -60,9 +60,63 @@ function assertPaths(node: unknown, trail: string): void {
   }
 }
 
+// Required key tree, mirroring the BuildPaths interface. Used to verify
+// presence of every leaf — assertPaths only checks that EXISTING leaves
+// are valid, not that all REQUIRED leaves are present. Without this
+// check a missing key (e.g. cache.playwright dropped from the JSON)
+// would type as `string` at compile time while being `undefined` at
+// runtime — exactly the kind of unsoundness `as DeepReadonly<BuildPaths>`
+// papers over.
+const REQUIRED_SHAPE = {
+  root: null,
+  cache: {
+    astro: null,
+    content: null,
+    lhci: null,
+    lychee: null,
+    playwright: null,
+    "playwright-mcp": null,
+  },
+  reports: {
+    playwright: { results: null, html: null },
+    lhci: null,
+    coverage: null,
+  },
+  dist: null,
+} as const;
+
+type ShapeNode = { readonly [k: string]: ShapeNode | null };
+
+function assertShape(node: unknown, shape: ShapeNode, trail: string): void {
+  if (node === null || typeof node !== "object") {
+    throw new Error(
+      `build.config.json: expected object at ${trail || "<root>"}, got ${typeof node}`,
+    );
+  }
+  const obj = node as Record<string, unknown>;
+  for (const [k, child] of Object.entries(shape)) {
+    if (!(k in obj)) {
+      throw new Error(
+        `build.config.json: missing required key ${trail ? `${trail}.${k}` : k}`,
+      );
+    }
+    if (child === null) {
+      // Leaf — must be a string (assertPaths separately validates regex).
+      if (typeof obj[k] !== "string") {
+        throw new Error(
+          `build.config.json: expected string at ${trail ? `${trail}.${k}` : k}, got ${typeof obj[k]}`,
+        );
+      }
+    } else {
+      assertShape(obj[k], child, trail ? `${trail}.${k}` : k);
+    }
+  }
+}
+
 const raw: unknown = JSON.parse(
   readFileSync(join(__dirname, "build.config.json"), "utf8"),
 );
+assertShape(raw, REQUIRED_SHAPE, "");
 assertPaths(raw, "");
 
 // `as const` would preserve literal-string types here, but `JSON.parse`

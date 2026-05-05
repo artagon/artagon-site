@@ -50,7 +50,6 @@ function loadInitial(): Tweaks {
     // Dev-only panel: surface failures so a maintainer can tell
     // "JSON corrupted" from "storage blocked" from "parse() bug".
     if (!isExpectedStorageError(err)) {
-      // eslint-disable-next-line no-console
       console.warn("[TweaksPanel] loadInitial fell back to DEFAULTS:", err);
     }
     return { ...DEFAULTS };
@@ -74,7 +73,6 @@ function persist(t: Tweaks): void {
     // when storage is blocked; everything else (TypeError from a circular
     // value, polyfill bug, etc.) is a real defect we want to see.
     if (!isExpectedStorageError(err)) {
-      // eslint-disable-next-line no-console
       console.warn("[TweaksPanel] persist failed unexpectedly:", err);
     }
   }

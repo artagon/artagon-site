@@ -32,7 +32,7 @@ tests/
 - **Visual regression** (`vision-page.spec.ts` + `styling-snapshots.spec.ts`) requires `VISUAL_REGRESSION=1`. Test bodies are skipped without it. CI runs them in a dedicated job under `.github/workflows/playwright.yml`. Baselines are Linux-pinned; local darwin runs produce non-authoritative `*-darwin.png` files (do not commit).
 - **`styling-a11y.spec.ts`** is chromium-only — focus-visible behavior is browser-engine-dependent but the rules under test are not.
 - **`content-collections.spec.ts`** is chromium-only because tests mutate `src/content/pages/vision.mdx` and would race across parallel browser projects.
-- **node:test files** (`*.test.mts`, `*.test.mjs`) are NOT run by `npm test` (which runs Playwright). Each has a dedicated `npm run test:<name>` script in `package.json`. CI runs them as separate jobs.
+- **node:test files** (`*.test.mts`, `*.test.mjs`) are NOT run by `npm test` (which runs Playwright). The umbrella `npm run test:node` runs all six in one shot; individual files have per-file scripts (`test:tweaks`, `test:tweaks-prod-noship`, `test:build-config`, `test:design-fixtures`, `test:design-prerequisites`) for targeted runs. CI invokes `test:node` once on shard 1 of the playwright workflow (`.github/workflows/playwright.yml`).
 
 ## Running Tests Locally
 

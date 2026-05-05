@@ -62,6 +62,15 @@ jobs:
       - name: Build site
         run: npm run build
 
+      # Run all node:test suites once on shard 1 only — the other shards are
+      # for Playwright parallelism, not node:test (which runs in <2s and
+      # would just triple the cost). The umbrella `test:node` script covers
+      # build-config, design-md-fixtures, tweaks-{parse,state,prod-noship},
+      # and verify-design-prerequisites.
+      - name: Run node:test suites (shard 1 only)
+        if: matrix.shard == 1
+        run: npm run test:node
+
       - name: Run Playwright tests
         run: npm run test:ci -- --shard=${{ matrix.shard }}/3
 

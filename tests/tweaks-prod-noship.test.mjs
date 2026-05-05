@@ -3,7 +3,7 @@
 // production" (openspec/specs/style-system/spec.md) requires this; this
 // test makes the contract enforceable.
 //
-// Run: node --test tests/tweaks-prod-noship.test.mjs (or npm run test:tweaks-prod)
+// Run: node --test tests/tweaks-prod-noship.test.mjs (or npm run test:tweaks-prod-noship)
 // Requires: prior `npm run build` has populated .build/dist/.
 //
 // The Vite-emitted `_astro/TweaksPanel.[hash].js` chunk MAY exist on disk
@@ -34,14 +34,12 @@ function* walk(dir) {
   }
 }
 
-test("Tweaks panel does not ship in production HTML", () => {
+test("Tweaks panel does not ship in production HTML", (t) => {
   if (!existsSync(DIST)) {
-    // Skip if no build output — the test is meaningless without one.
-    // CI runs `npm run build` first; locally, a contributor who hasn't
-    // built gets a clear skip rather than a false pass.
-    console.warn(
-      `[tweaks-prod-noship] skipping: ${DIST} does not exist. Run \`npm run build\` first.`,
-    );
+    // The test is meaningless without a build. Use t.skip() so the
+    // runner reports an explicit skip (not a silent pass) — masking a
+    // misconfigured CI step would defeat the purpose.
+    t.skip(`${DIST} does not exist — run \`npm run build\` first`);
     return;
   }
 
