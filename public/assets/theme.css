@@ -1,4 +1,156 @@
 /* Artagon theme */
+
+/*
+ * Cascade layer declaration order (lowest to highest priority within layered rules):
+ *   reset      — element resets, margin/padding zeroing
+ *   tokens     — design tokens (CSS custom properties)
+ *   utilities  — single-purpose utility classes (.ui-*)
+ *   components — component-scoped styles (Astro <style> blocks register here)
+ *   overrides  — emergency targeted fixes only
+ *
+ * Unlayered rules outrank ALL layered rules. The legacy :root blocks below
+ * remain unlayered for now (Existing Token Preservation requirement); new
+ * token categories live in @layer tokens so the layer is non-empty and
+ * available to component authors who opt in via @layer components { ... }.
+ */
+@layer reset, tokens, utilities, components, overrides;
+
+/* ===== USMR PHASE 2: NEW TOKEN CATEGORIES (layered) ===== */
+@layer tokens {
+  :root {
+    /* ----- New-design OKLCH palette (--nd-* prefix; semantic aliases below) -----
+     * Source: new-design/extracted/src/styles/tokens.css
+     * Migration prefix avoids collision with legacy --bg / --accent / --fg
+     * during the redesign cutover. Components migrating to the new design
+     * system reference --nd-* directly.
+     */
+    --nd-bg: oklch(0.14 0.008 260);
+    --nd-bg-1: oklch(0.17 0.008 260);
+    --nd-bg-2: oklch(0.2 0.008 260);
+    --nd-line: oklch(0.28 0.008 260);
+    --nd-line-soft: oklch(0.22 0.008 260);
+    --nd-fg: oklch(0.96 0.005 85);
+    --nd-fg-1: oklch(0.82 0.008 85);
+    --nd-fg-2: oklch(0.62 0.008 85);
+    --nd-fg-3: oklch(0.45 0.008 85);
+    --nd-accent: oklch(0.86 0.14 185);
+    --nd-accent-dim: oklch(0.5 0.1 185);
+    --nd-accent-ink: oklch(0.18 0.04 185);
+    --nd-ok: oklch(0.8 0.15 155);
+    --nd-warn: oklch(0.82 0.14 65);
+    --nd-bad: oklch(0.66 0.18 25);
+
+    /* ----- Motion ----- */
+    --motion-duration-instant: 0ms;
+    --motion-duration-fast: 120ms;
+    --motion-duration-base: 180ms;
+    --motion-duration-slow: 300ms;
+    --motion-duration-slower: 480ms;
+
+    --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+    --motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
+    --motion-easing-decelerate: cubic-bezier(0, 0, 0, 1);
+    --motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
+    --motion-easing-linear: linear;
+
+    /* ----- Elevation (drop shadows; existing --shadow-* preserved unlayered) ----- */
+    --elevation-0: none;
+    --elevation-1: 0 1px 2px rgba(2, 8, 23, 0.2);
+    --elevation-2: 0 2px 6px rgba(2, 8, 23, 0.25);
+    --elevation-3: 0 6px 16px rgba(2, 8, 23, 0.3);
+    --elevation-4: 0 12px 32px rgba(2, 8, 23, 0.35);
+    --elevation-5: 0 24px 48px rgba(2, 8, 23, 0.4);
+
+    /* ----- Focus ring ----- */
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+    --focus-ring-color: var(--brand-teal, oklch(0.86 0.14 185));
+    --focus-ring-shadow:
+      0 0 0 var(--focus-ring-offset) var(--bg, oklch(0.14 0.008 260)),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
+        var(--focus-ring-color);
+
+    /* ----- z-index scale ----- */
+    --z-base: 0;
+    --z-raised: 10;
+    --z-dropdown: 1000;
+    --z-sticky: 1100;
+    --z-overlay: 1200;
+    --z-modal: 1300;
+    --z-popover: 1400;
+    --z-toast: 1500;
+    --z-tooltip: 1600;
+    --z-debug: 9999;
+
+    /* ----- Spacing scale (4px base; legacy --spacing-* / --gap-* preserved) ----- */
+    --space-0: 0;
+    --space-px: 1px;
+    --space-0-5: 0.125rem; /*  2px */
+    --space-1: 0.25rem; /*  4px */
+    --space-2: 0.5rem; /*  8px */
+    --space-3: 0.75rem; /* 12px */
+    --space-4: 1rem; /* 16px */
+    --space-5: 1.25rem; /* 20px */
+    --space-6: 1.5rem; /* 24px */
+    --space-8: 2rem; /* 32px */
+    --space-10: 2.5rem; /* 40px */
+    --space-12: 3rem; /* 48px */
+    --space-16: 4rem; /* 64px */
+    --space-20: 5rem; /* 80px */
+    --space-24: 6rem; /* 96px */
+
+    /* ----- Radius scale (DISJOINT from legacy unlayered --radius-{card,sm,
+     *  lg,tiny,xl,full}; these new names don't overlap, so cascade-layer
+     *  ordering is irrelevant. If a future change adds an unlayered
+     *  --radius-md, it WILL win against this layered version — that is
+     *  expected per the spec's "Existing Token Preservation" rule.
+     */
+    --radius-none: 0;
+    --radius-xs: 4px;
+    --radius-md: 10px;
+
+    /* ----- Fluid type scale (DESIGN.md §3.2; floors at 360px, ceilings at 1440px+) -----
+     * Spec: USMR style-system §"Fluid Type Scale via clamp()".
+     * h1: floor ≥ 56px @ 360vw, ceiling ≤ 108px @ ≥1440vw. 7.2vw lands at
+     * 103.7px @ 1440px (≤108) and 25.9vw @ 360px (clamped to 56px floor).
+     */
+    --fs-h1: clamp(3.5rem, 7.2vw, 6.75rem); /* 56 → 108 */
+    --fs-h2: clamp(2.25rem, 4vw, 3.75rem); /* 36 → 60 */
+    --fs-h3: 1.375rem; /* 22 */
+    --fs-lead: 1.25rem; /* 20 */
+    --fs-body: 1rem; /* 16 */
+    --fs-small: 0.84375rem; /* 13.5 */
+    --fs-micro: 0.6875rem; /* 11 (mono caps) */
+
+    --lh-h1: 0.94;
+    --lh-h2: 1.02;
+    --lh-h3: 1.2;
+    --lh-lead: 1.5;
+    --lh-body: 1.55;
+    --lh-small: 1.5;
+    --lh-micro: 1.4;
+
+    --tracking-h1: -0.035em;
+    --tracking-h2: -0.025em;
+    --tracking-h3: -0.02em;
+    --tracking-mono-caps: 0.14em;
+
+    /* ----- Semantic role aliases (USMR Phase 2) -----
+     * These are aliases over upstream new-design tokens, not new color
+     * values — kept here so component CSS reads at the role layer
+     * ("the color you write on a brand button") instead of the palette
+     * layer (--nd-accent-ink). DESIGN.md frontmatter doesn't need new
+     * entries; the underlying palette tokens are already documented.
+     */
+    --ink-on-brand: var(--nd-accent-ink); /* matches accent-ink #001714 */
+    --chip-bg-neutral: color-mix(
+      in oklab,
+      var(--nd-fg-2) 12%,
+      transparent
+    ); /* low-contrast neutral surface */
+  }
+}
+
 :root {
   --ink: #0b1220;
   --bg: #0a0f1e;

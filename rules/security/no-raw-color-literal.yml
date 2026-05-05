@@ -1,0 +1,28 @@
+id: no-raw-color-literal
+language: html
+severity: warning
+message: "Raw color literal inside an Astro <style> block. Use a CSS custom property declared in DESIGN.md / public/assets/theme.css so the value flows through the token system and theme switching."
+note: |
+  USMR Phase 2 §"Token Categories" + adopt-design-md-format §6.3 forbid
+  rgb()/rgba()/hsl()/hsla()/oklch()/oklab() literals inside component
+  <style> blocks. The hex variant is covered by no-untraceable-token.yml;
+  this rule covers the function-call color forms.
+
+  Fix path:
+    1. If the color already exists as a token, reference it via
+       var(--name).
+    2. If it is new, add it to DESIGN.md frontmatter and declare its
+       CSS custom property in `public/assets/theme.css` under
+       `@layer tokens`.
+    3. If it is genuinely a one-off, document the false positive in
+       docs/design-md.md Section 6.
+
+  Severity is `warning` to match no-untraceable-token.yml; promote once
+  the codebase is clean.
+files:
+  - "**/*.astro"
+rule:
+  pattern: <style $$$>$$$BODY</style>
+  has:
+    regex: "(rgb|rgba|hsl|hsla|oklch|oklab)\\("
+    stopBy: end

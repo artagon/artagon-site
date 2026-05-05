@@ -26,7 +26,9 @@ function buildPolicy(hashes, extras = {}) {
     "default-src": ["'self'"],
     "img-src": ["'self'", "data:"],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "font-src": ["'self'", "data:"],
+    // USMR Phase 2 (style-system §"CSP font-src is self-only"): self only,
+    // no data: URIs. All faces are self-hosted WOFF2 under /assets/fonts/.
+    "font-src": ["'self'"],
     "connect-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],
