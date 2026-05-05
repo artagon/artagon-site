@@ -49,3 +49,12 @@ jobs:
       # ordering would silently regress.
       - name: Verify design-md prerequisites (Phase 7.4)
         run: npm run verify:design-prerequisites
+
+      # update-site-marketing-redesign Phase 0.5: verify the styling
+      # refactor's tokens, utility classes, and BaseLayout slot ABI are
+      # available before USMR code lands. Exits 0 when
+      # refactor-styling-architecture is archived OR its commit is an
+      # ancestor of HEAD. Wired alongside design-md prerequisites so
+      # both ordering gates run in the same CI step block.
+      - name: Verify redesign prerequisites (USMR Phase 0.5)
+        run: npm run verify:prerequisites
