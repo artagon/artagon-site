@@ -61,12 +61,18 @@
     --elevation-4: 0 12px 32px rgba(2, 8, 23, 0.35);
     --elevation-5: 0 24px 48px rgba(2, 8, 23, 0.4);
 
-    /* ----- Focus ring ----- */
+    /* ----- Focus ring -----
+     * --brand-teal and --bg are unlayered per-theme; BaseLayout always
+     * sets data-theme on <html>, so they always resolve. No `var(--x, ...)`
+     * fallback here — fallbacks would be unreachable dead code that
+     * misleads readers into thinking the ring is theme-aware in the
+     * layered context.
+     */
     --focus-ring-width: 2px;
     --focus-ring-offset: 2px;
-    --focus-ring-color: var(--brand-teal, oklch(0.86 0.14 185));
+    --focus-ring-color: var(--brand-teal);
     --focus-ring-shadow:
-      0 0 0 var(--focus-ring-offset) var(--bg, oklch(0.14 0.008 260)),
+      0 0 0 var(--focus-ring-offset) var(--bg),
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
         var(--focus-ring-color);
 

@@ -30,8 +30,8 @@
 
 ## Phase 2 — Design-system foundations (style-system)
 
-- [x] 2.1 Add raw OKLCH palette + semantic aliases + token categories (motion, elevation, focus-ring, z-index, spacing, radius) to `public/assets/theme.css` behind cascade layers `@layer reset, tokens, utilities, components, overrides`.
-- [x] 2.2 Define `twilight` (modified — extends existing requirement) and `midnight` (new) under `[data-theme="..."]`. WCAG AA contrast verified by Playwright + `@axe-core/playwright`.
+- [~] 2.1 Add raw OKLCH palette + semantic aliases + token categories (motion, elevation, focus-ring, z-index, spacing, radius) to `public/assets/theme.css` behind cascade layers `@layer reset, tokens, utilities, components, overrides`. (NEW tokens are layered; ~150 legacy `:root` declarations remain unlayered to preserve cascade priority per "Existing Token Preservation". Spec language `"All token definitions MUST live in tokens layer"` will be softened to `"All NEW tokens"` in a follow-up OpenSpec change, OR a `migrate-legacy-tokens-to-layer` change with rename map.)
+- [~] 2.2 Define `twilight` (modified — extends existing requirement) and `midnight` (new) under `[data-theme="..."]`. (Theme blocks defined; theme-aware fallbacks via `--brand-teal-rgb` per-theme. Axe-core verification deferred — `@axe-core/playwright` not yet installed; lands with the broader Playwright/axe install in Phase 6 quality gates.)
 - [ ] 2.3 Self-host WOFF2 fonts under `public/assets/fonts/` (Inter Tight, Space Grotesk, Fraunces, Instrument Serif, JetBrains Mono); subset with `unicode-range`; ship `LICENSE.txt`. Non-display families (Fraunces, Instrument Serif) MUST NOT load on routes that don't use them.
 - [ ] 2.3a Emit exactly one `<link rel="preload" as="font" type="font/woff2" crossorigin>` per route, pinned to the LCP-critical face (Space Grotesk for marketing routes per DESIGN.md). Playwright asserts `getComputedStyle(document.querySelector('h1')).fontFamily` resolves to the preloaded family.
 - [ ] 2.3b Build `scripts/measure-font-payload.mjs` (`npm run measure:font-payload`): fails the build if total WOFF2 per route exceeds 180 KB OR per-family exceeds 60 KB. Wire into postbuild.
