@@ -19,18 +19,43 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  TOTAL_SHARDS: 3
+  TOTAL_SHARDS: 5
+
+# All Playwright jobs run inside `mcr.microsoft.com/playwright:v1.59.1-jammy`
+# (pinned by SHA256 digest), rather than `runs-on: ubuntu-latest` +
+# `npx playwright install --with-deps`. Switching to the Microsoft-published
+# Playwright image:
+#   - eliminates a flaky 20-minute apt-get phase that hung CI on prior runs
+#   - locks browser binary versions to the @playwright/test version (image tag
+#     + digest MUST be bumped in lockstep with the npm dependency)
+#   - drops both the playwright-cache step and the install step from each job
+#
+# Image pinning convention: all SHAs in this workflow (actions/checkout@SHA,
+# actions/setup-node@SHA, etc.) are SHA-pinned to mitigate supply-chain
+# drift. The container image follows the same rule via @sha256:... after
+# the version tag.
+#
+# When updating @playwright/test:
+#   1. Bump the npm dependency.
+#   2. Re-resolve the image digest:
+#        curl -s "https://mcr.microsoft.com/v2/playwright/manifests/v<X.Y.Z>-jammy" \
+#          -H 'Accept: application/vnd.docker.distribution.manifest.list.v2+json' \
+#          -D - | grep docker-content-digest
+#   3. Update all three `container.image` lines below to the new tag@digest.
+#   4. Verify with `npx playwright --version` inside the new container.
 
 jobs:
   test:
     timeout-minutes: 20
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5]
 
     steps:
       - name: Checkout code
@@ -45,34 +70,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
       - name: Build site
         run: npm run build
 
       # Run all node:test suites once on shard 1 only — the other shards are
       # for Playwright parallelism, not node:test (which runs in <2s and
-      # would just triple the cost). The umbrella `test:node` script covers
-      # build-config, design-md-fixtures, tweaks-{parse,state,prod-noship},
-      # and verify-design-prerequisites.
+      # would just N-tuple the cost). The umbrella `test:node` script covers
+      # build-config, design-md-fixtures, lint-tokens, tweaks-{parse,state,
+      # prod-noship}, and verify-{design-,}prerequisites.
       - name: Run node:test suites (shard 1 only)
         if: matrix.shard == 1
         run: npm run test:node
 
       - name: Run Playwright tests
-        run: npm run test:ci -- --shard=${{ matrix.shard }}/3
+        run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}
 
       - name: Upload test results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -119,6 +130,8 @@ jobs:
 
   visual-regression:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
     # GitHub Actions does NOT support expressions in `permissions:` values
     # — must be static. The job-level grant is `contents: write`; ALL
     # write-effecting steps below are guarded by
@@ -138,20 +151,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
 
       - name: Build site
         run: npm run build
@@ -192,10 +191,13 @@ jobs:
 
       # Snapshot auto-commit ONLY on workflow_dispatch (manual trigger).
       # PR pushes never auto-commit; reviewers must intentionally update
-      # baselines via the manual workflow.
+      # baselines via the manual workflow. The container runs as root, so
+      # mark $GITHUB_WORKSPACE as a safe directory before git operations
+      # (otherwise git complains about dubious ownership).
       - name: Commit updated snapshots
         if: github.event_name == 'workflow_dispatch'
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tests/**/*-snapshots/ 2>/dev/null || true
@@ -212,6 +214,8 @@ jobs:
 
   accessibility:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
     permissions:
       contents: read
     steps:
@@ -226,20 +230,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
 
       - name: Build site
         run: npm run build

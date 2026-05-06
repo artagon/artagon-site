@@ -12,7 +12,11 @@ exclude_path = [
   ".claude/skills",
 ]
 timeout = 30
-retry_wait_time = 2
+# Retry HTTP requests on network errors (e.g. astro.build connection-resets
+# from GitHub-hosted runners). Total attempts = 1 + max_retries; with 5s
+# backoff, three retries cap each URL at ~16s before lychee gives up.
+retry_wait_time = 5
+max_retries = 3
 accept = [200, 204, 206, 301, 302, 304, 307, 308, 403, 429]
 include_verbatim = true
 no_progress = true
