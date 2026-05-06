@@ -32,7 +32,7 @@ The script is invoked manually as part of the cutover playbook documented in `do
 
 #### Scenario: Identical content passes parity check
 
-- **WHEN** the maintainer runs `npm run verify:content-parity -- https://artagon.com https://main.artagon.pages.dev`
+- **WHEN** the maintainer runs `npm run verify:content-parity -- https://artagon.com "$CLOUDFLARE_PREVIEW_URL"`
 - **THEN** the script fetches every route, computes hashes, and exits zero with a per-route summary.
 
 #### Scenario: Drift between targets fails parity check
