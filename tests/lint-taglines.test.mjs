@@ -73,7 +73,10 @@ test("exits 0 when no source files contain hardcoded tagline strings", () => {
     writeSourceFile(
       root,
       "src/components/Tagline.astro",
-      `---\nimport taglines from '../content/taglines.json';\n---\n<span>{taglines.tagline.short}</span>`,
+      `---
+import taglines from '../content/taglines.json';
+---
+<span>{taglines.tagline.short}</span>`,
     );
     const result = run(root);
     assert.equal(result.code, 0, `stderr: ${result.stderr}`);
@@ -89,7 +92,9 @@ test("exits 1 when an .astro file hardcodes tagline.short", () => {
     writeSourceFile(
       root,
       "src/components/BadTagline.astro",
-      `---\n---\n<span>Verified, Private, Attested.</span>`,
+      `---
+---
+<span>Verified, Private, Attested.</span>`,
     );
     const result = run(root);
     assert.equal(result.code, 1, `stdout: ${result.stdout}`);
@@ -106,7 +111,11 @@ test("exits 0 when an .mdx content file contains a tagline string (prose content
     writeSourceFile(
       root,
       "src/content/pages/home.mdx",
-      `---\ntitle: Home\n---\n\nEvery claim, proven. Every token, bound.`,
+      `---
+title: Home
+---
+
+Every claim, proven. Every token, bound.`,
     );
     const result = run(root);
     // .mdx files are not scanned — prose content is legitimate

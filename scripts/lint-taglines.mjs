@@ -8,8 +8,9 @@
  *   `src/content/taglines.json` MUST NOT appear verbatim as string
  *   literals in any source file outside that JSON file itself.
  *
- *   Scans all *.astro, *.mdx, *.ts, *.tsx, *.mjs files under src/.
- *   Excludes the canonical taglines.json file.
+ *   Scans all *.astro, *.ts, *.tsx, *.mjs files under src/.
+ *   Excludes *.mdx (authored prose content where tagline text is legitimate).
+ *   Excludes the canonical taglines.json file itself.
  *
  * Exit codes:
  *   0 — no verbatim tagline literals found outside taglines.json

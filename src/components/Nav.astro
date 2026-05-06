@@ -187,9 +187,9 @@ nav[aria-label="Primary"] {
   outline-offset: 2px;
 }
 
-/* Anchor targets hidden under sticky nav */
+/* Anchor targets hidden under sticky nav — use nav height + small buffer */
 :global(:target) {
-  scroll-margin-top: 80px;
+  scroll-margin-top: 72px;
 }
 
 @media (max-width: 640px) {

@@ -8,7 +8,10 @@ const { tagline } = taglines;
 const year = new Date().getFullYear();
 const version = pkg.version;
 let gitSha = 'unknown';
-try { gitSha = execSync('git rev-parse --short HEAD', { timeout: 3000 }).toString().trim().slice(0, 7); } catch {}
+try { gitSha = execSync('git rev-parse --short HEAD', { timeout: 3000 }).toString().trim().slice(0, 7); } catch (e) {
+  // Non-fatal: version string falls back to 'unknown' if git is unavailable (shallow clones, CI detach)
+  process.stderr.write(`Footer: could not read git SHA — ${e.message}\n`);
+}
 const versionString = `v${version} — build ${gitSha}`;
 
 const cols = [
