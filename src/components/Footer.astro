@@ -1,21 +1,204 @@
 ---
-import Tagline from './Tagline.astro';
+import { execSync } from 'node:child_process';
+import pkg from '../../package.json';
+import ThemeToggle from './ThemeToggle.astro';
+import taglines from '../content/taglines.json';
+
+const { tagline } = taglines;
+const year = new Date().getFullYear();
+const version = pkg.version;
+let gitSha = 'unknown';
+try { gitSha = execSync('git rev-parse --short HEAD', { timeout: 3000 }).toString().trim().slice(0, 7); } catch {}
+const versionString = `v${version} — build ${gitSha}`;
+
+const cols = [
+  {
+    label: 'Platform',
+    links: [
+      { href: '/platform',   text: 'Platform' },
+      { href: '/use-cases',  text: 'Use cases' },
+      { href: '/standards',  text: 'Standards' },
+      { href: '/writing',    text: 'Writing' },
+    ],
+  },
+  {
+    label: 'Developers',
+    links: [
+      { href: '/docs',       text: 'Docs' },
+      { href: '/developers', text: 'Developers' },
+      { href: '/play',       text: 'Playground' },
+      { href: '/status',     text: 'Status' },
+    ],
+  },
+  {
+    label: 'Company',
+    links: [
+      { href: '/vision',     text: 'Vision' },
+      { href: '/roadmap',    text: 'Roadmap' },
+    ],
+  },
+  {
+    label: 'Legal',
+    links: [
+      { href: '/privacy',      text: 'Privacy' },
+      { href: '/security',     text: 'Security' },
+      { href: '/security.txt', text: 'security.txt' },
+    ],
+  },
+] as const;
 ---
 <footer role="contentinfo" class="site-footer">
-  <div class="container">
-    <nav aria-label="Footer">
-      <div class="badges" style="margin-bottom:10px">
-        <a class="pill" href="/privacy">Privacy by design</a>
-        <a class="pill" href="/security">Security</a>
-        <a class="pill" href="/status">Status</a>
-        <a class="pill" href="/security.txt">security.txt</a>
+  <div class="footer-inner wrap">
+    <div class="footer-brand">
+      <a href="/" class="footer-wordmark" aria-label="Artagon home">
+        <img src="/icons/icon-64.png" alt="" width="28" height="28" aria-hidden="true" />
+        <span>Artagon</span>
+      </a>
+      <p class="footer-positioning">{tagline.positioning}</p>
+      <div class="footer-theme">
+        <ThemeToggle />
       </div>
-    </nav>
-    <div>© <span id="y"></span> Artagon. All rights reserved.</div>
-    <div class="discrete">
-      <a href="/docs">Docs</a> • <a href="/faq">FAQ</a> • <a href="/status">Status</a> • <a href="/security.txt">Security.txt</a> • <a href="/security">Responsible Disclosure</a>
     </div>
-    <div class="discrete" aria-label="Company motto"><Tagline variant="sentence" /></div>
+
+    <nav class="footer-cols" aria-label="Footer">
+      {cols.map(col => (
+        <div class="footer-col">
+          <h3 class="footer-col-heading">{col.label}</h3>
+          <ul role="list">
+            {col.links.map(link => (
+              <li><a href={link.href}>{link.text}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </nav>
   </div>
-  <script>document.getElementById('y').textContent=(new Date()).getFullYear()</script>
+
+  <div class="footer-meta wrap">
+    <span>© {year} Artagon, Inc. — Philadelphia, PA</span>
+    <span class="footer-stack">Built on Astro · Open-source core · Apache 2.0</span>
+    <span class="footer-version">{versionString}</span>
+  </div>
 </footer>
+
+<style>
+.site-footer {
+  border-top: 1px solid var(--line-soft);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 3rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.footer-wordmark:hover {
+  color: var(--accent);
+}
+
+.footer-positioning {
+  color: var(--fg-2);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 200px;
+}
+
+.footer-theme {
+  margin-top: auto;
+}
+
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.footer-col-heading {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  margin: 0 0 0.75rem;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.footer-col a {
+  color: var(--fg-2);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-col a:hover {
+  color: var(--accent);
+}
+
+.footer-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+  color: var(--fg-3);
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+
+.footer-stack,
+.footer-version {
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 860px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .footer-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+</style>

@@ -5,6 +5,7 @@ import Footer from "../components/Footer.astro";
 import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
 import HeroChart from "../components/HeroChart.astro";
+import taglines from "../content/taglines.json";
 const page = {
   title:
     "Artagon — OIDC 2.1 Provider, GNAP Authorization Server & Verifiable Credentials",
@@ -20,7 +21,7 @@ const page = {
     <div class="twocol">
       <div>
         <div class="mission-badge">TRUSTED IDENTITY FOR MACHINES AND HUMANS</div>
-        <h1 id="hero-h1">Verified, Private, Attested.</h1>
+        <h1 id="hero-h1">{taglines.tagline.short}</h1>
         <p id="hero-sub" class="sub">
           OIDC 2.1, GNAP, Passkey sign‑in, W3C Verifiable Credentials (SD‑JWT, BBS+), device attestation, and graph‑native authorization—unified in one platform. <strong>The provable identity cloud.</strong>
         </p>

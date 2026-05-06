@@ -1,15 +1,16 @@
 ---
+import taglines from '../content/taglines.json';
 export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
 const {
   title = 'Artagon — Trusted Identity for Machines and Humans',
-  description = 'Passkeys, verifiable credentials, attested clients, and graph-native policy — Trusted Identity for Machines and Humans - Verified, Private, Attested',
+  description = `Passkeys, verifiable credentials, attested clients, and graph-native policy — ${taglines.tagline.full}`,
   path = '/',
   // Use generated OG image from logos package (1200x630)
   image = '/assets/logos/og-image.png',
   robots
 } = Astro.props;
 const url = new URL(path, Astro.site ?? 'https://artagon.com').toString();
-const motto = 'Trusted Identity for Machines and Humans - Verified, Private, Attested';
+const motto = taglines.tagline.full;
 const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
 ---
 <title>{title}</title>
@@ -34,7 +35,7 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
   "@context":"https://schema.org","@type":"Organization","name":"Artagon",
   "url":"https://artagon.com/",
   "logo":"https://artagon.com/assets/logos/logo-square-512.png",
-  "slogan":"Trusted Identity for Machines and Humans - Verified, Private, Attested",
+  "slogan":taglines.tagline.full,
   "sameAs":["https://github.com/artagon"]
 }, null, 2)}
 </script>
@@ -43,6 +44,6 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
   "@context":"https://schema.org","@type":"Service","name":"Artagon Identity Platform",
   "serviceType":"Identity and Access Management (IAM)","provider":{"@type":"Organization","name":"Artagon","url":"https://artagon.com/"},
   "areaServed":"Worldwide","url":"https://artagon.com/",
-  "description":"The Unified Identity Platform for Machines and Humans. OIDC 2.1 OpenID Provider with PAR, JAR, JARM, DPoP, mTLS. GNAP Authorization Server with proof-of-possession. Verifiable Credentials using SD-JWT and BBS+ via OID4VCI/VP. Passkey-first authentication (WebAuthn/FIDO2). Device and app attestation (Android Play Integrity, Apple App Attest). Zanzibar-style relationship graph with PDP policy engine (XACML, Cedar, OPA). Zero-knowledge selective disclosure. Privacy-by-design identity infrastructure. Verified, Private, Attested."
+  "description":`The Unified Identity Platform for Machines and Humans. OIDC 2.1 OpenID Provider with PAR, JAR, JARM, DPoP, mTLS. GNAP Authorization Server with proof-of-possession. Verifiable Credentials using SD-JWT and BBS+ via OID4VCI/VP. Passkey-first authentication (WebAuthn/FIDO2). Device and app attestation (Android Play Integrity, Apple App Attest). Zanzibar-style relationship graph with PDP policy engine (XACML, Cedar, OPA). Zero-knowledge selective disclosure. Privacy-by-design identity infrastructure. ${taglines.tagline.short}`
 }, null, 2)}
 </script>

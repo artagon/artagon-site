@@ -1,0 +1,14 @@
+{
+  "tagline": {
+    "positioning": "Trusted identity for machines and humans — verified, private, attested.",
+    "full": "Trusted Identity for Machines and Humans — Verified, Private, Attested",
+    "short": "Verified, Private, Attested.",
+    "abbr": "V • P • A",
+    "inline": "Verified • Private • Attested",
+    "triad": [
+      "Every claim, proven.",
+      "Every token, bound.",
+      "Every decision, traceable."
+    ]
+  }
+}
