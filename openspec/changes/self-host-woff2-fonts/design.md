@@ -50,11 +50,13 @@ Ship `.woff2` only. Browser support: Chrome 36+, Firefox 39+, Safari 12+, Edge 1
 
 ### D3: Per-route preload via Astro slot
 
-`BaseLayout.astro` accepts an `Astro.props.preloadFont?: string` prop. Default is Space Grotesk 500 (LCP-critical for marketing routes per DESIGN.md). Long-form `/writing/*` routes pass `preloadFont="fraunces-400-italic"`.
+`BaseLayout.astro` accepts an `Astro.props.preloadFont?: string` prop in the form `"<family>/<weight>-<style>"` (matching the D7 file naming convention). Default is `"space-grotesk/500-normal"` (LCP-critical for marketing routes per DESIGN.md). Long-form `/writing/*` routes pass `preloadFont="fraunces/400-italic"`.
 
 ```astro
 ---
-const { preloadFont = "space-grotesk-500" } = Astro.props;
+// preloadFont prop: "<family>/<weight>-<style>" — maps directly onto D7 on-disk path
+// Examples: "space-grotesk/500-normal", "fraunces/400-italic"
+const { preloadFont = "space-grotesk/500-normal" } = Astro.props;
 ---
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href={`/assets/fonts/${preloadFont}.woff2`}>
@@ -74,7 +76,7 @@ const { preloadFont = "space-grotesk-500" } = Astro.props;
 - `ascent-override = round(face.sTypoAscender / face.unitsPerEm * 100, 1)%`
 - (similar for descent + line-gap)
 
-Output: a TS object literal pasted into `theme.css` `@font-face` block by hand. Maintainer reviews; commit.
+Output (default): a TS object literal printed to stdout for review. With `--write`, the script patches each `@font-face` block in `theme.css` in-place (idempotent on re-run). Maintainer reviews the diff and commits. The `--write` mode is the REQUIRED workflow; manual hand-tuning of override values in `theme.css` is FORBIDDEN per the `@font-face` Declarations requirement.
 
 `scripts/verify-font-metrics.mjs` (CI gate, run every postbuild) re-parses each WOFF2 and re-computes the metrics. Compares against `theme.css` declarations. Fails build if any value drifts > 0.5%. The 0.5% threshold is below the visually-detectable contribution to CLS at typical font-size ranges (h1 — 56-108px; body — 16px; sub-pixel rounding stays below the perceptual threshold per Bram Stein's CSS Working Group research at https://www.zachleat.com/web/font-styles/ — derived from his "Critical Path: Font Loading" presentations 2020-2022). Tightening to 0.1% creates CI flake from rounding noise; loosening to 1% lets perceptible CLS shifts ship. 0.5% is the documented engineering floor. Per multi-reviewer-r1 finding [L-2].
 
@@ -126,14 +128,14 @@ Examples:
 
 `<family>` matches the kebab-case `font-family` declaration. `<weight>` is the 100-900 numeric. `<style>` is `normal` or `italic`.
 
-The preload-link prop maps directly: `preloadFont="space-grotesk-500"` → `/assets/fonts/space-grotesk/500-normal.woff2` (style defaults to `normal` when omitted; explicit `-italic` suffix overrides).
+The `preloadFont` prop uses the `"<family>/<weight>-<style>"` format — identical to the on-disk path segment — so the href template literal requires no transformation: `preloadFont="space-grotesk/500-normal"` → `href="/assets/fonts/space-grotesk/500-normal.woff2"`.
 
 **Alternative considered:** flat layout `public/assets/fonts/space-grotesk-500.woff2`. Rejected — license file placement gets awkward (one license per binary).
 
 ### D8: Test strategy
 
-- **Unit (Vitest)**: `tests/unit/measure-font-payload.test.ts`, `tests/unit/verify-font-metrics.test.ts`. mkdtemp + synthetic dist/. Fixtures: a tiny pre-canned WOFF2 (under 1 KB; just enough for parser to read head + OS/2).
-- **Integration (Playwright)**: NEW `tests/e2e/font-loading.spec.ts`. Loads `/`, asserts `getComputedStyle(h1).fontFamily` resolves to "Space Grotesk", asserts the network request for `space-grotesk-500.woff2` was made AND it was the only font request before LCP fired.
+- **Unit (node:test)**: `tests/measure-font-payload.test.mjs`, `tests/verify-font-metrics.test.mjs`. mkdtemp + synthetic dist/. Fixtures: a tiny pre-canned WOFF2 (under 1 KB; just enough for parser to read head + OS/2). (Flat `tests/` layout per [Prerequisites](#prerequisites); migrates to `tests/unit/*.test.ts` when `modernize-unit-tests-with-vitest` archives.)
+- **Integration (Playwright)**: NEW `tests/font-loading.spec.ts`. Loads `/`, asserts `getComputedStyle(h1).fontFamily` resolves to "Space Grotesk", asserts the network request for `space-grotesk/500-normal.woff2` was made AND it was the only font request before LCP fired.
 - **Visual regression**: existing `tests/styling-snapshots.spec.ts` baseline absorbs the WOFF2 typography change; baseline must be regenerated via `workflow_dispatch`.
 - **CLS gate**: USMR Phase 12.3 already specifies CLS < 0.1 via Playwright; the metrics-override work in this change keeps font-swap CLS well under that threshold.
 

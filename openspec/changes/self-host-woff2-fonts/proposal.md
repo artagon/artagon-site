@@ -13,7 +13,7 @@ This change is **host-agnostic** — it places WOFF2 binaries under `public/asse
 - **Non-display families (Fraunces, Instrument Serif) MUST NOT load on routes that don't use them.** Per-route `<link rel="preload">` emits ONLY the LCP-critical face for that route (Space Grotesk on marketing routes per DESIGN.md). Other faces lazy-load via the cascade.
 - Build `scripts/measure-font-payload.mjs` (`npm run measure:font-payload`): fails the build if total WOFF2 per route > 180 KB OR per-family > 60 KB. Wires into postbuild.
 - Build `scripts/derive-font-metrics.mjs` (one-shot generator) + `scripts/verify-font-metrics.mjs` (CI gate): derives `size-adjust` / `ascent-override` / `descent-override` / `line-gap-override` from each WOFF2's `head` + `OS/2` tables vs the configured fallback (`system-ui` for sans, `Georgia` for serif, `ui-monospace` for mono). Verify gate fails if `theme.css` overrides drift from re-derived values.
-- Add Vitest tests for `measure-font-payload.mjs` and `verify-font-metrics.mjs` (mkdtemp + synthetic `dist/` fixtures).
+- Add `node:test` tests for `measure-font-payload.mjs` and `verify-font-metrics.mjs` (mkdtemp + synthetic `dist/` fixtures), following the flat `tests/*.test.mjs` layout.
 - Wire `verify:font-metrics` into postbuild after `verify-font-self-hosting`.
 
 ## Capabilities
