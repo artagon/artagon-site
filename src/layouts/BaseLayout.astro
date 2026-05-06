@@ -1,6 +1,7 @@
 ---
 import Seo from '../components/SeoTags.astro';
 import SeoIcons from '../components/SeoIcons.astro';
+import SkipLink from '../components/SkipLink.astro';
 import ThemePreview from '../components/ThemePreviewPanel.astro';
 import Tweaks from '../components/Tweaks.astro';
 const DEV = import.meta.env.DEV;
@@ -38,6 +39,9 @@ const { title, description, path='/', image, robots } = Astro.props;
     </script>
     <link rel="stylesheet" href="/assets/theme.css" />
     <slot name="head" />
+    <slot name="json-ld" />
+    <slot name="indexation" />
+    <slot name="branding" />
     <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
     <script is:inline>
 window.__setTheme = function(t){
@@ -54,9 +58,9 @@ window.__setTheme = function(t){
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <SkipLink />
     <slot name="header" />
-    <main id="main">
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <slot name="footer" />
