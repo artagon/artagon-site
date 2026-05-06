@@ -54,6 +54,7 @@
     "lint:design-md-uniqueness": "node scripts/verify-design-md-uniqueness.mjs",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "lint:taglines": "node scripts/lint-taglines.mjs",
+    "lint:skip-link": "node scripts/lint-skip-link.mjs",
     "diff:design": "design.md diff origin/main:DESIGN.md DESIGN.md",
     "export:dtcg": "design.md export --format dtcg DESIGN.md",
     "spec:cache": "design.md spec --format markdown > openspec/.cache/design-md-spec.md",

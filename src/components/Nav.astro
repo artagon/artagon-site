@@ -2,11 +2,15 @@
 const path = Astro.url.pathname;
 const active = (href: string) => path === href || path.startsWith(href + '/');
 
+// Spec §3.1 calls for "Platform · Use cases · Standards · Writing".
+// /use-cases, /standards, /writing routes ship in USMR Phase 4-5 — until
+// then they would 404 and break the lychee link-check. Restore the full
+// list when those routes exist.
 const navLinks = [
   { href: '/platform',   text: 'Platform' },
-  { href: '/use-cases',  text: 'Use cases' },
-  { href: '/standards',  text: 'Standards' },
-  { href: '/writing',    text: 'Writing' },
+  { href: '/vision',     text: 'Vision' },
+  { href: '/roadmap',    text: 'Roadmap' },
+  { href: '/docs',       text: 'Docs' },
 ] as const;
 ---
 <header class="site-nav">

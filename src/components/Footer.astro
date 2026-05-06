@@ -7,21 +7,30 @@ import taglines from '../content/taglines.json';
 const { tagline } = taglines;
 const year = new Date().getFullYear();
 const version = pkg.version;
-let gitSha = 'unknown';
-try { gitSha = execSync('git rev-parse --short HEAD', { timeout: 3000 }).toString().trim().slice(0, 7); } catch (e) {
-  // Non-fatal: version string falls back to 'unknown' if git is unavailable (shallow clones, CI detach)
-  process.stderr.write(`Footer: could not read git SHA — ${e.message}\n`);
+// Prefer the CI-injected commit SHA so shallow clones don't fall back
+// to 'unknown'. `git rev-parse` covers the local-dev path.
+let gitSha = process.env.GITHUB_SHA?.slice(0, 7) ?? '';
+if (!gitSha) {
+  try {
+    gitSha = execSync('git rev-parse --short HEAD', { timeout: 3000 }).toString().trim().slice(0, 7);
+  } catch (e) {
+    // Non-fatal: version string falls back to 'unknown' if git is
+    // unavailable (e.g. tarball deploy with no .git).
+    process.stderr.write(`Footer: could not read git SHA — ${e.message}\n`);
+    gitSha = 'unknown';
+  }
 }
 const versionString = `v${version} — build ${gitSha}`;
 
+// /use-cases, /standards, /writing ship in USMR Phase 4-5; restore those
+// rows when their routes exist (lychee fails on dead links).
 const cols = [
   {
     label: 'Platform',
     links: [
       { href: '/platform',   text: 'Platform' },
-      { href: '/use-cases',  text: 'Use cases' },
-      { href: '/standards',  text: 'Standards' },
-      { href: '/writing',    text: 'Writing' },
+      { href: '/vision',     text: 'Vision' },
+      { href: '/roadmap',    text: 'Roadmap' },
     ],
   },
   {
@@ -36,8 +45,9 @@ const cols = [
   {
     label: 'Company',
     links: [
-      { href: '/vision',     text: 'Vision' },
-      { href: '/roadmap',    text: 'Roadmap' },
+      { href: '/faq',        text: 'FAQ' },
+      { href: '/get-started', text: 'Get started' },
+      { href: '/how',        text: 'How it works' },
     ],
   },
   {
@@ -89,23 +99,23 @@ const cols = [
   border-top: 1px solid var(--line-soft);
   background: var(--bg-1);
   color: var(--fg-1);
-  padding-top: 3rem;
-  padding-bottom: 2rem;
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-8);
   font-size: 0.9rem;
 }
 
 .footer-inner {
   display: grid;
   grid-template-columns: 220px 1fr;
-  gap: 3rem;
-  padding-bottom: 2.5rem;
+  gap: var(--space-12);
+  padding-bottom: var(--space-10);
   border-bottom: 1px solid var(--line-soft);
 }
 
 .footer-brand {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .footer-wordmark {
@@ -137,7 +147,7 @@ const cols = [
 .footer-cols {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .footer-col-heading {
@@ -146,7 +156,7 @@ const cols = [
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--fg);
-  margin: 0 0 0.75rem;
+  margin: 0 0 var(--space-3);
 }
 
 .footer-col ul {
@@ -171,8 +181,8 @@ const cols = [
 .footer-meta {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding-top: 1.25rem;
+  gap: var(--space-6);
+  padding-top: var(--space-5);
   color: var(--fg-3);
   font-size: 0.78rem;
   flex-wrap: wrap;
@@ -201,7 +211,7 @@ const cols = [
   .footer-meta {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 }
 </style>
