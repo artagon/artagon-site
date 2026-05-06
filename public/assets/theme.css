@@ -115,10 +115,14 @@
     --radius-xs: 4px;
     --radius-md: 10px;
 
-    /* ----- Fluid type scale (DESIGN.md §3.2; floors at 360px, ceilings at 1440px+) -----
+    /* ----- Fluid type scale (DESIGN.md §3.2; floors at 360px viewport,
+     *       ceilings at 1440px+ viewport) -----
      * Spec: USMR style-system §"Fluid Type Scale via clamp()".
-     * h1: floor ≥ 56px @ 360vw, ceiling ≤ 108px @ ≥1440vw. 7.2vw lands at
-     * 103.7px @ 1440px (≤108) and 25.9vw @ 360px (clamped to 56px floor).
+     * h1 contract: ≥ 56px at 360px viewport; ≤ 108px at ≥ 1440px viewport.
+     * For clamp(3.5rem, 7.2vw, 6.75rem):
+     *   - at 360px viewport: 7.2vw = 25.92px → clamped UP to 56px (floor) ✓
+     *   - at 1440px viewport: 7.2vw = 103.68px (≤ 108px ceiling) ✓
+     *   - at ≥ 1500px viewport: clamped DOWN to 108px (ceiling) ✓
      */
     --fs-h1: clamp(3.5rem, 7.2vw, 6.75rem); /* 56 → 108 */
     --fs-h2: clamp(2.25rem, 4vw, 3.75rem); /* 36 → 60 */

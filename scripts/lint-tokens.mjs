@@ -2,16 +2,23 @@
 /**
  * lint-tokens.mjs
  *
- * Per USMR `style-system` §"Token Categories":
+ * Per USMR `style-system` §"Token Categories" (color subset):
  *
- *   All component CSS MUST consume design tokens. Raw px / em / rem
- *   values for spacing/sizing categories outside `public/assets/theme.css`
- *   are forbidden, and color literals (hex / rgb / hsl / oklch) outside
- *   `public/assets/theme.css` are forbidden.
+ *   Color literals (hex / rgb / rgba / hsl / hsla / oklch / oklab)
+ *   in `.css` and `.mdx` files outside `public/assets/theme.css` are
+ *   forbidden. All component CSS MUST consume colors via `var(--*)`.
  *
- *   `.astro` <style> blocks are covered by ast-grep rules
+ *   `.astro` <style> blocks are covered by sibling ast-grep rules
  *   (rules/security/no-untraceable-token.yml + no-raw-color-literal.yml).
- *   This script covers .css and .mdx files that ast-grep doesn't lint.
+ *   This script covers .css and .mdx files that ast-grep doesn't lint
+ *   well.
+ *
+ *   The spacing/sizing half of "Token Categories" (forbid raw px/em/rem
+ *   outside theme.css) is NOT enforced here. Implementing it requires
+ *   distinguishing legitimate uses (line-height: 1.5, calc() math,
+ *   clamp() formulas already in theme.css) from forbidden ad-hoc
+ *   spacing — a separate design decision tracked as a follow-up under
+ *   USMR Phase 12 quality gates.
  *
  * Exit codes:
  *   0 — no token violations
@@ -33,18 +40,21 @@ const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
 // raw OKLCH literals in its frontmatter.
 const ALLOWLIST = new Set(["public/assets/theme.css", "DESIGN.md"]);
 
-// Color literal patterns. Hex must follow a CSS value-position character
-// ([:,(\s/]) so we catch every literal in multi-value declarations like
-// `box-shadow: 0 1px #abc, 0 2px #def` and `linear-gradient(#a, #b)`,
-// while still skipping ID/href anchors like `#hash-link` in MDX prose.
+// Color literal patterns. Hex uses a lookbehind so the match itself is
+// just `#hex` (reported file:line:col anchors at the `#`, not at the
+// preceding delimiter). The lookbehind requires a CSS value-position
+// character so we skip ID/href anchors like `#hash-link` in MDX prose.
+// The function-name patterns are case-insensitive (`i` flag) because
+// CSS function names ARE case-insensitive — `RGB(...)` is valid CSS
+// and would otherwise bypass the gate.
 const COLOR_PATTERNS = [
-  { name: "hex", re: /(?:[:,(\s\/])\s*#[0-9a-fA-F]{3,8}\b/g },
-  { name: "rgb", re: /\brgb\(/g },
-  { name: "rgba", re: /\brgba\(/g },
-  { name: "hsl", re: /\bhsl\(/g },
-  { name: "hsla", re: /\bhsla\(/g },
-  { name: "oklch", re: /\boklch\(/g },
-  { name: "oklab", re: /\boklab\(/g },
+  { name: "hex", re: /(?<=[:,(\s\/])#[0-9a-fA-F]{3,8}\b/g },
+  { name: "rgb", re: /\brgb\(/gi },
+  { name: "rgba", re: /\brgba\(/gi },
+  { name: "hsl", re: /\bhsl\(/gi },
+  { name: "hsla", re: /\bhsla\(/gi },
+  { name: "oklch", re: /\boklch\(/gi },
+  { name: "oklab", re: /\boklab\(/gi },
 ];
 
 function listTrackedFiles() {

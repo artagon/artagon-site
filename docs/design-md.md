@@ -151,7 +151,7 @@ This section governs the **drift** gate (CSS tokens outside DESIGN.md), not the 
 
 Tokens: `` `--ink` ``, `` `--bg-alt` ``, `` `--surface` ``, `` `--muted` ``, `` `--primary` ``, `` `--text` ``, `` `--border` ``, `` `--ring` ``, `` `--maxw` ``, `` `--radius` ``, `` `--shadow` ``.
 
-Pre-existing theme primitives that pre-date DESIGN.md adoption. They power the legacy `:root` and `:root[data-theme="…"]` blocks that ship the twilight/midnight/slate palette switch the marketing site relies on today. Each one will either fold into a DESIGN.md frontmatter token (e.g. `--text` → `colors.fg`, `--surface` → `colors.bg-1`) or be retired entirely as the redesign in `update-site-marketing-redesign` lands. Until that work concludes the names cannot be removed without breaking every component that references them, so they live on this allow-list with no rationale beyond "transitional, scheduled for removal in TG-D and the redesign change."
+Pre-existing theme primitives that pre-date DESIGN.md adoption. They power the legacy `:root` and `:root[data-theme="…"]` blocks that ship the twilight/midnight/slate palette switch the marketing site relies on today. Each one will either fold into a DESIGN.md frontmatter token (e.g. `--text` → `colors.fg`, `--surface` → `colors.bg-1`) or be retired entirely as the redesign in `update-site-marketing-redesign` lands. Until that work concludes the names cannot be removed without breaking every component that references them, so they live on this allow-list as transitional surface area, scheduled for removal under a future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) coordinated with the redesign archive.
 
 ### 6.2 Brand triad
 
@@ -205,7 +205,7 @@ T-shirt-sized `gap` aliases used inside grid and flex layouts. They map onto the
 
 Tokens: `` `--radius` ``, `` `--radius-card` ``, `` `--radius-sm` ``, `` `--radius-tiny` ``, `` `--radius-lg` ``, `` `--radius-xl` ``, `` `--radius-full` ``.
 
-The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; TG-D will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
+The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; the future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
 
 ### 6.11 Layout chrome
 
@@ -223,7 +223,7 @@ Tokens scoped to the `/roadmap` page's card grid (`--rm-` prefix = roadmap-modul
 
 Tokens: `` `--nd-bg` ``, `` `--nd-bg-1` ``, `` `--nd-bg-2` ``, `` `--nd-line` ``, `` `--nd-line-soft` ``, `` `--nd-fg` ``, `` `--nd-fg-1` ``, `` `--nd-fg-2` ``, `` `--nd-fg-3` ``, `` `--nd-accent` ``, `` `--nd-accent-dim` ``, `` `--nd-accent-ink` ``, `` `--nd-ok` ``, `` `--nd-warn` ``, `` `--nd-bad` ``.
 
-OKLCH-native colour primitives that power the new-design system being introduced by the `update-site-marketing-redesign` change. The `--nd-` prefix namespaces them away from the legacy `--brand-*` / `--teal-*` / `--surface-*` tokens to allow both palettes to coexist during the transition. These tokens intentionally bypass DESIGN.md's `colors` namespace because the upstream `@google/design.md` schema does not model OKLCH triples directly; the OKLCH values are the source of truth, and DESIGN.md hex entries (added in the Phase 2.1 frontmatter) are the derived representation. Once the legacy palette is retired (tracked in TG-D), the `--nd-*` prefix will be dropped and these will become the bare `colors.*` tokens.
+OKLCH-native colour primitives that power the new-design system being introduced by the `update-site-marketing-redesign` change. The `--nd-` prefix namespaces them away from the legacy `--brand-*` / `--teal-*` / `--surface-*` tokens to allow both palettes to coexist during the transition. These tokens intentionally bypass DESIGN.md's `colors` namespace because the upstream `@google/design.md` schema does not model OKLCH triples directly; the OKLCH values are the source of truth, and DESIGN.md hex entries (added in the Phase 2.1 frontmatter) are the derived representation. Once the legacy palette is retired (under the future `migrate-legacy-tokens-to-layer` OpenSpec change), the `--nd-*` prefix will be dropped and these will become the bare `colors.*` tokens.
 
 ### 6.14 Elevation scale
 
@@ -259,7 +259,7 @@ Tokens: `` `--space-0` ``, `` `--space-px` ``, `` `--space-0-5` ``, `` `--space-
 
 Tokens: `` `--radius-none` ``, `` `--radius-xs` ``, `` `--radius-md` ``.
 
-Three radius values added in the Phase 2.1 cascade-layer work that fill gaps in the legacy radius set documented in §6.10. `--radius-none` (0) provides an explicit "sharp corners" token for overrides. `--radius-xs` (4px) maps to DESIGN.md `rounded.sm`. `--radius-md` (10px) maps to approximately DESIGN.md `rounded.md` (8px) with a slight upward adjustment per the new-design spec. These are declared inside `@layer tokens` so that any legacy unlayered `--radius-md` declaration (which pre-dates cascade layers) continues to win for routes not yet migrated, preserving the "Existing Token Preservation" invariant described in the PR.
+Three radius values added in the Phase 2.1 cascade-layer work that fill gaps in the legacy radius set documented in §6.10. `--radius-none` (0) provides an explicit "sharp corners" token for overrides. `--radius-xs` (4px) maps to DESIGN.md `rounded.sm`. `--radius-md` (10px) maps to approximately DESIGN.md `rounded.md` (8px) with a slight upward adjustment per the new-design spec. These three names do NOT collide with any current unlayered radius token (the legacy set is `--radius-card/sm/lg/tiny/xl/full` — none use `none`/`xs`/`md`). They are declared inside `@layer tokens` for category consistency with the rest of the new token set; if a future change introduces an unlayered `--radius-md`, that unlayered declaration will outrank this layered one per the cascade-layers spec — the expected behaviour under "Existing Token Preservation".
 
 ### 6.20 Fluid type scale
 

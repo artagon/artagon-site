@@ -216,6 +216,38 @@ test("hex anchor catches literal inside linear-gradient(#a, #b)", () => {
   assert.equal(matches.length, 2);
 });
 
+// ---------- case-insensitivity (CSS function names are case-insensitive) ----------
+
+test("uppercase RGB(...) is caught (CSS funcs are case-insensitive)", () => {
+  const result = withFixture(
+    (root) => {
+      writeFile(
+        root,
+        "src/components/Card.css",
+        ".x { color: RGB(1, 2, 3); }\n",
+      );
+    },
+    (root) => runScript(root),
+  );
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /raw rgb literal/);
+});
+
+test("MixedCase OkLcH(...) is caught", () => {
+  const result = withFixture(
+    (root) => {
+      writeFile(
+        root,
+        "src/components/Card.css",
+        ".x { color: OkLcH(0.5 0.1 180); }\n",
+      );
+    },
+    (root) => runScript(root),
+  );
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /raw oklch literal/);
+});
+
 // ---------- mdx fence-only scoping ----------
 
 test("mdx: hex inside prose paragraph does NOT trip (anchor href)", () => {
@@ -290,6 +322,42 @@ test("ignores .astro files (covered by ast-grep, not lint-tokens)", () => {
     (root) => runScript(root),
   );
   assert.equal(result.code, 0);
+});
+
+// ---------- complementary coverage assertion ----------
+// The .astro test above only proves lint-tokens doesn't double-cover
+// the file; it does NOT prove the ast-grep companion rule actually
+// fires. This test runs the rule directly against a minimal fixture
+// to lock in the coverage claim.
+test("ast-grep no-raw-color-literal rule fires on raw rgba in .astro <style>", () => {
+  const root = mkdtempSync(join(tmpdir(), "lint-tokens-astro-"));
+  try {
+    writeFile(
+      root,
+      "src/components/Card.astro",
+      "---\n---\n<style>.x { background: rgba(0, 0, 0, 0.1); }</style>\n",
+    );
+    const RULE = join(ROOT, "rules", "security", "no-raw-color-literal.yml");
+    const SG = join(ROOT, "node_modules", ".bin", "sg");
+    let output;
+    try {
+      output = execFileSync(SG, ["scan", "--rule", RULE, root], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    } catch (err) {
+      // ast-grep exits 0 with findings printed to stdout when severity is
+      // warning; only --error promotes to nonzero. Capture both paths.
+      output = (err.stdout?.toString() ?? "") + (err.stderr?.toString() ?? "");
+    }
+    assert.match(
+      output,
+      /no-raw-color-literal/,
+      "expected ast-grep to flag the raw rgba in the .astro fixture",
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 // ---------- exit 2: usage / IO ----------
