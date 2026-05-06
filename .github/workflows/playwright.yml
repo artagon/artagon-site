@@ -20,6 +20,13 @@ concurrency:
 
 env:
   TOTAL_SHARDS: 5
+  # Firefox in mcr.microsoft.com/playwright refuses to launch when
+  # $HOME ownership doesn't match the running user (root inside the
+  # container vs. host UID on the bind-mounted workspace). Setting
+  # HOME=/root sidesteps the ownership check — /root is owned by uid 0,
+  # which matches the container's process UID. Documented as the official
+  # workaround in Playwright's own error message.
+  HOME: /root
 
 # All Playwright jobs run inside `mcr.microsoft.com/playwright:v1.59.1-jammy`
 # (pinned by SHA256 digest), rather than `runs-on: ubuntu-latest` +
