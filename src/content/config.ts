@@ -28,6 +28,18 @@ const authorLink = z.object({
   href: z.string().url(),
 });
 
+/**
+ * The canonical bridge story (USMR site-bridge-story §"Canonical Bridge
+ * Sentence"). Only consumed on `/platform`; lint-bridge.mjs (Phase 5.x)
+ * enforces single-source on the platform route and forbids verbatim
+ * appearance elsewhere. `variants[]` is the allow-list of approved
+ * paraphrases for use on other routes (e.g. the home hero).
+ */
+const bridgeStory = z.object({
+  sentence: z.string().min(1),
+  variants: z.array(z.string()).default([]),
+});
+
 /** Base frontmatter shared by every marketing page. */
 const pageBase = z.object({
   title: z.string().min(1),
@@ -43,6 +55,12 @@ const pageBase = z.object({
   accent: z.string().optional(),
   /** Free-form taxonomy tags; reused by /standards and writing. */
   tags: z.array(z.string()).default([]),
+  /**
+   * Optional bridge story — only `platform.mdx` populates this. lint-bridge
+   * (Phase 5.x) verifies the sentence appears exactly once on `/platform`
+   * and forbids verbatim repetition on other routes.
+   */
+  bridge: bridgeStory.optional(),
 });
 
 const pages = defineCollection({
