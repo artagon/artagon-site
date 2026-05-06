@@ -2,7 +2,7 @@
 :root {
   --rm-card-bg: color-mix(in srgb, var(--surface) 88%, transparent);
   --rm-card-stroke: color-mix(in srgb, var(--border) 72%, transparent);
-  --rm-chip-bg: rgba(148, 163, 184, 0.12);
+  --rm-chip-bg: var(--chip-bg-neutral);
 }
 
 .rm-hero {
@@ -110,7 +110,7 @@
 }
 .rm-toggle input:checked + label {
   background: var(--brand-grad);
-  color: #031018;
+  color: var(--ink-on-brand);
   border-color: transparent;
 }
 
@@ -198,7 +198,7 @@
 .rm-view #view-cards:checked ~ .rm-hero .toggle-cards,
 .rm-view #view-table:checked ~ .rm-hero .toggle-table {
   background: var(--brand-grad);
-  color: #031018;
+  color: var(--ink-on-brand);
   border-color: transparent;
 }
 

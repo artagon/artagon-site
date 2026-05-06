@@ -30,17 +30,17 @@
 
 ## Phase 2 — Design-system foundations (style-system)
 
-- [ ] 2.1 Add raw OKLCH palette + semantic aliases + token categories (motion, elevation, focus-ring, z-index, spacing, radius) to `public/assets/theme.css` behind cascade layers `@layer reset, tokens, utilities, components, overrides`.
-- [ ] 2.2 Define `twilight` (modified — extends existing requirement) and `midnight` (new) under `[data-theme="..."]`. WCAG AA contrast verified by Playwright + `@axe-core/playwright`.
+- [~] 2.1 Add raw OKLCH palette + semantic aliases + token categories (motion, elevation, focus-ring, z-index, spacing, radius) to `public/assets/theme.css` behind cascade layers `@layer reset, tokens, utilities, components, overrides`. (NEW tokens are layered; ~150 legacy `:root` declarations remain unlayered to preserve cascade priority per "Existing Token Preservation". Spec language `"All token definitions MUST live in tokens layer"` will be reconciled by stub change `openspec/changes/migrate-legacy-tokens-to-layer/` (filed; authoring deferred until USMR archives).)
+- [~] 2.2 Define `twilight` (modified — extends existing requirement) and `midnight` (new) under `[data-theme="..."]`. (Theme blocks defined; theme-aware fallbacks via `--brand-teal-rgb` per-theme. Axe-core verification deferred — `@axe-core/playwright` not yet installed; lands with the broader Playwright/axe install in Phase 6 quality gates.)
 - [ ] 2.3 Self-host WOFF2 fonts under `public/assets/fonts/` (Inter Tight, Space Grotesk, Fraunces, Instrument Serif, JetBrains Mono); subset with `unicode-range`; ship `LICENSE.txt`. Non-display families (Fraunces, Instrument Serif) MUST NOT load on routes that don't use them.
 - [ ] 2.3a Emit exactly one `<link rel="preload" as="font" type="font/woff2" crossorigin>` per route, pinned to the LCP-critical face (Space Grotesk for marketing routes per DESIGN.md). Playwright asserts `getComputedStyle(document.querySelector('h1')).fontFamily` resolves to the preloaded family.
 - [ ] 2.3b Build `scripts/measure-font-payload.mjs` (`npm run measure:font-payload`): fails the build if total WOFF2 per route exceeds 180 KB OR per-family exceeds 60 KB. Wire into postbuild.
 - [ ] 2.4 `@font-face` blocks emit `size-adjust`, `ascent-override`, `descent-override`, `line-gap-override` derived from fallback-font metrics.
 - [ ] 2.5 Build `scripts/derive-font-metrics.mjs` and `scripts/verify-font-metrics.mjs`; wire into `npm run verify`.
-- [ ] 2.6 Emit fluid-type `clamp()` scale per `design.md` §6 table; floors at 360 px, ceilings at 1440 px.
-- [ ] 2.7 Update CSP `font-src` to `'self'` only — remove any third-party host. Update `scripts/csp.mjs` accordingly.
-- [ ] 2.8 Build `scripts/lint-tokens.mjs` (forbid hex/rgb/hsl/oklch literals, raw px/em/rem, spacing magic numbers in `.astro`/`.css`/`.mdx` outside `public/assets/theme.css`). Where the rule fits ast-grep, add a `rules/security/no-raw-color-literal.yaml` instead.
-- [ ] 2.9 Wire `lint:tokens` and `verify:font-metrics` into `npm run postbuild` and CI.
+- [x] 2.6 Emit fluid-type `clamp()` scale per `design.md` §6 table; floors at 360 px, ceilings at 1440 px.
+- [x] 2.7 Update CSP `font-src` to `'self'` only — remove any third-party host. Update `scripts/csp.mjs` accordingly.
+- [~] 2.8 Build `scripts/lint-tokens.mjs` (forbid hex/rgb/hsl/oklch literals, raw px/em/rem, spacing magic numbers in `.astro`/`.css`/`.mdx` outside `public/assets/theme.css`). Where the rule fits ast-grep, add a `rules/security/no-raw-color-literal.yaml` instead. (Color subset implemented + ast-grep companion rule shipped. Spacing/sizing enforcement (raw px/em/rem) deferred to Phase 12 quality gates — requires designing the allowlist for legitimate uses (line-height: 1.5, calc() math, clamp() formulas). Tracked in `openspec/changes/migrate-legacy-tokens-to-layer/` Phase 0.2.)
+- [~] 2.9 Wire `lint:tokens` and `verify:font-metrics` into `npm run postbuild` and CI. (`lint:tokens` wired; `verify:font-metrics` deferred to follow-up that lands tasks 2.3/2.3a/2.3b/2.4/2.5 — depends on WOFF2 self-hosting.)
 
 ## Phase 3 — Navigation + site chrome (site-navigation)
 

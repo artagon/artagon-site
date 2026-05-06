@@ -43,6 +43,12 @@ new-design/
 # (matches `.workspace/` and `.lighthouseci/` semantics) — not tracked.
 .ui-design/
 
+# Lighthouse CI runtime cache (LHCI maintains an `.lighthouseci/` directory
+# next to lighthouserc.json with run artifacts). Per standardize-build-artifacts
+# spec, generated artifacts MUST live in .build/ — but LHCI's path is wired
+# into the CLI and not configurable, so we ignore in place.
+.lighthouseci/
+
 # Local-only ignore stash. `.gitignore.local` is honored by some tools as
 # a parallel ignore layer; not tracked.
 .gitignore.local

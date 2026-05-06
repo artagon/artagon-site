@@ -26,7 +26,15 @@ function buildPolicy(hashes, extras = {}) {
     "default-src": ["'self'"],
     "img-src": ["'self'", "data:"],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "font-src": ["'self'", "data:"],
+    // USMR Phase 2 (style-system §"CSP font-src is self-only"): self only,
+    // no data: URIs and no third-party CDNs. WOFF2 self-hosting (task 2.3)
+    // is deferred to a follow-up; until then there are no @font-face
+    // declarations, so this directive currently allows only the future
+    // self-hosted WOFF2 set under /assets/fonts/. The postbuild gate at
+    // scripts/verify-font-self-hosting.mjs fails the build if any
+    // dist/**/*.html or dist/**/*.css references a third-party font CDN
+    // (fonts.googleapis.com, etc.) that this CSP would block at runtime.
+    "font-src": ["'self'"],
     "connect-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],

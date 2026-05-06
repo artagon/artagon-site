@@ -151,7 +151,7 @@ This section governs the **drift** gate (CSS tokens outside DESIGN.md), not the 
 
 Tokens: `` `--ink` ``, `` `--bg-alt` ``, `` `--surface` ``, `` `--muted` ``, `` `--primary` ``, `` `--text` ``, `` `--border` ``, `` `--ring` ``, `` `--maxw` ``, `` `--radius` ``, `` `--shadow` ``.
 
-Pre-existing theme primitives that pre-date DESIGN.md adoption. They power the legacy `:root` and `:root[data-theme="…"]` blocks that ship the twilight/midnight/slate palette switch the marketing site relies on today. Each one will either fold into a DESIGN.md frontmatter token (e.g. `--text` → `colors.fg`, `--surface` → `colors.bg-1`) or be retired entirely as the redesign in `update-site-marketing-redesign` lands. Until that work concludes the names cannot be removed without breaking every component that references them, so they live on this allow-list with no rationale beyond "transitional, scheduled for removal in TG-D and the redesign change."
+Pre-existing theme primitives that pre-date DESIGN.md adoption. They power the legacy `:root` and `:root[data-theme="…"]` blocks that ship the twilight/midnight/slate palette switch the marketing site relies on today. Each one will either fold into a DESIGN.md frontmatter token (e.g. `--text` → `colors.fg`, `--surface` → `colors.bg-1`) or be retired entirely as the redesign in `update-site-marketing-redesign` lands. Until that work concludes the names cannot be removed without breaking every component that references them, so they live on this allow-list as transitional surface area, scheduled for removal under a future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) coordinated with the redesign archive.
 
 ### 6.2 Brand triad
 
@@ -205,7 +205,7 @@ T-shirt-sized `gap` aliases used inside grid and flex layouts. They map onto the
 
 Tokens: `` `--radius` ``, `` `--radius-card` ``, `` `--radius-sm` ``, `` `--radius-tiny` ``, `` `--radius-lg` ``, `` `--radius-xl` ``, `` `--radius-full` ``.
 
-The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; TG-D will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
+The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; the future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
 
 ### 6.11 Layout chrome
 
@@ -218,6 +218,60 @@ Layout-chrome constants — sticky-header height, control-row height, section pa
 Tokens: `` `--rm-card-bg` ``, `` `--rm-card-stroke` ``, `` `--rm-chip-bg` ``.
 
 Tokens scoped to the `/roadmap` page's card grid (`--rm-` prefix = roadmap-module). Module-local tokens deliberately stay out of DESIGN.md to avoid polluting the global token namespace with one-page concerns. The `--rm-` prefix is the contract that signals "do not reference outside the roadmap module"; the allow-list entry confirms the prefix is intentional, not a typo.
+
+### 6.13 New-design OKLCH palette (`--nd-*`)
+
+Tokens: `` `--nd-bg` ``, `` `--nd-bg-1` ``, `` `--nd-bg-2` ``, `` `--nd-line` ``, `` `--nd-line-soft` ``, `` `--nd-fg` ``, `` `--nd-fg-1` ``, `` `--nd-fg-2` ``, `` `--nd-fg-3` ``, `` `--nd-accent` ``, `` `--nd-accent-dim` ``, `` `--nd-accent-ink` ``, `` `--nd-ok` ``, `` `--nd-warn` ``, `` `--nd-bad` ``.
+
+OKLCH-native colour primitives that power the new-design system being introduced by the `update-site-marketing-redesign` change. The `--nd-` prefix namespaces them away from the legacy `--brand-*` / `--teal-*` / `--surface-*` tokens to allow both palettes to coexist during the transition. These tokens intentionally bypass DESIGN.md's `colors` namespace because the upstream `@google/design.md` schema does not model OKLCH triples directly; the OKLCH values are the source of truth, and DESIGN.md hex entries (added in the Phase 2.1 frontmatter) are the derived representation. Once the legacy palette is retired (under the future `migrate-legacy-tokens-to-layer` OpenSpec change), the `--nd-*` prefix will be dropped and these will become the bare `colors.*` tokens.
+
+### 6.14 Elevation scale
+
+Tokens: `` `--elevation-0` ``, `` `--elevation-1` ``, `` `--elevation-2` ``, `` `--elevation-3` ``, `` `--elevation-4` ``, `` `--elevation-5` ``.
+
+Six-level shadow ramp that replaces raw `rgba(0,0,0,*)` box-shadow literals throughout the codebase. `--elevation-0` is `none` (no shadow); levels 1–5 escalate blur radius and opacity from 2px/0.20 to 48px/0.40. DESIGN.md does not currently model an elevation namespace (the upstream schema has no `elevation` group); per §6.7 the project's flat aesthetic restricts shadows to specific affordances, and this scale operationalises that policy. Components should reference `--elevation-{n}` rather than authoring new shadow literals, and `lint:tokens` (via `no-raw-color-literal.yml`) enforces this at build time.
+
+### 6.15 Focus-ring primitives
+
+Tokens: `` `--focus-ring-width` ``, `` `--focus-ring-offset` ``, `` `--focus-ring-color` ``, `` `--focus-ring-shadow` ``.
+
+Accessibility-critical focus-indicator tokens that compose into a double-ring `box-shadow` (inner ring = `--bg`, outer ring = `--brand-teal`) via the `--focus-ring-shadow` shorthand. Keeping them as CSS custom properties allows the ring to theme-switch automatically when `--bg` or `--brand-teal` changes. DESIGN.md has no `focus` namespace; these tokens are implementation-level CSS primitives for the interaction contract described in DESIGN.md §3.4 ("Focus visible, brand-teal ring").
+
+### 6.16 Motion tokens
+
+Tokens: `` `--motion-duration-instant` ``, `` `--motion-duration-fast` ``, `` `--motion-duration-base` ``, `` `--motion-duration-slow` ``, `` `--motion-duration-slower` ``, `` `--motion-easing-standard` ``, `` `--motion-easing-emphasized` ``, `` `--motion-easing-decelerate` ``, `` `--motion-easing-accelerate` ``, `` `--motion-easing-linear` ``.
+
+Duration scale (0–480 ms, five steps) and named `cubic-bezier` easing curves aligned with the Material 3 motion vocabulary. The `--motion-easing-emphasized` curve (with overshoot) implements the "spring-like" entrance described in DESIGN.md §3.4. Centralising them as custom properties lets components reference a semantic name (`--motion-easing-standard`) instead of inlining bare timings, and allows global motion-preference overrides (`prefers-reduced-motion`) to be applied at the token level in one place. The upstream `@google/design.md` schema has no `motion` namespace, so these live on the allow-list.
+
+### 6.17 Z-index scale
+
+Tokens: `` `--z-base` ``, `` `--z-raised` ``, `` `--z-dropdown` ``, `` `--z-sticky` ``, `` `--z-overlay` ``, `` `--z-modal` ``, `` `--z-popover` ``, `` `--z-toast` ``, `` `--z-tooltip` ``, `` `--z-debug` ``.
+
+Stacking-context ladder (0 → 9999) that prevents `z-index` wars between independently authored components. Tokens are ordered by semantic role (sticky headers at 1100, modals at 1300, tooltips at 1600, debug overlays at 9999). DESIGN.md is an aesthetic contract, not a layout-stacking contract; z-index management is a CSS implementation concern and has no upstream schema namespace, so these tokens are documented here rather than promoted to DESIGN.md frontmatter.
+
+### 6.18 Atomic spacing scale
+
+Tokens: `` `--space-0` ``, `` `--space-px` ``, `` `--space-0-5` ``, `` `--space-1` ``, `` `--space-2` ``, `` `--space-3` ``, `` `--space-4` ``, `` `--space-5` ``, `` `--space-6` ``, `` `--space-8` ``, `` `--space-10` ``, `` `--space-12` ``, `` `--space-16` ``, `` `--space-20` ``, `` `--space-24` ``.
+
+4px-based atomic spacing scale (0 → 96 px, 15 steps) that underpins the 8-point grid documented in DESIGN.md §3.3. The DESIGN.md `spacing` namespace uses T-shirt sizes (`xs`–`2xl`); these tokens provide the full numeric ramp needed by the CSS cascade so components can construct compound values (e.g. `padding: var(--space-4) var(--space-6)`) without hardcoding pixel values. The two systems are complementary: `spacing.*` tokens name _canonical design steps_, while `--space-*` tokens name _every rung on the 4px ladder_; the overlap tokens are intentionally synonymous.
+
+### 6.19 Cascade-layered radius additions
+
+Tokens: `` `--radius-none` ``, `` `--radius-xs` ``, `` `--radius-md` ``.
+
+Three radius values added in the Phase 2.1 cascade-layer work that fill gaps in the legacy radius set documented in §6.10. `--radius-none` (0) provides an explicit "sharp corners" token for overrides. `--radius-xs` (4px) maps to DESIGN.md `rounded.sm`. `--radius-md` (10px) maps to approximately DESIGN.md `rounded.md` (8px) with a slight upward adjustment per the new-design spec. These three names do NOT collide with any current unlayered radius token (the legacy set is `--radius-card/sm/lg/tiny/xl/full` — none use `none`/`xs`/`md`). They are declared inside `@layer tokens` for category consistency with the rest of the new token set; if a future change introduces an unlayered `--radius-md`, that unlayered declaration will outrank this layered one per the cascade-layers spec — the expected behaviour under "Existing Token Preservation".
+
+### 6.20 Fluid type scale
+
+Tokens: `` `--fs-h1` ``, `` `--fs-h2` ``, `` `--fs-h3` ``, `` `--fs-lead` ``, `` `--fs-body` ``, `` `--fs-small` ``, `` `--fs-micro` ``, `` `--lh-h1` ``, `` `--lh-h2` ``, `` `--lh-h3` ``, `` `--lh-lead` ``, `` `--lh-body` ``, `` `--lh-small` ``, `` `--lh-micro` ``, `` `--tracking-h1` ``, `` `--tracking-h2` ``, `` `--tracking-h3` ``, `` `--tracking-mono-caps` ``.
+
+Phase 2.6 fluid type scale. `--fs-*` tokens use `clamp()` to interpolate between floor and ceiling sizes across the 360 px → 1440 px viewport range; `--lh-*` tokens carry the paired line-height and `--tracking-*` tokens the letter-spacing for display text and mono-caps labels. The DESIGN.md `typography` namespace models font-family and static font-size intent (e.g. `typography.display.fontSize`); it has no slot for the `clamp()` expression or paired line-height/tracking values that are specific to each type role. Promoting these would require schema extensions upstream. Until then they live here as the single source of truth for all typographic sizing in the codebase.
+
+### 6.21 Semantic colour aliases
+
+Tokens: `` `--ink-on-brand` ``, `` `--chip-bg-neutral` ``.
+
+Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklab, var(--nd-fg-2) 12%, transparent)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
 
 ## 7 · Accepted `lint:design` warnings
 
