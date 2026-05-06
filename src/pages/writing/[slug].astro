@@ -1,0 +1,109 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('writing');
+  return posts
+    .filter((p) => !p.data.draft)
+    .map((post) => ({
+      params: { slug: post.id },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const dateFmt = new Intl.DateTimeFormat('en', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<Base
+  title={`${post.data.title} — Artagon`}
+  description={post.data.description}
+  path={`/writing/${post.id}`}
+>
+  <Fragment slot="header"><Header /></Fragment>
+
+  <article class="post container">
+    <header class="post__hero">
+      <p class="post__eyebrow">{post.data.eyebrow}</p>
+      <h1>{post.data.headline}</h1>
+      <p class="post__lede">{post.data.lede}</p>
+      <div class="post__meta">
+        <time datetime={post.data.published.toISOString()}>
+          {dateFmt.format(post.data.published)}
+        </time>
+        {
+          post.data.updated && post.data.updated > post.data.published ? (
+            <span class="post__updated">
+              · updated {dateFmt.format(post.data.updated)}
+            </span>
+          ) : null
+        }
+      </div>
+    </header>
+
+    <div class="post__body">
+      <Content />
+    </div>
+  </article>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>
+
+<style>
+  .post {
+    padding-block: var(--space-12);
+    max-width: 48rem;
+  }
+  .post__hero {
+    margin-block-end: var(--space-10);
+  }
+  .post__eyebrow {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: var(--fg-2);
+    margin: 0 0 var(--space-2);
+  }
+  .post__hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+    margin: 0 0 var(--space-4);
+  }
+  .post__lede {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--fg-2);
+    margin: 0 0 var(--space-4);
+  }
+  .post__meta {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.8rem;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .post__updated {
+    margin-inline-start: var(--space-2);
+  }
+  .post__body {
+    line-height: 1.7;
+  }
+  .post__body :global(h2) {
+    margin-block: var(--space-10) var(--space-4);
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+  .post__body :global(p) {
+    margin-block: 0 var(--space-4);
+  }
+</style>

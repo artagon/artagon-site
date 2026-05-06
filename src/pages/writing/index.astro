@@ -1,0 +1,113 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const posts = (await getCollection('writing'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+
+const dateFmt = new Intl.DateTimeFormat('en', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<Base
+  title="Writing — Artagon"
+  description="Field notes, technical write-ups, and announcements from the team building the Artagon identity platform."
+  path="/writing"
+>
+  <Fragment slot="header"><Header /></Fragment>
+
+  <article class="writing-index container">
+    <header class="writing-index__hero">
+      <p class="writing-index__eyebrow">Writing</p>
+      <h1>Field notes from the team building Artagon.</h1>
+    </header>
+
+    {
+      posts.length === 0 ? null : (
+        <ul role="list" class="writing-index__list">
+          {posts.map((post) => (
+            <li class="writing-index__item">
+              <a class="writing-index__link" href={`/writing/${post.id}`}>
+                <time
+                  class="writing-index__date"
+                  datetime={post.data.published.toISOString()}
+                >
+                  {dateFmt.format(post.data.published)}
+                </time>
+                <h2 class="writing-index__title">{post.data.headline}</h2>
+                <p class="writing-index__lede">{post.data.lede}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </article>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>
+
+<style>
+  .writing-index {
+    padding-block: var(--space-12);
+    max-width: 64rem;
+  }
+  .writing-index__hero {
+    margin-block-end: var(--space-12);
+  }
+  .writing-index__eyebrow {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: var(--fg-2);
+    margin: 0 0 var(--space-2);
+  }
+  .writing-index__hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    margin: 0;
+  }
+  .writing-index__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-8);
+  }
+  .writing-index__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    border-block-end: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+    padding-block-end: var(--space-6);
+    transition: border-color 0.15s ease;
+  }
+  .writing-index__link:hover,
+  .writing-index__link:focus-visible {
+    border-color: var(--brand-teal);
+  }
+  .writing-index__date {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: 0.8rem;
+    color: var(--fg-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .writing-index__title {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    margin: var(--space-2) 0;
+    line-height: 1.2;
+  }
+  .writing-index__lede {
+    color: var(--fg-2);
+    line-height: 1.6;
+    margin: 0;
+  }
+</style>
