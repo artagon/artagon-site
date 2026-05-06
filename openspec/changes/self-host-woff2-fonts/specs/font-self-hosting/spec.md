@@ -12,7 +12,7 @@ All custom typefaces MUST be served from `public/assets/fonts/<family>/<weight>-
 #### Scenario: No third-party font CDN reference in built tree
 
 - **WHEN** `npm run postbuild` finishes
-- **THEN** `scripts/verify-font-self-hosting.mjs` finds zero references to forbidden font hosts (fonts.googleapis.com, fonts.gstatic.com, etc.) in any `dist/**/*.{html,css,svg}` file.
+- **THEN** `scripts/verify-font-self-hosting.mjs` finds zero references to forbidden font hosts (fonts.googleapis.com, fonts.gstatic.com, etc.) in any `.build/dist/**/*.{html,css,svg}` file.
 
 ### Requirement: `@font-face` Declarations with Metrics Overrides
 
@@ -64,13 +64,13 @@ Each route MUST emit between 1 and 2 `<link rel="preload" as="font" type="font/w
 
 ### Requirement: Font Payload Budget
 
-Total WOFF2 bytes referenced by any single route MUST NOT exceed 180 KB. Per-family bytes referenced by any single route MUST NOT exceed 60 KB. `scripts/measure-font-payload.mjs` (`npm run measure:font-payload`) MUST measure these bounds against `dist/` after build and exit non-zero on violation.
+Total WOFF2 bytes referenced by any single route MUST NOT exceed 180 KB. Per-family bytes referenced by any single route MUST NOT exceed 60 KB. `scripts/measure-font-payload.mjs` (`npm run measure:font-payload`) MUST measure these bounds against `.build/dist/` (the configured output dir per `build.config.json`) after build and exit non-zero on violation.
 
 Lowering either threshold via PR is allowed if current usage is below the new floor; raising either threshold requires a follow-up OpenSpec change with Lighthouse CI performance-regression evidence.
 
 #### Scenario: Single route under both budgets
 
-- **WHEN** `measure-font-payload.mjs` runs against `dist/`
+- **WHEN** `measure-font-payload.mjs` runs against `.build/dist/`
 - **THEN** every route reports total ≤ 180 KB and per-family ≤ 60 KB.
 
 #### Scenario: Adding a heavy weight fails the budget

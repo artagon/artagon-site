@@ -38,7 +38,7 @@ Any violation MUST exit non-zero with the offending family + file + property + a
 
 ### Requirement: Font Payload Measurement Gate
 
-`scripts/measure-font-payload.mjs` (`npm run measure:font-payload`) MUST run as part of `npm run postbuild` after `verify:font-metrics`. The gate scans `dist/**/*.html`, identifies all WOFF2 references (preload links + `@font-face` URIs reached via referenced stylesheets), sums on-disk byte sizes per route AND per family-per-route, and exits non-zero if either bound is exceeded:
+`scripts/measure-font-payload.mjs` (`npm run measure:font-payload`) MUST run as part of `npm run postbuild` after `verify:font-metrics`. The gate scans `.build/dist/**/*.html` (the configured output dir per `build.config.json`), identifies all WOFF2 references (preload links + `@font-face` URIs reached via referenced stylesheets), sums on-disk byte sizes per route AND per family-per-route, and exits non-zero if either bound is exceeded:
 
 - Total WOFF2 bytes per route > 180 KB.
 - Per-family WOFF2 bytes per route > 60 KB.
