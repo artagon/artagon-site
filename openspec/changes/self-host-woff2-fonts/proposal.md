@@ -1,6 +1,8 @@
 ## Why
 
-The site's CSP is locked to `font-src 'self'` (per `update-site-marketing-redesign` Phase 2.7) and a postbuild guard (`scripts/verify-font-self-hosting.mjs`) refuses any third-party font CDN reference in `dist/`. But `public/assets/fonts/` does not yet exist — the policy promises self-hosting that hasn't shipped. Today the site has effectively no custom typography because both Google Fonts and any CDN load is blocked by the policy, and there is no on-disk WOFF2 to serve.
+The site's CSP is locked to `font-src 'self'` (per `update-site-marketing-redesign` Phase 2.7) and a postbuild guard (`scripts/verify-font-self-hosting.mjs`) refuses any third-party font CDN reference in `.build/dist/`. Both shipped to `main` via PR #43 (commit `0712de2`). But `public/assets/fonts/` does not yet exist — the policy promises self-hosting that hasn't shipped. Today the site has effectively no custom typography because both Google Fonts and any CDN load is blocked by the policy, and there is no on-disk WOFF2 to serve.
+
+> **Note on prior Copilot review of this PR:** Copilot's round-1 inline comments asserted that `scripts/verify-font-self-hosting.mjs`, `scripts/lint-tokens.mjs`, and the `lint:tokens` npm script "do not exist." Those comments were posted BEFORE PR #43 merged into `main`. Post-merge those scripts are present and wired into postbuild. The references in this proposal/design/spec are correct against current `main`.
 
 USMR Phase 2 specifies the typeface set (Inter Tight, Space Grotesk, Fraunces, Instrument Serif, JetBrains Mono — DESIGN.md §3.1) and pinned the contract details across five tasks (2.3, 2.3a, 2.3b, 2.4, 2.5), but every task is still `[ ]` because USMR's scope is the redesign as a whole. Decoupling font self-hosting into its own change lets the work ship independently of the larger redesign, removes the false-promise CSP risk, and unblocks any route that wants to use a custom face today.
 
@@ -63,5 +65,5 @@ This means tasks below reference `tests/<name>.test.mjs` (flat layout), NOT `tes
 - **Runtime font swap UI** (`data-hero-font`): the dev-only Tweaks panel exposes this today; no runtime user-facing UI is in scope here.
 - **Web Font Loader / fontfaceobserver**: native CSS `font-display: swap` covers the LCP target; no JS font-loader API needed.
 - **Subsetting Cyrillic, CJK, or Devanagari**: site is Latin-only today. Rationale: minimum viable payload; subsetting expansion is a follow-up if/when localization lands.
-- **Font hosting via R2 or other object storage**: same-origin only per CSP `'self'`. Rationale: avoids CSP exception + CORS + preconnect cost; bytes ship inside `dist/` like any other static asset.
+- **Font hosting via R2 or other object storage**: same-origin only per CSP `'self'`. Rationale: avoids CSP exception + CORS + preconnect cost; bytes ship inside `.build/dist/` like any other static asset.
 - **Italic forms beyond Fraunces**: only Fraunces ships an italic (it's an editorial-display face that uses italic for emphasis); other faces are roman-only. Rationale: 50% payload reduction; italic emphasis on body text uses the OS-italic synthesis as a fallback.

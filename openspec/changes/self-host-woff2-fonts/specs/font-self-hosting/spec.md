@@ -92,7 +92,7 @@ The subset bounds MUST match the `unicode-range` declaration in each `@font-face
 #### Scenario: Out-of-subset codepoint in MDX prose is detected
 
 - **WHEN** any MDX or Astro file under `src/content/` or `src/pages/` contains a codepoint outside the declared `unicode-range` (e.g. a stray Cyrillic glyph in editorial prose)
-- **THEN** `npm run lint:design` fails with the file:line + codepoint, instructing the contributor to either replace the glyph or expand the subset bounds via an OpenSpec change.
+- **THEN** `npm run verify:font-subset-coverage` fails with the file:line + codepoint, instructing the contributor to either replace the glyph or expand the subset bounds via an OpenSpec change. (NOTE: a NEW dedicated script `scripts/verify-font-subset-coverage.mjs` is introduced by this change — earlier drafts targeted `lint:design`, but that script only validates DESIGN.md, not page content. Per Copilot review on PR #44 finding [F10].)
 
 ### Requirement: License Compliance
 

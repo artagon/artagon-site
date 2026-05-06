@@ -2,7 +2,7 @@
 
 The repo today is in a "fonts-promised-but-not-shipped" state:
 
-- CSP `font-src 'self'` is enforced (PR #43 land); `verify-font-self-hosting.mjs` postbuild gate refuses any third-party font CDN reference under `dist/**/*.{html,css,svg}`.
+- CSP `font-src 'self'` is enforced (PR #43 landed in `main`); `verify-font-self-hosting.mjs` postbuild gate refuses any third-party font CDN reference under `.build/dist/**/*.{html,css,svg}` (the configured output dir per `build.config.json`).
 - `public/assets/fonts/` does NOT exist on `main`. No `@font-face` blocks in `public/assets/theme.css`.
 - DESIGN.md §3.1 specifies: Inter Tight (display + body), Space Grotesk (hero display via `[data-hero-font="grotesk"]`), Fraunces (editorial italic), Instrument Serif (long-form), JetBrains Mono (code).
 - USMR `update-site-marketing-redesign` Phase 2.3-2.5 specs the WOFF2 contract but is `[ ]` because USMR scope is the redesign as a whole — fonts can ship independently.
@@ -50,17 +50,29 @@ Ship `.woff2` only. Browser support: Chrome 36+, Firefox 39+, Safari 12+, Edge 1
 
 ### D3: Per-route preload via Astro slot
 
-`BaseLayout.astro` accepts an `Astro.props.preloadFont?: string` prop in the form `"<family>/<weight>-<style>"` (matching the D7 file naming convention). Default is `"space-grotesk/500-normal"` (LCP-critical for marketing routes per DESIGN.md). Long-form `/writing/*` routes pass `preloadFont="fraunces/400-italic"`.
+`BaseLayout.astro` accepts an `Astro.props.preloadFonts?: string[]` prop where each entry uses the form `"<family>/<weight>-<style>"` — identical to the on-disk path segment per D7. Default is `["space-grotesk/500-normal"]` (LCP-critical for marketing routes per DESIGN.md). Long-form `/writing/*` routes pass `preloadFonts={["fraunces/400-italic", "space-grotesk/500-normal"]}`.
+
+The slash-format face-id maps directly onto the D7 on-disk path with **no parsing required** — the href template literal just prepends `/assets/fonts/` and appends `.woff2`. Per Copilot review on PR #44 findings [F7, F15, F16].
 
 ```astro
 ---
-// preloadFont prop: "<family>/<weight>-<style>" — maps directly onto D7 on-disk path
+// preloadFonts prop: array of "<family>/<weight>-<style>" face-ids — each maps
+// directly onto the D7 on-disk path with no string-splitting required.
 // Examples: "space-grotesk/500-normal", "fraunces/400-italic"
-const { preloadFont = "space-grotesk/500-normal" } = Astro.props;
+const { preloadFonts = ["space-grotesk/500-normal"] } = Astro.props;
 ---
-<link rel="preload" as="font" type="font/woff2" crossorigin
-      href={`/assets/fonts/${preloadFont}.woff2`}>
+{preloadFonts.map((face) => (
+  <link
+    rel="preload"
+    as="font"
+    type="font/woff2"
+    crossorigin
+    href={`/assets/fonts/${face}.woff2`}
+  />
+))}
 ```
+
+The construction is mechanical and deterministic; the spec scenario "Marketing route preloads Space Grotesk" asserts the resolved href is `/assets/fonts/space-grotesk/500-normal.woff2`. Long-form routes pass `["fraunces/400-italic", "space-grotesk/500-normal"]` → 2 preload-links. The 1-2 per-route bound is enforced by the spec scenario "Preload count is bounded".
 
 `crossorigin` attribute REQUIRED on preload-link even for same-origin per spec (otherwise the browser fetches twice).
 
@@ -76,7 +88,10 @@ const { preloadFont = "space-grotesk/500-normal" } = Astro.props;
 - `ascent-override = round(face.sTypoAscender / face.unitsPerEm * 100, 1)%`
 - (similar for descent + line-gap)
 
-Output (default): a TS object literal printed to stdout for review. With `--write`, the script patches each `@font-face` block in `theme.css` in-place (idempotent on re-run). Maintainer reviews the diff and commits. The `--write` mode is the REQUIRED workflow; manual hand-tuning of override values in `theme.css` is FORBIDDEN per the `@font-face` Declarations requirement.
+Output modes:
+
+- **Default (no flag):** prints the derived `size-adjust` / `ascent-override` / `descent-override` / `line-gap-override` values to stdout as a CSS-compatible block for review. Maintainer reviews then re-runs with `--write` to apply.
+- **`--write` mode:** patches each `@font-face` block in `public/assets/theme.css` in-place via stable comment-anchor markers (`/* derive-font-metrics:start */` / `/* derive-font-metrics:end */`) so re-runs are idempotent. The maintainer reviews the resulting diff before committing. This is the canonical workflow per spec scenario "Override values derived programmatically" — manual hand-editing of the four override values in `theme.css` is FORBIDDEN per the `@font-face` Declarations requirement; use `--write`. Per Copilot review on PR #44 findings [F8, F17].
 
 `scripts/verify-font-metrics.mjs` (CI gate, run every postbuild) re-parses each WOFF2 and re-computes the metrics. Compares against `theme.css` declarations. Fails build if any value drifts > 0.5%. The 0.5% threshold is below the visually-detectable contribution to CLS at typical font-size ranges (h1 — 56-108px; body — 16px; sub-pixel rounding stays below the perceptual threshold per Bram Stein's CSS Working Group research at https://www.zachleat.com/web/font-styles/ — derived from his "Critical Path: Font Loading" presentations 2020-2022). Tightening to 0.1% creates CI flake from rounding noise; loosening to 1% lets perceptible CLS shifts ship. 0.5% is the documented engineering floor. Per multi-reviewer-r1 finding [L-2].
 
@@ -88,7 +103,7 @@ Output (default): a TS object literal printed to stdout for review. With `--writ
 
 `scripts/measure-font-payload.mjs`:
 
-1. Walks `dist/**/*.html`, parses `<link rel="preload" as="font">` and `<link rel="stylesheet">` (which may transitively reference `@font-face` URIs).
+1. Walks `.build/dist/**/*.html` (the configured output dir per `build.config.json`), parses `<link rel="preload" as="font">` and `<link rel="stylesheet">` (which may transitively reference `@font-face` URIs).
 2. Resolves each WOFF2 URL to its on-disk byte size.
 3. Per-route: sum referenced WOFF2 bytes. Fail if > 180 KB.
 4. Per-family-per-route: sum bytes of WOFF2s sharing a family. Fail if > 60 KB.
@@ -134,22 +149,22 @@ The `preloadFont` prop uses the `"<family>/<weight>-<style>"` format — identic
 
 ### D8: Test strategy
 
-- **Unit (node:test)**: `tests/measure-font-payload.test.mjs`, `tests/verify-font-metrics.test.mjs`. mkdtemp + synthetic dist/. Fixtures: a tiny pre-canned WOFF2 (under 1 KB; just enough for parser to read head + OS/2). (Flat `tests/` layout per [Prerequisites](#prerequisites); migrates to `tests/unit/*.test.ts` when `modernize-unit-tests-with-vitest` archives.)
-- **Integration (Playwright)**: NEW `tests/font-loading.spec.ts`. Loads `/`, asserts `getComputedStyle(h1).fontFamily` resolves to "Space Grotesk", asserts the network request for `space-grotesk/500-normal.woff2` was made AND it was the only font request before LCP fired.
+- **Unit (`node:test`)**: `tests/measure-font-payload.test.mjs`, `tests/verify-font-metrics.test.mjs`, `tests/verify-font-subset-coverage.test.mjs`. Flat layout matching today's `tests/*.test.{mjs,mts}` convention (see Prerequisites in proposal.md); migrates to `tests/unit/*.test.ts` when `modernize-unit-tests-with-vitest` archives. mkdtemp + synthetic `.build/dist/`. Fixtures: a tiny pre-canned WOFF2 (under 1 KB; just enough for parser to read head + OS/2).
+- **Integration (Playwright)**: NEW `tests/font-loading.spec.ts` (flat layout per Prerequisites; relocates to `tests/e2e/` later). Loads `/`, asserts `getComputedStyle(h1).fontFamily` resolves to "Space Grotesk", asserts the network request for `space-grotesk/500-normal.woff2` was made AND it was the only font request before LCP fired.
 - **Visual regression**: existing `tests/styling-snapshots.spec.ts` baseline absorbs the WOFF2 typography change; baseline must be regenerated via `workflow_dispatch`.
 - **CLS gate**: USMR Phase 12.3 already specifies CLS < 0.1 via Playwright; the metrics-override work in this change keeps font-swap CLS well under that threshold.
 
 ## Risks / Trade-offs
 
-| Risk                                                                                                                                                                              | Mitigation                                                                                                                                                                                          |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Upstream font binary changes (OFL allows redistribution but not modification of design — re-subsetting our copy is fine; bumping to a new version is a deliberate maintainer act) | Pin SHA256 of each `.woff2` in a `public/assets/fonts/CHECKSUMS` file; `verify-font-metrics.mjs` checks SHA before parse.                                                                           |
-| Subsetting tool reproducibility (`subset-font` ESM API may differ across versions)                                                                                                | One-shot derivation: maintainer pins the dev-dep, runs once, commits the WOFF2 binaries. CI never re-runs subsetting.                                                                               |
-| Per-route preload prop ergonomics — contributors forget to pass `preloadFont` on long-form routes                                                                                 | Default to Space Grotesk 500. Long-form routes that need Fraunces explicitly opt in. The `font-display: swap` fallback ensures missing-preload doesn't break rendering, just adds LCP cost.         |
-| Metrics-override drift between `theme.css` and live binaries                                                                                                                      | `verify-font-metrics.mjs` re-derives every postbuild; > 0.5% drift fails. Maintainer must re-derive via `derive-font-metrics.mjs --write` and commit.                                               |
-| WOFF2 subset misses a glyph used somewhere in MDX content                                                                                                                         | `lint:design` already runs `design.md lint` against DESIGN.md prose. Add a Vitest test that scans MDX content for codepoints outside the subset bounds; fails if any unsubsetted codepoint appears. |
-| 180 KB / 60 KB budgets too tight for adding more weights later                                                                                                                    | Documented as the floor; raising them requires a follow-up OpenSpec change with `lighthouse-ci` perf evidence.                                                                                      |
-| Font preload races SRI hash injection in postbuild                                                                                                                                | Audit: preload-link writes happen during Astro build (compile-time); SRI runs postbuild. No race.                                                                                                   |
+| Risk                                                                                                                                                                              | Mitigation                                                                                                                                                                                                                                                                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Upstream font binary changes (OFL allows redistribution but not modification of design — re-subsetting our copy is fine; bumping to a new version is a deliberate maintainer act) | Pin SHA256 of each `.woff2` in a `public/assets/fonts/CHECKSUMS` file; `verify-font-metrics.mjs` checks SHA before parse.                                                                                                                                                                                                                                                                  |
+| Subsetting tool reproducibility (`subset-font` ESM API may differ across versions)                                                                                                | One-shot derivation: maintainer pins the dev-dep, runs once, commits the WOFF2 binaries. CI never re-runs subsetting.                                                                                                                                                                                                                                                                      |
+| Per-route preload prop ergonomics — contributors forget to pass `preloadFont` on long-form routes                                                                                 | Default to Space Grotesk 500. Long-form routes that need Fraunces explicitly opt in. The `font-display: swap` fallback ensures missing-preload doesn't break rendering, just adds LCP cost.                                                                                                                                                                                                |
+| Metrics-override drift between `theme.css` and live binaries                                                                                                                      | `verify-font-metrics.mjs` re-derives every postbuild; > 0.5% drift fails. Maintainer must re-derive via `derive-font-metrics.mjs --write` and commit.                                                                                                                                                                                                                                      |
+| WOFF2 subset misses a glyph used somewhere in MDX content                                                                                                                         | NEW `scripts/verify-font-subset-coverage.mjs` walks `src/content/**/*.mdx` + `src/pages/**/*.{astro,mdx}` and fails if any codepoint falls outside the declared subset bounds. Wired into postbuild after `verify:font-metrics`. (Replaces an earlier draft that suggested extending `lint:design`; that script only validates DESIGN.md, not page content. Per Copilot review on PR #44.) |
+| 180 KB / 60 KB budgets too tight for adding more weights later                                                                                                                    | Documented as the floor; raising them requires a follow-up OpenSpec change with `lighthouse-ci` perf evidence.                                                                                                                                                                                                                                                                             |
+| Font preload races SRI hash injection in postbuild                                                                                                                                | Audit: preload-link writes happen during Astro build (compile-time); SRI runs postbuild. No race.                                                                                                                                                                                                                                                                                          |
 
 ## Migration Plan
 
@@ -158,10 +173,10 @@ This change is purely additive — no existing behavior is modified, only added.
 **Phases (one commit each for review-ability):**
 
 1. **Phase 0 — Pre-flight**: source upstream WOFF binaries + LICENSE.txt for all 5 families. Subset locally via `subset-font`. Commit binaries + checksums.
-2. **Phase 1 — Build the metrics pipeline**: `derive-font-metrics.mjs` (one-shot) + `verify-font-metrics.mjs` (gate). Vitest tests both.
+2. **Phase 1 — Build the metrics pipeline**: `derive-font-metrics.mjs` (one-shot) + `verify-font-metrics.mjs` (gate). `node:test` tests both.
 3. **Phase 2 — `@font-face` declarations**: add to `public/assets/theme.css`. Run `derive-font-metrics.mjs` to populate override values. Commit theme.css + the generated values.
 4. **Phase 3 — Per-route preload**: `BaseLayout.astro` accepts `preloadFont` prop; each route page passes the right value. Marketing routes get `space-grotesk-500`; `/writing/*` gets `fraunces-400-italic`.
-5. **Phase 4 — Payload budget**: `measure-font-payload.mjs`. Vitest tests. Wire into postbuild.
+5. **Phase 4 — Payload budget**: `measure-font-payload.mjs`. `node:test` tests. Wire into postbuild.
 6. **Phase 5 — Documentation**: update `tests/README.md`, `AGENTS.md` if applicable.
 
 **Rollback strategy:** the change is additive; reverting Phase 4 (the gate) is safe if budgets prove too tight. Reverting earlier phases removes the WOFF2 set; system-font fallback chain renders cleanly.
