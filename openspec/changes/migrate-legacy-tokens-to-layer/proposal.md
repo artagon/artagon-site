@@ -35,4 +35,10 @@ A third option (lowest blast radius, highest debt): keep legacy declarations in 
 
 ## Status
 
-**Stub.** This change exists to anchor the deferral note in `update-site-marketing-redesign/tasks.md` task 2.1 and the prose references in `docs/design-md.md` §6.13/§6.16/§6.19. Authoring (proposal completion + tasks + spec deltas) begins after `update-site-marketing-redesign` archives.
+**Stub. Depends on `update-site-marketing-redesign` archive.** This change exists to anchor the deferral note in `update-site-marketing-redesign/tasks.md` task 2.1 and the prose references in `docs/design-md.md` §6.13/§6.16/§6.19.
+
+The stub spec delta at `specs/style-system/spec.md` declares `## MODIFIED Requirements / ### Requirement: Cascade Layers in theme.css`. That requirement does NOT exist in the archived `openspec/specs/style-system/spec.md` today — it only exists as an `## ADDED` delta inside the unarchived `update-site-marketing-redesign` change. The MODIFIED is therefore a **forward reference**: it becomes a valid amendment only after USMR archives the requirement into the live spec.
+
+`openspec validate migrate-legacy-tokens-to-layer` passes today because OpenSpec doesn't cross-check MODIFIED targets against archived state at validate time — it checks structural well-formedness only. Final archival of THIS change MUST be gated on USMR's prior archive; otherwise the MODIFIED has nothing to amend.
+
+Authoring (proposal completion + tasks + final spec deltas) begins after `update-site-marketing-redesign` archives.

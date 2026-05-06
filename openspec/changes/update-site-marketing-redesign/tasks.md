@@ -39,7 +39,7 @@
 - [ ] 2.5 Build `scripts/derive-font-metrics.mjs` and `scripts/verify-font-metrics.mjs`; wire into `npm run verify`.
 - [x] 2.6 Emit fluid-type `clamp()` scale per `design.md` §6 table; floors at 360 px, ceilings at 1440 px.
 - [x] 2.7 Update CSP `font-src` to `'self'` only — remove any third-party host. Update `scripts/csp.mjs` accordingly.
-- [x] 2.8 Build `scripts/lint-tokens.mjs` (forbid hex/rgb/hsl/oklch literals, raw px/em/rem, spacing magic numbers in `.astro`/`.css`/`.mdx` outside `public/assets/theme.css`). Where the rule fits ast-grep, add a `rules/security/no-raw-color-literal.yaml` instead.
+- [~] 2.8 Build `scripts/lint-tokens.mjs` (forbid hex/rgb/hsl/oklch literals, raw px/em/rem, spacing magic numbers in `.astro`/`.css`/`.mdx` outside `public/assets/theme.css`). Where the rule fits ast-grep, add a `rules/security/no-raw-color-literal.yaml` instead. (Color subset implemented + ast-grep companion rule shipped. Spacing/sizing enforcement (raw px/em/rem) deferred to Phase 12 quality gates — requires designing the allowlist for legitimate uses (line-height: 1.5, calc() math, clamp() formulas). Tracked in `openspec/changes/migrate-legacy-tokens-to-layer/` Phase 0.2.)
 - [~] 2.9 Wire `lint:tokens` and `verify:font-metrics` into `npm run postbuild` and CI. (`lint:tokens` wired; `verify:font-metrics` deferred to follow-up that lands tasks 2.3/2.3a/2.3b/2.4/2.5 — depends on WOFF2 self-hosting.)
 
 ## Phase 3 — Navigation + site chrome (site-navigation)

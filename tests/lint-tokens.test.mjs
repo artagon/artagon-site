@@ -338,16 +338,24 @@ test("ast-grep no-raw-color-literal rule fires on raw rgba in .astro <style>", (
       "---\n---\n<style>.x { background: rgba(0, 0, 0, 0.1); }</style>\n",
     );
     const RULE = join(ROOT, "rules", "security", "no-raw-color-literal.yml");
+    const SGCONFIG = join(ROOT, "sgconfig.yml");
     const SG = join(ROOT, "node_modules", ".bin", "sg");
     let output;
     try {
-      output = execFileSync(SG, ["scan", "--rule", RULE, root], {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-      });
+      // Pass --config explicitly so ast-grep finds language registrations
+      // regardless of cwd. Running this test from /tmp would otherwise
+      // produce empty output (ast-grep fails silently when sgconfig.yml
+      // is absent), masquerading the rule as "fired" by accident.
+      output = execFileSync(
+        SG,
+        ["scan", "--config", SGCONFIG, "--rule", RULE, root],
+        {
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+          cwd: ROOT,
+        },
+      );
     } catch (err) {
-      // ast-grep exits 0 with findings printed to stdout when severity is
-      // warning; only --error promotes to nonzero. Capture both paths.
       output = (err.stdout?.toString() ?? "") + (err.stderr?.toString() ?? "");
     }
     assert.match(

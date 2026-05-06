@@ -35,11 +35,15 @@ const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
 // Allow argv[3] to override for tests.
 const DIST = resolve(argv[3] ? argv[3] : join(ROOT, ".build", "dist"));
 
-// Hosts whose presence in dist/ HTML/CSS implies a CDN font load that
-// strict CSP `font-src 'self'` will block. The list is conservative —
-// we only flag well-known font CDNs; arbitrary http(s) URLs in body
-// content are out of scope.
-const FORBIDDEN_HOSTS = [
+// Two-tier match. Tier 1 (FONT_HOSTS) is a closed set of dedicated
+// font CDNs — any URL hitting one of these hosts is presumed to be a
+// font load and is flagged unconditionally. Tier 2 (GENERIC_CDNS) is
+// general-purpose package CDNs that legitimately serve JS/CSS bundles
+// AND can be used to ship WOFF2; only matches that ALSO look font-shaped
+// (path contains a font extension or a `/fonts/` segment) are flagged.
+// This avoids false-positives on legitimate non-font CDN scripts (e.g.
+// Algolia DocSearch via cdn.jsdelivr.net).
+const FONT_HOSTS = [
   "fonts.googleapis.com",
   "fonts.gstatic.com",
   "use.typekit.net",
@@ -47,12 +51,35 @@ const FORBIDDEN_HOSTS = [
   "fast.fonts.net",
   "kit.fontawesome.com",
   "ka-f.fontawesome.com",
+  "api.fontshare.com",
 ];
+const GENERIC_CDNS = ["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "unpkg.com"];
 
+// Match anything containing a forbidden host — we then do a per-match
+// font-shape check on the URL substring around the match.
 const HOST_RE = new RegExp(
-  FORBIDDEN_HOSTS.map((h) => h.replace(/\./g, "\\.")).join("|"),
+  [...FONT_HOSTS, ...GENERIC_CDNS]
+    .map((h) => h.replace(/\./g, "\\."))
+    .join("|"),
   "g",
 );
+
+const FONT_PATH_RE = /\.(woff2?|ttf|otf|eot)\b|\/fonts?\//i;
+const FONT_HOSTS_SET = new Set(FONT_HOSTS);
+
+// Extract the URL surrounding a host match so we can pattern-match the
+// path. We greedily expand left/right within the same line until we
+// hit a delimiter that can't be part of a URL ("'`<> ,;).
+function urlAround(body, idx) {
+  const STOP = /["'`<>,; ()]/;
+  let start = idx;
+  while (start > 0 && !STOP.test(body[start - 1]) && body[start - 1] !== "\n")
+    start--;
+  let end = idx;
+  while (end < body.length && !STOP.test(body[end]) && body[end] !== "\n")
+    end++;
+  return body.slice(start, end);
+}
 
 function listFilesRecursive(dir) {
   const out = [];
@@ -69,7 +96,9 @@ function listFilesRecursive(dir) {
       out.push(...listFilesRecursive(abs));
     } else if (e.isFile()) {
       const ext = extname(e.name).toLowerCase();
-      if (ext === ".html" || ext === ".css") out.push(abs);
+      // .svg can carry inline <style> blocks with @font-face / @import
+      // pulling from CDN. Editorial site MAY ship illustrative SVG.
+      if (ext === ".html" || ext === ".css" || ext === ".svg") out.push(abs);
     }
   }
   return out;
@@ -98,24 +127,52 @@ function main() {
 
   const files = listFilesRecursive(DIST);
   const violations = [];
+  const readErrors = [];
   for (const abs of files) {
     let body;
     try {
       body = readFileSync(abs, "utf8");
-    } catch {
+    } catch (err) {
+      // Don't silently skip — surface the read error so a permissions
+      // bug doesn't masquerade as "no violations" (the postbuild gate
+      // exit-2 contract requires this).
+      readErrors.push({
+        path: relative(DIST, abs),
+        code: err.code ?? "unknown",
+        message: err.message,
+      });
       continue;
     }
     HOST_RE.lastIndex = 0;
     let m;
     while ((m = HOST_RE.exec(body)) !== null) {
+      const host = m[0];
+      // Tier 2: generic CDN — only flag if the surrounding URL looks
+      // font-shaped. Skips Algolia DocSearch JS/CSS via jsdelivr, etc.
+      if (!FONT_HOSTS_SET.has(host)) {
+        const url = urlAround(body, m.index);
+        if (!FONT_PATH_RE.test(url)) continue;
+      }
       const before = body.slice(0, m.index);
       const line = before.split("\n").length;
       violations.push({
         path: relative(DIST, abs),
         line,
-        host: m[0],
+        host,
       });
     }
+  }
+
+  if (readErrors.length > 0) {
+    for (const e of readErrors) {
+      console.error(
+        `✗ verify-font-self-hosting: cannot read ${e.path}: ${e.code} ${e.message}`,
+      );
+    }
+    console.error(
+      `\n${readErrors.length} file(s) unreadable. Fix permissions and retry; do not interpret as "no violations".`,
+    );
+    exit(2);
   }
 
   if (violations.length === 0) {

@@ -271,7 +271,7 @@ Phase 2.6 fluid type scale. `--fs-*` tokens use `clamp()` to interpolate between
 
 Tokens: `` `--ink-on-brand` ``, `` `--chip-bg-neutral` ``.
 
-Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklch, transparent 88%, var(--nd-fg-2) 12%)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
+Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklab, var(--nd-fg-2) 12%, transparent)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
 
 ## 7 · Accepted `lint:design` warnings
 
