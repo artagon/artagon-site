@@ -68,12 +68,12 @@
   function applyTheme(t: unknown) {
     var theme = isValid(t) ? t : DEFAULT;
     document.documentElement.setAttribute('data-theme', theme);
-    try { localStorage.setItem(KEY, theme); } catch (_) {}
+    try { localStorage.setItem(KEY, theme); } catch (_err) {}
     try {
       var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta && bg) meta.setAttribute('content', bg);
-    } catch (_) {}
+    } catch (_err) {}
     syncButtons(theme);
   }
 
