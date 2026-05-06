@@ -74,6 +74,8 @@ jobs:
               const title = pr.title || '';
               if (/^spec:/i.test(title)) prType = 'spec';
               if (/^proposal:/i.test(title)) prType = 'proposal';
+              // OpenSpec proposal/change PRs use a feat(openspec): or chore(openspec): prefix
+              if (/\(openspec\)/i.test(title)) prType = 'proposal';
             }
 
             if (!prType) {
