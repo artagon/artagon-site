@@ -42,7 +42,7 @@ jobs:
 
             const pr = context.payload.pull_request;
             if (!pr) {
-              core.setFailed('No pull_request payload found.');
+              // Not triggered by a pull_request event; nothing to enforce.
               return;
             }
 
@@ -74,6 +74,8 @@ jobs:
               const title = pr.title || '';
               if (/^spec:/i.test(title)) prType = 'spec';
               if (/^proposal:/i.test(title)) prType = 'proposal';
+              // OpenSpec proposal/change PRs use a feat(openspec): or chore(openspec): prefix
+              if (/\(openspec\)/i.test(title)) prType = 'proposal';
             }
 
             if (!prType) {
