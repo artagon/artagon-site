@@ -61,6 +61,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
 
+      # The Microsoft Playwright image runs as root, but the checkout files
+      # are owned by a different UID — git refuses to operate on the tree
+      # by default ("fatal: detected dubious ownership"). Explicitly mark
+      # the workspace as safe so npm scripts that shell out to git
+      # (verify-prerequisites, lint-tokens, etc.) succeed.
+      - name: Trust workspace inside container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
@@ -143,6 +151,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
 
+      # The Microsoft Playwright image runs as root, but the checkout files
+      # are owned by a different UID — git refuses to operate on the tree
+      # by default ("fatal: detected dubious ownership"). Explicitly mark
+      # the workspace as safe so npm scripts that shell out to git
+      # (verify-prerequisites, lint-tokens, etc.) succeed.
+      - name: Trust workspace inside container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
@@ -191,13 +207,12 @@ jobs:
 
       # Snapshot auto-commit ONLY on workflow_dispatch (manual trigger).
       # PR pushes never auto-commit; reviewers must intentionally update
-      # baselines via the manual workflow. The container runs as root, so
-      # mark $GITHUB_WORKSPACE as a safe directory before git operations
-      # (otherwise git complains about dubious ownership).
+      # baselines via the manual workflow. The job-level "Trust workspace
+      # inside container" step (above) already handles safe.directory, so
+      # this step only sets the bot identity before committing.
       - name: Commit updated snapshots
         if: github.event_name == 'workflow_dispatch'
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tests/**/*-snapshots/ 2>/dev/null || true
@@ -221,6 +236,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+
+      # The Microsoft Playwright image runs as root, but the checkout files
+      # are owned by a different UID — git refuses to operate on the tree
+      # by default ("fatal: detected dubious ownership"). Explicitly mark
+      # the workspace as safe so npm scripts that shell out to git
+      # (verify-prerequisites, lint-tokens, etc.) succeed.
+      - name: Trust workspace inside container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
