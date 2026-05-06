@@ -50,27 +50,50 @@ Both files live under `public/` and ship verbatim with `dist/`. Cloudflare Pages
 
 **Alternative considered:** Cloudflare Pages' `wrangler.toml` config + Cloudflare Functions for header injection. Rejected — Functions adds a runtime layer; `_headers` is plain text and easier to review.
 
-### D3: CSP single-source via `scripts/csp.mjs`
+### D3: CSP architecture — union global header + per-page meta
 
-`scripts/csp.mjs` today emits the `<meta http-equiv="Content-Security-Policy">` tag into every built HTML. Extension: same script ALSO writes `public/_headers` body for the CSP `Content-Security-Policy` header line. The `<meta>` and the header MUST be byte-identical (same directives in same order). Build gate `scripts/verify-headers.mjs` re-parses both and fails if they diverge.
+`scripts/csp.mjs` today emits a `<meta http-equiv="Content-Security-Policy">` tag into every built HTML. Each page gets a UNIQUE CSP because inline-script SHA-256 hashes differ per page. The `/search` route also has a per-route exception for `https://cdn.jsdelivr.net` (Algolia DocSearch).
+
+There is NO single CSP value that can be byte-identical across all pages. Per multi-reviewer-r1 finding [CR-001], the original D3 framing was incoherent. Revised:
+
+**Two-layer CSP architecture:**
+
+1. **Global `_headers` block (`/* `):** ships the UNION of all per-page CSPs. Specifically: `default-src 'self'`, `style-src 'self' 'unsafe-inline'`, `font-src 'self'`, `connect-src 'self'`, `img-src 'self' data:`, `object-src 'none'`, `base-uri 'none'`, `frame-ancestors 'none'`, `script-src 'self' https://cdn.jsdelivr.net`. The script-src includes the jsdelivr exception unconditionally (route-specific exceptions are part of the union); inline-script hashes are NOT in the global header (they're per-page).
+
+2. **Per-page `<meta>` tag:** carries the TIGHTER per-page CSP including specific inline-script SHA-256 hashes AND the route-specific script-src exception only when the route uses it. For `/search` this includes `https://cdn.jsdelivr.net` plus the DocSearch inline-script hash; for `/` this excludes jsdelivr entirely.
+
+**Browsers enforce the intersection** of all CSPs that apply (header + meta). So:
+
+- Header allows jsdelivr globally; meta on `/` doesn't include it. Effective policy on `/` is the intersection: NO jsdelivr (because `<meta>` is stricter).
+- Meta on `/search` includes jsdelivr + DocSearch hash. Effective policy on `/search` is the intersection: jsdelivr allowed (both layers permit), DocSearch hash allowed (only meta has it; header has `script-src 'self' https://cdn.jsdelivr.net` which is broader, so intersection is the meta's strict hash list).
+
+This is mathematically sound: per-page `<meta>` can ONLY restrict further than the global header. Adding a route never weakens the policy.
+
+**Header-only directives:** `frame-ancestors`, `report-to`, `report-uri`, and `upgrade-insecure-requests` are header-only per CSP spec — browsers ignore them in `<meta>`. The drift gate (`verify-headers.mjs`) MUST maintain an allowlist of header-only directives that may legitimately differ between meta and header.
+
+**csp.mjs writes `dist/_headers` directly, NOT `public/_headers`.** Astro copies `public/` → `dist/` BEFORE postbuild runs. Writing to `public/_headers` would land in the NEXT build's dist, creating one-build lag. Writing to `dist/_headers` directly avoids the circular ordering. `public/_headers` is gitignored; the source-of-truth for the CSP header is `csp.mjs` (which generates it from the same data structure that produces the `<meta>` tag), and the on-disk artifact is `dist/_headers` per build.
 
 ```js
-// scripts/csp.mjs (extended) emits both:
-//   1. <meta http-equiv="Content-Security-Policy" content="..."> in dist/**/*.html
-//   2. public/_headers entry:
-//        /*
-//          Content-Security-Policy: default-src 'self'; ...
-//          (other security headers)
+// scripts/csp.mjs (extended) emits:
+//   1. <meta http-equiv="Content-Security-Policy" content="<per-page CSP>">
+//      injected into each dist/**/*.html
+//   2. dist/_headers — the union global header + non-CSP security headers
+//      (HSTS, COOP, COEP, etc.) + cache-control rules per file class
+//
+// scripts/verify-headers.mjs validates:
+//   - dist/_headers parses correctly
+//   - global /* CSP is the union of all per-page <meta> CSPs
+//   - 7 required security headers are declared
+//   - HSTS max-age >= 31536000
+//   - header-only directives (frame-ancestors etc.) may differ between
+//     meta and header per the documented allowlist
 ```
 
-The `<meta>` stays even after the header lands. Two reasons:
+**Alternative considered:** per-path `_headers` blocks mirroring per-file `<meta>` (option (a) from finding [CR-001]). Rejected — Cloudflare Pages `_headers` path matching is prefix-based, not exact, so per-page CSP would require a literal block per route which the build script must enumerate. Compute cost is moderate but the operational surface (one block per route × HSTS + cache rules per-route) becomes hard to reason about. The union-header + per-page-meta approach is simpler.
 
-1. Belt-and-braces redundancy if the host fails to honor the header.
-2. Browsers honor the strictest of the two — so dual-source can only be safer, not more permissive.
+**Alternative considered:** drop the `<meta>` tag, header-only. Rejected — meta tag remains the per-page tightening layer; header alone cannot encode per-page inline-script hashes.
 
-**Alternative considered:** drop the `<meta>` tag, header-only. Rejected — meta tag remains a no-cost safety net.
-
-**Alternative considered:** generate `_headers` from a YAML source-of-truth, distinct from `csp.mjs`. Rejected — drift between two CSP sources is exactly the bug class this change prevents.
+**Alternative considered:** generate `_headers` from a YAML source-of-truth, distinct from `csp.mjs`. Rejected — drift between two CSP sources is the bug class we're preventing.
 
 ### D4: Header set per file class
 
@@ -114,7 +137,13 @@ The `/* ` block applies security headers globally. File-class blocks override `C
 
 ### D5: Wrangler-based deploy action
 
-`.github/workflows/deploy.yml` rewritten to use `cloudflare/wrangler-action@<SHA-pinned>`. Auth via `secrets.CLOUDFLARE_API_TOKEN` (Cloudflare API token scoped to `Account.Cloudflare Pages:Edit` on the `artagon` project ONLY — never account-wide). Deploy command: `wrangler pages deploy ./.build/dist --project-name=artagon --branch=main`.
+`.github/workflows/deploy.yml` rewritten to use `cloudflare/wrangler-action@<SHA-pinned>`. Auth via `secrets.CLOUDFLARE_API_TOKEN`. Deploy command: `wrangler pages deploy ./.build/dist --project-name=artagon --branch=main`.
+
+**Cloudflare API token scope reality (per multi-reviewer-r1 finding [CR-002]):** Cloudflare's `Account.Cloudflare Pages:Edit` permission scopes to an ACCOUNT, not a single project. The "Account Resources" filter in the token-creation UI restricts the token to a single account; within that account the token has Edit on ALL Pages projects. Per-project token scoping is not available via the standard Cloudflare API token UI in 2026.
+
+**Mitigation:** Create a _dedicated_ Cloudflare account that holds ONLY the `artagon` Pages project (no sister projects). The API token's account-resource filter then effectively gives single-project scope because the account contains only the one project. Document this in `docs/deploy.md` cutover Phase 0: "Account isolation is the security boundary, not per-project token scoping."
+
+If a future need arises for sister projects under the same Cloudflare account (e.g., `artagon-app`, `artagon-docs`), the deploy strategy MUST either: (a) keep the projects on separate accounts, OR (b) migrate to Cloudflare's OIDC + GitHub Actions trust, which supports finer-grained per-deployment scope via the `cloudflare/wrangler-action` `accountId`/`projectName` matcher.
 
 **Alternative considered:** Cloudflare Pages' built-in GitHub integration (auto-deploy via Cloudflare's webhook). Rejected — this would bypass GitHub Actions entirely, removing PR-based preview deploys, build logging, and audit trail. The wrangler-action approach keeps the deploy in CI where it belongs.
 

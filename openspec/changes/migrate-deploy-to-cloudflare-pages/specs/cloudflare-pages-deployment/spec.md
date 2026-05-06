@@ -2,52 +2,87 @@
 
 ### Requirement: Cloudflare Pages is the production deploy target
 
-The site MUST deploy to a Cloudflare Pages project named `artagon` on production push to `main`. Deployment uses `cloudflare/wrangler-action` (SHA-pinned) with `wrangler pages deploy ./.build/dist --project-name=artagon --branch=main`. Authentication uses `secrets.CLOUDFLARE_API_TOKEN` scoped to `Account.Cloudflare Pages:Edit` for the `artagon` project ONLY — the token MUST NOT have account-wide privileges.
+The site MUST deploy to a Cloudflare Pages project named `artagon` on production push to `main`. Deployment uses `cloudflare/wrangler-action` (SHA-pinned) with `wrangler pages deploy ./.build/dist --project-name=artagon --branch=main`. Authentication uses `secrets.CLOUDFLARE_API_TOKEN` scoped to `Account.Cloudflare Pages:Edit` on a _dedicated Cloudflare account_ that contains ONLY the `artagon` project. Per-project token scoping is not available via Cloudflare's standard API token UI; account isolation is the security boundary. The token MUST NOT carry `Account.Workers:Edit`, `Zone.DNS:Edit`, or other unrelated privileges. Per multi-reviewer-r1 finding [CR-002].
 
 #### Scenario: Production push deploys to Cloudflare Pages
 
 - **WHEN** a commit lands on `main`
 - **THEN** `.github/workflows/deploy.yml` runs `wrangler pages deploy` against the Cloudflare Pages `artagon` project; the new deployment becomes the production deployment for `artagon.com`.
 
-#### Scenario: API token is project-scoped
+#### Scenario: Token is account-scoped to a single-project account
 
 - **WHEN** the Cloudflare API token's permissions are inspected
-- **THEN** the token has exactly `Account.Cloudflare Pages:Edit` for the `artagon` project; no `Account.Workers:Edit`, `Zone.DNS:Edit`, or other privileges.
+- **THEN** the token has `Account.Cloudflare Pages:Edit` filtered to a single Cloudflare account; that account contains EXACTLY one Pages project (`artagon`); the token does NOT carry `Account.Workers:Edit`, `Zone.DNS:Edit`, or other unrelated privileges.
+
+#### Scenario: Account isolation invariant
+
+- **WHEN** the Cloudflare account holding the artagon project is inspected
+- **THEN** the account contains zero other Pages projects, Workers projects, or R2 buckets. If a future change adds a sister project, the deploy strategy migrates to OIDC + GitHub Actions trust per design.md D5.
 
 ### Requirement: PR preview deploys
 
-Every pull request MUST trigger a preview deploy to a per-branch Cloudflare Pages preview URL (`<branch-slug>.artagon.pages.dev`). The preview deploy URL MUST be posted as a PR comment so reviewers can click through. Preview URLs MUST emit `X-Robots-Tag: noindex, nofollow` so they are not indexed by search engines.
+Every pull request MUST trigger a preview deploy to a Cloudflare Pages preview URL. Cloudflare creates TWO URLs per deploy: an immutable `<deploy-id>.artagon.pages.dev` (pinned to the specific commit) AND a branch alias `<branch-slug>.artagon.pages.dev` (which always points at the LATEST build of that branch). The PR comment MUST post BOTH URLs so reviewers can click the immutable URL for SHA-pinned review AND the branch alias for "always-latest" testing. Per multi-reviewer-r1 finding [M-5].
+
+Preview URLs MUST emit `X-Robots-Tag: noindex, nofollow` via Cloudflare Pages' deploy-environment configuration (NOT via `_headers`, which is path-based not host-based; preview-host detection requires the `CF-Pages` deploy environment context).
 
 #### Scenario: PR opens a preview deploy
 
 - **WHEN** a pull request is opened or synchronized
-- **THEN** `.github/workflows/deploy-cloudflare-pages-preview.yml` deploys the branch's `dist/` to `<branch-slug>.artagon.pages.dev` and posts the URL as a PR comment.
+- **THEN** `.github/workflows/deploy-cloudflare-pages-preview.yml` runs `wrangler pages deploy` and parses the wrangler output to extract BOTH the deploy-id URL and the branch-alias URL; both URLs are posted as a PR comment with explicit labels ("SHA-pinned: ..." and "Branch latest: ...").
 
-#### Scenario: Preview URLs are not indexed
+#### Scenario: Preview deploy posts both URLs
 
-- **WHEN** any `*.artagon.pages.dev` URL is fetched
-- **THEN** the response carries `X-Robots-Tag: noindex, nofollow` per the `_headers` configuration scoped to preview environments.
+- **WHEN** the PR comment is inspected after the preview workflow completes
+- **THEN** the comment body contains exactly two `https://*.artagon.pages.dev` URLs, one under "SHA-pinned" label and one under "Branch latest" label.
+
+#### Scenario: Preview environment emits noindex (verified post-deploy, not in CI)
+
+- **WHEN** a maintainer probes `https://<deploy-id>.artagon.pages.dev/` post-deploy
+- **THEN** the response carries `X-Robots-Tag: noindex, nofollow`. (CI cannot verify this without an actual deploy; the post-deploy smoke runbook in `docs/deploy.md` documents the manual probe step.)
 
 ### Requirement: `public/_headers` declares HTTP security headers
 
-The repo MUST contain `public/_headers` declaring (at minimum) the following headers for every path under `/*`: `Content-Security-Policy`, `Strict-Transport-Security` (`max-age=63072000; includeSubDomains; preload`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/microphone/geolocation/payment/usb/magnetometer/gyroscope/accelerometer, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: credentialless`.
+`scripts/csp.mjs` MUST emit `dist/_headers` (NOT `public/_headers`) declaring the following headers for every path under `/*`: `Content-Security-Policy` (the union of all per-page CSP directives — see Requirement "Two-layer CSP architecture" below), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/microphone/geolocation/payment/usb/magnetometer/gyroscope/accelerometer, `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: credentialless`.
 
-The `Content-Security-Policy` value in `_headers` MUST be byte-identical to the value emitted in the `<meta http-equiv="Content-Security-Policy">` tag by `scripts/csp.mjs`. `scripts/verify-headers.mjs` MUST run as a postbuild gate and fail the build on any divergence.
+Writing to `dist/_headers` (not `public/_headers`) avoids the circular ordering where `public/` is copied to `dist/` BEFORE postbuild runs (which would land THIS build's CSP in NEXT build's dist). `public/_headers` is gitignored. Per multi-reviewer-r1 finding [CR-001].
 
-#### Scenario: Security headers ship on every route
+`scripts/verify-headers.mjs` MUST run as a postbuild gate, parse `dist/_headers`, and fail if: any of the 7 required headers is missing from the `/*` block; OR the global `/*` CSP is not a superset of every per-page `<meta>` CSP; OR HSTS `max-age` is below the documented stage threshold (see "Staged HSTS Rollout" Requirement below).
 
-- **WHEN** any built route is fetched in production
-- **THEN** the response carries all 7 declared security headers with the documented values.
+#### Scenario: dist/\_headers is generated, not source-tracked
+
+- **WHEN** the repo is inspected
+- **THEN** `public/_headers` is gitignored; `dist/_headers` is generated by `scripts/csp.mjs` during postbuild; `git ls-files` returns no `_headers` file.
+
+#### Scenario: Security headers declared in `_headers` for `/*`
+
+- **WHEN** `scripts/verify-headers.mjs` parses `dist/_headers` after postbuild
+- **THEN** the global `/*` block declares all 7 required security headers with non-empty values; missing or empty header fails the gate with the offending header name.
 
 #### Scenario: CSP drift between meta tag and header fails the build
 
-- **WHEN** a contributor edits `public/_headers` directly without running `scripts/csp.mjs --write`
-- **THEN** `scripts/verify-headers.mjs` exits non-zero with `CSP drift between <meta> and Content-Security-Policy header at <path>`.
+- **WHEN** a contributor edits `dist/_headers` directly (or breaks the `csp.mjs` generator) so the global `/*` CSP is no longer a superset of any per-page `<meta>` CSP
+- **THEN** `scripts/verify-headers.mjs` exits non-zero with `CSP not a superset: <meta> at <route> includes directive X not in /* header`. Header-only directives (`frame-ancestors`, `report-to`, `report-uri`, `upgrade-insecure-requests`) are explicitly allowed to differ between meta and header per the gate's documented allowlist.
 
-#### Scenario: HSTS preload-eligible
+### Requirement: Staged HSTS Rollout
 
-- **WHEN** the `Strict-Transport-Security` header is inspected
-- **THEN** the value is `max-age=63072000; includeSubDomains; preload` — meeting the Chromium HSTS preload list submission requirements.
+HSTS `max-age` MUST be ramped through the stages documented at https://hstspreload.org/#deployment-recommendations. The `preload` token MUST NOT be emitted in the header until the maintainer is ready to submit the apex domain to the Chromium HSTS preload list. Stages:
+
+1. **Stage 1 (cutover day 0):** `max-age=300; includeSubDomains` (5 minutes — enough to establish HSTS but a fast bail-out if anomalies surface).
+2. **Stage 2 (cutover day 7, soak passed):** `max-age=86400; includeSubDomains` (24 hours).
+3. **Stage 3 (cutover day 14):** `max-age=2592000; includeSubDomains` (30 days).
+4. **Stage 4 (cutover day 60):** `max-age=63072000; includeSubDomains; preload` — submission to https://hstspreload.org happens in the same change that bumps to Stage 4.
+
+Each stage transition is a separate PR (the maintainer manually edits the header value via `scripts/csp.mjs` config). Per multi-reviewer-r1 finding [H-3].
+
+#### Scenario: Stage 1 is the initial value
+
+- **WHEN** this change archives and the first Cloudflare Pages deploy ships
+- **THEN** the `Strict-Transport-Security` value is `max-age=300; includeSubDomains` (no `preload` token).
+
+#### Scenario: Premature preload token fails the gate
+
+- **WHEN** a contributor adds the `preload` token to the HSTS header before the documented Stage 4 timing
+- **THEN** `scripts/verify-headers.mjs` exits non-zero with `HSTS preload token requires Stage 4 cutover-day-60 readiness; current stage is N`. The maintainer must update a stage tracker file (`docs/hsts-stage.md`) before the gate accepts the `preload` token.
 
 ### Requirement: Edge cache headers per file class
 
@@ -60,15 +95,15 @@ The `Content-Security-Policy` value in `_headers` MUST be byte-identical to the 
 
 The cache rules MUST appear AFTER the global `/* ` security-headers block in `_headers` so per-class blocks override the global default.
 
-#### Scenario: Hashed asset is immutable-cached
+#### Scenario: Hashed-asset cache rule declared in `_headers`
 
-- **WHEN** a request for `/assets/index.D9mrT8mP.js` (hashed asset) hits Cloudflare's edge
-- **THEN** the response carries `Cache-Control: public, max-age=31536000, immutable` and is served from edge cache without origin revalidation.
+- **WHEN** `verify-headers.mjs` parses `dist/_headers`
+- **THEN** the file contains a block matching `/assets/*` with `Cache-Control: public, max-age=31536000, immutable`. Per multi-reviewer-r1 finding [H-4]: this asserts the source-file invariant; runtime header verification (an actual fetch against the Cloudflare edge) is documented in the post-deploy smoke runbook (`docs/deploy.md` § "Post-deploy verification"), not in this CI gate.
 
-#### Scenario: HTML routes revalidate
+#### Scenario: HTML cache rule declared in `_headers`
 
-- **WHEN** a request for `/platform/index.html` hits Cloudflare's edge
-- **THEN** the response carries `Cache-Control: public, max-age=0, must-revalidate` so each request triggers an origin revalidation.
+- **WHEN** `verify-headers.mjs` parses `dist/_headers`
+- **THEN** the file contains a block matching `/*.html` with `Cache-Control: public, max-age=0, must-revalidate` plus `Vary: Accept-Encoding`. (Runtime verification happens in the post-deploy smoke runbook; this CI scenario validates the source.)
 
 ### Requirement: Same-origin redirects via `_redirects`
 
@@ -99,12 +134,12 @@ The Cloudflare Pages project MUST have these settings enabled:
 
 These settings MUST be documented in `docs/deploy.md` so they survive account migrations.
 
-#### Scenario: TLS 1.0/1.1 client is rejected
+#### Scenario: TLS 1.0/1.1 rejection documented in deploy.md
 
-- **WHEN** a client negotiates a TLS 1.0 or 1.1 handshake against `artagon.com`
-- **THEN** Cloudflare rejects with TLS handshake failure.
+- **WHEN** a maintainer searches `docs/deploy.md` for "TLS"
+- **THEN** the document records that the Cloudflare project's "Minimum TLS version" setting is 1.2; older clients fail handshake. (Runtime verification — a real TLS 1.0 client probe — happens in the post-deploy smoke runbook; this CI scenario validates the documentation, not the live cert.) Per multi-reviewer-r1 finding [H-4].
 
-#### Scenario: HTTP request is upgraded to HTTPS
+#### Scenario: HTTP-to-HTTPS upgrade documented in deploy.md
 
-- **WHEN** a client requests `http://artagon.com/`
-- **THEN** Cloudflare responds 301 → `https://artagon.com/`.
+- **WHEN** a maintainer searches `docs/deploy.md` for "Always Use HTTPS"
+- **THEN** the document records that the Cloudflare "Always Use HTTPS" page rule is enabled. (Runtime verification — a real `http://` probe — happens in the post-deploy smoke runbook.)
