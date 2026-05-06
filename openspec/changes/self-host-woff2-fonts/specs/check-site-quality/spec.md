@@ -52,8 +52,8 @@ The gate output MUST be machine-readable: a JSON line per route with `{ route, t
 
 #### Scenario: Adding a heavy family fails the build
 
-- **WHEN** a contributor adds Inter Tight 900 (a new heavy weight) and the home route total exceeds 180 KB
-- **THEN** the gate exits non-zero with `route=/ total=192KB exceeds 180KB; offending family=inter-tight at 73KB`.
+- **WHEN** a contributor adds Inter Tight 400-italic (a new style) and the home route total exceeds 180 KB
+- **THEN** the gate exits non-zero with `route=/ total=192KB exceeds 180KB; offending family=inter-tight at 73KB`. (Inter Tight tops out at weight 700; new italic style is the realistic budget-busting example.)
 
 #### Scenario: JSON report is captured by CI
 

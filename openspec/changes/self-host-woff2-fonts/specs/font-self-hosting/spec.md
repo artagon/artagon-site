@@ -35,17 +35,22 @@ Each WOFF2 face MUST be registered via a `@font-face` block in `public/assets/th
 
 ### Requirement: LCP-critical Per-Route Font Preload
 
-Each route MUST emit exactly one `<link rel="preload" as="font" type="font/woff2" crossorigin>` tag in `<head>`, pointing at the WOFF2 most likely to render the LCP element. Marketing routes (`/`, `/platform`, `/use-cases`, `/standards`, `/roadmap`) preload Space Grotesk 500. Long-form routes (`/writing/*`) preload Fraunces 400 italic. The preload-link MUST resolve to a same-origin `/assets/fonts/...` URL; cross-origin font preload is FORBIDDEN.
+Each route MUST emit between 1 and 2 `<link rel="preload" as="font" type="font/woff2" crossorigin>` tags in `<head>`, each pointing at a WOFF2 most likely to render an LCP-critical element on that route. The combined byte total of all preload-linked WOFF2s on a single route MUST stay under the per-route 180 KB budget enforced by `Font Payload Budget`. Marketing routes (`/`, `/platform`, `/use-cases`, `/standards`, `/roadmap`) preload Space Grotesk 500 only. Long-form routes (`/writing/*`) MAY preload BOTH Fraunces 400 italic (LCP body) AND Space Grotesk 500 (above-the-fold heading) — combined ≤ 90 KB. The preload-link MUST resolve to a same-origin `/assets/fonts/...` URL; cross-origin font preload is FORBIDDEN. Per multi-reviewer-r1 finding [M-2].
 
 #### Scenario: Marketing route preloads Space Grotesk
 
 - **WHEN** the home route's HTML is inspected
-- **THEN** the `<head>` contains exactly one `<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/space-grotesk/500-normal.woff2">`.
+- **THEN** the `<head>` contains exactly one `<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/space-grotesk/500-normal.woff2">` (marketing routes preload only the heading face).
 
-#### Scenario: Long-form route preloads Fraunces
+#### Scenario: Long-form route preloads up to 2 LCP-critical faces
 
 - **WHEN** any `/writing/<slug>` route's HTML is inspected
-- **THEN** the `<head>` contains a preload-link pointing at `/assets/fonts/fraunces/400-italic.woff2`.
+- **THEN** the `<head>` contains 1-2 preload-links, at least one pointing at `/assets/fonts/fraunces/400-italic.woff2` (LCP body); a second preload for Space Grotesk 500 (above-the-fold heading) is permitted when combined preload bytes ≤ 90 KB.
+
+#### Scenario: Preload count is bounded
+
+- **WHEN** any built route's HTML is inspected
+- **THEN** the count of `<link rel="preload" as="font">` tags in `<head>` is between 1 and 2 inclusive; 0 preloads is forbidden (LCP regression); ≥ 3 preloads is forbidden (over-budget risk).
 
 #### Scenario: crossorigin attribute is mandatory
 
@@ -70,12 +75,12 @@ Lowering either threshold via PR is allowed if current usage is below the new fl
 
 #### Scenario: Adding a heavy weight fails the budget
 
-- **WHEN** a contributor adds Inter Tight 900 (a heavy weight) and the home route's total Inter Tight family exceeds 60 KB
-- **THEN** `measure-font-payload.mjs` exits non-zero with the offending family + route + actual vs expected.
+- **WHEN** a contributor adds Inter Tight 400-italic (a new style) and the home route's total Inter Tight family exceeds 60 KB
+- **THEN** `measure-font-payload.mjs` exits non-zero with the offending family + route + actual vs expected. (Inter Tight tops out at weight 700; using a new style — italic — is the realistic example for a budget-busting addition.)
 
 ### Requirement: WOFF2 Subset Bounds
 
-Every shipped WOFF2 MUST be subset to the following Unicode ranges only: `U+0020-007F` (Basic Latin), `U+00A0-024F` (Latin-1 Supplement + Latin Extended-A/B), `U+2010-2027`, `U+2030-205E` (general punctuation), `U+2070-209F` (super/sub), `U+20A0-20BF` (currency), `U+2122` (TM), `U+25CF` (•), `U+FB00-FB04` (ligatures `fi`, `fl`). Cyrillic, CJK, RTL scripts, and Greek-extended are explicitly NOT subset.
+Every shipped WOFF2 MUST be subset to the following Unicode ranges only: `U+0020-007F` (Basic Latin), `U+00A0-024F` (Latin-1 Supplement + Latin Extended-A/B), `U+2010-2027`, `U+202F` (NARROW NO-BREAK SPACE — French typography support), `U+2030-205E` (general punctuation), `U+2070-209F` (super/sub), `U+20A0-20BF` (currency), `U+2122` (TM), `U+25CF` (•), `U+FB00-FB04` (ligatures `fi`, `fl`). Cyrillic, CJK, RTL scripts, and Greek-extended are explicitly NOT subset. Per multi-reviewer-r1 finding [L-1].
 
 The subset bounds MUST match the `unicode-range` declaration in each `@font-face` block; mismatch fails `verify-font-metrics.mjs`.
 

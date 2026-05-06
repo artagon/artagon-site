@@ -1,7 +1,7 @@
 ## 0. Phase 0 — Pre-flight
 
 - [ ] 0.1 Run `openspec validate --strict self-host-woff2-fonts`. Acceptance: validation reports valid.
-- [ ] 0.2 Identify upstream sources for all 5 families (rsms/inter, undercase/fraunces, florianschulz/space-grotesk, is-foundation/instrument-serif, jetbrains/jetbrainsmono). Files: none committed yet. Acceptance: each family has a documented commit-SHA pin recorded in a temporary `pins.txt` (deleted in Phase 1).
+- [ ] 0.2 Identify upstream sources for all 5 families (rsms/inter, undercase/fraunces, florianschulz/space-grotesk, is-foundation/instrument-serif, jetbrains/jetbrainsmono). Files: `public/assets/fonts/UPSTREAM` (PERMANENT — supply-chain provenance, NOT temporary). Acceptance: each family has a documented commit-SHA pin recorded in `public/assets/fonts/UPSTREAM` with format: `<family>: <upstream-repo>@<commit-sha> # <date>`. Per multi-reviewer-r1 finding [M-7].
 - [ ] 0.3 Audit current `public/assets/theme.css` for any `font-family` declaration that does not resolve to a fallback chain (`system-ui` etc.). Files: `public/assets/theme.css`. Acceptance: no naked custom-family references; all use `, system-ui, sans-serif` (or analogous) chains.
 
 ## 1. Phase 1 — Source + subset WOFF2 binaries
@@ -11,13 +11,13 @@
 - [ ] 1.3 Subset each binary to the declared `unicode-range` (Latin + Latin-Extended + numeric + ligatures + select symbols). Files: `public/assets/fonts/<family>/<weight>-<style>.woff2`. Acceptance: each WOFF2 < 60 KB.
 - [ ] 1.4 Vendor the upstream `LICENSE.txt` per family. Files: `public/assets/fonts/<family>/LICENSE.txt`. Acceptance: each LICENSE.txt ≥ 1 KB; first 80 bytes contain "SIL Open Font License" or upstream license name.
 - [ ] 1.5 Compute SHA-256 of each WOFF2; record in `public/assets/fonts/CHECKSUMS` as `<sha256>  <relative-path>` (one line each). Files: `public/assets/fonts/CHECKSUMS`. Acceptance: `sha256sum -c public/assets/fonts/CHECKSUMS` exits zero.
-- [ ] 1.6 Delete `tmp/upstream-fonts/` and the temporary `pins.txt` from Phase 0. Files: removed. Acceptance: clean tree.
+- [ ] 1.6 Delete `tmp/upstream-fonts/` (source binaries staging dir; subsetting is complete and staging copies are no longer needed). `public/assets/fonts/UPSTREAM` is PERMANENT and stays — supply-chain provenance for forensics. Files: `tmp/upstream-fonts/` removed. Acceptance: clean tree; `public/assets/fonts/UPSTREAM` present and tracked.
 
 ## 2. Phase 2 — `derive-font-metrics.mjs` + `verify-font-metrics.mjs`
 
 - [ ] 2.1 Build `scripts/derive-font-metrics.mjs`: parse each WOFF2's `head` (unitsPerEm) + `OS/2` (sTypoAscender/Descender/LineGap, xAvgCharWidth) tables; compute size-adjust + ascent/descent/line-gap-override against system fallback. Output: TS-format object literal printed to stdout (with `--write` flag, also patches the `@font-face` block in `theme.css` in-place). Files: `scripts/derive-font-metrics.mjs`. Acceptance: running with no args prints the override values for all 5 families; `--write` flag idempotent on re-run.
 - [ ] 2.2 Build `scripts/verify-font-metrics.mjs`: re-derives the same values + verifies SHA-256 + verifies LICENSE.txt presence/size + verifies cmap is subset of declared unicode-range. Exit 0 / 1 / 2 contract. Files: `scripts/verify-font-metrics.mjs`. Acceptance: against the Phase 1 WOFF2 set, gate exits 0; flipping any drift (e.g. truncate a license) flips to non-zero.
-- [ ] 2.3 Add Vitest tests for both: `tests/unit/derive-font-metrics.test.ts`, `tests/unit/verify-font-metrics.test.ts`. Use mkdtemp + a tiny pre-canned synthetic WOFF2 fixture. Files: 2 new test files + `tests/unit/fixtures/synthetic.woff2`. Acceptance: ≥ 8 tests pass covering happy path + each violation type.
+- [ ] 2.3 Add `node:test` tests for both: `tests/derive-font-metrics.test.mjs`, `tests/verify-font-metrics.test.mjs`. Use mkdtemp + a tiny pre-canned synthetic WOFF2 fixture. Files: 2 new test files + `tests/fixtures/synthetic.woff2`. Acceptance: ≥ 8 tests pass covering happy path + each violation type. (Flat `tests/` layout matches today's `tests/*.test.mjs` pattern; will migrate to `tests/unit/*.test.ts` when `modernize-unit-tests-with-vitest` archives.)
 - [ ] 2.4 Add npm scripts: `derive:font-metrics` → `node scripts/derive-font-metrics.mjs`, `verify:font-metrics` → `node scripts/verify-font-metrics.mjs`. Files: `package.json`. Acceptance: both invocable; help text describes flags.
 
 ## 3. Phase 3 — `@font-face` declarations in theme.css
@@ -30,12 +30,12 @@
 
 - [ ] 4.1 Modify `src/layouts/BaseLayout.astro` to accept `Astro.props.preloadFont?: string` (default: `"space-grotesk-500"`). Emit one `<link rel="preload" as="font" type="font/woff2" crossorigin>` in `<head>`, resolving to `/assets/fonts/<family>/<weight>-<style>.woff2`. Files: `src/layouts/BaseLayout.astro`. Acceptance: built `dist/index.html` contains exactly one preload-link per route.
 - [ ] 4.2 Audit each `src/pages/**/*.astro` route's BaseLayout invocation. Marketing routes use the default. Long-form `/writing/*` routes pass `preloadFont="fraunces-400-italic"`. Files: `src/pages/writing/[slug].astro` and any other long-form route. Acceptance: every route emits the right preload-link per its content type.
-- [ ] 4.3 Add Playwright e2e test `tests/e2e/font-loading.spec.ts`: loads `/`, asserts `getComputedStyle(document.querySelector('h1')).fontFamily` resolves to "Space Grotesk" (or fallback if WOFF2 didn't load); asserts the preload-link element exists with the correct href + crossorigin attribute. Files: `tests/e2e/font-loading.spec.ts`. Acceptance: test passes on chromium + firefox + webkit.
+- [ ] 4.3 Add Playwright e2e test `tests/font-loading.spec.ts`: loads `/`, asserts `getComputedStyle(document.querySelector('h1')).fontFamily` resolves to "Space Grotesk" (or fallback if WOFF2 didn't load); asserts the preload-link element exists with the correct href + crossorigin attribute. Files: `tests/font-loading.spec.ts`. Acceptance: test passes on chromium + firefox + webkit. (Flat `tests/` layout; relocates to `tests/e2e/*.spec.ts` when `modernize-unit-tests-with-vitest` archives.)
 
 ## 5. Phase 5 — `measure-font-payload.mjs` + budget gate
 
 - [ ] 5.1 Build `scripts/measure-font-payload.mjs`: walk `dist/**/*.html`, parse `<link rel="preload" as="font">` + transitively reach `@font-face` URIs via referenced stylesheets, sum bytes per route + per-family-per-route, exit non-zero if any route > 180 KB OR any family > 60 KB. Output: JSON line per route. Files: `scripts/measure-font-payload.mjs`. Acceptance: against current dist, exits 0 with summary; injecting a 200KB WOFF2 reference flips to non-zero.
-- [ ] 5.2 Add Vitest tests: `tests/unit/measure-font-payload.test.ts`. Synthetic dist/ fixtures via mkdtemp. Files: new test. Acceptance: ≥ 6 tests covering happy path + per-route violation + per-family violation + JSON output shape.
+- [ ] 5.2 Add `node:test` tests: `tests/measure-font-payload.test.mjs`. Synthetic dist/ fixtures via mkdtemp. Files: new test. Acceptance: ≥ 6 tests covering happy path + per-route violation + per-family violation + JSON output shape. (Flat `tests/` layout per modernize-unit-tests-with-vitest deferral note in proposal.md Prerequisites.)
 - [ ] 5.3 Add npm script `measure:font-payload` → `node scripts/measure-font-payload.mjs`. Files: `package.json`. Acceptance: invocable.
 
 ## 6. Phase 6 — Wire gates into postbuild

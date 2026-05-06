@@ -37,14 +37,24 @@ This change is **host-agnostic** — it places WOFF2 binaries under `public/asse
   - `scripts/derive-font-metrics.mjs` (NEW one-shot)
   - `scripts/verify-font-metrics.mjs` (NEW gate)
   - `package.json` (postbuild chain extension; new `measure:font-payload`, `verify:font-metrics`, `derive:font-metrics` npm scripts)
-- **Affected dependencies**: Optional dev-dep `subset-font` or `wawoff2` for one-shot WOFF2 generation (used by `derive-font-metrics.mjs` setup; binaries committed verbatim once derived). No runtime deps.
+- **Affected dependencies**:
+  - **REQUIRED dev-dep** for the metrics gate: a WOFF2 → SFNT decompressor (e.g., `wawoff2` or `fontkit` which embeds Brotli decoding). Raw WOFF2 bytes are Brotli-compressed SFNT tables; `derive-font-metrics.mjs` and `verify-font-metrics.mjs` cannot read `head` / `OS/2` / `cmap` directly without decompressing. The dependency is HARD, not optional. (Per multi-reviewer-r1 finding [CR-003].)
+  - **Optional dev-dep** for one-shot subset generation: `subset-font`. Used by maintainer when adding/replacing a face; binaries are committed verbatim afterward. CI never re-runs subsetting.
+  - No runtime deps.
 - **Affected workflows**: postbuild gate gains font-metrics verification.
 - **Affected specs**: NEW `openspec/specs/font-self-hosting/spec.md`; MODIFIED `style-system` (forward-reference, amends on USMR archive).
 - **Sequencing**:
   - Independent of `migrate-deploy-to-cloudflare-pages` — self-hosted WOFF2 ships on any static host.
-  - Coexists with `update-site-marketing-redesign` — when USMR archives, its style-system requirements 2.3/2.3a/2.3b/2.4/2.5 mark `[~]` with cross-reference to this change.
+  - Coexists with `update-site-marketing-redesign` — when USMR archives, its style-system requirements 2.3/2.3a/2.3b/2.4/2.5 mark `[~]` with cross-reference to this change. This change ALSO ships a MODIFIED delta against USMR's `specs/style-system/spec.md` REMOVING the duplicated `Self-hosted WOFF2 Fonts with Metrics Overrides` and `Font Payload Budget` Requirements (they migrate into `font-self-hosting`). Per multi-reviewer-r1 finding [H-2].
   - Coexists with `migrate-legacy-tokens-to-layer` — the cascade-layer wrap of theme.css doesn't affect `@font-face` placement (font-faces sit at root, outside layers, per CSS spec).
+  - **Postbuild chain coordination** with `migrate-deploy-to-cloudflare-pages` (PR #45). Both PRs add gates to `npm run postbuild`: this change adds `verify:font-metrics` + `measure:font-payload`; PR #45 adds `verify:headers`. Whichever PR merges second MUST rebase the postbuild line so all five new gates appear in the chain; per multi-reviewer-r1 finding [H-1]. The full target chain (assuming both PRs land) is: `verify:prerequisites && verify:design-prerequisites && lint:tokens && verify-font-self-hosting && verify:font-metrics && measure:font-payload && sri && csp && verify:headers && lint:design && lint:design-md-uniqueness`.
 - **Backwards compatibility**: System-font fallback chain remains (`system-ui, -apple-system, …`). If the WOFF2 fails to load (network error, blocked, etc.), fallback typography renders cleanly via the metrics overrides — CLS stays under 0.05 per the existing payload-budget scenario.
+
+## Prerequisites
+
+This change does NOT depend on `modernize-unit-tests-with-vitest` landing first. New unit tests added by this change ship as `tests/<name>.test.mjs` using the existing `node:test` umbrella (matches today's flat `tests/*.test.{mjs,mts}` layout). When `modernize-unit-tests-with-vitest` archives, those tests migrate to `tests/unit/<name>.test.ts` as part of that change's Phase 2 sweep.
+
+This means tasks below reference `tests/<name>.test.mjs` (flat layout), NOT `tests/unit/<name>.test.ts` (Vitest layout). Per multi-reviewer-r1 finding [M-1].
 
 ## Out of Scope
 

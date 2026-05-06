@@ -76,7 +76,7 @@ const { preloadFont = "space-grotesk-500" } = Astro.props;
 
 Output: a TS object literal pasted into `theme.css` `@font-face` block by hand. Maintainer reviews; commit.
 
-`scripts/verify-font-metrics.mjs` (CI gate, run every postbuild) re-parses each WOFF2 and re-computes the metrics. Compares against `theme.css` declarations. Fails build if any value drifts > 0.5%.
+`scripts/verify-font-metrics.mjs` (CI gate, run every postbuild) re-parses each WOFF2 and re-computes the metrics. Compares against `theme.css` declarations. Fails build if any value drifts > 0.5%. The 0.5% threshold is below the visually-detectable contribution to CLS at typical font-size ranges (h1 — 56-108px; body — 16px; sub-pixel rounding stays below the perceptual threshold per Bram Stein's CSS Working Group research at https://www.zachleat.com/web/font-styles/ — derived from his "Critical Path: Font Loading" presentations 2020-2022). Tightening to 0.1% creates CI flake from rounding noise; loosening to 1% lets perceptible CLS shifts ship. 0.5% is the documented engineering floor. Per multi-reviewer-r1 finding [L-2].
 
 **Alternative considered:** generate `@font-face` blocks via build step. Rejected — adds runtime moving parts; static commit makes the contract greppable and reviewable.
 
