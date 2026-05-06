@@ -58,7 +58,7 @@
 
 ## Phase 4 — Content collections (site-content)
 
-- [ ] 4.1 Extend Zod schemas in `src/content/config.ts` for `pages`, `pages/writing`, and `authors` collections (eyebrow, headline, lede, CTAs[], heroFont?, accent?, tags[]).
+- [x] 4.1 Extend Zod schemas in `src/content/config.ts` for `pages`, `pages/writing`, and `authors` collections (eyebrow, headline, lede, CTAs[], heroFont?, accent?, tags[]). → ✅ `src/content/config.ts` created (no prior file). `pages` schema requires `title`, `description`, `eyebrow`, `headline`, `lede`, `ctas[]` per spec site-content §"Type-Safe Content Schemas"; accepts optional `heroFont` (`space-grotesk` / `fraunces` / `inter-tight`), `accent`, `tags[]`. `writing` sub-collection extends `pages` with required `published` (z.coerce.date) and accepts optional `updated`, `cover`, `repo` (z.url), `author`, `draft` (default false). `authors` collection requires `name`, `slug`; accepts optional `bio`, `avatar`, `links[]` (each `{label,href}` with z.url). `cta` shape: `{label, href, rel?, variant?}` where variant ∈ `primary|secondary|ghost`. Existing `vision.mdx` migrated to satisfy the new contract (added `eyebrow`, `headline`, `lede`, `ctas[]`; description rewritten to 155 chars (within the lint-meta 80–160 band)). Build passes Zod validation; `pages/writing/` and `authors/` collections inert until populated in Phase 4.2 / 4.5.
 - [ ] 4.2 Author `src/content/pages/{home,platform,use-cases,standards,roadmap,writing}.mdx` with frontmatter per `design.md` §4.
 - [ ] 4.3 Add `bridge: { sentence, variants[] }` frontmatter to `platform.mdx`.
 - [ ] 4.4 Author `src/content/taglines.json` with `tagline.short` (≤ 60 chars) and `tagline.triad` (3 clauses).
