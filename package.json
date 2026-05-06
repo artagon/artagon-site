@@ -32,7 +32,7 @@
     "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/sri.mjs && node scripts/csp.mjs && node scripts/verify-font-self-hosting.mjs && npm run lint:design && npm run lint:design-md-uniqueness",
+    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:design && npm run lint:design-md-uniqueness",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",

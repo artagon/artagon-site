@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import { execFileSync, type SpawnSyncReturns } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import * as os from "os";
 
 // `execFileSync` throws an Error augmented with the SpawnSyncReturns shape
 // (status/stdout/stderr/signal/pid/output). With `stdio: 'pipe'` the streams
@@ -27,8 +26,17 @@ test.describe("Content Collections - Schema Validation", () => {
   // post-conditions like "vision/index.html was emitted." The caller is
   // responsible for cleanup; we don't auto-rm in the success path because
   // a Buffer-truthiness assertion is a no-op (HIGH-3).
+  //
+  // outDir lives under .build/.tmp/ (same filesystem as the workspace's
+  // .astro/ build cache) — NOT os.tmpdir(). On GitHub-hosted runners
+  // inside the mcr.microsoft.com/playwright container, the workspace is
+  // bind-mounted while /tmp is tmpfs; Astro's rename of .astro/ → outDir
+  // crosses filesystems and fails with EXDEV. Keeping outDir on the
+  // workspace filesystem makes the rename a same-mount operation.
   const runAstroBuild = (): { stdout: Buffer; outDir: string } => {
-    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "astro-build-"));
+    const tmpRoot = path.join(process.cwd(), ".build", ".tmp");
+    fs.mkdirSync(tmpRoot, { recursive: true });
+    const outDir = fs.mkdtempSync(path.join(tmpRoot, "astro-build-"));
     try {
       const stdout = execFileSync(
         "npx",

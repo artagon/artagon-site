@@ -56,12 +56,15 @@ const FONT_HOSTS = [
 const GENERIC_CDNS = ["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "unpkg.com"];
 
 // Match anything containing a forbidden host — we then do a per-match
-// font-shape check on the URL substring around the match.
+// font-shape check on the URL substring around the match. Case-insensitive
+// because URL hosts are case-insensitive per RFC 3986 §3.2.2; an
+// adversarial input like `https://FONTS.GOOGLEAPIS.COM/...` would
+// otherwise bypass both tiers.
 const HOST_RE = new RegExp(
   [...FONT_HOSTS, ...GENERIC_CDNS]
     .map((h) => h.replace(/\./g, "\\."))
     .join("|"),
-  "g",
+  "gi",
 );
 
 const FONT_PATH_RE = /\.(woff2?|ttf|otf|eot)\b|\/fonts?\//i;
@@ -146,7 +149,10 @@ function main() {
     HOST_RE.lastIndex = 0;
     let m;
     while ((m = HOST_RE.exec(body)) !== null) {
-      const host = m[0];
+      // URL hosts are case-insensitive per RFC 3986 §3.2.2; normalize to
+      // lowercase so FONT_HOSTS_SET (which is lowercase) compares correctly
+      // when the source HTML uses uppercase (e.g. `FONTS.GOOGLEAPIS.COM`).
+      const host = m[0].toLowerCase();
       // Tier 2: generic CDN — only flag if the surrounding URL looks
       // font-shaped. Skips Algolia DocSearch JS/CSS via jsdelivr, etc.
       if (!FONT_HOSTS_SET.has(host)) {
