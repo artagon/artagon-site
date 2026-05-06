@@ -14,10 +14,10 @@
 - **WHEN** `dist/_headers` is missing one of the 7 required security headers (HSTS, COOP, COEP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Content-Security-Policy) for the `/*` block
 - **THEN** `verify-headers.mjs` exits non-zero with `_headers missing required header: <name>`.
 
-#### Scenario: HSTS max-age below minimum fails the build
+#### Scenario: HSTS max-age below current stage minimum fails the build
 
-- **WHEN** the `Strict-Transport-Security` value declares `max-age` < 31536000 (1 year)
-- **THEN** `verify-headers.mjs` exits non-zero with `HSTS max-age=<value> below 1-year minimum`.
+- **WHEN** the `Strict-Transport-Security` value declares `max-age` below the current expected stage threshold documented in `docs/hsts-stage.md` (Stage 1: 300; Stage 2: 86400; Stage 3: 2592000; Stage 4: 63072000+preload — see Cloudflare Pages spec "Staged HSTS Rollout" Requirement)
+- **THEN** `verify-headers.mjs` exits non-zero with `HSTS max-age=<value> below stage-<N> minimum=<expected>`. The gate reads `docs/hsts-stage.md` to determine which stage is current; the maintainer advances the stage value in that file as part of each rollout PR.
 
 #### Scenario: Postbuild integrates the gate after csp.mjs
 
@@ -26,7 +26,7 @@
 
 ### Requirement: Content Parity Verification Before DNS Cut
 
-`scripts/verify-content-parity.mjs` (`npm run verify:content-parity`) MUST be available for use during DNS cutover. The script accepts two URLs (the GH Pages canonical and the Cloudflare Pages preview), fetches every route in `src/pages/**/*.astro` plus `index.html`, computes a normalized hash of each response body (excluding env-specific headers and dynamic timestamps), and exits non-zero if any path's hash differs.
+`scripts/cutover/verify-content-parity.mjs` (`npm run verify:content-parity`) MUST be available for use during DNS cutover. The script lives under `scripts/cutover/` to mark it as a cutover-only tool (NOT part of postbuild). It accepts two URLs (the GH Pages canonical and the Cloudflare Pages preview), fetches every route in `src/pages/**/*.astro` plus `index.html`, computes a normalized hash of each response body (excluding env-specific headers and dynamic timestamps), and exits non-zero if any path's hash differs.
 
 The script is invoked manually as part of the cutover playbook documented in `docs/deploy.md`. It is NOT part of postbuild — its purpose is comparing two live deploy targets, not validating a single build.
 
