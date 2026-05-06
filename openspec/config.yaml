@@ -18,12 +18,13 @@ context: |
     Spec cache mirrored at openspec/.cache/design-md-spec.md.
 
   Layout:
-  - src/pages/ — Astro routes
+  - src/pages/ — Astro routes (USMR adds /use-cases, /standards, /writing/[slug], /writing/feed.xml)
   - src/content/pages/ — MDX content (vision.mdx etc.) via Astro Content Collections + Zod
-  - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts
+  - src/content/pages/writing/ — long-form posts (USMR; rendered at /writing/[slug])
+  - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts; USMR adds named slots: json-ld, indexation, branding
   - src/components/ui/ — Card, SectionHeader, FeatureList primitives
-  - public/assets/theme.css — global tokens (--brand-teal, --bg, --surface, gradient tokens) + ui-* utility classes
-  - scripts/sri.mjs + scripts/csp.mjs — postbuild security (SRI + CSP meta with inline-script hashes)
+  - public/assets/theme.css — global tokens + ui-* utility classes; USMR adds @layer reset, tokens, utilities, components, overrides + OKLCH palette + theme packs (twilight/midnight/slate)
+  - scripts/sri.mjs + scripts/csp.mjs + scripts/lint-tokens.mjs — postbuild security (SRI + CSP meta + token-literal lint). Build output is .build/dist/ per build.config.json.
   - openspec/ — spec-driven workflow (this directory)
 
   Conventions:
@@ -35,13 +36,31 @@ context: |
   - WCAG 2.2 AA is the floor; visible focus, no color-only signal, prefers-reduced-motion respected.
   - Lighthouse CI thresholds enforced; CLS budget < 0.1.
 
-  Active in-flight change:
-  - refactor-styling-architecture — extracts vision.css patterns into shared UI primitives + theme tokens.
-    Future changes that touch public/assets/theme.css MUST land AFTER this merges (CODEOWNERS sequencing).
+  Live capabilities (openspec/specs/):
+  - build-config, check-site-quality, configure-copilot-environment, design-system-format,
+    github-pages-deployment, manage-site-links, openspec-workflow, site-content, style-system
+
+  In-flight changes (openspec/changes/):
+  - update-site-marketing-redesign (USMR) — replaces marketing surface with new-design content;
+    introduces 7 NEW capabilities (site-navigation, site-standards-registry, site-bridge-story,
+    site-mobile-layout, site-structured-data, site-indexation, site-branding) and MODIFIES
+    site-content + style-system. Phase 2 foundations merged via PR #43.
+  - self-host-woff2-fonts — NEW capability font-self-hosting; MODIFIES style-system; merged via PR #44.
+  - migrate-deploy-to-cloudflare-pages — NEW capability cloudflare-pages-deployment;
+    MODIFIES github-pages-deployment + check-site-quality; merged via PR #45.
+  - add-brand-assets-and-writing-pipeline — blocked on USMR archive.
+  - migrate-legacy-tokens-to-layer — stub; reconciles style-system "All token definitions in tokens layer"
+    requirement against the ~150 grandfathered :root declarations. Depends on USMR archive.
+
+  Merge order: refactor-styling-architecture (archived 2026-05-04) →
+  adopt-design-md-format (archived 2026-05-05) → update-site-marketing-redesign (in flight) →
+  add-brand-assets-and-writing-pipeline → cleanup-new-design-extracted (follow-up).
+  self-host-woff2-fonts and migrate-deploy-to-cloudflare-pages are sequencing-independent.
 
   Adjacent reference:
-  - new-design/extracted/ contains the canonical DESIGN.md (761 lines, OKLCH tokens, motion budgets,
-    component anatomy) plus a draft proposal/tasks/design for update-site-marketing-redesign.
+  - new-design/extracted/ — historical reference. The DESIGN.md authority is the repo-root DESIGN.md
+    (governed by design-system-format / archived adopt-design-md-format). Cleanup deferred to a
+    follow-up cleanup-new-design-extracted change.
 
 rules:
   proposal:

@@ -18,7 +18,8 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 
 - Astro 5 (ESM, static output)
 - Node 20+ and npm
-- @astrojs/sitemap
+- @astrojs/sitemap, @astrojs/mdx, @astrojs/react (for interactive islands only)
+- Astro Content Collections + Zod schemas (`src/content/`)
 
 ### Tooling
 
@@ -26,27 +27,50 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 - Cheerio (HTML postprocessing for SRI and CSP)
 - Lighthouse CI (performance and a11y thresholds)
 - Lychee (link checking)
+- Playwright (E2E + accessibility + visual regression)
+- ast-grep (`sg`) — primary linter; rules in `rules/security/*.yml` (no ESLint)
 
 ## Project Structure
 
-- `src/pages/` route pages (Astro). Key routes: `/`, `/platform`, `/vision`, `/roadmap`, `/faq`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/404`.
-- `src/layouts/BaseLayout.astro` shared layout, SEO tags, and inline theme/menu scripts.
+- `src/pages/` route pages (Astro). Live routes: `/`, `/platform`, `/vision`, `/roadmap`, `/faq`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/404`. USMR adds: `/use-cases`, `/standards`, `/writing/[slug]`, `/writing/feed.xml`.
+- `src/layouts/BaseLayout.astro` shared layout, SEO tags, and inline theme/menu scripts. USMR adds named slots: `json-ld`, `indexation`, `branding`.
 - `src/components/` UI components, navigation, and SEO helpers.
+- `src/content/` MDX/JSON content collections (`pages/`, `pages/writing/`, `taglines.json`, `standards.json`).
 - `src/data/` typed data for FAQ and roadmap content.
-- `public/` static assets, icons, manifests, `docsearch.json`, and `_redirects`.
-- `scripts/` postbuild security scripts and asset generation helpers.
+- `public/` static assets, icons, manifests, `docsearch.json`, `_redirects`. (`_headers` is generated to `.build/dist/_headers` by `scripts/csp.mjs` per `migrate-deploy-to-cloudflare-pages`.)
+- `scripts/` postbuild security scripts and asset generation helpers (`csp.mjs`, `sri.mjs`, `lint-tokens.mjs`, etc.).
 - `deploy/` sample server configs and HSTS guidance.
+
+## Capabilities (`openspec/specs/`)
+
+Live capabilities: `build-config`, `check-site-quality`, `configure-copilot-environment`, `design-system-format`, `github-pages-deployment`, `manage-site-links`, `openspec-workflow`, `site-content`, `style-system`.
+
+Capabilities introduced by `update-site-marketing-redesign` (deltas pending archive): `site-navigation`, `site-standards-registry`, `site-bridge-story`, `site-mobile-layout`, `site-structured-data`, `site-indexation`, `site-branding`. The change also MODIFIES `site-content` and `style-system`.
+
+Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive).
+
+## Merge order
+
+The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
+
+1. `refactor-styling-architecture` — archived `2026-05-04`.
+2. `adopt-design-md-format` — archived `2026-05-05`.
+3. `update-site-marketing-redesign` — in flight (Phase 2 foundations merged via PR #43).
+4. `add-brand-assets-and-writing-pipeline` — blocked on #3.
+5. `cleanup-new-design-extracted` — follow-up after #4.
+
+`self-host-woff2-fonts` and `migrate-deploy-to-cloudflare-pages` are sequencing-independent and can land in either direction relative to USMR; their `package.json` postbuild-chain coordination is documented in each change's `proposal.md` Sequencing section.
 
 ## Build and Deploy
 
 - `npm run dev` local dev server.
-- `npm run build` produces `dist/` and runs `scripts/sri.mjs` and `scripts/csp.mjs`.
+- `npm run build` produces `.build/dist/` (per `build.config.json`) and runs the postbuild chain (`scripts/sri.mjs`, `scripts/csp.mjs`, `lint:tokens`, etc.).
 - `npm run preview` serves the static output.
-- GitHub Actions deploys on pushes to `main` (GitHub Pages). Custom domain is `artagon.com` via `CNAME` and `public/CNAME`.
+- GitHub Actions deploys on pushes to `main` (GitHub Pages today; Cloudflare Pages parallel deploy planned per `migrate-deploy-to-cloudflare-pages`). Custom domain is `artagon.com` via `CNAME` and `public/CNAME`.
 
 ## Security and Performance
 
-- `scripts/sri.mjs` injects integrity hashes for local JS and CSS and writes `dist/sri-manifest.json`.
+- `scripts/sri.mjs` injects integrity hashes for local JS and CSS and writes `.build/dist/sri-manifest.json`.
 - `scripts/csp.mjs` inserts a CSP meta tag with hashes for inline scripts; it adds DocSearch origins when enabled.
 - CDN or origin minification must be disabled to avoid SRI mismatches.
 - Lighthouse CI enforces performance, accessibility, best practices, and SEO thresholds.

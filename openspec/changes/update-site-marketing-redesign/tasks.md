@@ -23,10 +23,10 @@
 
 ## Phase 1 — Capability scaffolding
 
-- [ ] 1.1 Spec deltas live under `openspec/changes/update-site-marketing-redesign/specs/{site-content,site-navigation,style-system,site-standards-registry,site-bridge-story,site-mobile-layout,site-structured-data,site-indexation,site-branding}/spec.md`.
-- [ ] 1.2 Update `openspec/project.md` with new routes, new capabilities, merge-order note with `refactor-styling-architecture`.
-- [ ] 1.3 Update `openspec/config.yaml` context block with new capability names.
-- [ ] 1.4 `openspec validate update-site-marketing-redesign --strict` passes — gate before any code lands.
+- [x] 1.1 Spec deltas live under `openspec/changes/update-site-marketing-redesign/specs/{site-content,site-navigation,style-system,site-standards-registry,site-bridge-story,site-mobile-layout,site-structured-data,site-indexation,site-branding}/spec.md`. → ✅ all 9 delta directories present and `openspec validate --strict` green.
+- [x] 1.2 Update `openspec/project.md` with new routes, new capabilities, merge-order note with `refactor-styling-architecture`. → ✅ Capabilities + Merge order sections added; routes list extended with `/use-cases`, `/standards`, `/writing/[slug]`, `/writing/feed.xml`; stale `dist/` paths corrected to `.build/dist/`; tech stack updated (MDX, Content Collections + Zod, Playwright, ast-grep, `@astrojs/react`).
+- [x] 1.3 Update `openspec/config.yaml` context block with new capability names. → ✅ Stale "Active in-flight change: refactor-styling-architecture" block replaced with current Live capabilities + In-flight changes + Merge order. Layout section notes USMR additions (writing collection, named slots, theme packs).
+- [x] 1.4 `openspec validate update-site-marketing-redesign --strict` passes — gate before any code lands. → ✅ green at this commit.
 
 ## Phase 2 — Design-system foundations (style-system)
 
