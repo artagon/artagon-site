@@ -4,7 +4,7 @@
 
 The GitHub Pages site SHALL continue to deploy from the Astro build workflow defined in `.github/workflows/deploy.yml` for the duration of the parallel-deploy soak window (Phases 5-7 of `migrate-deploy-to-cloudflare-pages`). After the soak window, this requirement is REMOVED via a follow-up OpenSpec change `archive-github-pages-deployment`.
 
-During the soak window, BOTH the GitHub Pages workflow AND the Cloudflare Pages workflow MUST run on every push to `main`, depositing identical `dist/` content to both targets. This invariant lets DNS cutover and rollback be a registrar-only operation with no code change.
+During the soak window, BOTH the GitHub Pages workflow AND the Cloudflare Pages workflow MUST run on every push to `main`, depositing identical `.build/dist` content to both targets. This invariant lets DNS cutover and rollback be a registrar-only operation with no code change.
 
 #### Scenario: Both workflows run in parallel during soak
 

@@ -2,16 +2,16 @@
 
 ### Requirement: Cloudflare Pages Headers Verification Gate
 
-`scripts/verify-headers.mjs` (`npm run verify:headers`) MUST run as part of `npm run postbuild` after `csp.mjs`. The gate parses `public/_headers` and compares the `Content-Security-Policy` value to the value emitted in `<meta http-equiv="Content-Security-Policy">` by `scripts/csp.mjs`. The gate also verifies that the required security headers (HSTS, COOP, COEP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) are declared in `_headers` for the `/* ` block. Any drift or missing header MUST exit non-zero with a concrete diagnostic.
+`scripts/verify-headers.mjs` (`npm run verify:headers`) MUST run as part of `npm run postbuild` after `csp.mjs`. The gate parses `dist/_headers` (the file `scripts/csp.mjs` writes during postbuild — see design.md D3) and verifies that the global `/*` `Content-Security-Policy` value is a SUPERSET of every per-page `<meta http-equiv="Content-Security-Policy">` value emitted by `scripts/csp.mjs` across all `.build/dist/**/*.html` files. The gate also verifies that the required security headers (HSTS, COOP, COEP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy) are declared in `dist/_headers` for the `/*` block. Any drift or missing header MUST exit non-zero with a concrete diagnostic.
 
 #### Scenario: CSP drift fails the build
 
-- **WHEN** `_headers` declares a CSP value that differs from the `<meta>` CSP emitted into `dist/index.html`
-- **THEN** `verify-headers.mjs` exits non-zero with `CSP drift: <meta> = "..."; _headers = "..."`.
+- **WHEN** `dist/_headers` declares a `/*` CSP that is NOT a superset of any per-page `<meta>` CSP emitted into `.build/dist/**/*.html`
+- **THEN** `verify-headers.mjs` exits non-zero with `CSP not a superset: <meta> at <route> includes directive X not in /* header`.
 
 #### Scenario: Missing required header fails the build
 
-- **WHEN** `_headers` is missing one of the 7 required security headers (HSTS, COOP, COEP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Content-Security-Policy) for the `/*` block
+- **WHEN** `dist/_headers` is missing one of the 7 required security headers (HSTS, COOP, COEP, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Content-Security-Policy) for the `/*` block
 - **THEN** `verify-headers.mjs` exits non-zero with `_headers missing required header: <name>`.
 
 #### Scenario: HSTS max-age below minimum fails the build
