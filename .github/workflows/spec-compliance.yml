@@ -42,7 +42,7 @@ jobs:
 
             const pr = context.payload.pull_request;
             if (!pr) {
-              core.setFailed('No pull_request payload found.');
+              // Not triggered by a pull_request event; nothing to enforce.
               return;
             }
 

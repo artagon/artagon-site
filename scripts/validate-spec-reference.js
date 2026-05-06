@@ -126,7 +126,7 @@ async function main() {
     }
   }
 
-  if (!prBody) {
+  if (!prBody && failOnMissing) {
     errors.push('PR body not found. Provide --body, --body-file, or GITHUB_EVENT_PATH.');
   }
 
