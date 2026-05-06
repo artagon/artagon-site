@@ -11,6 +11,7 @@
 // (Phase 4.2 / 5.x). vision.mdx is already migrated in this commit.
 
 import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 /** Single call-to-action chip. */
 const cta = z.object({
@@ -63,13 +64,24 @@ const pageBase = z.object({
   bridge: bridgeStory.optional(),
 });
 
+// Astro 6 content layer: each collection declares its own loader so
+// collections can co-locate inside src/content/pages/ per the USMR spec
+// (which keeps writing posts at src/content/pages/writing/ rather than
+// at the conventional src/content/writing/ root).
+
 const pages = defineCollection({
-  type: "content",
+  loader: glob({
+    pattern: "*.{md,mdx}",
+    base: "./src/content/pages",
+  }),
   schema: pageBase,
 });
 
 const writing = defineCollection({
-  type: "content",
+  loader: glob({
+    pattern: "**/*.{md,mdx}",
+    base: "./src/content/pages/writing",
+  }),
   schema: pageBase.extend({
     /** ISO 8601 publication date — anchors RSS + sort order. */
     published: z.coerce.date(),
@@ -87,7 +99,10 @@ const writing = defineCollection({
 });
 
 const authors = defineCollection({
-  type: "content",
+  loader: glob({
+    pattern: "**/*.{md,mdx}",
+    base: "./src/content/authors",
+  }),
   schema: z.object({
     name: z.string().min(1),
     /** URL slug — kebab-case, matches filename. */
