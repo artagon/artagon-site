@@ -1,8 +1,11 @@
 # design-system-format Specification
 
 ## Purpose
+
 TBD - created by archiving change adopt-design-md-format. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: Canonical DESIGN.md Location
 
 The repository MUST contain exactly one `DESIGN.md` file at the repository root. This file is the canonical visual identity contract for `artagon.com`.
@@ -47,7 +50,7 @@ The repository MUST contain exactly one `DESIGN.md` file at the repository root.
 
 ### Requirement: YAML Frontmatter Token Coverage
 
-`DESIGN.md` frontmatter MUST declare token groups for `colors`, `typography`, `spacing`, and `rounded`. The `components` group is required and MUST cover at least: `nav`, `footer`, `glow-tag`, `standards-chip`, `trust-chain-row`, `button-primary`, `button-secondary`, `code-block`. The `name` and `description` fields MUST be present and non-empty.
+`DESIGN.md` frontmatter MUST declare token groups for `colors`, `typography`, `spacing`, and `rounded`. The `components` group is required and MUST cover at least: `nav`, `footer`, `glow-tag`, `standard-chip`, `trust-chain-row`, `button-primary`, `button-secondary`, `code-block`. The `name` and `description` fields MUST be present and non-empty.
 
 #### Scenario: Missing required token group fails
 
@@ -129,7 +132,7 @@ YAML frontmatter colors carry sRGB hex; prose carries OKLCH. `scripts/oklch-to-h
 
 `.github/workflows/design-md-drift.yml` MUST run on a weekly cron and execute three checks: (1) regenerate the spec cache and `git diff --exit-code` it; (2) query `gh api repos/google-labs-code/design.md` and fail the workflow if `archived=true` OR the last push timestamp is more than 90 days old; (3) run `tests/fixtures/design-md/{good,bad}.md` snapshot tests asserting linter exit code and finding count. Failure MUST open a tracking issue; the workflow MUST NOT auto-PR an upgrade and MUST NOT push commits.
 
-The workflow MUST declare an explicit minimum-privilege `permissions:` block at workflow scope: `permissions: { contents: read, issues: write }` (read for repo content; write for opening tracking issues only). All `uses:` references MUST be pinned by full 40-hex commit SHA with a `# v<semver>` comment recording the human-readable version. Dependabot's `package-ecosystem: github-actions` (configured under `add-brand-assets-and-writing-pipeline`'s `site-writing-pipeline` requirement) covers SHA-pin upgrades for this workflow as well.
+The workflow MUST declare explicit minimum-privilege `permissions:` blocks. Workflow-scope MUST be the smallest grant the workflow needs (`permissions: { contents: read }`); job-scope MAY escalate per job to the smallest write that job actually performs (the `drift-check` job needs `issues: write` to open a tracking issue, declared at job scope, NOT workflow scope). The two-level pattern matches GitHub's minimum-privilege guidance — workflow-scope `issues: write` would over-grant to any future job added to this file. All `uses:` references MUST be pinned by full 40-hex commit SHA with a `# v<semver>` comment recording the human-readable version. Dependabot's `package-ecosystem: github-actions` (configured under `add-brand-assets-and-writing-pipeline`'s `site-writing-pipeline` requirement) covers SHA-pin upgrades for this workflow as well.
 
 #### Scenario: Upstream archives
 
@@ -145,4 +148,3 @@ The workflow MUST declare an explicit minimum-privilege `permissions:` block at 
 
 - **WHEN** the upstream linter changes `broken-ref` detection scope without changing spec markdown text
 - **THEN** the snapshotted finding count for `tests/fixtures/design-md/bad.md` diverges and the weekly workflow fails.
-
