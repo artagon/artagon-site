@@ -69,6 +69,28 @@ async function processHtml(fp) {
     ];
   }
   const policy = buildPolicy(hashes, extras);
+
+  // Orphan-hash detection (Phase 3.6): verify that the constructed script-src
+  // covers every inline script and never contains 'unsafe-inline'.
+  const scriptSrcMatch = policy.match(/script-src\s+([^;]+)/);
+  const scriptSrcValues = scriptSrcMatch
+    ? scriptSrcMatch[1].trim().split(/\s+/)
+    : [];
+  const rel = path.relative(distDir, fp);
+
+  if (scriptSrcValues.includes("'unsafe-inline'")) {
+    throw new Error(
+      `[CSP] ${rel}: 'unsafe-inline' found in script-src — forbidden by Phase 3.6`,
+    );
+  }
+  for (const h of hashes) {
+    if (!scriptSrcValues.includes(`'sha256-${h}'`)) {
+      throw new Error(
+        `[CSP] ${rel}: inline script sha256-${h} not present in script-src — orphan hash`,
+      );
+    }
+  }
+
   const existing = $('meta[http-equiv="Content-Security-Policy"]');
   if (existing.length) existing.attr("content", policy);
   else

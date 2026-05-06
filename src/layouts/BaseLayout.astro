@@ -9,7 +9,7 @@ export interface Props { title?: string; description?: string; path?: string; im
 const { title, description, path='/', image, robots } = Astro.props;
 ---
 <!doctype html>
-<html lang="en" class="no-js" data-theme="midnight">
+<html lang="en" class="no-js" data-theme="twilight">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,23 +17,25 @@ const { title, description, path='/', image, robots } = Astro.props;
     <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
     <script is:inline>
 (function(){
-  var KEY='artagon.theme', DEF='midnight';
+  var KEY='artagon.theme', ALLOWED=['midnight','twilight'], DEF='twilight';
   // Preview override via URL (?theme=twilight[&persist=1])
   try {
     var sp = new URLSearchParams(location.search);
     var override = sp.get('theme');
     if (override) {
-      document.documentElement.dataset.theme = override;
-      if (sp.get('persist') === '1') localStorage.setItem(KEY, override);
+      var t = (ALLOWED.indexOf(override) >= 0) ? override : DEF;
+      document.documentElement.setAttribute('data-theme', t);
+      if (sp.get('persist') === '1') localStorage.setItem(KEY, t);
       return;
     }
   } catch(e){}
-  // Persisted choice
+  // Persisted choice — validate against allowlist, fall back to DEF
   try {
-    var saved = localStorage.getItem(KEY) || DEF;
-    document.documentElement.dataset.theme = saved;
+    var saved = localStorage.getItem(KEY);
+    var theme = (saved && ALLOWED.indexOf(saved) >= 0) ? saved : DEF;
+    document.documentElement.setAttribute('data-theme', theme);
   } catch(e) {
-    document.documentElement.dataset.theme = DEF;
+    document.documentElement.setAttribute('data-theme', DEF);
   }
 })();
     </script>
@@ -45,15 +47,23 @@ const { title, description, path='/', image, robots } = Astro.props;
     <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
     <script is:inline>
 window.__setTheme = function(t){
-  var KEY='artagon.theme';
-  document.documentElement.dataset.theme = t;
-  try { localStorage.setItem(KEY, t); } catch(e){}
+  var KEY='artagon.theme', ALLOWED=['midnight','twilight'], DEF='twilight';
+  var theme = (typeof t === 'string' && ALLOWED.indexOf(t) >= 0) ? t : DEF;
+  document.documentElement.setAttribute('data-theme', theme);
+  try { localStorage.setItem(KEY, theme); } catch(e){}
   // Sync browser UI with --bg
   try {
     var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0B1220';
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', bg);
   } catch(e){}
+  // Sync ThemeToggle buttons
+  var pressed = theme === 'twilight';
+  var label = pressed ? 'Switch to midnight theme' : 'Switch to twilight theme';
+  document.querySelectorAll('[data-theme-toggle]').forEach(function(btn){
+    btn.setAttribute('aria-pressed', String(pressed));
+    btn.setAttribute('aria-label', label);
+  });
 };
     </script>
   </head>
