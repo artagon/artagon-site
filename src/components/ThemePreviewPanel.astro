@@ -1,5 +1,9 @@
 ---
-const THEMES = ['midnight','twilight','slate'];
+// USMR site-navigation §"Theme Toggle" allow-list is binary
+// (twilight ↔ midnight). The slate pack still exists in theme.css but
+// is no longer user-toggleable; drop it from the dev preview to match
+// __setTheme's allow-list (it would silently collapse to twilight).
+const THEMES = ['twilight', 'midnight'];
 ---
 <div class="theme-panel" aria-label="Theme preview panel">
   {THEMES.map(t => <button onClick={`__setTheme('${t}')`}>{t}</button>)}

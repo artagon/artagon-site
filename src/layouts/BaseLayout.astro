@@ -17,25 +17,33 @@ const { title, description, path='/', image, robots } = Astro.props;
     <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
     <script is:inline>
 (function(){
-  var KEY='artagon.theme', ALLOWED=['midnight','twilight'], DEF='twilight';
+  // USMR site-navigation §"Theme Toggle with Pre-Paint Bootstrap":
+  // allow-list ['twilight', 'midnight']; any other value falls back to
+  // 'twilight' (project default). data-theme is set via setAttribute
+  // only — no innerHTML / outerHTML / string-concatenated attribute
+  // construction.
+  var KEY='artagon.theme', DEF='twilight';
+  var ALLOWED = ['twilight', 'midnight'];
+  function apply(v){
+    var safe = ALLOWED.indexOf(v) === -1 ? DEF : v;
+    document.documentElement.setAttribute('data-theme', safe);
+    return safe;
+  }
   // Preview override via URL (?theme=twilight[&persist=1])
   try {
     var sp = new URLSearchParams(location.search);
     var override = sp.get('theme');
     if (override) {
-      var t = (ALLOWED.indexOf(override) >= 0) ? override : DEF;
-      document.documentElement.setAttribute('data-theme', t);
-      if (sp.get('persist') === '1') localStorage.setItem(KEY, t);
+      var applied = apply(override);
+      if (sp.get('persist') === '1') localStorage.setItem(KEY, applied);
       return;
     }
   } catch(e){}
-  // Persisted choice — validate against allowlist, fall back to DEF
+  // Persisted choice
   try {
-    var saved = localStorage.getItem(KEY);
-    var theme = (saved && ALLOWED.indexOf(saved) >= 0) ? saved : DEF;
-    document.documentElement.setAttribute('data-theme', theme);
+    apply(localStorage.getItem(KEY) || DEF);
   } catch(e) {
-    document.documentElement.setAttribute('data-theme', DEF);
+    apply(DEF);
   }
 })();
     </script>
@@ -47,22 +55,26 @@ const { title, description, path='/', image, robots } = Astro.props;
     <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
     <script is:inline>
 window.__setTheme = function(t){
-  var KEY='artagon.theme', ALLOWED=['midnight','twilight'], DEF='twilight';
-  var theme = (typeof t === 'string' && ALLOWED.indexOf(t) >= 0) ? t : DEF;
-  document.documentElement.setAttribute('data-theme', theme);
-  try { localStorage.setItem(KEY, theme); } catch(e){}
+  // Validate against the allow-list before applying. Anything outside
+  // the list collapses to the project default ('twilight'). Theme
+  // assignment is via setAttribute only, never innerHTML / outerHTML.
+  var KEY='artagon.theme', DEF='twilight';
+  var ALLOWED = ['twilight', 'midnight'];
+  var safe = ALLOWED.indexOf(t) === -1 ? DEF : t;
+  document.documentElement.setAttribute('data-theme', safe);
+  try { localStorage.setItem(KEY, safe); } catch(e){}
   // Sync browser UI with --bg
   try {
     var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0B1220';
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', bg);
   } catch(e){}
-  // Sync ThemeToggle buttons
-  var pressed = theme === 'twilight';
-  var label = pressed ? 'Switch to midnight theme' : 'Switch to twilight theme';
+  // Sync any ThemeToggle buttons so their aria-pressed reflects the
+  // new state (e.g. when __setTheme is called from outside the toggle
+  // itself, like the dev ThemePreviewPanel).
+  var pressed = safe === 'midnight';
   document.querySelectorAll('[data-theme-toggle]').forEach(function(btn){
     btn.setAttribute('aria-pressed', String(pressed));
-    btn.setAttribute('aria-label', label);
   });
 };
     </script>

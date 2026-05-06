@@ -45,7 +45,7 @@
     "test:tweaks-prod-noship": "node --test tests/tweaks-prod-noship.test.mjs",
     "test:prerequisites": "node --test tests/verify-prerequisites.test.mjs",
     "test:lint-tokens": "node --test tests/lint-tokens.test.mjs",
-    "test:node": "node --test tests/build-config.test.mjs tests/design-md-fixtures.test.mjs tests/lint-skip-link.test.mjs tests/lint-taglines.test.mjs tests/lint-tokens.test.mjs tests/tweaks-parse.test.mjs tests/tweaks-state.test.mts tests/tweaks-prod-noship.test.mjs tests/verify-design-prerequisites.test.mjs tests/verify-prerequisites.test.mjs",
+    "test:node": "node --test tests/build-config.test.mjs tests/csp.test.mjs tests/design-md-fixtures.test.mjs tests/lint-skip-link.test.mjs tests/lint-taglines.test.mjs tests/lint-tokens.test.mjs tests/tweaks-parse.test.mjs tests/tweaks-state.test.mts tests/tweaks-prod-noship.test.mjs tests/verify-design-prerequisites.test.mjs tests/verify-prerequisites.test.mjs",
     "verify:design-prerequisites": "node scripts/verify-design-prerequisites.mjs",
     "verify:font-self-hosting": "node scripts/verify-font-self-hosting.mjs",
     "verify:prerequisites": "node scripts/verify-prerequisites.mjs",

@@ -48,6 +48,17 @@ function buildPolicy(hashes, extras = {}) {
     .map(([k, v]) => `${k} ${v.join(" ")}`)
     .join("; ");
 }
+function extractScriptSrcHashes(policy) {
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  if (!m) return new Set();
+  const set = new Set();
+  for (const tok of m[1].trim().split(/\s+/)) {
+    const h = /^'sha256-([^']+)'$/.exec(tok);
+    if (h) set.add(h[1]);
+  }
+  return set;
+}
+
 async function processHtml(fp) {
   const html = await fs.readFile(fp, "utf8");
   const $ = cheerio.load(html);
@@ -97,15 +108,52 @@ async function processHtml(fp) {
     $("head").prepend(
       `<meta http-equiv="Content-Security-Policy" content="${policy}">`,
     );
+  // 'unsafe-inline' must never appear in script-src (USMR
+  // site-navigation §"Theme Toggle" — defence-in-depth even though
+  // buildPolicy never emits it).
+  if (/(^|;\s*)script-src\s[^;]*'unsafe-inline'/.test(policy)) {
+    throw new Error(
+      `[CSP] script-src contains 'unsafe-inline' in ${path.relative(process.cwd(), fp)}`,
+    );
+  }
   await fs.writeFile(fp, $.html(), "utf8");
+
+  // Post-write self-audit: re-read the file from disk, extract every
+  // inline-script hash, and compare against the meta's script-src.
+  // Catches desync if a future cheerio version, future postbuild step,
+  // or a bug in this script ever produces an inline <script> whose
+  // SHA-256 isn't present in the emitted policy.
+  const written = await fs.readFile(fp, "utf8");
+  const $w = cheerio.load(written);
+  const writtenHashes = new Set();
+  for (const el of $w("script:not([src])").toArray()) {
+    writtenHashes.add(sha(Buffer.from($w(el).html() || "")));
+  }
+  const writtenPolicy =
+    $w('meta[http-equiv="Content-Security-Policy"]').attr("content") || "";
+  const writtenScriptSrc = extractScriptSrcHashes(writtenPolicy);
+  const writtenOrphans = [...writtenHashes].filter(
+    (h) => !writtenScriptSrc.has(h),
+  );
+  if (writtenOrphans.length) {
+    throw new Error(
+      `[CSP] post-write orphan inline-script hashes in ${path.relative(process.cwd(), fp)}: ${writtenOrphans.join(", ")}`,
+    );
+  }
   return hashes.size;
 }
-(async () => {
-  const files = await walk(distDir);
-  let count = 0;
-  for (const f of files) count += await processHtml(f);
-  console.log(`[CSP] files=${files.length} inline-hash-count=${count}`);
-})().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// Export helpers for unit testing (tests/csp.test.mjs).
+export { buildPolicy, extractScriptSrcHashes, sha };
+
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMain) {
+  (async () => {
+    const files = await walk(distDir);
+    let count = 0;
+    for (const f of files) count += await processHtml(f);
+    console.log(`[CSP] files=${files.length} inline-hash-count=${count}`);
+  })().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
