@@ -40,7 +40,12 @@ test.describe("Home (/) — content parse + render smoke", () => {
   });
 });
 
-test.describe("Home (/) — TrustChainIsland interactivity", () => {
+test.describe("Home (/) — TrustChainIsland interactivity (desktop / mouse)", () => {
+  test.skip(
+    ({ isMobile }) => isMobile,
+    "Mouse-driven interactions: scenario-picker dots are 9px (sub-tappable on touch) and hover is unsupported on touch devices. See Mobile-specific tests below.",
+  );
+
   test("scenario picker click swaps the decision card to a DENY scenario", async ({
     page,
   }) => {
@@ -77,8 +82,12 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
       "decision=PERMIT",
     );
   });
+});
 
-  test("stage rows are keyboard-focusable (a11y contract)", async ({
+test.describe("Home (/) — TrustChainIsland a11y contract (all device classes)", () => {
+  // Structural a11y assertions — no mouse / touch / hover required, so
+  // they run on every project (desktop, mobile, tablet, TV).
+  test("stage rows are keyboard-focusable + describe the live decision region", async ({
     page,
   }) => {
     await page.goto("/");
