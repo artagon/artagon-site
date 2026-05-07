@@ -1,7 +1,7 @@
 [mcp_servers.context7]
 args = [
     "-y",
-    "@upstash/context7-mcp@2.2.3",
+    "@upstash/context7-mcp@2.2.4",
 ]
 command = "npx"
 
@@ -17,3 +17,7 @@ args = [
 [mcp_servers.ast-grep]
 command = "ast-grep-mcp-server"
 args = []
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@0.0.73"]

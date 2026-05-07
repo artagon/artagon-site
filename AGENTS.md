@@ -77,13 +77,24 @@ Use shell search only when MCP tools do not satisfy the need. In that case, foll
 - Do not use `grep`, `find`, `git grep`, bare `rg`, or `ripgrep` for code search.
 - Do not use `rtk grep` for code search.
 - Use MCP tools first: Serena for symbols, ast-grep MCP for structure, context7 for current docs.
+- Do not use direct `bash`, shell scripts, or raw shell commands to bypass MCP tools.
+- Do not use direct `bash`, shell scripts, or raw shell commands to bypass `rtk`.
 - If shell text search is necessary, use `rtk rg` and follow `~/.agents/SEARCH.md`.
 - If exact raw output is required, use `rtk proxy <cmd>` and state why.
+
+### Shell command restrictions
+
+- Prefer MCP tools over shell commands whenever an MCP tool satisfies the task.
+- Run MCP servers and MCP tools directly through the model/client; do not wrap Serena, context7, ast-grep MCP, or any MCP stdio server with `rtk`.
+- Route shell commands through `rtk <command>` by default.
+- Do not invoke `bash -c`, `sh -c`, `zsh -c`, command files, one-off scripts, or raw binaries just to avoid MCP tool routing or `rtk` filtering.
+- Use `rtk proxy <command>` only when exact raw output is required, and state the reason before running it.
+- Tools explicitly documented outside RTK, such as ast-grep rule execution, may run directly only when the documented command requires it.
 
 Before any code search or modification, state routing:
 
 ```text
-Tool: <serena | ast-grep | rtk rg | context7>
+Tool: <serena | ast-grep | rtk | rtk rg | context7>
 Call: <tool_name or command>(<brief args>)
 Reason: <one sentence>
 ```

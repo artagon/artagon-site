@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "enabledMcpjsonServers": ["context7", "serena", "ast-grep"],
+  "enabledMcpjsonServers": ["context7", "serena", "ast-grep", "playwright"],
   "mcpServers": {
     "serena": {
       "command": "serena",
@@ -14,6 +14,13 @@
     "ast-grep": {
       "command": "ast-grep-mcp-server",
       "args": []
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.73"
+      ]
     }
   },
   "enabledPlugins": {
@@ -22,6 +29,17 @@
     "superpowers@claude-plugins-official": true
   },
   "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook gemini"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",

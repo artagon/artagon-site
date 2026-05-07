@@ -2,7 +2,7 @@
   "mcpServers": {
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@2.2.3"],
+      "args": ["-y", "@upstash/context7-mcp@2.2.4"],
       "env": {}
     },
     "serena": {
@@ -18,6 +18,10 @@
     "ast-grep": {
       "command": "ast-grep-mcp-server",
       "args": []
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@0.0.73"]
     }
   }
 }
