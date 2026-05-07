@@ -482,7 +482,9 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 - The strip card uses `var(--bg-1)` with `--line` border that lifts to `--accent-dim` on hover.
 - Title font follows `--f-display` so it inherits the hero-font tweak.
 
-### 6.13 TrustChain tooltip
+### 6.13 TrustChain tooltip (Planned)
+
+**Status: not yet shipped.** No `TrustChainTooltip` component file exists in `src/components/`; the §6.5 "Explain layer" subsection that activates this tooltip is also Planned. This subsection documents the intended shape so consumers know what to expect when the explain-layer ships.
 
 **Purpose.** A teaching layer over the trust chain. Each stage exposes 2–3 sentences explaining what's happening cryptographically, why it matters, the standard it implements, and a link to the canonical spec. The chain itself stays dense — the tooltip is the on-demand decompression.
 
