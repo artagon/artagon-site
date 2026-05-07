@@ -27,14 +27,15 @@ import { AxeBuilder } from "@axe-core/playwright";
  * parity (matching the visual-regression and accessibility job scope).
  */
 
-const runAxe = process.env.AXE_AUDIT === "1";
-
 test.describe("Home (/) — automated WCAG 2.1 AA audit (axe-core)", () => {
   test.beforeEach(({}, testInfo) => {
-    test.skip(
-      !runAxe,
-      "axe-core audit runs only when AXE_AUDIT=1. Gate is informational while the OpenSpec change `enhance-a11y-coverage` lands the fixes for known WCAG 2.1 AA violations on /. Once that change archives, this gate becomes mandatory and the env-var skip is removed.",
-    );
+    // USMR Phase 5.1p.8 — gate flipped from `AXE_AUDIT=1`-opt-in to
+    // MANDATORY now that round-3 violations cleared (1 critical
+    // `aria-required-children` fixed in 5.1p.1; 9 `color-contrast`
+    // failures fixed in 5.1p.8). Future regressions block merge.
+    // Engine scope stays narrow — chromium / webkit / Mobile Safari
+    // catch the cross-engine focus-visible / forced-colors deltas
+    // without ballooning CI.
     const allowed = new Set([
       "chromium",
       "webkit",

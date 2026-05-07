@@ -84,6 +84,77 @@ test.describe("Home (/) — TrustChainIsland interactivity (desktop / mouse)", (
   });
 });
 
+test.describe("Home (/) — visual contracts (5.1p slices)", () => {
+  // Per-slice contract assertions that document the structural
+  // commitments of the 5.1p delta close-out. Run on chromium only —
+  // these check DOM structure / computed styles, not pixels (the
+  // styling-snapshots suite owns visual regression).
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Visual-contract checks run on chromium only.",
+    );
+  });
+
+  test("5.1p.3 — hero lede uses .lead, NOT .sub", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const lede = page.locator("#hero-sub");
+    await expect(lede).toHaveClass(/lead/);
+    await expect(lede).not.toHaveClass(/sub/);
+  });
+
+  test("5.1p.2 — hero h1 has no animation (no rainbow-shift)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const animationName = await page
+      .locator("#hero-h1")
+      .evaluate((el) => getComputedStyle(el).animationName);
+    expect(animationName).toBe("none");
+  });
+
+  test("5.1p.6 — hero .btn rules have no ::before content (legacy glyphs suppressed)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const btn = page.locator(".hero .btn").first();
+    const beforeContent = await btn.evaluate(
+      (el) => getComputedStyle(el, "::before").content,
+    );
+    // `content: none` resolves to `none` in the computed-style API.
+    // Anything else (e.g., `"◆"`) means the legacy glyph still applies.
+    expect(beforeContent).toBe("none");
+  });
+
+  test("5.1p.7 — trust-chain stage wrappers render the connector line (except the last)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const wraps = page.locator(".trust-chain__stage-wrap");
+    await expect(wraps).toHaveCount(5);
+    // The first 4 wrappers SHOULD render an ::after connector.
+    for (let i = 0; i < 4; i++) {
+      const afterContent = await wraps
+        .nth(i)
+        .evaluate((el) => getComputedStyle(el, "::after").content);
+      expect(afterContent, `wrapper #${i} should have ::after content`).toBe(
+        '""',
+      );
+    }
+    // The last wrapper has `:not(:last-child)` excluded, so no ::after.
+    const lastAfter = await wraps
+      .nth(4)
+      .evaluate((el) => getComputedStyle(el, "::after").content);
+    expect(lastAfter, "last wrapper should NOT have ::after content").toBe(
+      "none",
+    );
+  });
+});
+
 test.describe("Home (/) — TrustChainIsland a11y contract (all device classes)", () => {
   // Structural a11y assertions — no mouse / touch / hover required, so
   // they run on every project (desktop, mobile, tablet, TV).

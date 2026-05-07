@@ -31,8 +31,13 @@
     --nd-line-soft: oklch(0.22 0.008 260);
     --nd-fg: oklch(0.96 0.005 85);
     --nd-fg-1: oklch(0.82 0.008 85);
-    --nd-fg-2: oklch(0.62 0.008 85);
-    --nd-fg-3: oklch(0.45 0.008 85);
+    /* USMR Phase 5.1p.8 — bumped from oklch(0.62 …) and oklch(0.45 …)
+     * to clear 9 WCAG 1.4.3 contrast violations surfaced by axe.
+     * Original triples failed `--fg-3` on `--bg` (2.56:1 vs 4.5:1
+     * required) and `--fg-2` on `--bg-2` (4.33:1). New lightness
+     * targets pass at the project's standard 11-12 px copy size. */
+    --nd-fg-2: oklch(0.72 0.008 85);
+    --nd-fg-3: oklch(0.62 0.008 85);
     --nd-accent: oklch(0.86 0.14 185);
     --nd-accent-dim: oklch(0.5 0.1 185);
     --nd-accent-ink: oklch(0.18 0.04 185);
