@@ -63,12 +63,14 @@ test.describe("Writing feed (/writing/feed.xml) — shape contract", () => {
     const feedBody = await feedResponse.text();
     const indexBody = await indexResponse.text();
     const feedItemCount = (feedBody.match(/<item>/g) ?? []).length;
-    // The /writing index renders one `<li class="writing-index__item">`
-    // per non-draft post (src/pages/writing/index.astro). If the index
-    // template changes, this test needs updating — that's a feature,
-    // not a bug.
+    // The /writing index renders one `<a class="post-card">` per
+    // non-draft post (src/pages/writing/index.astro). USMR Phase 5.5
+    // restructured the markup from `<li class="writing-index__item">`
+    // to canonical `<a class="post-card">` per blog.html:839; the
+    // selector below tracks the current shape. If the index template
+    // changes, this test needs updating — that's a feature, not a bug.
     const indexCardCount = (
-      indexBody.match(/<li class="writing-index__item"/g) ?? []
+      indexBody.match(/<a[^>]*class="[^"]*\bpost-card\b/g) ?? []
     ).length;
     // Sanity: at least one published post must exist (welcome.mdx).
     expect(feedItemCount, "RSS items").toBeGreaterThan(0);
