@@ -125,6 +125,9 @@ const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [
                   rel={cta.rel}
                 >
                   {cta.label}
+                  {cta.variant === "primary" && (
+                    <span class="arr" aria-hidden="true">→</span>
+                  )}
                 </a>
               ))}
             </div>
@@ -211,15 +214,25 @@ const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [
                 <p class="onramp__lede">{onRamp.lede}</p>
                 {onRamp.ctas.length > 0 && (
                   <div class="actions">
-                    {onRamp.ctas.map((c) => (
-                      <a
-                        class={`btn ${c.variant === "primary" ? "primary" : ""}`}
-                        href={c.href}
-                        rel={c.rel}
-                      >
-                        {c.label}
-                      </a>
-                    ))}
+                    {onRamp.ctas.map((c) => {
+                      const isExternal = c.href.startsWith("http");
+                      return (
+                        <a
+                          class={`btn ${c.variant === "primary" ? "primary" : ""}`}
+                          href={c.href}
+                          rel={isExternal ? `noopener noreferrer ${c.rel ?? ""}`.trim() : c.rel}
+                          {...(isExternal ? { target: "_blank" } : {})}
+                        >
+                          {c.label}
+                          {c.variant === "primary" && (
+                            <span class="arr" aria-hidden="true">→</span>
+                          )}
+                          {isExternal && (
+                            <span class="sr-only"> (opens in new tab)</span>
+                          )}
+                        </a>
+                      );
+                    })}
                   </div>
                 )}
               </div>

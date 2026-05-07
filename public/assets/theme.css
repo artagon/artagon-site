@@ -776,6 +776,18 @@ nav a:hover {
   box-shadow: 0 4px 16px color-mix(in oklab, var(--accent) 30%, transparent);
 }
 
+/* USMR Phase 5.5.10 — `.btn .arr` is the trailing arrow chip on
+ * primary CTAs (canonical `global.css:247-248`). Slides 2 px right
+ * on hover. Hero "Request design-partner access" + onRamp "Apply
+ * as a design partner" both consume this. */
+.btn .arr {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.btn:hover .arr {
+  transform: translate(2px, 0);
+}
+
 .btn:hover {
   transform: translateY(-2px);
   border-color: var(--brand-teal);
