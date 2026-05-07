@@ -1838,21 +1838,69 @@ header .right .pill {
   --f-display: "Space Grotesk", "Inter Tight", sans-serif;
   --display-tracking: -0.035em;
   --display-weight: 500;
+  /* Resolved Open question 5 (5.2.5) — emphasis-span face. Under
+   * grotesk the italic span swaps to serif for editorial contrast.
+   * Other hero-font variants `inherit` so the italic span reads as
+   * the same face in italic — no clashing font swap. */
+  --f-emphasis: var(--f-serif);
 }
 [data-hero-font="fraunces"] {
   --f-display: "Fraunces", "Instrument Serif", Georgia, serif;
   --display-tracking: -0.025em;
   --display-weight: 400;
+  --f-emphasis: inherit;
 }
 [data-hero-font="dmserif"] {
   --f-display: "DM Serif Display", Georgia, serif;
   --display-tracking: -0.015em;
   --display-weight: 400;
+  --f-emphasis: inherit;
 }
 [data-hero-font="mono"] {
   --f-display: "JetBrains Mono", ui-monospace, monospace;
   --display-tracking: -0.04em;
   --display-weight: 400;
+  --f-emphasis: inherit;
+}
+
+/* ============================================================
+ * USMR Phase 5.2.1 — Standard / glossary chip (promoted from
+ * scoped Astro to global so the React PillarsIsland can reuse
+ * the same class without duplicating styles). The Astro
+ * `<Standard>` component and the React island both render the
+ * same `.standard-chip` markup; this is the single source of
+ * truth for that contract.
+ * ============================================================ */
+
+.standard-chip {
+  color: inherit;
+  font-weight: 500;
+  border-bottom: 1px dotted var(--fg-3);
+  padding-bottom: 1px;
+  text-decoration: none;
+  cursor: help;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+.standard-chip:hover,
+.standard-chip:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.standard-chip--missing {
+  border-bottom-color: transparent;
+  cursor: default;
+}
+@media (forced-colors: active) {
+  .standard-chip {
+    border-bottom-color: CanvasText;
+  }
+  .standard-chip:hover,
+  .standard-chip:focus-visible {
+    color: Highlight;
+    border-bottom-color: Highlight;
+  }
 }
 
 [data-accent="cyan"] {
