@@ -199,7 +199,7 @@
 
 - [ ] 5.3 `/use-cases` ADD: scenario cards, one references `/platform#bridge`.
 - [ ] 5.3 `/use-cases` ADD: scenario cards, one references `/platform#bridge`.
-- [ ] 5.4 `/standards` ADD: registry-driven sections + TOC anchor list.
+- [x] 5.4 `/standards` ADD — ports `new-design/extracted/src/components/Standards.jsx`. `src/data/standards.ts` (`STANDARDS_GROUPS` 3-tuple + `STANDARDS_BADGES` 4-tuple) + `src/components/StandardsWall.astro` (token-only static — no React island; 3-column grid with mono name + description rows + 4-badge affiliation footer) + `src/pages/standards/index.astro` (replaces the 5.1q.2 PageLayout stub). Item names render as `.standard-chip` links via `lookupGlossary` — coverage ≥ 70% gated by `tests/standards-data.test.mts`. The canonical Pillars vocabulary (OIDC 2.1, GNAP, DPoP, etc.) is fully covered + test-gated. DESIGN.md §6.18 StandardsWall contract added.
 - [ ] 5.5 `/writing` ADD: index, sorted by `published` desc, empty state if no posts.
 - [ ] 5.6 `/writing/[slug]` ADD: breadcrumb, TOC sidebar if ≥ 3 `<h2>`, related posts (2-up), RSS CTA.
 - [ ] 5.7 `/roadmap` REDESIGN: lanes (now / next / later) + latest-update card reused on home.

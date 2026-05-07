@@ -1,17 +1,27 @@
 ---
-// USMR Phase 5.1q.2 — minimal /standards route. Sources copy from
-// src/content/pages/standards.mdx; full registry-driven sections + TOC
-// anchor list land in Phase 5.4 and consume `src/data/standards.ts`.
-//
-// Page scaffolding lives in src/layouts/PageLayout.astro.
+// USMR Phase 5.4 — /standards route. Replaces the PageLayout stub
+// from 5.1q.2 with the canonical 3-column wall composition ported
+// from new-design/extracted/src/components/Standards.jsx.
 import { getEntry } from 'astro:content';
-import PageLayout from '../../layouts/PageLayout.astro';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import StandardsWall from '../../components/StandardsWall.astro';
 
 const entry = await getEntry('pages', 'standards');
 if (!entry) {
   throw new Error(
-    "standards.mdx missing — Phase 5.1q.2 expects src/content/pages/standards.mdx to exist."
+    "standards.mdx missing — Phase 5.4 expects src/content/pages/standards.mdx to exist."
   );
 }
+const { title, description } = entry.data;
 ---
-<PageLayout entry={entry} path="/standards" />
+<Base title={title} description={description} path="/standards">
+  <Fragment slot="header"><Header /></Fragment>
+
+  <main id="main">
+    <StandardsWall />
+  </main>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

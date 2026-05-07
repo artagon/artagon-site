@@ -803,6 +803,31 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Status: shipped.** USMR Phase 5.2.8 — `src/components/BridgeFlow.tsx` + `src/components/BridgeFlow.css` + `src/data/bridge.ts`. The `/bridge → /platform/#bridge 301` redirect from 5.1q.3 dropped in this phase (the route now resolves directly). The `<section id="bridge">` anchor on `/platform` from 5.1q.4 stays in place for backwards compatibility with legacy inbound `#bridge` links.
 
+### 6.18 StandardsWall (Standards route)
+
+**Purpose.** The `/standards` page's centerpiece — a 3-column wall listing every protocol Artagon implements, organized by capability domain (Authn & Authz · Decentralized ID · Authorization). Below the wall, a 4-badge affiliation row records standing in IETF / OpenID Foundation / W3C working groups.
+
+**Anatomy.**
+
+- **Hero strip** — eyebrow (`Standards & specs`) · `<h2>` with serif-italic emphasis on "We implement" · 2-column lede.
+- **3-column wall** (`.standards-wall__columns`) — each column has a mono-uppercase header (the group label), then a vertical list of items. Each item is a 2-column row: `name` (mono, `--fg`, weight 500) on the left · `description` (mono, `--fg-2`, smaller) on the right. Rows are separated by 1 px `var(--line-soft)`.
+- **Affiliation badges** (`.standards-wall__badges`) — center-aligned row of 4 badges, each with a mono-uppercase eyebrow (`Certifying` / `Contributing` / `Member`) and a body label.
+
+**Rules.**
+
+- **Data lives in `src/data/standards.ts`** — `STANDARDS_GROUPS` (3-tuple) + `STANDARDS_BADGES` (4-tuple). Never hardcode standards copy in component bodies.
+- **Item names are glossary-linked at render time** — the StandardsWall renderer calls `lookupGlossary(item.name)`; matches turn into `.standard-chip` links to the canonical RFC / W3C TR / vendor docs. Misses render as plain text. The `tests/standards-data.test.mts` invariant gate enforces ≥ 70% link coverage so a glossary regression doesn't silently strip every item.
+- **The canonical Pillars vocabulary is fully covered** — every term referenced on `/platform` (OIDC 2.1, GNAP, DPoP, etc.) appears here too. Tests gate this; the two pages stay in sync.
+- **Static-only** — no React island, no client interactivity. The wall is pure presentation.
+
+**A11y.**
+
+- `<section>` with `aria-labelledby` pointing at the `<h2>`. Each column is a `<div>` with an `<h3>` header and an `<ul>` of items.
+- Glossary chips inherit the site-wide `:focus-visible` outline. The dotted-underline + accent-on-hover pattern from Standard.astro applies.
+- Forced-colors override is inherited via the global `.standard-chip` rule (Phase 5.1).
+
+**Status: shipped.** USMR Phase 5.4 — `src/components/StandardsWall.astro` + `src/data/standards.ts`. Replaces the PageLayout stub from 5.1q.2.
+
 ---
 
 ## 7 · Do's and Don'ts

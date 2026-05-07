@@ -1,0 +1,227 @@
+---
+// USMR Phase 5.4 — /standards 3-column wall + affiliation badges.
+// Ports new-design/extracted/src/components/Standards.jsx to a
+// token-only static Astro component. No interactivity needed —
+// the column grid is purely presentational.
+//
+// Each item's `name` is glossary-looked-up — matches become
+// hover-able canonical-URL links via the global `.standard-chip`
+// class (Phase 5.2.1 single-source rule). Misses render as plain
+// text; the build-time warning surfaces in dev.
+import { STANDARDS_GROUPS, STANDARDS_BADGES } from '../data/standards';
+import { lookupGlossary } from '../data/glossary';
+---
+<section class="standards-wall" aria-labelledby="standards-wall-heading" id="standards-wall">
+  <div class="standards-wall__head">
+    <div>
+      <p class="standards-wall__eyebrow">Standards & specs</p>
+      <h2 id="standards-wall-heading" class="standards-wall__title display">
+        We don't invent protocols.<br />
+        <span class="standards-wall__title-emphasis">We implement</span> them rigorously.
+      </h2>
+    </div>
+    <p class="standards-wall__lede lead">
+      Artagon contributes to IETF, OpenID Foundation, and W3C working groups.
+      Every feature maps to a published spec; every flow is conformance-testable.
+    </p>
+  </div>
+
+  <div class="standards-wall__columns">
+    {STANDARDS_GROUPS.map((group) => (
+      <div class="standards-col" id={`standards-col-${group.id}`}>
+        <h3 class="standards-col__head">{group.label}</h3>
+        <ul class="standards-col__list">
+          {group.items.map((item) => {
+            const def = lookupGlossary(item.name);
+            return (
+              <li class="standards-col__item">
+                <span class="standards-col__name">
+                  {def ? (
+                    <a
+                      href={def.href}
+                      target={def.external ? '_blank' : undefined}
+                      rel={def.external ? 'noopener noreferrer' : undefined}
+                      title={def.name}
+                      class="standard-chip"
+                    >{item.name}</a>
+                  ) : (
+                    item.name
+                  )}
+                </span>
+                <span class="standards-col__desc">{item.description}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </div>
+
+  <div class="standards-wall__badges" role="list" aria-label="Affiliations & memberships">
+    {STANDARDS_BADGES.map((badge) => (
+      <div class="standards-badge" role="listitem">
+        <p class="standards-badge__kind">{badge.kind}</p>
+        <p class="standards-badge__value">{badge.value}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .standards-wall {
+    padding-block: clamp(64px, 8vw, 120px);
+    background: var(--bg-1);
+    border-block: 1px solid var(--line-soft);
+  }
+
+  .standards-wall__head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 56px;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .standards-wall__eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    margin: 0 0 0.5rem;
+  }
+
+  .standards-wall__title {
+    font-family: var(--f-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+    letter-spacing: var(--display-tracking, -0.02em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0;
+  }
+  .standards-wall__title-emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+
+  .standards-wall__lede {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--fg-1);
+    max-width: 48ch;
+    justify-self: end;
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .standards-wall__head {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 40px;
+    }
+    .standards-wall__lede {
+      justify-self: start;
+    }
+  }
+
+  .standards-wall__columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  @media (max-width: 1024px) {
+    .standards-wall__columns {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  .standards-col__head {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 10px;
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+
+  .standards-col__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .standards-col__item {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--f-mono);
+    font-size: 0.78rem;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .standards-col__name {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .standards-col__desc {
+    color: var(--fg-2);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 540px) {
+    .standards-col__item {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+
+  .standards-wall__badges {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 64px;
+    padding-top: 40px;
+    border-top: 1px solid var(--line-soft);
+    flex-wrap: wrap;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .standards-badge {
+    text-align: center;
+  }
+
+  .standards-badge__kind {
+    font-family: var(--f-mono);
+    font-size: 0.62rem;
+    color: var(--fg-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+
+  .standards-badge__value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
+    color: var(--fg);
+  }
+</style>
