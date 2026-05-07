@@ -150,6 +150,26 @@ DESIGN.md is at the repo root (governed by `adopt-design-md-format`).
 
 Edits to `DESIGN.md` trigger the postbuild lint gate (`npm run lint:design`) and the PR-scoped diff workflow that posts changes as a PR comment. The `check:oklch-hex-parity` precondition gate fails if frontmatter hex values drift from the prose-cited OKLCH triples by more than 1 LSB per channel.
 
+### Change discipline (durable)
+
+Every code change must move three artifacts together in the same diff:
+
+1. **Implementation** — the code itself (`src/`, `tests/`, `scripts/`, `public/`).
+2. **OpenSpec tasks.md** — add the sub-task BEFORE implementing if it doesn't exist; check it off in the same diff. Reference the task ID in code comments and the commit body (e.g. `// USMR Phase 5.1q.6` and `Closes 5.1q.6`).
+3. **DESIGN.md** — update the affected `§X` subsection when a component contract / visual identity / token / animation primitive shifts. If frontmatter palette or OKLCH triples move, run `npm run check:oklch-hex-parity` in the same diff.
+
+The commit body lists which artifacts moved (task IDs · DESIGN.md sections · spec deltas).
+
+**Why**: this codebase has a documented failure mode where DESIGN.md prose drifts from the implementation (the historical `--brand-teal → --ok` discrepancy), and OpenSpec changes claim work is done that hasn't shipped. Multi-agent reviews catch the drift only when the artifacts are touched in the same diff. Code-only changes that should have moved a doc are a recurring source of multi-round review churn.
+
+**Precondition gates that backstop the discipline**:
+
+- `check:oklch-hex-parity` — fails on >1 LSB drift between DESIGN.md frontmatter palette and the prose-cited OKLCH triples (precondition of `lint:design`).
+- `lint:tokens` — fails on raw color literals in `src/` and on undefined `var(--…)` references; walks `git ls-files` (post-commit).
+- `lint:design` — design.md format gate; runs as part of postbuild.
+- `lint:design-md-uniqueness` — guards against duplicate token names.
+- `verify:design-prerequisites` — schema gate before lint runs.
+
 <!-- DESIGN-CONTRACT:END -->
 
 <!-- AST-GREP:START -->
@@ -313,6 +333,26 @@ Multi-agent review is the default for non-trivial changes. Spawn a parallel set 
 **Mandatory pre-report skill**: every review (sub-agent or direct) MUST load [`.claude/skills/review-verification-protocol`](./.claude/skills/review-verification-protocol/) BEFORE reporting findings. The skill enforces: read actual code (not just diff), search for usages before claiming "unused", calibrate severity (Critical / Major / Minor / Informational), downgrade net-new-code suggestions to Informational.
 
 Per `AGENTS.md` Commit-Messages rule, agents MUST NOT add `Co-Authored-By: Claude` / vendor-attribution trailers, AND must not author commits as `Claude <noreply@anthropic.com>` or `copilot-swe-agent[bot] <…>` (author identity counts as attribution; PR #46 had to rewrite two such commits — see history of `9a3981b` / `67abd4b`).
+
+### Tier system (durable)
+
+Group lenses by blast radius. Run **within a tier in parallel** (single message, multiple Agent tool calls — six standard agents finish in ~the time of one). **Serialize between tiers** when a Tier-1 finding would invalidate the diff a later tier reviews; otherwise concurrent is fine if the diff is stable + lints/tests already green.
+
+| Tier  | When to run                                                    | Lenses (default)                                                                                                                                                                                                          |
+| ----- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | Every non-trivial diff (mandatory minimum viable)              | `code-reviewer` · `silent-failure-hunter` · `type-design-analyzer` · `astro-expert` (custom brief — promote to Tier 1 for any diff touching `src/pages/`, `src/components/*.astro`, `src/layouts/`, or `astro.config.ts`) |
+| **2** | Diff scope warrants it (UI / new tests / many comments)        | `comment-analyzer` · `pr-test-analyzer` · `ux-design-expert` (custom)                                                                                                                                                     |
+| **3** | Custom adversarial briefs (one-off, run via `general-purpose`) | Visual-fidelity (mock parity) · Token-coverage · DESIGN.md ↔ implementation drift · Accessibility (axe-core) · CSP/SRI hash drift                                                                                         |
+
+**Architectural-review trio** (run when reviewing implementation depth, not just diff correctness; serialized order):
+
+1. **security-architect-reviewer** — inline JSON-LD / `set:html` / pre-paint script allow-lists; CSP/SRI; ast-grep security rules (`no-set-html-directive`, `no-inner-html`, `no-hardcoded-secrets`, `no-weak-hash`, `no-jwt-decode-unverified`); build-time vs runtime input trust boundaries.
+2. **modularity-and-boundaries-reviewer** — content-collection vs typed-data-module split (no ad-hoc `fs.readFile` outside `scripts/`); test-runner isolation; `build.config.json` SSoT; orphaned exports; cross-cutting concerns (logging / errors) threaded through interfaces; Astro `pages/` vs `components/` vs `layouts/` separation. _Question: can a new contributor predict where any change belongs?_
+3. **type-system-architect-reviewer** — discriminated unions over optional-prop combinations; invariant expression; tuple types vs arrays for fixed-arity contracts; `readonly` / `as const` discipline; branded / nominal types where structural equivalence is unsafe.
+
+**Brevity rule.** Keep each agent's prompt tight: scope + verification anchors + output format under 500 words. List specific surfaces with FILE:LINE pointers — never ask the agent to "verify everything." Long prompts get rejected mid-stream.
+
+**Re-review mode.** When re-running a lens after fixes, instruct the agent to verify the original findings ONLY and refrain from introducing new ones (rule 7 of the protocol). Otherwise reviews never converge.
 
 <!-- REVIEW:END -->
 
