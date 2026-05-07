@@ -51,8 +51,13 @@ const onRamp = z.object({
   headline: z.string().min(1),
   lede: z.string().min(1),
   ctas: z.array(cta).default([]),
-  /** Title for the contact mini-card; rows themselves come from `ORG`. */
-  contactsTitle: z.string().default("Primary contacts"),
+  /**
+   * Title for the contact mini-card; rows themselves come from `ORG`. Must
+   * be present and non-empty in frontmatter — no default, so a missing key
+   * fails the build with a Zod validation error rather than silently
+   * rendering "Primary contacts".
+   */
+  contactsTitle: z.string().min(1),
 });
 
 /** Base frontmatter shared by every marketing page. */

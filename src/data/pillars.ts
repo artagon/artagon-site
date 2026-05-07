@@ -1,9 +1,8 @@
 // USMR Phase 5.1c — Pillar grid registry. The home page renders these as a
-// 3-card overview; /platform (Phase 5.2) will reuse the same const for its
-// pillar tri-band redesign with deeper code examples per pillar.
+// 3-card overview keyed by stable id strings.
 
 export type Pillar = {
-  /** URL fragment for /platform anchors (e.g. #identity, #credentials, #authorization). */
+  /** Stable identifier used for the rendered card id (#pillar-identity, etc.) and for any future cross-route anchor convention. */
   id: "identity" | "credentials" | "authorization";
   eyebrow: string;
   title: string;

@@ -1,12 +1,14 @@
 import { defineConfig } from "vitest/config";
 
-// USMR Phase 5.1d — Vitest is scoped to TypeScript unit tests under
-// `tests/**/*.test.mts`. The repo runs three test runners:
-//   - vitest     → .test.mts (TypeScript unit tests; this config)
-//   - node:test  → .test.mjs (legacy / non-TS unit tests, run via test:node)
-//   - playwright → .spec.ts  (browser tests, run via test / test:ci)
-// The default vitest glob would sweep up .spec.ts and conflict with
-// @playwright/test's `test.describe`, so the include pattern is explicit.
+// USMR Phase 5.1d — Three test runners coexist in `tests/`. They are
+// disjoint by what they import, not by file extension:
+//   - vitest     covers files importing from `vitest`           (this config)
+//   - node:test  covers files importing from `node:test`        (test:node, test:tweaks)
+//   - playwright covers files importing from `@playwright/test` (test / test:ci)
+// vitest's default glob `**/*.{test,spec}.?(c|m)[jt]s?(x)` would pull in
+// Playwright's .spec.ts files (Symbol($$jest-matchers-object) collision)
+// and the existing tests/tweaks-state.test.mts (a node:test file that
+// happens to use the .mts extension). Both are excluded explicitly.
 
 export default defineConfig({
   test: {

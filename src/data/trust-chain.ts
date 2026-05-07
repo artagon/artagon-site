@@ -1,9 +1,7 @@
-// USMR Phase 5.1d — Trust-chain data registry. The home hero renders these
-// as a static stage list (Phase 5.1d-static) and later upgrades to an
-// interactive React island that animates stage-by-stage and lets visitors
-// page through scenarios (Phase 5.1d-react). The same registry feeds the
-// `/platform` deep-dive in Phase 5.2 so the chain narrative stays coherent
-// across the home overview and the platform pillar pages.
+// USMR Phase 5.1d — Trust-chain data registry. Source of truth for the
+// home hero artefact: STAGES enumerates the five composed proofs
+// (passkey → device → DPoP → VC → policy) and SCENARIOS enumerates the
+// scripted decision paths the picker cycles through.
 
 export type StageOutcome = "pass" | "fail" | "skip";
 export type Decision = "PERMIT" | "DENY";

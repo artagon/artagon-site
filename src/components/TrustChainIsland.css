@@ -3,11 +3,14 @@
  * artefact rendered by TrustChainIsland.tsx. Imported by the React
  * component so vite/Astro bundles it alongside the JS island chunk.
  *
- * Pass / decision PERMIT styling is keyed off `--brand-teal`. Fail /
- * decision DENY uses `var(--bad)` (public semantic alias declared in
- * theme.css over the staging `--nd-bad`). All glow/tint variants are
- * derived via color-mix() against --bad so a future palette swap only
- * touches the alias.
+ * Token mapping per DESIGN.md §"Color tokens" (lines 226-228) and §6.5:
+ *   pass / decision PERMIT  → var(--ok)   (semantic green)
+ *   fail / decision DENY    → var(--bad)  (semantic red)
+ * Both are public aliases over the staging --nd-ok / --nd-bad. The
+ * project's --brand-teal (= --accent) is reserved for primary CTAs and
+ * the trust-chain's CURRENT/EVALUATING stage (§6.5). Glow/tint variants
+ * are color-mix()'d against --ok / --bad so a palette swap touches the
+ * alias only.
  */
 
 .trust-chain {
@@ -15,7 +18,7 @@
   border-radius: 14px;
   background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
   padding: clamp(1.25rem, 2vw, 1.75rem);
-  box-shadow: 0 0 80px -20px var(--brand-teal);
+  box-shadow: 0 0 80px -20px var(--ok);
   transition:
     box-shadow 0.6s ease,
     border-color 0.4s ease;
@@ -59,7 +62,7 @@
 }
 
 .trust-chain__scenario-dot:focus-visible {
-  outline: 2px solid var(--brand-teal);
+  outline: 2px solid var(--ok);
   outline-offset: 2px;
 }
 
@@ -68,8 +71,8 @@
 }
 
 .trust-chain__scenario-dot.is-active.is-permit {
-  background: var(--brand-teal);
-  box-shadow: 0 0 10px var(--brand-teal);
+  background: var(--ok);
+  box-shadow: 0 0 10px var(--ok);
 }
 
 .trust-chain__scenario-dot.is-active.is-deny {
@@ -122,11 +125,11 @@
 }
 
 .trust-chain__stage.is-pass {
-  border-color: color-mix(in oklab, var(--brand-teal) 50%, var(--border));
-  background: color-mix(in oklab, var(--brand-teal) 14%, var(--bg-alt));
+  border-color: color-mix(in oklab, var(--ok) 50%, var(--border));
+  background: color-mix(in oklab, var(--ok) 14%, var(--bg-alt));
   box-shadow:
-    0 0 18px -3px var(--brand-teal),
-    inset 0 0 14px -4px var(--brand-teal);
+    0 0 18px -3px var(--ok),
+    inset 0 0 14px -4px var(--ok);
 }
 
 .trust-chain__stage.is-fail {
@@ -157,10 +160,10 @@
 }
 
 .trust-chain__stage.is-pass .trust-chain__stage-num {
-  border-color: var(--brand-teal);
-  color: var(--brand-teal);
-  background: color-mix(in oklab, var(--brand-teal) 20%, transparent);
-  box-shadow: 0 0 14px var(--brand-teal);
+  border-color: var(--ok);
+  color: var(--ok);
+  background: color-mix(in oklab, var(--ok) 20%, transparent);
+  box-shadow: 0 0 14px var(--ok);
 }
 
 .trust-chain__stage.is-fail .trust-chain__stage-num {
@@ -200,7 +203,7 @@
 }
 
 .trust-chain__stage.is-pass .trust-chain__stage-status {
-  color: var(--brand-teal);
+  color: var(--ok);
 }
 
 .trust-chain__stage.is-fail .trust-chain__stage-status {
@@ -220,11 +223,11 @@
 }
 
 .trust-chain__decision.is-permit {
-  border-color: color-mix(in oklab, var(--brand-teal) 50%, var(--border));
-  background: color-mix(in oklab, var(--brand-teal) 8%, var(--bg));
+  border-color: color-mix(in oklab, var(--ok) 50%, var(--border));
+  background: color-mix(in oklab, var(--ok) 8%, var(--bg));
   box-shadow:
-    0 0 26px -4px var(--brand-teal),
-    inset 0 0 22px -8px var(--brand-teal);
+    0 0 26px -4px var(--ok),
+    inset 0 0 22px -8px var(--ok);
 }
 
 .trust-chain__decision.is-deny {
@@ -246,7 +249,7 @@
 }
 
 .trust-chain__decision.is-permit .trust-chain__decision-pep {
-  color: var(--brand-teal);
+  color: var(--ok);
 }
 
 .trust-chain__decision.is-deny .trust-chain__decision-pep {
@@ -259,7 +262,7 @@
 }
 
 .trust-chain__decision.is-permit .trust-chain__decision-claim {
-  color: var(--brand-teal);
+  color: var(--ok);
 }
 
 .trust-chain__decision.is-deny .trust-chain__decision-claim {
