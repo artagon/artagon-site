@@ -1,38 +1,46 @@
 ---
+import { getEntry } from "astro:content";
 import Base from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
 import HeroChart from "../components/HeroChart.astro";
-import taglines from "../content/taglines.json";
-const page = {
-  title:
-    "Artagon — OIDC 2.1 Provider, GNAP Authorization Server & Verifiable Credentials",
-  description:
-    "The provable identity cloud: passkey sign-in, verifiable credentials, and attested clients—unified by a graph-native policy engine.",
-};
+
+// USMR Phase 5.1a — hero now reads from src/content/pages/home.mdx so
+// content edits don't require .astro changes. The remaining sections
+// (pillar grid, mission, developers, FAQ, etc.) keep their existing
+// markup until Phase 5.x decomposes them into typed registries.
+const home = await getEntry("pages", "home");
+if (!home) throw new Error("home.mdx content entry not found");
+const { eyebrow, headline, lede, ctas, title, description } = home.data;
 ---
 
-<Base title={page.title} description={page.description}>
+<Base title={title} description={description}>
   <Fragment slot="header"><Header /></Fragment>
 
   <section class="hero container">
     <div class="twocol">
       <div>
-        <div class="mission-badge">TRUSTED IDENTITY FOR MACHINES AND HUMANS</div>
-        <h1 id="hero-h1">{taglines.tagline.short}</h1>
-        <p id="hero-sub" class="sub">
-          OIDC 2.1, GNAP, Passkey sign‑in, W3C Verifiable Credentials (SD‑JWT, BBS+), device attestation, and graph‑native authorization—unified in one platform. <strong>The provable identity cloud.</strong>
-        </p>
+        <p class="hero__eyebrow">{eyebrow}</p>
+        <h1 id="hero-h1">{headline}</h1>
+        <p id="hero-sub" class="sub">{lede}</p>
         <div style="margin-top:6px"><Tagline /></div>
-        <div class="actions">
-          <a class="btn" href="/docs">Read the Docs</a>
-          <a class="btn" href="/play">Try the Playground</a>
-          <a class="btn" href="https://github.com/artagon" rel="noopener"
-            >View on GitHub</a
-          >
-        </div>
+        {
+          ctas.length > 0 && (
+            <div class="actions">
+              {ctas.map((cta) => (
+                <a
+                  class={`btn ${cta.variant === "primary" ? "primary" : ""}`}
+                  href={cta.href}
+                  rel={cta.rel}
+                >
+                  {cta.label}
+                </a>
+              ))}
+            </div>
+          )
+        }
         <div class="badges" style="margin-top:14px">
           <span class="pill">OIDC 2.1 + PAR/JAR/JARM/DPoP/mTLS</span>
           <span class="pill">GNAP with PoP + continuation</span>
