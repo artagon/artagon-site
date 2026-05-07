@@ -301,8 +301,22 @@ Never ship a heading that reflows more than 3× between breakpoints.
 ### 3.4 Hero display override
 
 Users can swap the display face via `[data-hero-font]`:
-`grotesk` (default) · `fraunces` · `dmserif` · `mono`.
-The override adjusts tracking and weight per family — see `public/assets/theme.css` (the `[data-hero-font="..."]` rules near the file end). Earlier drafts of this section pointed at `src/styles/global.css`, which is not a file in this project; corrected in USMR Phase 5.1p.16.
+`grotesk` · `fraunces` (default) · `dmserif` · `mono`.
+The override adjusts tracking, weight, AND the emphasis-span face per family — see `public/assets/theme.css` (the `[data-hero-font="..."]` rules near the file end).
+
+**Emphasis-span audit matrix** (USMR Phase 5.2.5, resolved Open question 5).
+Every hero `<h1>` / `<h2>` may contain an italic `<em>` span (e.g. `Three pillars, <em>one</em> coherent platform.`). The italic span consumes the `--f-emphasis` token, which resolves per the table below — eliminates the "mono + serif italic" font-clash bug:
+
+| `[data-hero-font]` | H1 family        | `--f-emphasis` resolves to  | Visual result            |
+| ------------------ | ---------------- | --------------------------- | ------------------------ |
+| `grotesk`          | Space Grotesk    | `var(--f-serif)` (Fraunces) | sans + serif-italic span |
+| `fraunces`         | Fraunces         | `inherit`                   | serif throughout         |
+| `dmserif`          | DM Serif Display | `inherit`                   | display-serif throughout |
+| `mono`             | JetBrains Mono   | `inherit`                   | mono italic throughout   |
+
+The `inherit` cases drop the italic span back to the surrounding family — never a clashing swap. Italic styling (`font-style: italic`) stays on the span unconditionally; every shipped face has an italic variant. The `tests/hero-font-matrix.spec.ts` Playwright contract (Phase 5.2.7) gates the table against future regressions.
+
+Earlier drafts of this section pointed at `src/styles/global.css`, which is not a file in this project; corrected in USMR Phase 5.1p.16.
 
 ---
 
@@ -383,17 +397,23 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 ### 6.4 Standards chip
 
-**Purpose.** Clickable pill linking to a canonical spec document. Always opens in a new tab with `rel="noopener noreferrer"` (never `noreferrer` alone).
+**Purpose.** Inline glossary chip linking to a canonical spec, RFC, or vendor doc. Always opens in a new tab with `rel="noopener noreferrer"` (never `noreferrer` alone).
 
-**Anatomy.** Dot · label. Two sizes: `sm` (11px) · `md` (12px).
+**Anatomy.** Slot text · dotted underline (1 px, `var(--fg-3)`). On hover or `:focus-visible` the text and underline both flip to `var(--accent)`. No background fill, no badge — the chip is a typographic primitive that sits inline in body copy, not a button.
 
-**Registry (planned).** A `STANDARDS` array — single source of truth for the seven canonical entries below — will land in `src/data/standards.ts` (or equivalent) when the `update-site-marketing-redesign` change applies its `site-standards-registry` capability. Until then, references to specific standards are scattered in MDX prose; the redesign change consolidates them. Canonical entries:
-IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eIDAS 2.
+**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 60+ entries covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Two consumers share the contract:
 
-**Hover.** Accent border + accent-tinted background + soft glow + 1px lift.
+- **`<Standard term="…">`** (`src/components/Standard.astro`) — token-only static Astro chip for `.astro` and `.mdx` content.
+- **React `StandardChip`** (`src/components/PillarsIsland.tsx` inner) — emits identical markup so the global `.standard-chip` style applies to both server-rendered prose and React-island content.
 
-**Do** use `<StandardChip>` / `<StandardsRow>` everywhere a standard is mentioned — hero, standards page, footer, blog posts.
-**Don't** hand-roll pill styles. Don't link to a standard without going through the registry (the URL will drift).
+The two paths share one CSS rule (`public/assets/theme.css` `.standard-chip` block) — no per-component duplication. `tests/glossary-data.test.mts` enforces the registry shape (size floor ≥ 50, every `href` is absolute https, plural aliases like `DID/DIDs` resolve to identical canonical URLs).
+
+**A11y.** The chip is an `<a>` element when the term resolves — keyboard reachable, gets the site-wide `:focus-visible` outline. When the term is missing, the chip degrades to a plain `<span>` (no underline, no cursor change) AND a build-time `console.warn` fires so gaps are loud, not silent. Forced-colors mode swaps the underline to `CanvasText` and the hover state to `Highlight`.
+
+**Do** route every acronym through `<Standard>` — never hardcode a spec URL inline. Add new terms to `glossary.ts` with the canonical href before consuming them in copy.
+**Don't** hand-roll chip styles. Don't link to a standard without going through the registry (the URL will drift).
+
+**Status: shipped.**
 
 ### 6.5 Trust chain
 
@@ -725,6 +745,35 @@ Small utility classes that ride alongside the named components above. They ship 
 - `.cluster` is for **layout**, not visual decoration. Don't add backgrounds or borders; consume `.tag` / `.btn` / `.badge` as children.
 - `.tag` and `.badge` look similar at a glance; reach for `.tag` when the content is a category label and `.badge` when it carries a numeric or status value.
 - `.kbd` accepts a single key per element (e.g. `<span class="kbd">Esc</span>`); compound shortcuts use multiple `.kbd` siblings separated by `+`.
+
+### 6.16 Pillars (Platform tablist)
+
+**Purpose.** The `/platform` page's centerpiece — a 3-tab strip surfacing Identity / Credentials / Authorization, each with a serif-italic tagline, body paragraph, glossary-chipped bullet list, and a paired live-looking JSON / policy code panel. Replaces the legacy `--brand-teal` 4-card highlights grid.
+
+**Anatomy.**
+
+- **Hero strip** — eyebrow (`Platform`) · `<h1>` from `platform.mdx` frontmatter · lede with positioning sentence.
+- **Tab strip** (`role="tablist"`) — three `<button role="tab">` elements above a 1px `var(--line-soft)` rule. Selected tab: 2px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 5%, transparent)` background tint.
+- **Active panel** (`role="tabpanel"`) — 2-column grid (1.1fr / 1fr at ≥ 1024 px, single-column below):
+  - Left: serif italic tagline (consumes `--f-emphasis`), body paragraph, mono bullet list with `→` accent arrows. Bullets render glossary chips inline via `<Standard>` / React `StandardChip`.
+  - Right: `.pillar-specimen` code panel — mono header strip (`spec.kind` label uppercase + accent `● live` indicator) over a `<pre>` payload with `white-space: pre-wrap`.
+
+**Rules.**
+
+- **Manual activation** (WAI-ARIA APG, resolved Open question 2): `ArrowLeft` / `ArrowRight` walk focus, `Home` / `End` jump, `Enter` / `Space` commits. Click commits immediately. Roving `tabIndex` — only the focused tab is in document tab order.
+- Data lives in `src/data/pillars.ts`; never hardcode pillar copy in component bodies.
+- Bullets are structured tokens (`{ kind: "text" | "term", value }`), not inline markup strings. The renderer maps `term` nodes to glossary chips — no regex parsing.
+- Specimen `payload` strings carry an `@TODO-IDENTITY-REVIEW: <reviewer> by <date>` inline marker until identity-team sign-off. The Cedar starter uses only documented Cedar primitives — no Artagon-internal type names.
+- The italic emphasis span in the heading consumes `--f-emphasis`, not `--f-serif` directly. See §3.4.
+
+**A11y.**
+
+- WAI-ARIA tablist with `aria-controls` / `aria-labelledby` wiring per APG.
+- Tab strip border swap is the visual cue for the selected tab; an explicit `aria-selected` reflects state for assistive technology.
+- `:focus-visible` outline (2 px `var(--accent)`) survives the active-tab background tint via `outline-offset: -2px`.
+- Reduced motion: tab strip has no animation. Forced-colors mode resolves selected-tab border to `Highlight` and code panel to system colors.
+
+**Status: shipped.** USMR Phase 5.2.5 — `src/components/PillarsIsland.tsx` + `src/components/PillarsIsland.css` + `src/data/pillars.ts` extension. Snapshot baselines for `/platform` on Tablet Safari + Mobile Chrome × 3 will need workflow_dispatch regen (task 5.2.x) — the mobile-fit shim from new-design platform.html:7-22 was deliberately NOT ported (resolved Open question 1) so the responsive layout diverges from the legacy 1280-fixed look on tablets.
 
 ---
 
