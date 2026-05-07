@@ -7,6 +7,7 @@ import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
 import HeroChart from "../components/HeroChart.astro";
 import { ORG } from "../data/organization";
+import { PILLARS } from "../data/pillars";
 
 // USMR Phase 5.1a — hero now reads from src/content/pages/home.mdx so
 // content edits don't require .astro changes. The remaining sections
@@ -107,28 +108,15 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   <section id="platform" class="section">
     <div class="container">
       <div class="grid cols-3">
-        <div class="card">
-          <div class="eyebrow">Unified OP / AS</div><h3>OIDC 2.1 + GNAP</h3><p>
-            Hardened OAuth profiles (PAR · JAR/JARM · RAR · DPoP · mTLS), GNAP
-            PoP & continuation, client key rotation.
-          </p>
-        </div>
-        <div class="card">
-          <div class="eyebrow">Verifiable Identity</div><h3>
-            Selective disclosure
-          </h3><p>
-            Issue SD‑JWT & BBS+ VCs, verify via OID4VCI/VP, unlinkable
-            presentations, revocation with StatusList2021 and Merkle proofs.
-          </p>
-        </div>
-        <div class="card">
-          <div class="eyebrow">Policy & Graph</div><h3>
-            Zanzibar‑style checks
-          </h3><p>
-            Relationship graph as fast path with PDP overlays (XACML · Cedar ·
-            OPA), obligations for redaction, masking, quotas, and consent.
-          </p>
-        </div>
+        {
+          PILLARS.map((pillar) => (
+            <div class="card" id={`pillar-${pillar.id}`}>
+              <div class="eyebrow">{pillar.eyebrow}</div>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.body}</p>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>

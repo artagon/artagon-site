@@ -79,6 +79,22 @@ test.describe("Home (/) - 3 themes × 3 breakpoints reference", () => {
         );
       });
 
+      test(`pillars — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        // Scroll the #platform pillar grid into view. Covers USMR
+        // Phase 5.1c content (3-card pillar overview sourced from
+        // src/data/pillars.ts).
+        await page.locator("#platform").scrollIntoViewIfNeeded();
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(
+          `home-pillars-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+
       test(`writing-strip — ${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
         await page.goto("/");
