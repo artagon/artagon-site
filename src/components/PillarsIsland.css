@@ -33,9 +33,12 @@
 
 .pillars__title {
   font-family: var(--f-display);
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.15;
-  letter-spacing: var(--display-tracking, -0.02em);
+  /* USMR Phase 5.5.9 — match canonical h2 scale (global.css:230):
+   * clamp(36px, 4vw, 60px) / line-height 1.02. Was undersized at
+   * clamp(2rem, 4vw, 3rem) ≈ 32-48px. */
+  font-size: clamp(36px, 4vw, 60px);
+  line-height: 1.02;
+  letter-spacing: var(--display-tracking, -0.025em);
   font-weight: var(--display-weight, 500);
   color: var(--fg);
   margin: 0;

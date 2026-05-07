@@ -183,12 +183,19 @@ const cols = [
 }
 
 .footer-col-heading {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  /* USMR Phase 5.5.9 — match canonical (new-design index.html:618):
+   *   font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.14em;
+   *   color: var(--fg-3); text-transform: uppercase; margin-bottom: 16px;
+   * Pre-5.5.9 the bare-h3 rule from 5.5.5 cascaded `var(--f-display)` here
+   * (the local rule didn't set font-family), making "PLATFORM" render in
+   * Space Grotesk display while the column-heading mock is mono. */
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--fg);
-  margin: 0 0 var(--space-3);
+  color: var(--fg-3);
+  margin: 0 0 16px;
 }
 
 .footer-col ul {

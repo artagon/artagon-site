@@ -94,9 +94,10 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
 
   .home-explore__title {
     font-family: var(--f-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1.1;
-    letter-spacing: var(--display-tracking, -0.02em);
+    /* USMR Phase 5.5.9 — canonical h2 scale per global.css:230. */
+    font-size: clamp(36px, 4vw, 60px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.025em);
     font-weight: var(--display-weight, 500);
     color: var(--fg);
     margin: 0;

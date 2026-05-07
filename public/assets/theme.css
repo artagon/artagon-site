@@ -442,32 +442,19 @@ body {
     Roboto,
     Inter,
     Arial;
-  /* USMR Phase 5.5.5 — Inter Tight stylistic-set ligatures.
-   * Canonical (new-design global.css:69-75): ss01 = single-storey g,
-   * cv11 = open-bowl 4. DESIGN.md §3.1 documents the requirement.
-   * Without this rule the canonical mock typography never activates. */
+  /* USMR Phase 5.5.5 — Inter Tight stylistic-set ligatures. */
   font-feature-settings:
     "ss01" on,
     "cv11" on;
   color: var(--text, #e2e8f0);
-  background:
-    radial-gradient(
-      1200px 580px at 20% -10%,
-      color-mix(in oklab, var(--brand-violet, #7c5cff) 25%, transparent),
-      transparent 60%
-    ),
-    radial-gradient(
-      1000px 520px at 80% -10%,
-      color-mix(in oklab, var(--brand-teal, #22e3c5) 18%, transparent),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      var(--bg-alt, #0a0f1e) 0%,
-      var(--bg, #0b1220) 60%,
-      var(--bg, #0b1220) 100%
-    );
-  background-color: var(--bg, #0b1220); /* fallback */
+  /* USMR Phase 5.5.9 — flattened to canonical body surface per
+   * `new-design/extracted/src/styles/global.css:68-75` (`body { background:
+   * var(--bg); }`). The previous 3-stack of radial-gradient(violet) +
+   * radial-gradient(teal) + linear-gradient was a 5.1-era ambient
+   * decoration that painted top-left + top-right "blue auroras" on every
+   * page above the fold — the user pointed at these as the "blue areas"
+   * regression. Canonical is flat dark + the body::before grid overlay. */
+  background: var(--bg, #0b1220);
 }
 
 /* USMR Phase 5.5.5 — global type scale rules. The `--fs-h1/h2/h3`,
@@ -766,6 +753,27 @@ nav a:hover {
 .writing-strip .btn::before,
 .writing-strip .btn:hover::before {
   content: none !important;
+}
+
+/* USMR Phase 5.5.9 — `.btn.primary` solid-fill ascends to global scope.
+ * Canonical (`new-design global.css:245`): `.btn.primary { background:
+ * var(--accent); color: var(--accent-ink); border-color: transparent; }`.
+ * Pre-5.5.9 the rule lived inside `Header.astro`'s scoped `.site-nav .right`
+ * block, so the Hero + onRamp + Writing primary CTAs ("Request design-
+ * partner access", "Apply as a design partner", "Read") fell through to
+ * the legacy `.btn` translucent-teal-mix base — visible as ghost-style
+ * pills instead of canonical solid cyan. */
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.btn.primary:hover {
+  background: color-mix(in oklab, var(--accent) 90%, white);
+  color: var(--accent-ink);
+  border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--accent) 30%, transparent);
 }
 
 .btn:hover {
