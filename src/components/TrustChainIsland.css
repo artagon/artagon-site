@@ -3,13 +3,22 @@
  * artefact rendered by TrustChainIsland.tsx. Imported by the React
  * component so vite/Astro bundles it alongside the JS island chunk.
  *
- * Token mapping per DESIGN.md §"Color tokens" (lines 226-228):
- *   pass / decision PERMIT  → var(--ok)   (semantic green)
- *   fail / decision DENY    → var(--bad)  (semantic red)
- * Both are public aliases over the staging --nd-ok / --nd-bad. DESIGN.md
- * §6.5 (Trust chain) line 386 specifies the decision-badge color rule
- * directly. Glow/tint variants are color-mix()'d against --ok / --bad so
- * a palette swap touches the alias only.
+ * Token mapping aligned with the new-design implementation
+ * (new-design/extracted/src/pages/index.html line 1012 sets
+ *  `const C_PASS = 'var(--accent)'`):
+ *   pass / decision PERMIT → var(--accent)  (page accent — violet
+ *                                             site-wide per Phase
+ *                                             5.1o, switchable via
+ *                                             `[data-accent]`)
+ *   fail / decision DENY   → var(--bad)     (semantic red, alias
+ *                                             of --nd-bad)
+ *
+ * 47f9898 originally aligned this file to var(--ok) per DESIGN.md
+ * §"Color tokens" line 226. That contract predates the new-design
+ * mock; the mock's chain visually keys off `--accent` so the
+ * eyebrow pill, stage outlines, and decision card share one accent
+ * — the cohesion `--ok` would break. DESIGN.md §6.5 is updated in
+ * the same commit to reflect the implementation.
  */
 
 .trust-chain {
@@ -17,7 +26,7 @@
   border-radius: 14px;
   background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
   padding: clamp(1.25rem, 2vw, 1.75rem);
-  box-shadow: 0 0 80px -20px var(--ok);
+  box-shadow: 0 0 80px -20px var(--accent);
   transition:
     box-shadow 0.6s ease,
     border-color 0.4s ease;
@@ -61,7 +70,7 @@
 }
 
 .trust-chain__scenario-dot:focus-visible {
-  outline: 2px solid var(--ok);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -70,8 +79,8 @@
 }
 
 .trust-chain__scenario-dot.is-active.is-permit {
-  background: var(--ok);
-  box-shadow: 0 0 10px var(--ok);
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
 }
 
 .trust-chain__scenario-dot.is-active.is-deny {
@@ -124,11 +133,11 @@
 }
 
 .trust-chain__stage.is-pass {
-  border-color: color-mix(in oklab, var(--ok) 50%, var(--line));
-  background: color-mix(in oklab, var(--ok) 14%, var(--bg-1));
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: color-mix(in oklab, var(--accent) 14%, var(--bg-1));
   box-shadow:
-    0 0 18px -3px var(--ok),
-    inset 0 0 14px -4px var(--ok);
+    0 0 18px -3px var(--accent),
+    inset 0 0 14px -4px var(--accent);
 }
 
 .trust-chain__stage.is-fail {
@@ -159,10 +168,10 @@
 }
 
 .trust-chain__stage.is-pass .trust-chain__stage-num {
-  border-color: var(--ok);
-  color: var(--ok);
-  background: color-mix(in oklab, var(--ok) 20%, transparent);
-  box-shadow: 0 0 14px var(--ok);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 20%, transparent);
+  box-shadow: 0 0 14px var(--accent);
 }
 
 .trust-chain__stage.is-fail .trust-chain__stage-num {
@@ -202,7 +211,7 @@
 }
 
 .trust-chain__stage.is-pass .trust-chain__stage-status {
-  color: var(--ok);
+  color: var(--accent);
 }
 
 .trust-chain__stage.is-fail .trust-chain__stage-status {
@@ -222,11 +231,11 @@
 }
 
 .trust-chain__decision.is-permit {
-  border-color: color-mix(in oklab, var(--ok) 50%, var(--line));
-  background: color-mix(in oklab, var(--ok) 8%, var(--bg));
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: color-mix(in oklab, var(--accent) 8%, var(--bg));
   box-shadow:
-    0 0 26px -4px var(--ok),
-    inset 0 0 22px -8px var(--ok);
+    0 0 26px -4px var(--accent),
+    inset 0 0 22px -8px var(--accent);
 }
 
 .trust-chain__decision.is-deny {
@@ -248,7 +257,7 @@
 }
 
 .trust-chain__decision.is-permit .trust-chain__decision-pep {
-  color: var(--ok);
+  color: var(--accent);
 }
 
 .trust-chain__decision.is-deny .trust-chain__decision-pep {
@@ -261,7 +270,7 @@
 }
 
 .trust-chain__decision.is-permit .trust-chain__decision-claim {
-  color: var(--ok);
+  color: var(--accent);
 }
 
 .trust-chain__decision.is-deny .trust-chain__decision-claim {
