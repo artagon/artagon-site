@@ -6,6 +6,16 @@ on:
 
 jobs:
   spec-compliance:
+    # USMR Phase 5.5.10 — defensive guard against the phantom `push`-event
+    # runs GitHub Actions creates for PR branches even when this workflow
+    # only listens on `pull_request`. Without the if:, those runs land
+    # with conclusion=failure and 0 jobs (silent registration glitch on
+    # the .github/workflows/spec-compliance.yml registry — file-path
+    # appears as workflow `name` instead of "Spec Compliance" in
+    # `gh workflow list`). When the trigger really is `pull_request`,
+    # the job runs as before; phantom push runs skip → "skipped"
+    # conclusion, which counts as success for branch protection.
+    if: github.event_name == 'pull_request' && github.event.pull_request != null
     runs-on: ubuntu-latest
     permissions:
       contents: read
