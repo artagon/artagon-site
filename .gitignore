@@ -61,3 +61,11 @@ new-design/
 # Local-only ignore stash. `.gitignore.local` is honored by some tools as
 # a parallel ignore layer; not tracked.
 .gitignore.local
+
+# Ad-hoc browser screenshots saved by playwright MCP at the repo root
+# during interactive review (e.g. `home-final.png`, `platform2.png`).
+# These are throwaway capture artifacts; canonical regenerated baselines
+# live under `tests/__screenshots__/` and are ignored separately.
+/*.png
+/*.jpg
+/*.jpeg
