@@ -29,13 +29,18 @@ test.describe("Home (/) — content parse + render smoke", () => {
     // Hero (USMR 5.1a): non-empty headline from home.mdx frontmatter.
     await expect(page.locator("h1#hero-h1")).not.toBeEmpty();
     await expect(page.locator("p#hero-sub")).not.toBeEmpty();
-    // Pillar grid (5.1c): 3 #pillar-* cards from PILLARS const.
-    await expect(page.locator("#pillar-identity")).toBeVisible();
-    await expect(page.locator("#pillar-credentials")).toBeVisible();
-    await expect(page.locator("#pillar-authorization")).toBeVisible();
+    // USMR 5.5.2 — home composition restructured to canonical
+    // <Hero/><Writing/><HomeExplore/><CTA/> per index.html:1658.
+    // The 3-card pillar grid (#pillar-identity etc) was dropped from
+    // home; pillars now surface on /platform as the PillarsIsland
+    // tablist. Verify the canonical home sections instead.
     // Latest-writing strip (5.1f).
     await expect(page.locator("#writing")).toBeVisible();
-    // On-ramp card (5.1b).
+    // HomeExplore 6-card grid (5.5.2) — also serves as the
+    // `#playground` anchor target since 5.5.6.
+    await expect(page.locator("#playground")).toBeVisible();
+    await expect(page.locator(".home-explore__card")).toHaveCount(6);
+    // On-ramp / design-partner CTA (5.1b).
     await expect(page.locator("#get-started")).toBeVisible();
   });
 });

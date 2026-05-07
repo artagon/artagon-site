@@ -124,7 +124,7 @@ describe("writing collection — per-post frontmatter", () => {
       test("author resolves to a known authors-collection slug (or is absent)", () => {
         if (fm.author === undefined) return;
         // Currently only one author shipped; loosen if that changes.
-        expect(fm.author).toBe("giedrius-trumpickas");
+        expect(fm.author).toBe("trumpyla");
       });
 
       test("draft is not set to true", () => {

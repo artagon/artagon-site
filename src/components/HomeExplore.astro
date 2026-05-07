@@ -5,29 +5,10 @@
 // composition is 4 cards (Platform / Bridge / Use cases / Standards)
 // across 4 columns, then 2 wide cards (Roadmap / GitHub) across 2
 // columns. Static — no React island.
-
-interface ExploreCard {
-  idx: string;
-  title: string;
-  desc: string;
-  href: string;
-}
-
-const PRIMARY: readonly ExploreCard[] = [
-  { idx: '01', title: 'Platform',   desc: 'Three pillars — Identity, Credentials, Authorization — under one runtime.', href: '/platform' },
-  { idx: '02', title: 'The Bridge', desc: 'OID4VP → OIDC. Adopt verifiable credentials without a rewrite.', href: '/bridge' },
-  { idx: '03', title: 'Use cases',  desc: 'CSR delegation, specialist consult, valet keys, AI agent leashes.', href: '/use-cases' },
-  { idx: '04', title: 'Standards',  desc: 'Every feature maps to a published IETF, OIDF, W3C, or NIST spec.', href: '/standards' },
-];
-
-const SECONDARY: readonly ExploreCard[] = [
-  { idx: '05', title: 'Roadmap', desc: 'Five phases over eighteen months — from core trust to agent authorization.', href: '/roadmap' },
-  { idx: '06', title: 'GitHub',  desc: 'Open-source core — Apache 2.0. Follow along and contribute.', href: 'https://github.com/artagon' },
-];
-
-function isExternal(href: string): boolean {
-  return href.startsWith('http');
-}
+//
+// Phase 5.5.7 extracted the inline data into `src/data/home-explore.ts`
+// so the tuple shape can be invariant-tested at vitest time.
+import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
 ---
 <section class="home-explore" id="playground" aria-labelledby="home-explore-h">
   <div class="home-explore__head">
