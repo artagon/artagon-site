@@ -1377,57 +1377,14 @@ header .right .pill {
   margin-bottom: 1.5rem;
 }
 
-/* Hero H1 - Verified, Private, Attested with gradient glow */
-#hero-h1 {
-  background: linear-gradient(
-    120deg,
-    var(--brand-teal) 0%,
-    var(--brand-sky) 45%,
-    var(--brand-violet) 100%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 0 40px color-mix(in srgb, var(--brand-teal) 30%, transparent),
-    0 0 80px color-mix(in srgb, var(--brand-violet) 20%, transparent);
-  filter: drop-shadow(
-      0 0 20px color-mix(in srgb, var(--brand-teal) 40%, transparent)
-    )
-    drop-shadow(
-      0 0 40px color-mix(in srgb, var(--brand-violet) 25%, transparent)
-    );
-  animation: rainbow-shift 8s ease-in-out infinite;
-  position: relative;
-}
-
-@keyframes rainbow-shift {
-  0%,
-  100% {
-    filter: drop-shadow(
-        0 0 20px color-mix(in srgb, var(--brand-teal) 40%, transparent)
-      )
-      drop-shadow(
-        0 0 40px color-mix(in srgb, var(--brand-violet) 25%, transparent)
-      );
-  }
-  33% {
-    filter: drop-shadow(
-        0 0 25px color-mix(in srgb, var(--brand-sky) 45%, transparent)
-      )
-      drop-shadow(
-        0 0 35px color-mix(in srgb, var(--brand-teal) 30%, transparent)
-      );
-  }
-  66% {
-    filter: drop-shadow(
-        0 0 25px color-mix(in srgb, var(--brand-violet) 45%, transparent)
-      )
-      drop-shadow(
-        0 0 35px color-mix(in srgb, var(--brand-sky) 30%, transparent)
-      );
-  }
-}
+/* USMR Phase 5.1p.2 — the legacy `#hero-h1` rainbow-gradient text +
+ * `rainbow-shift` keyframes (8s ease-in-out infinite) were removed
+ * because they overpainted `.hero h1.display` (5.1j) via ID
+ * specificity, defeating the typography contract. The new-design
+ * mock renders the headline solid `var(--fg)` with no animation; the
+ * only animated text on the hero is `.glow-text` inside the eyebrow
+ * pill (theme.css glow-component band, ported in 5.1i).
+ */
 
 /* ===== HOME PAGE MISSION SECTION ===== */
 
