@@ -297,6 +297,12 @@ Token: `` `--f-emphasis` ``.
 
 USMR Phase 5.2.5 italic-span face token, paired with the `[data-hero-font]` switch (§6.24). Resolves to `var(--f-serif)` under `[data-hero-font="grotesk"]` for editorial contrast (sans hero + serif italic span) and to `inherit` under `[data-hero-font="fraunces|dmserif|mono"]` so the italic span stays in-family — eliminates the "mono + serif italic" font-clash bug that an unconditional `var(--f-serif)` would otherwise produce. Documented in DESIGN.md §3.4 as the 4 × 2 emphasis-span audit matrix; consumed by `<PillarsIsland>` (`pillars__title-emphasis`, `pillars__tagline`) and any future hero `<em>` span. Lives here for the same reason as §6.24's `--display-tracking` / `--display-weight`: the upstream `typography` schema models a single `fontFamily` per role and has no slot for an attribute-driven emphasis-face that depends on the active hero face. Promoting upstream would require schema extension. Resolves the failure mode flagged in resolved Open question 5 of the /platform redesign hand-off.
 
+### 6.26 Density-variant gutter token
+
+Token: `` `--gutter` ``.
+
+USMR Phase 5.5.6 layout-density token, paired with the `[data-density]` attribute on `<body>`. Defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Mirrors the canonical `new-design/extracted/src/styles/{tokens.css:24-25,global.css:64-65}` shape exactly. Consumed by `.wrap` (DESIGN.md §4) for horizontal page padding; the canonical Tweaks panel surface (out-of-scope per project decision) toggles the attribute at runtime. Lives here on the allow-list rather than in DESIGN.md frontmatter because the upstream `tokens.spacing` namespace models a single base step (4 px / 8 px / etc.) and has no slot for an attribute-driven layout-padding variant. Promoting would require schema extension; same precedent as §6.24/§6.25. Companion test gate: `tests/contrast-tokens.test.mts` is unaffected (gutter is a layout token, not a contrast surface).
+
 ## 7 · Accepted `lint:design` warnings
 
 The following 10 lint warnings produced by `npm run lint:design` on the current `DESIGN.md` are accepted. Each is a deliberate architectural choice, not an oversight.
