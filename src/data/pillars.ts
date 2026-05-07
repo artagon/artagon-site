@@ -68,10 +68,10 @@ export const PILLARS: readonly Pillar[] = [
   {
     id: "identity",
     num: "01",
-    eyebrow: "Unified OP / AS",
-    title: "OIDC 2.1 + GNAP",
+    eyebrow: "Identity",
+    title: "High-Assurance Identity",
     tagline: "Passkey-primary. Phishing-resistant by default.",
-    body: "Hardened OAuth profiles (PAR, JAR, JARM, RAR, DPoP, mTLS) composed into one developer-friendly surface. GNAP proof-of-possession + continuation, client-key rotation, cryptographic multi-tenancy. Hardware device attestation (Apple App Attest, Android Play Integrity, WebAuthn) is invisible to users and enforced at every request.",
+    body: "Unified OIDC 2.1 & GNAP provider. Hardened profiles — PAR, JAR, DPoP, RAR, mTLS — composed into one developer-friendly surface. Hardware device attestation (Apple App Attest, Android Play Integrity, WebAuthn) is invisible to users and enforced at every request.",
     bullets: [
       [
         t("OIDC 2.1"),
@@ -104,16 +104,16 @@ export const PILLARS: readonly Pillar[] = [
     ],
     specimen: {
       kind: "jwt",
-      header: "DPOP KEY",
+      header: '{"alg":"ES256","typ":"dpop+jwt","jwk":{…}}',
       payload:
-        '{"alg":"ES256","typ":"dpop+jwt","jwk":{…}}\n\n{\n  "sub": "u_a3f…02c",\n  "cnf": { "jkt": "NzbLsXh8…" },\n  "amr": ["hwk","swk","user"],\n  "acr": "urn:artagon:loa:3"\n}',
+        '{\n  "sub": "u_a3f…02c",\n  "cnf": { "jkt": "NzbLsXh8…" },\n  "amr": ["hwk","swk","user"],\n  "acr": "urn:artagon:loa:3"\n}',
     },
   },
   {
     id: "credentials",
     num: "02",
-    eyebrow: "Verifiable Identity",
-    title: "Selective disclosure",
+    eyebrow: "Credentials",
+    title: "Decentralized Trust Layer",
     tagline: "Verifiable credentials. Selective, unlinkable, portable.",
     body: "Issue and verify verifiable credentials in SD-JWT (selective disclosure) and BBS+ (unlinkable zero-knowledge) formats. OID4VCI / OID4VP flows bridge legacy OIDC apps to verifiable data without refactors — the Trojan Horse for enterprise adoption.",
     bullets: [
@@ -124,7 +124,7 @@ export const PILLARS: readonly Pillar[] = [
     ],
     specimen: {
       kind: "vc",
-      header: "PRESENTED VC (SD-JWT)",
+      header: "Presented VC (SD-JWT) — selective disclosure",
       payload:
         '{\n  "iss": "did:web:artagon.com",\n  "sub": "did:peer:2.Ez…",\n  "vct": "ProofingVC/IAL2",\n  "disclosed": ["age_over_18","country"],\n  "withheld": ["dob","ssn","name"]\n}',
     },
@@ -132,8 +132,8 @@ export const PILLARS: readonly Pillar[] = [
   {
     id: "authorization",
     num: "03",
-    eyebrow: "Policy & Graph",
-    title: "Zanzibar-style checks",
+    eyebrow: "Authorization",
+    title: "Graph-Native Authorization",
     tagline: "Zanzibar relationships + Cedar / OPA policies. Under 10 ms.",
     body: "Fast-path ReBAC via a globally replicated Zanzibar graph for millisecond relationship checks. Fine-grained ABAC overlay in Cedar, OPA (Rego), or XACML 3.0+ for contextual policy. Git-backed policy-as-code, PEP SDKs in 5 languages.",
     bullets: [
@@ -157,7 +157,7 @@ export const PILLARS: readonly Pillar[] = [
       // for identity-team review per the lint:specimens contract
       // (task 5.2.y).
       kind: "policy",
-      header: "CEDAR — permit.cedar",
+      header: "cedar — permit.cedar",
       // @TODO-IDENTITY-REVIEW: <reviewer> by 2026-05-21
       payload:
         'permit (\n  principal,\n  action == Action::"read",\n  resource\n) when {\n  principal in resource.allowed_groups &&\n  context.mfa_verified\n};',

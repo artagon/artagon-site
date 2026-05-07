@@ -6,7 +6,7 @@ import Footer from "../components/Footer.astro";
 import TrustChainIsland from "../components/TrustChainIsland";
 import { AFFILIATIONS, HERO_SPECS } from "../data/affiliations";
 import { ORG } from "../data/organization";
-import { PILLARS } from "../data/pillars";
+import HomeExplore from "../components/HomeExplore.astro";
 
 // USMR Phase 5.1a — hero now reads from src/content/pages/home.mdx so
 // content edits don't require .astro changes. The remaining sections
@@ -144,25 +144,6 @@ const headlineLines = headline.includes(". ")
 
   </section>
 
-  <section id="platform" class="section" aria-labelledby="platform-heading">
-    <div class="container">
-      <h2 id="platform-heading" class="sr-only">Platform pillars</h2>
-      <div class="grid cols-3">
-        {
-          PILLARS.map((pillar) => (
-            <div class="card" id={`pillar-${pillar.id}`}>
-              <div class="eyebrow">{pillar.eyebrow}</div>
-              <h3>{pillar.title}</h3>
-              <p>{pillar.body}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-
-
   {
     latestPosts.length > 0 && (
       <section class="writing-strip section" id="writing">
@@ -192,6 +173,8 @@ const headlineLines = headline.includes(". ")
       </section>
     )
   }
+
+  <HomeExplore />
 
   {
     onRamp && (
