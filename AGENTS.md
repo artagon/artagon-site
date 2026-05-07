@@ -6,9 +6,11 @@ Project MCP servers are declared in **`.mcp.json`** (repo root). All models (Cla
 
 ### Active servers
 
-| Server     | Purpose                                                            | How to use                                                                   |
-| ---------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
-| `context7` | Live documentation for Astro, MDN, Playwright, and other libraries | Prefix queries with `use context7` or call `resolve-library-id` + `get-docs` |
+| Server     | Purpose                                                            | How to use                                                                                 |
+| ---------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `context7` | Live documentation for Astro, MDN, Playwright, and other libraries | Prefix queries with `use context7` or call `resolve-library-id` + `get-docs`               |
+| `serena`   | LSP-backed semantic code navigation and symbol-aware edits         | Use for named symbols: components, functions, hooks, types, references, and symbol edits    |
+| `ast-grep` | Tree-sitter structural search and codemods                         | Use for syntactic patterns in Astro, HTML, TS/TSX, JS, CSS, YAML, JSON, Bash, Python, etc. |
 
 ### context7 usage
 
@@ -24,11 +26,104 @@ get-docs: /microsoft/playwright   topic="locators"
 
 Use context7 whenever working with Astro APIs, MDX content, Playwright selectors, or any library where your training data may be stale (Astro 5 changes frequently).
 
+### Serena usage
+
+Serena is configured as a project-level MCP server for Claude, Gemini, and Codex. Its project config lives in **`.serena/project.yml`** and enables language servers for:
+
+- `typescript` — TypeScript, JavaScript, `.mjs`, TSX, React islands, Astro frontmatter helpers
+- `html` — Astro template markup and HTML-like component structure
+- `markdown` — Markdown and MDX content
+- `yaml` — GitHub Actions, OpenSpec, ast-grep rules, and project YAML
+- `scss` — CSS/SCSS language-server coverage for project stylesheets
+
+Use Serena first for semantic navigation:
+
+| Capability | MCP tool |
+| ---------- | -------- |
+| Find a component, function, hook, class, or type by name | `find_symbol` |
+| Find callers, references, or usages | `find_referencing_symbols` |
+| Inspect a file/module outline | `get_symbols_overview` |
+| Replace a function, component, or method body | `replace_symbol_body` |
+| Insert code before/after a known symbol | `insert_before_symbol` / `insert_after_symbol` |
+| Rename a symbol safely | `rename_symbol` |
+| Store durable project knowledge | `write_memory` / `read_memory` |
+
+Before LSP-dependent work, ensure dependencies are installed so TypeScript, React, Astro, and CSS language servers can resolve imports.
+
+### ast-grep MCP usage
+
+Use ast-grep for structural patterns and codemods. Always inspect the AST before authoring non-trivial patterns.
+
+| Capability | MCP tool |
+| ---------- | -------- |
+| Inspect a snippet's syntax tree | `dump_syntax_tree` |
+| Test a rule against a snippet | `test_match_code_rule` |
+| Search the codebase for a structural pattern | `find_code` |
+| Search with a YAML rule | `find_code_by_rule` |
+
+Use shell search only when MCP tools do not satisfy the need. In that case, follow `~/.agents/SEARCH.md` and use `rtk rg` for text-shaped queries: TODOs, copy strings, config keys, error message literals, or unsupported file formats.
+
+### Search decision tree
+
+1. Target is a named component, function, hook, class, type, exported constant, or known symbol -> Serena.
+2. Target is a syntactic shape, such as `useState($$$)`, `<Image>` without `alt`, `set:html`, `await` in a specific context, or YAML rule structure -> ast-grep.
+3. Multi-file refactor:
+   - Symbol-aware rename or API movement -> Serena.
+   - Pattern-aware migration or repeated call-shape rewrite -> ast-grep.
+4. Literal text, comments, generated names, or prose -> `rtk rg`, only after MCP tools are not a fit.
+
+### Shell search restrictions
+
+- Do not use `grep`, `find`, `git grep`, bare `rg`, or `ripgrep` for code search.
+- Do not use `rtk grep` for code search.
+- Use MCP tools first: Serena for symbols, ast-grep MCP for structure, context7 for current docs.
+- If shell text search is necessary, use `rtk rg` and follow `~/.agents/SEARCH.md`.
+- If exact raw output is required, use `rtk proxy <cmd>` and state why.
+
+Before any code search or modification, state routing:
+
+```text
+Tool: <serena | ast-grep | rtk rg | context7>
+Call: <tool_name or command>(<brief args>)
+Reason: <one sentence>
+```
+
 ### Adding new servers
 
 Add entries to `.mcp.json` following the existing format. Commit `.mcp.json` so all models and team members get the same servers automatically.
 
 <!-- MCP:END -->
+
+<!-- STACK-CONTRACT:START -->
+
+## Stack contract
+
+This repo is an Astro static site with React islands, TypeScript, MDX, Playwright, `@google/design.md`, and project CSS tokens. It does **not** use Tailwind CSS; see `docs/decisions/0001-no-tailwind.md`.
+
+Project styling follows Astro scoped styles plus global semantic tokens:
+
+- New `.astro` component styles should prefer scoped `<style>` blocks.
+- Shared brand and semantic tokens belong in `public/assets/theme.css` and `DESIGN.md`.
+- Consume colors through CSS variables and existing `ui-*` utilities; do not add raw color literals or Tailwind utility conventions.
+- React should be used only for interactive islands. Static UI belongs in Astro components.
+- Add `client:*` directives only when interactivity is required, and choose the least eager directive that fits the UX (`client:visible` or `client:idle` before `client:load` where possible).
+- Content-heavy features should prefer Astro content collections or typed data modules over ad hoc filesystem parsing.
+
+<!-- STACK-CONTRACT:END -->
+
+<!-- OPENSPEC:START -->
+
+## OpenSpec
+
+Always open `@/openspec/AGENTS.md` when a request:
+
+- Mentions planning, proposals, specs, changes, or implementation plans.
+- Introduces new capabilities, breaking changes, architecture shifts, or significant performance/security work.
+- Is ambiguous enough that the authoritative project spec should be checked before coding.
+
+Use `@/openspec/AGENTS.md` for change proposal workflow, spec format, project structure, and OpenSpec conventions.
+
+<!-- OPENSPEC:END -->
 
 <!-- DESIGN-CONTRACT:START -->
 
@@ -93,11 +188,7 @@ Direct binary (avoids npm script WouldBlock bug on macOS):
 
 ### Search toolchain
 
-Claude and Gemini route shell search commands through `.claude/skills/search-toolchain` / `.gemini/skills/search-toolchain` hooks. Codex does not expose a native pre-tool hook in the installed CLI, so Codex agents must follow this policy directly:
-
-- Prefer `python3 .codex/skills/search-toolchain/scripts/search_router.py -- '<search command>'` for `grep`, `rg`, `ripgrep`, and `git grep` searches.
-- Prefer structural `ast-grep` searches for supported languages (`bash`, `rust`, `typescript`, `tsx`, `python`, `go`, `json`, `yaml`, `html`, `css`, and others configured by the shared skill).
-- Use bounded text fallback only when the language or file format is unsupported by `ast-grep` / tree-sitter.
+Follow the canonical search policy in the MCP section above. That section owns the Serena, ast-grep MCP, context7, `rtk rg`, and prohibited shell-search rules.
 
 ### Writing new rules
 
@@ -115,6 +206,14 @@ rule:
 ```
 
 <!-- AST-GREP:END -->
+
+<!-- COMMIT-MESSAGES:START -->
+
+## Commit messages
+
+Do not attribute commits to Claude, Gemini, Codex, OpenAI, Anthropic, Google, or any other AI assistant/vendor. Do not include generated-by trailers, assistant co-author trailers, or tool branding in commit messages.
+
+<!-- COMMIT-MESSAGES:END -->
 
 <!-- BUILD-ARTIFACTS:START -->
 

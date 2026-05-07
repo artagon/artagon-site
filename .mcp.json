@@ -4,6 +4,20 @@
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@2.2.3"],
       "env": {}
+    },
+    "serena": {
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--context",
+        "claude-code",
+        "--project",
+        "."
+      ]
+    },
+    "ast-grep": {
+      "command": "ast-grep-mcp-server",
+      "args": []
     }
   }
 }
