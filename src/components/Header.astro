@@ -54,8 +54,36 @@ const NAV_LINKS = [
       >
       <ThemeToggle />
     </div>
+    {/* USMR Phase 5.5.11 — mobile hamburger toggle. Hidden on desktop;
+      flex on touch viewports (<720px). Body.nav-open opens the
+      panels per the canonical index.html:402-421. */}
+    <button
+      type="button"
+      class="nav-toggle"
+      aria-label="Toggle navigation"
+      aria-expanded="false"
+      aria-controls="primary-nav"
+      data-nav-toggle
+    >
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+    </button>
   </div>
 </header>
+
+<script>
+  // USMR Phase 5.5.11 — bind the hamburger toggle. Toggles
+  // body.nav-open + the button's aria-expanded. Non-recurring;
+  // safe across HMR re-mounts since we attach via dataset key.
+  const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      const open = document.body.classList.toggle("nav-open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+</script>
 
 <style>
   /* USMR Phase 5.1l — sticky nav with backdrop-filter, per
@@ -155,5 +183,101 @@ const NAV_LINKS = [
   .site-nav__glyph {
     display: block;
     color: var(--fg);
+  }
+
+  /* USMR Phase 5.5.11 — canonical hamburger + open-state CSS per
+   * new-design/extracted/src/pages/index.html:387-421. Hidden by
+   * default; flex on viewports <720px. body.nav-open class is the
+   * open-state pivot; the script at the bottom of this component
+   * toggles it on click. WCAG 2.5.5 — button is exactly 44×44 CSS px. */
+  .nav-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-direction: column;
+    padding: 0;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: var(--fg-1);
+    transition:
+      transform 0.2s,
+      opacity 0.2s;
+  }
+  .nav-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 719px) {
+    .site-nav .nav {
+      gap: 16px;
+    }
+    .site-nav .links,
+    .site-nav .right {
+      display: none;
+    }
+    .nav-toggle {
+      display: flex;
+    }
+    /* Open-state — links panel slides in below sticky bar; CTAs
+     * dock to the bottom edge as a row.  Use :global(body.nav-open)
+     * because the body class is set by the inline <script> at the
+     * end of this component, outside Astro's scoped-style hash. */
+    :global(body.nav-open) .site-nav .links,
+    :global(body.nav-open) .site-nav .right {
+      display: flex !important;
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 64px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line-soft);
+      padding: 24px var(--gutter, 20px);
+      flex-direction: column;
+      gap: 4px;
+      z-index: 29;
+    }
+    :global(body.nav-open) .site-nav .right {
+      top: auto;
+      bottom: 0;
+      border-top: 1px solid var(--line-soft);
+      border-bottom: 0;
+      flex-direction: row;
+      justify-content: stretch;
+    }
+    /* Open-state link sizing — bigger tap targets per WCAG 2.5.5. */
+    :global(body.nav-open) .site-nav .links a {
+      font-size: 18px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    /* Hamburger animation — middle bar fades, top + bottom rotate
+     * into an X (canonical index.html:418-420). */
+    :global(body.nav-open) .nav-toggle span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+    :global(body.nav-open) .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+    :global(body.nav-open) .nav-toggle span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-toggle span {
+      transition: none;
+    }
   }
 </style>
