@@ -68,6 +68,14 @@
     --line: var(--nd-line);
     --line-soft: var(--nd-line-soft);
 
+    /* USMR Phase 5.1p.9 — card surface aliases. The FAQ markup
+     * (`src/components/FaqItem.astro`, `FaqSearch.astro`,
+     * `src/pages/faq/index.astro`) consumes `--card-bg` /
+     * `--card-stroke` without fallbacks; without these aliases
+     * the surface rendered transparent + currentColor border. */
+    --card-bg: var(--bg-1);
+    --card-stroke: var(--line);
+
     /* Font-family tokens per new-design tokens.css. --f-display is the
      * hero/headline face; switchable per page via [data-hero-font]. */
     --f-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
