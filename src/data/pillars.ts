@@ -32,8 +32,16 @@ export type Pillar = {
   title: string;
   /** Serif italic line under the active tab. */
   tagline: string;
-  /** Long-form body, used as the home-page card description AND the /platform panel paragraph. Plain text — no inline tokens. */
-  body: string;
+  /**
+   * Long-form body — sequence of text + glossary `term` nodes mirroring
+   * the bullet shape. Renders inline glossary chips on /platform per
+   * canonical Pillars.jsx:14-21,38-44,61-66 (USMR Phase 5.5.11 Task #29
+   * widened from `body: string`). The home-page 3-card overview
+   * flattens the nodes via `body.map(n => n.value).join("")`; the
+   * /platform tablist consumes the structured nodes via the same
+   * `<Tokenized>` / `<BulletLine>` renderer used for bullets.
+   */
+  body: Body;
   /** Bullet list rendered under the panel paragraph on /platform. */
   bullets: readonly Bullet[];
   /** Live-looking JSON / policy code panel paired with the tab. */
@@ -46,6 +54,13 @@ export type Bullet = readonly BulletNode[];
 export type BulletNode =
   | { kind: "text"; value: string }
   | { kind: "term"; value: string };
+
+/**
+ * A body paragraph — same shape as a Bullet; sequence of text segments
+ * and glossary chips. Aliased so the renderer + tests can share the
+ * single helper utilities (`flattenBody` / `<Tokenized>`).
+ */
+export type Body = readonly BulletNode[];
 
 export type Specimen = {
   /** Visual hint — affects header label rendering only today. */
@@ -83,7 +98,27 @@ export const PILLARS: readonly Pillar[] = [
     eyebrow: "Identity",
     title: "High-Assurance Identity",
     tagline: "Passkey-primary. Phishing-resistant by default.",
-    body: "Unified OIDC 2.1 & GNAP provider. Hardened profiles — PAR, JAR, DPoP, RAR, mTLS — composed into one developer-friendly surface. Hardware device attestation (Apple App Attest, Android Play Integrity, WebAuthn) is invisible to users and enforced at every request.",
+    body: [
+      txt("Unified "),
+      t("OIDC 2.1"),
+      txt(" & "),
+      t("GNAP"),
+      txt(" provider. Hardened profiles — "),
+      t("PAR"),
+      txt(", "),
+      t("JAR"),
+      txt(", "),
+      t("DPoP"),
+      txt(", "),
+      t("RAR"),
+      txt(", "),
+      t("mTLS"),
+      txt(
+        " — composed into one developer-friendly surface. Hardware device attestation (Apple App Attest, Android Play Integrity, ",
+      ),
+      t("WebAuthn"),
+      txt(") is invisible to users and enforced at every request."),
+    ],
     bullets: [
       [
         t("OIDC 2.1"),
@@ -127,7 +162,21 @@ export const PILLARS: readonly Pillar[] = [
     eyebrow: "Credentials",
     title: "Decentralized Trust Layer",
     tagline: "Verifiable credentials. Selective, unlinkable, portable.",
-    body: "Issue and verify verifiable credentials in SD-JWT (selective disclosure) and BBS+ (unlinkable zero-knowledge) formats. OID4VCI / OID4VP flows bridge legacy OIDC apps to verifiable data without refactors — the Trojan Horse for enterprise adoption.",
+    body: [
+      txt("Issue and verify verifiable credentials in "),
+      t("SD-JWT"),
+      txt(" (selective disclosure) and "),
+      t("BBS+"),
+      txt(" (unlinkable zero-knowledge) formats. "),
+      t("OID4VCI"),
+      txt(" / "),
+      t("OID4VP"),
+      txt(" flows bridge legacy "),
+      t("OIDC"),
+      txt(
+        " apps to verifiable data without refactors — the Trojan Horse for enterprise adoption.",
+      ),
+    ],
     bullets: [
       [t("DID"), txt(" methods: did:web, did:key, did:ion, did:peer")],
       [t("SD-JWT"), txt(" + "), t("BBS+"), txt(" signatures")],
@@ -147,7 +196,27 @@ export const PILLARS: readonly Pillar[] = [
     eyebrow: "Authorization",
     title: "Graph-Native Authorization",
     tagline: "Zanzibar relationships + Cedar / OPA policies. Under 10 ms.",
-    body: "Fast-path ReBAC via a globally replicated Zanzibar graph for millisecond relationship checks. Fine-grained ABAC overlay in Cedar, OPA (Rego), or XACML 3.0+ for contextual policy. Git-backed policy-as-code, PEP SDKs in 5 languages.",
+    body: [
+      txt("Fast-path "),
+      t("ReBAC"),
+      txt(" via a globally replicated "),
+      t("Zanzibar"),
+      txt(" graph for millisecond relationship checks. Fine-grained "),
+      t("ABAC"),
+      txt(" overlay in "),
+      t("Cedar"),
+      txt(", "),
+      t("OPA"),
+      txt(" ("),
+      t("Rego"),
+      txt("), or "),
+      t("XACML"),
+      txt(" 3.0+ for contextual policy. Git-backed policy-as-code, "),
+      t("PEP"),
+      txt(" "),
+      t("SDKs"),
+      txt(" in 5 languages."),
+    ],
     bullets: [
       [t("Zanzibar"), txt(" graph store (off-heap, replicated)")],
       [

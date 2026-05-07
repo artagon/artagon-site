@@ -215,7 +215,9 @@ export default function PillarsIsland() {
         >
           <div className="pillars__panel-prose">
             <div className="pillars__tagline serif">{pillar.tagline}</div>
-            <p className="pillars__body">{pillar.body}</p>
+            <p className="pillars__body">
+              <BulletLine bullet={pillar.body} />
+            </p>
             <ul className="pillars__bullets">
               {pillar.bullets.map((bullet, b) => (
                 <li key={b} className="pillars__bullet">

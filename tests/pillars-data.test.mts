@@ -42,19 +42,36 @@ describe("PILLARS — registry shape", () => {
 describe("PILLARS — content invariants", () => {
   for (const pillar of PILLARS) {
     describe(pillar.id, () => {
+      // USMR Phase 5.5.11 Task #29 — body widened from `string` to
+      // `Body = readonly BulletNode[]`. Helper flattens to text for
+      // length / non-empty checks.
+      const flatBody = pillar.body.map((n) => n.value).join("");
+
       test("tagline + body + every text field is non-empty", () => {
         expect(pillar.tagline.trim(), "tagline").not.toBe("");
-        expect(pillar.body.trim(), "body").not.toBe("");
+        expect(flatBody.trim(), "body").not.toBe("");
       });
 
-      test("body wording matches canonical (>= 100 chars)", () => {
+      test("body wording matches canonical (>= 100 chars when flattened)", () => {
         // Catches accidental truncation. Shortest canonical body is
         // ~250 chars; 100 is a generous floor.
-        expect(pillar.body.length).toBeGreaterThanOrEqual(100);
+        expect(flatBody.length).toBeGreaterThanOrEqual(100);
       });
 
       test("at least 3 bullets — covers narrative arc", () => {
         expect(pillar.bullets.length).toBeGreaterThanOrEqual(3);
+      });
+
+      test("every body `term` node resolves in the glossary (5.5.11)", () => {
+        for (let b = 0; b < pillar.body.length; b++) {
+          const node = pillar.body[b]!;
+          if (node.kind === "term") {
+            expect(
+              lookupGlossary(node.value),
+              `pillar[${pillar.id}].body[${b}] term="${node.value}"`,
+            ).toBeDefined();
+          }
+        }
       });
 
       test("every bullet `term` node resolves in the glossary", () => {
