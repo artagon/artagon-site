@@ -1523,3 +1523,244 @@ header .right .pill {
     top: 15px;
   }
 }
+
+/* ============================================================
+ * USMR Phase 5.1i — Glow components (ported from
+ * new-design/extracted/src/styles/global.css lines 115-210).
+ *
+ * Pure CSS — no JS. Used by the home hero eyebrow pill (5.1j) and
+ * future hero meta-strip (5.1k). Each effect uses a `--g-accent`
+ * custom property that defaults to `--accent` so consumers can
+ * override per-instance (e.g., `.glow-tag.is-warning { --g-accent:
+ * var(--warn); }` for an alert-tone pill) without rewriting the
+ * keyframes.
+ *
+ * `prefers-reduced-motion: reduce` disables all four animations.
+ * ============================================================ */
+
+.glow-tag {
+  --g-accent: var(--accent);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--f-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+  font-weight: 500;
+  color: var(--fg);
+  padding: 11px 22px 11px 18px;
+  border-radius: 999px;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      120% 140% at 0% 50%,
+      color-mix(in oklab, var(--g-accent) 18%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      120% 140% at 100% 50%,
+      color-mix(in oklab, var(--g-accent) 10%, transparent) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--bg-1) 88%, transparent) 0%,
+      color-mix(in oklab, var(--bg) 82%, transparent) 100%
+    );
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
+    0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
+    0 0 18px -2px color-mix(in oklab, var(--g-accent) 35%, transparent),
+    0 0 80px -20px color-mix(in oklab, var(--g-accent) 70%, transparent);
+  animation: glow-breathe 5.2s ease-in-out infinite;
+}
+
+.glow-tag::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in oklab, var(--g-accent) 75%, transparent) 0deg,
+    color-mix(in oklab, var(--g-accent) 15%, transparent) 60deg,
+    color-mix(in oklab, var(--g-accent) 65%, transparent) 140deg,
+    color-mix(in oklab, var(--g-accent) 10%, transparent) 240deg,
+    color-mix(in oklab, var(--g-accent) 80%, transparent) 330deg,
+    color-mix(in oklab, var(--g-accent) 75%, transparent) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glow-tag::after {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border-radius: inherit;
+  background: radial-gradient(
+    60% 120% at 50% 50%,
+    color-mix(in oklab, var(--g-accent) 28%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(14px);
+  opacity: 0.9;
+  z-index: -2;
+  pointer-events: none;
+  animation: glow-halo-drift 7s ease-in-out infinite;
+}
+
+.glow-dot {
+  --g-accent: var(--accent);
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff 0%,
+    var(--g-accent) 55%,
+    color-mix(in oklab, var(--g-accent) 60%, #000) 100%
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--g-accent) 55%, transparent),
+    0 0 10px var(--g-accent),
+    0 0 22px color-mix(in oklab, var(--g-accent) 70%, transparent);
+  flex-shrink: 0;
+}
+
+.glow-dot::before,
+.glow-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--g-accent) 65%, transparent);
+  opacity: 0;
+  animation: glow-ring-ping 2.4s cubic-bezier(0.2, 0.6, 0.2, 1) infinite;
+}
+
+.glow-dot::after {
+  animation-delay: 1.2s;
+}
+
+.glow-text {
+  --g-accent: var(--accent);
+  position: relative;
+  z-index: 1;
+  color: transparent;
+  background: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--fg) 85%, var(--g-accent)) 0%,
+    #fff 45%,
+    var(--g-accent) 50%,
+    #fff 55%,
+    color-mix(in oklab, var(--fg) 85%, var(--g-accent)) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glow-text-shimmer 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  filter: drop-shadow(
+    0 0 14px color-mix(in oklab, var(--g-accent) 35%, transparent)
+  );
+}
+
+.glow-amp {
+  --g-accent: var(--accent);
+  display: inline-block;
+  font-family: var(--f-serif, "Fraunces", "Instrument Serif", Georgia, serif);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0;
+  margin: 0 2px 0 6px;
+  padding: 0 2px;
+  color: var(--g-accent);
+  -webkit-text-fill-color: var(--g-accent);
+  text-transform: none;
+  transform: translateY(1px);
+  text-shadow:
+    0 0 6px var(--g-accent),
+    0 0 16px color-mix(in oklab, var(--g-accent) 60%, transparent);
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--accent) 22%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--accent) 8%, transparent),
+      0 1px 0 color-mix(in oklab, var(--accent) 10%, transparent),
+      0 0 18px -2px color-mix(in oklab, var(--accent) 35%, transparent),
+      0 0 80px -20px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--accent) 35%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--accent) 14%, transparent),
+      0 1px 0 color-mix(in oklab, var(--accent) 18%, transparent),
+      0 0 28px 0 color-mix(in oklab, var(--accent) 55%, transparent),
+      0 0 130px -14px color-mix(in oklab, var(--accent) 85%, transparent);
+  }
+}
+
+@keyframes glow-halo-drift {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes glow-ring-ping {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  80% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-text-shimmer {
+  0%,
+  100% {
+    background-position: 120% 50%;
+  }
+  50% {
+    background-position: -20% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-tag,
+  .glow-tag::before,
+  .glow-tag::after,
+  .glow-dot,
+  .glow-dot::before,
+  .glow-dot::after,
+  .glow-text {
+    animation: none;
+  }
+}
