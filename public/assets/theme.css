@@ -39,6 +39,12 @@
     --nd-ok: oklch(0.8 0.15 155);
     --nd-warn: oklch(0.82 0.14 65);
     --nd-bad: oklch(0.66 0.18 25);
+    /* Public semantic aliases over the --nd-* staging set. Components
+     * reference these (var(--bad), etc.) so the staging definitions
+     * can evolve without touching every consumer. */
+    --bad: var(--nd-bad);
+    --ok: var(--nd-ok);
+    --warn: var(--nd-warn);
 
     /* ----- Motion ----- */
     --motion-duration-instant: 0ms;

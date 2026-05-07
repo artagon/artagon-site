@@ -82,6 +82,15 @@ export default function TrustChainIsland() {
               onFocus={() => setHovered(i)}
               onBlur={() => setHovered(null)}
               tabIndex={0}
+              role="button"
+              aria-describedby="trust-chain-decision"
+              aria-label={`${stage.label} — ${
+                outcome === "pass"
+                  ? "verified"
+                  : outcome === "fail"
+                    ? "blocked"
+                    : "skipped"
+              }`}
             >
               <span className="trust-chain__stage-num" aria-hidden="true">
                 0{i + 1}
@@ -100,7 +109,12 @@ export default function TrustChainIsland() {
         })}
       </ol>
 
-      <div className={`trust-chain__decision is-${decisionClass}`}>
+      <div
+        id="trust-chain-decision"
+        className={`trust-chain__decision is-${decisionClass}`}
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <div className="trust-chain__decision-head">
           <span>{headLabel}</span>
           <span className="trust-chain__decision-pep" aria-hidden="true">

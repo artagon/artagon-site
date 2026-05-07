@@ -4,11 +4,10 @@
  * component so vite/Astro bundles it alongside the JS island chunk.
  *
  * Pass / decision PERMIT styling is keyed off `--brand-teal`. Fail /
- * decision DENY uses an inline `oklch(60% 0.22 25)` because the project
- * has not yet propagated a `--bad` token from DESIGN.md to theme.css;
- * a follow-up commit can swap the literal for `var(--bad)` once the
- * token lands. The lint:tokens postbuild check accepts oklch() as a
- * non-raw value.
+ * decision DENY uses `var(--bad)` (public semantic alias declared in
+ * theme.css over the staging `--nd-bad`). All glow/tint variants are
+ * derived via color-mix() against --bad so a future palette swap only
+ * touches the alias.
  */
 
 .trust-chain {
@@ -74,8 +73,8 @@
 }
 
 .trust-chain__scenario-dot.is-active.is-deny {
-  background: oklch(60% 0.22 25);
-  box-shadow: 0 0 10px oklch(60% 0.22 25);
+  background: var(--bad);
+  box-shadow: 0 0 10px var(--bad);
 }
 
 .trust-chain__scenario {
@@ -131,11 +130,11 @@
 }
 
 .trust-chain__stage.is-fail {
-  border-color: color-mix(in oklab, oklch(60% 0.22 25) 60%, var(--border));
-  background: color-mix(in oklab, oklch(60% 0.22 25) 10%, var(--bg-alt));
+  border-color: color-mix(in oklab, var(--bad) 60%, var(--border));
+  background: color-mix(in oklab, var(--bad) 10%, var(--bg-alt));
   box-shadow:
-    0 0 24px -4px oklch(60% 0.22 25),
-    inset 0 0 18px -6px oklch(60% 0.22 25);
+    0 0 24px -4px var(--bad),
+    inset 0 0 18px -6px var(--bad);
 }
 
 .trust-chain__stage.is-skip {
@@ -165,10 +164,10 @@
 }
 
 .trust-chain__stage.is-fail .trust-chain__stage-num {
-  border-color: oklch(60% 0.22 25);
-  color: oklch(60% 0.22 25);
-  background: color-mix(in oklab, oklch(60% 0.22 25) 22%, transparent);
-  box-shadow: 0 0 14px oklch(60% 0.22 25);
+  border-color: var(--bad);
+  color: var(--bad);
+  background: color-mix(in oklab, var(--bad) 22%, transparent);
+  box-shadow: 0 0 14px var(--bad);
 }
 
 .trust-chain__stage-body {
@@ -205,7 +204,7 @@
 }
 
 .trust-chain__stage.is-fail .trust-chain__stage-status {
-  color: oklch(60% 0.22 25);
+  color: var(--bad);
 }
 
 .trust-chain__decision {
@@ -229,11 +228,11 @@
 }
 
 .trust-chain__decision.is-deny {
-  border-color: color-mix(in oklab, oklch(60% 0.22 25) 60%, var(--border));
-  background: color-mix(in oklab, oklch(60% 0.22 25) 10%, var(--bg));
+  border-color: color-mix(in oklab, var(--bad) 60%, var(--border));
+  background: color-mix(in oklab, var(--bad) 10%, var(--bg));
   box-shadow:
-    0 0 20px -4px oklch(60% 0.22 25),
-    inset 0 0 20px -8px oklch(60% 0.22 25);
+    0 0 20px -4px var(--bad),
+    inset 0 0 20px -8px var(--bad);
 }
 
 .trust-chain__decision-head {
@@ -251,7 +250,7 @@
 }
 
 .trust-chain__decision.is-deny .trust-chain__decision-pep {
-  color: oklch(60% 0.22 25);
+  color: var(--bad);
 }
 
 .trust-chain__decision-claim {
@@ -264,7 +263,7 @@
 }
 
 .trust-chain__decision.is-deny .trust-chain__decision-claim {
-  color: oklch(60% 0.22 25);
+  color: var(--bad);
 }
 
 .trust-chain__decision-reason {
