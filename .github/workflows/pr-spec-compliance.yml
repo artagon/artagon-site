@@ -1,8 +1,19 @@
-name: "Spec Compliance"
+name: "PR Spec Compliance"
 
+# USMR Phase 5.5.10 — file renamed from `spec-compliance.yml` to
+# `pr-spec-compliance.yml` to force GitHub Actions to re-register
+# the workflow. The previous registry entry had become stale (the
+# workflow appeared as the file path `.github/workflows/spec-
+# compliance.yml` instead of the `name:` field "Spec Compliance"
+# in `gh workflow list`, and every push to the PR branch triggered
+# a phantom `push`-event run with 0 jobs and conclusion=failure
+# despite the `on:` block listing only `pull_request`). Other
+# workflows on identical triggers received the correct
+# `pull_request: synchronize` events for the same commits — only
+# this workflow's registration was corrupted.
 on:
   pull_request:
-    types: [opened, edited, synchronize]
+    types: [opened, edited, synchronize, reopened]
 
 jobs:
   spec-compliance:
