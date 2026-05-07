@@ -9,7 +9,7 @@ Project MCP servers are declared in **`.mcp.json`** (repo root). All models (Cla
 | Server     | Purpose                                                            | How to use                                                                                 |
 | ---------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | `context7` | Live documentation for Astro, MDN, Playwright, and other libraries | Prefix queries with `use context7` or call `resolve-library-id` + `get-docs`               |
-| `serena`   | LSP-backed semantic code navigation and symbol-aware edits         | Use for named symbols: components, functions, hooks, types, references, and symbol edits    |
+| `serena`   | LSP-backed semantic code navigation and symbol-aware edits         | Use for named symbols: components, functions, hooks, types, references, and symbol edits   |
 | `ast-grep` | Tree-sitter structural search and codemods                         | Use for syntactic patterns in Astro, HTML, TS/TSX, JS, CSS, YAML, JSON, Bash, Python, etc. |
 
 ### context7 usage
@@ -38,15 +38,15 @@ Serena is configured as a project-level MCP server for Claude, Gemini, and Codex
 
 Use Serena first for semantic navigation:
 
-| Capability | MCP tool |
-| ---------- | -------- |
-| Find a component, function, hook, class, or type by name | `find_symbol` |
-| Find callers, references, or usages | `find_referencing_symbols` |
-| Inspect a file/module outline | `get_symbols_overview` |
-| Replace a function, component, or method body | `replace_symbol_body` |
-| Insert code before/after a known symbol | `insert_before_symbol` / `insert_after_symbol` |
-| Rename a symbol safely | `rename_symbol` |
-| Store durable project knowledge | `write_memory` / `read_memory` |
+| Capability                                               | MCP tool                                       |
+| -------------------------------------------------------- | ---------------------------------------------- |
+| Find a component, function, hook, class, or type by name | `find_symbol`                                  |
+| Find callers, references, or usages                      | `find_referencing_symbols`                     |
+| Inspect a file/module outline                            | `get_symbols_overview`                         |
+| Replace a function, component, or method body            | `replace_symbol_body`                          |
+| Insert code before/after a known symbol                  | `insert_before_symbol` / `insert_after_symbol` |
+| Rename a symbol safely                                   | `rename_symbol`                                |
+| Store durable project knowledge                          | `write_memory` / `read_memory`                 |
 
 Before LSP-dependent work, ensure dependencies are installed so TypeScript, React, Astro, and CSS language servers can resolve imports.
 
@@ -54,12 +54,12 @@ Before LSP-dependent work, ensure dependencies are installed so TypeScript, Reac
 
 Use ast-grep for structural patterns and codemods. Always inspect the AST before authoring non-trivial patterns.
 
-| Capability | MCP tool |
-| ---------- | -------- |
-| Inspect a snippet's syntax tree | `dump_syntax_tree` |
-| Test a rule against a snippet | `test_match_code_rule` |
-| Search the codebase for a structural pattern | `find_code` |
-| Search with a YAML rule | `find_code_by_rule` |
+| Capability                                   | MCP tool               |
+| -------------------------------------------- | ---------------------- |
+| Inspect a snippet's syntax tree              | `dump_syntax_tree`     |
+| Test a rule against a snippet                | `test_match_code_rule` |
+| Search the codebase for a structural pattern | `find_code`            |
+| Search with a YAML rule                      | `find_code_by_rule`    |
 
 Use shell search only when MCP tools do not satisfy the need. In that case, follow `~/.agents/SEARCH.md` and use `rtk rg` for text-shaped queries: TODOs, copy strings, config keys, error message literals, or unsupported file formats.
 
@@ -251,3 +251,109 @@ Tree-sitter grammars are explicitly excluded from `BUILD.cache` — they belong 
 See [`docs/build-artifacts.md`](./docs/build-artifacts.md) for the full SSoT contract, generator mechanics, contributor "add a tool" checklist, CODEOWNERS dual-review rule, and Bazel-readiness path.
 
 <!-- BUILD-ARTIFACTS:END -->
+
+<!-- TESTING:START -->
+
+## Testing
+
+Three test runners coexist in `tests/`. They are **disjoint by what they import**, NOT by file extension:
+
+| Runner                              | Owns                                                   | Config                                                                     | Discovery                                                                                 |
+| ----------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Playwright** (`@playwright/test`) | `tests/**/*.spec.ts`                                   | [`playwright.config.ts`](./playwright.config.ts)                           | `testMatch: "**/*.spec.ts"` (override of default)                                         |
+| **vitest** (`vitest`)               | `tests/**/*.test.mts`                                  | [`vitest.config.ts`](./vitest.config.ts)                                   | `include: ["tests/**/*.test.mts"]`; explicit `exclude` for legacy `tweaks-state.test.mts` |
+| **node:test** (`node:test`)         | `tests/**/*.test.mjs` + legacy `tweaks-state.test.mts` | enumerated in [`package.json`](./package.json) `test:node` / `test:tweaks` | no glob; each file listed by name                                                         |
+
+The runners' globs **must stay disjoint** — Playwright's default glob (`**/*.@(spec|test).?(c|m)[jt]s?(x)`) overlaps both other runners. Loading `vitest` and `@playwright/test` into the same process triggers `Symbol($$jest-matchers-object)` collision (PR #46 broke on this; fix `7b51428`/`9a3981b`).
+
+### Browser-profile isolation
+
+Every Playwright project is configured via `devices[...]` in `playwright.config.ts`, which spins up an **ephemeral browser context per test**. Do NOT use `chromium.launchPersistentContext('/path/to/real/profile')` — that exposes the developer's Edge / Chrome keychain to the test runner and is a security regression vector. Profiles stay isolated; no keychain reads; no cookie persistence across tests.
+
+### Device matrix (15 projects)
+
+Desktop: `chromium` / `firefox` / `webkit` / `Edge` (msedge channel) / `Chrome` (chrome channel). Mobile: `Mobile Chrome` (Pixel 5) / `Mobile Chrome (Pixel 7)` / `Mobile Chrome (Galaxy S9+)` / `Mobile Safari` (iPhone 12) / `Mobile Safari (iPhone 14 Pro Max)`. Tablet: `Tablet Safari` (iPad Pro 11) / `Tablet Safari (iPad Mini)` / `Tablet Chrome (Galaxy Tab S4)`. Large: `TV` (1920×1080) / `TV 4K` (3840×2160 HiDPI).
+
+The CI image (`mcr.microsoft.com/playwright:vX.Y.Z-jammy`) bundles chromium / firefox / webkit. Edge and Chrome stable channels are installed via `npx playwright install msedge` / `npx playwright install chrome` in the `test` job.
+
+### Test scoping by device class
+
+- **Smoke + a11y-contract** assertions run on every project (structural, no mouse/touch dependency).
+- **Mouse-driven tests** (`test.skip(({isMobile}) => isMobile, ...)`) skip on touch projects. The underlying touch-affordance gap is tracked by [`openspec/changes/enhance-a11y-coverage`](./openspec/changes/enhance-a11y-coverage/).
+- **axe-core WCAG audit** (`tests/home-axe.spec.ts`) runs on chromium / webkit / Mobile Safari only. Currently gated on `AXE_AUDIT=1`; flips to mandatory after `enhance-a11y-coverage` Phase 4.
+- **Visual snapshots** are Linux-pinned (`*-chromium-linux.png` / `*-webkit-linux.png` / `*-Mobile-Safari-linux.png`); the CI workflow's `workflow_dispatch` regenerates them. Local Darwin / Windows runs produce host-specific PNGs that are gitignored.
+
+### Lint gotcha: `lint:tokens` uses `git ls-files`
+
+[`scripts/lint-tokens.mjs`](./scripts/lint-tokens.mjs) walks `git ls-files`, so an **untracked** new CSS file with raw color literals appears clean. After `git add`, re-run the gate against the committed state — a passing lint on uncommitted code does NOT guarantee a passing lint after commit.
+
+### Hot-spots
+
+- New device project → update [`playwright.config.ts`](./playwright.config.ts) `projects[]` AND verify the `test:ci` shard count (`TOTAL_SHARDS` env in `.github/workflows/playwright.yml`) still distributes evenly.
+- New test runner (any third) → all three runners' configs must add explicit `include` / `exclude` to keep them disjoint.
+- New a11y rule → the [`enhance-a11y-coverage`](./openspec/changes/enhance-a11y-coverage/) change owns the WCAG 2.1 AA contracts; the `accessibility` CI job runs axe-core on chromium / webkit / Mobile Safari.
+
+<!-- TESTING:END -->
+
+<!-- REVIEW:START -->
+
+## Review workflow
+
+Multi-agent review is the default for non-trivial changes. Spawn a parallel set of review agents from the `pr-review-toolkit` plugin (each agent reads the same diff but with a different lens):
+
+| Lens                         | Agent                                     | Use for                                                         |
+| ---------------------------- | ----------------------------------------- | --------------------------------------------------------------- |
+| Neutral                      | `pr-review-toolkit:code-reviewer`         | first-pass correctness + style                                  |
+| Adversarial: silent failures | `pr-review-toolkit:silent-failure-hunter` | swallowed errors, inadequate error handling, fall-back behavior |
+| Adversarial: types           | `pr-review-toolkit:type-design-analyzer`  | encapsulation, invariant expression, enforcement                |
+| Adversarial: comments        | `pr-review-toolkit:comment-analyzer`      | comments that lie about the code; stale references              |
+| Test coverage                | `pr-review-toolkit:pr-test-analyzer`      | gap analysis vs. shipped logic                                  |
+| Simplification               | `pr-review-toolkit:code-simplifier`       | duplication, over-conditional rendering                         |
+
+**Mandatory pre-report skill**: every review (sub-agent or direct) MUST load [`.claude/skills/review-verification-protocol`](./.claude/skills/review-verification-protocol/) BEFORE reporting findings. The skill enforces: read actual code (not just diff), search for usages before claiming "unused", calibrate severity (Critical / Major / Minor / Informational), downgrade net-new-code suggestions to Informational.
+
+Per `AGENTS.md` Commit-Messages rule, agents MUST NOT add `Co-Authored-By: Claude` / vendor-attribution trailers, AND must not author commits as `Claude <noreply@anthropic.com>` or `copilot-swe-agent[bot] <…>` (author identity counts as attribution; PR #46 had to rewrite two such commits — see history of `9a3981b` / `67abd4b`).
+
+<!-- REVIEW:END -->
+
+<!-- ACCESSIBILITY:START -->
+
+## Accessibility
+
+WCAG 2.1 AA is the floor (project convention is WCAG 2.2 AA where it tightens 2.1). The [`enhance-a11y-coverage`](./openspec/changes/enhance-a11y-coverage/) OpenSpec change owns the durable contracts:
+
+- **Tap target ≥ 44 × 44 CSS px** (WCAG 2.5.5). Visible target may be smaller; invisible padding extends the hit area.
+- **Color contrast ≥ 4.5:1 (text) / ≥ 3:1 (non-text)**. Verified at vitest time via `tests/contrast-tokens.test.mts`; documented in [`DESIGN.md`](./DESIGN.md) §"Color tokens" with computed ratios.
+- **DESIGN.md token assignments** — [`DESIGN.md`](./DESIGN.md) §line 226-228 + §6.5 specify `--ok` for PERMIT/pass states, `--bad` for DENY/fail, `--accent` (= `--brand-teal`) reserved for primary CTAs and the trust-chain's CURRENT/EVALUATING stage. Components MUST consume the semantic alias, not the staging `--nd-*` token directly.
+- **Focus indicators**: every interactive element has explicit `:focus-visible` (2 px `var(--accent)` outline + 2 px offset). Browser defaults are not relied on.
+- **Reduced motion**: `@media (prefers-reduced-motion: reduce)` blocks set `animation: none` and `transition: none` on animated UI; in particular the upstream `glow-tag` / `glow-text-shimmer` etc. (see [`new-design/extracted/src/styles/global.css`](./new-design/extracted/src/styles/global.css) lines 200-202).
+- **Forced colors**: `@media (forced-colors: active)` overrides map semantic aliases to system colors (`Canvas` / `CanvasText` / `Highlight` / `Mark`). Trust-chain tints derived via `color-mix()` lose meaning in forced-colors mode without explicit overrides.
+- **Pointer + keyboard + touch parity**: every interactive component on a content route must support all three modalities. Hover-only affordances need a tap-toggle equivalent on touch (`aria-pressed`).
+- **Live region announcements**: `aria-live="polite"` on the trust-chain decision card; `tests/screen-reader.spec.ts` (Phase 6) drives Tab-navigation as a proxy for actual SR announcements.
+- **Automated CI gate**: [`tests/home-axe.spec.ts`](./tests/home-axe.spec.ts) runs `@axe-core/playwright` on chromium / webkit / Mobile Safari with WCAG 2.1 A + AA tags; gate flips from informational to mandatory after `enhance-a11y-coverage` Phase 4 lands.
+
+<!-- ACCESSIBILITY:END -->
+
+<!-- REFERENCES:START -->
+
+## Symbolic references
+
+Canonical artifacts maintained as separate sources of truth:
+
+| Artifact                           | Path                                                                                | Owns                                                                                                                                                                                                 |
+| ---------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visual identity                    | [`DESIGN.md`](./DESIGN.md)                                                          | Tokens, typography, components, color contracts. Pinned to `@google/design.md@0.1.1`.                                                                                                                |
+| design.md spec mirror              | [`openspec/.cache/design-md-spec.md`](./openspec/.cache/design-md-spec.md)          | `npx @google/design.md spec --format markdown` snapshot. Refreshed weekly via `design-md-drift.yml`.                                                                                                 |
+| design.md authoring guide          | [`docs/design-md.md`](./docs/design-md.md)                                          | Token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook.                                                                                                                                |
+| Build SSoT                         | [`build.config.json`](./build.config.json) → [`build.config.ts`](./build.config.ts) | `.build/{cache,reports,dist}` paths. JSON/YAML/TOML configs are GENERATED.                                                                                                                           |
+| Token source                       | [`public/assets/theme.css`](./public/assets/theme.css)                              | Public aliases (`--text` / `--muted` / `--border` / `--brand-teal` / `--bg-alt` / `--bad` / `--ok` / `--warn`) over staging `--nd-*` set.                                                            |
+| Security rules                     | [`rules/security/`](./rules/security/)                                              | ast-grep YAML rules: `no-inner-html`, `no-set-html-directive`, `no-math-random-crypto`, `no-weak-hash`, `no-jwt-decode-unverified`, `no-console-log-sensitive`, `no-hardcoded-secrets`.              |
+| OpenSpec changes (active)          | [`openspec/changes/`](./openspec/changes/)                                          | `update-site-marketing-redesign`, `enhance-a11y-coverage`, `add-brand-assets-and-writing-pipeline`, `migrate-deploy-to-cloudflare-pages`, `migrate-legacy-tokens-to-layer`, `self-host-woff2-fonts`. |
+| OpenSpec specs (live capabilities) | [`openspec/specs/`](./openspec/specs/)                                              | `build-config`, `check-site-quality`, `configure-copilot-environment`, `design-system-format`, `github-pages-deployment`, `manage-site-links`, `openspec-workflow`, `site-content`, `style-system`.  |
+| Project skills                     | [`.agents/skills/`](./.agents/skills/)                                              | Per-project SKILL.md scaffolds for the OpenSpec workflow (`opsx:explore` / `:new` / `:propose` / `:ff` / `:continue` / `:apply` / `:verify` / `:sync` / `:archive` / `:bulk-archive` / `:onboard`).  |
+| Review skills                      | `.claude/skills/review-verification-protocol/` (loaded as user skill)               | False-positive reduction rules. Mandatory load before any review report.                                                                                                                             |
+| CI workflow                        | [`.github/workflows/playwright.yml`](./.github/workflows/playwright.yml)            | Test (5 shards × all projects) + visual-regression (chromium / webkit / Mobile Safari) + accessibility (chromium / webkit / Mobile Safari) + merge-reports.                                          |
+
+When a section above is touched (tokens, components, accessibility contracts), update **both** the implementation file AND the relevant artifact above in the same change.
+
+<!-- REFERENCES:END -->
