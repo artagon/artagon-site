@@ -78,6 +78,22 @@ test.describe("Home (/) - 3 themes × 3 breakpoints reference", () => {
           { fullPage: false, animations: "disabled" },
         );
       });
+
+      test(`writing-strip — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        // Scroll the latest-writing strip into view. Covers USMR
+        // Phase 5.1f content (3-up grid sourced from the writing
+        // collection).
+        await page.locator("#writing").scrollIntoViewIfNeeded();
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(
+          `home-writing-strip-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
     }
   }
 });

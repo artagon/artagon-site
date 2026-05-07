@@ -1,5 +1,5 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import Base from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -15,6 +15,19 @@ import { ORG } from "../data/organization";
 const home = await getEntry("pages", "home");
 if (!home) throw new Error("home.mdx content entry not found");
 const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
+
+// USMR Phase 5.1f — latest writing strip. Top N non-draft posts by
+// published desc; render the strip only when there's at least one post.
+const latestPosts = (await getCollection("writing"))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+  .slice(0, 3);
+
+const dateFmt = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
 ---
 
 <Base title={title} description={description}>
@@ -213,6 +226,36 @@ const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
   </section>
 
   {
+    latestPosts.length > 0 && (
+      <section class="writing-strip section" id="writing">
+        <div class="container">
+          <header class="writing-strip__head">
+            <h2>Field notes from the team building Artagon.</h2>
+            <a class="writing-strip__more" href="/writing">All writing →</a>
+          </header>
+          <ul role="list" class="writing-strip__list">
+            {latestPosts.map((post) => (
+              <li class="writing-strip__item">
+                <a class="writing-strip__link" href={`/writing/${post.id}`}>
+                  <time
+                    class="writing-strip__date"
+                    datetime={post.data.published.toISOString()}
+                  >
+                    {dateFmt.format(post.data.published)}
+                  </time>
+                  <h3 class="writing-strip__title">{post.data.headline}</h3>
+                  <p class="writing-strip__lede">{post.data.lede}</p>
+                  <span class="writing-strip__cta">Read →</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {
     onRamp && (
       <section class="onramp section" id="get-started">
         <div class="container">
@@ -347,5 +390,97 @@ const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
     color: var(--muted);
     font-size: var(--fs-micro);
     line-height: 1.5;
+  }
+
+  /* USMR Phase 5.1f — latest writing strip */
+  .writing-strip {
+    padding-block: var(--space-12);
+  }
+  .writing-strip__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-block-end: var(--space-8);
+    flex-wrap: wrap;
+  }
+  .writing-strip__head h2 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.15;
+    margin: 0;
+    max-width: 28ch;
+  }
+  .writing-strip__more {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.875rem;
+    color: var(--brand-teal);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .writing-strip__more:hover,
+  .writing-strip__more:focus-visible {
+    text-decoration: underline;
+  }
+  .writing-strip__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 900px) {
+    .writing-strip__list {
+      grid-template-columns: 1fr;
+    }
+  }
+  .writing-strip__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+    background: var(--bg-alt);
+    transition:
+      border-color 0.15s ease,
+      transform 0.15s ease;
+  }
+  .writing-strip__link:hover,
+  .writing-strip__link:focus-visible {
+    border-color: var(--brand-teal);
+    transform: translateY(-2px);
+  }
+  .writing-strip__date {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: var(--fs-micro);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .writing-strip__title {
+    font-size: 1.25rem;
+    line-height: 1.25;
+    margin: 0;
+  }
+  .writing-strip__lede {
+    color: var(--muted);
+    line-height: 1.55;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .writing-strip__cta {
+    margin-top: auto;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: var(--fs-micro);
+    color: var(--brand-teal);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 </style>
