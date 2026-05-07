@@ -21,14 +21,19 @@ const NAV_LINKS = [
 <header class="site-nav">
   <div class="container nav">
     <a class="brand site-nav__brand" href="/" aria-label="Artagon Home">
-      <img
-        src="/icons/icon-64.png"
-        alt=""
-        width="32"
-        height="32"
-        style="display:block;"
+      <svg
+        class="site-nav__glyph"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
         aria-hidden="true"
-      />
+      >
+        <circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-opacity="0.28" stroke-width="1" />
+        <path d="M12 2.5 L20 18.5 L4 18.5 Z" stroke="currentColor" stroke-width="1.25" fill="none" />
+        <circle cx="12" cy="13.2" r="2.1" fill="currentColor" />
+        <path d="M7 18.5 L17 18.5" stroke="currentColor" stroke-width="1.25" />
+      </svg>
       <span class="site-nav__wordmark">Artagon</span>
     </a>
     <nav aria-label="Primary">
@@ -148,9 +153,18 @@ const NAV_LINKS = [
     text-decoration: none;
   }
   .site-nav__wordmark {
-    font-family: var(--f-display);
-    font-size: 18px;
+    /* Canonical (new-design index.html:550-554): font-family
+     * var(--f-sans), font-size 17, weight 500, tracking -0.01em.
+     * BaseLayout sets the global default --f-sans = Inter. */
+    font-family: var(--f-sans);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
     color: var(--fg);
     line-height: 1;
+  }
+  .site-nav__glyph {
+    display: block;
+    color: var(--fg);
   }
 </style>

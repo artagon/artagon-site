@@ -801,7 +801,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - Cycle pauses naturally on hover/focus only via the click-commit path — there's no separate pause-on-hover today (the cycle is brief enough that hovering rarely intersects with the timer).
 - Reduced-motion: cycle skipped, `step = 2` rendered. Forced-colors: party + step active states resolve to `Highlight` border, neutral states stay system-default.
 
-**Status: shipped.** USMR Phase 5.2.8 — `src/components/BridgeFlow.tsx` + `src/components/BridgeFlow.css` + `src/data/bridge.ts`. The `/bridge → /platform/#bridge 301` redirect from 5.1q.3 dropped in this phase (the route now resolves directly). The `<section id="bridge">` anchor on `/platform` from 5.1q.4 stays in place for backwards compatibility with legacy inbound `#bridge` links.
+**Status: shipped.** USMR Phase 5.2.8 (page composition revised in 5.5.1) — `src/components/BridgeFlow.tsx` + `src/components/BridgeFlow.css` + `src/data/bridge.ts`. The `/bridge → /platform/#bridge 301` redirect from 5.1q.3 dropped in 5.2.8 (the route resolves directly); the `<section id="bridge">` anchor on `/platform` from 5.1q.4 also dropped in 5.5.1 after canonical-fidelity review confirmed `/platform.html` line 848 (`<App><Pillars/></App>`) renders Pillars only. `/bridge/index.astro` now mounts `<BridgeFlow client:visible />` directly with no surrounding page hero, matching `/bridge.html` line 768 (`<App><Bridge/></App>`).
 
 ### 6.18 StandardsWall (Standards route)
 

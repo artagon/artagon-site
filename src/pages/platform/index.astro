@@ -1,36 +1,20 @@
 ---
-// USMR Phase 5.2.5 — /platform redesign. Replaces the legacy
-// `--brand-teal` gradient hero + 4-card highlights grid with the
-// canonical new-design composition:
-//   1. Tight hero strip (eyebrow / headline / lede).
-//   2. <section id="bridge"> from 5.1q.4 — preserved.
-//   3. <PillarsIsland /> tablist — 3 panels (Identity / Credentials
-//      / Authorization) with live JSON / policy specimens.
+// USMR Phase 5.5.1 — /platform route. Mounts the PillarsIsland
+// directly per the canonical new-design/extracted/src/pages/platform.html
+// (line 848: `<App><Pillars/></App>` — no separate page hero). The
+// island ports Pillars.jsx's internal hero ("Platform" eyebrow +
+// "Three pillars, one coherent platform." h2), so any page-level
+// hero here would duplicate that header.
 //
-// The mobile-fit shim from new-design platform.html:7-22 is
-// intentionally NOT ported (resolved Open question 1) — we ship a
-// real responsive layout. Snapshot baselines on Tablet Safari +
-// Mobile Chrome will need workflow_dispatch regen (task 5.2.x).
-//
-// Hero font: BaseLayout already sets `data-hero-font="fraunces"`
-// site-wide. The italic `<em>` consumes `--f-emphasis` which
-// resolves to `inherit` under fraunces (no font swap), and to
-// `var(--f-serif)` under grotesk for editorial contrast — see
-// theme.css [data-hero-font] block.
-import { getEntry } from 'astro:content';
+// 5.2.5 originally shipped a `platform-hero` section + a
+// `<section id="bridge">` anchor (the 5.1q.4 stub from when /bridge
+// didn't resolve). Both dropped in 5.5.1: the page hero duplicated
+// the island's own header, and /bridge now exists as a real route
+// (5.2.8) so the anchor stub is no longer needed.
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import PillarsIsland from '../../components/PillarsIsland.tsx';
-
-const platform = await getEntry('pages', 'platform');
-if (!platform?.data.bridge?.sentence) {
-  throw new Error(
-    "platform.mdx frontmatter `bridge.sentence` missing — Phase 5.1q.4 requires the spec-controlled string for `/platform#bridge`. Restore it in src/content/pages/platform.mdx."
-  );
-}
-const bridgeSentence = platform.data.bridge.sentence;
-const { headline, lede } = platform.data;
 ---
 <Base
   title="Platform — Artagon"
@@ -40,92 +24,8 @@ const { headline, lede } = platform.data;
   <Fragment slot="header"><Header /></Fragment>
 
   <main id="main">
-    <section class="platform-hero container" aria-labelledby="platform-h1">
-      <p class="platform-hero__eyebrow">Platform</p>
-      <h1 id="platform-h1" class="platform-hero__title display">{headline}</h1>
-      <p class="platform-hero__lede lead">{lede}</p>
-    </section>
-
-    <section id="bridge" class="bridge-anchor section container" aria-labelledby="bridge-heading">
-      <p class="bridge-anchor__eyebrow">The Bridge</p>
-      <h2 id="bridge-heading">From OIDC to verifiable credentials — without a rewrite.</h2>
-      <p class="bridge-anchor__sentence">{bridgeSentence}</p>
-      <p class="bridge-anchor__followup">Full bridge composition (3-card flow + 4-step process) ships in Phase 5.x.</p>
-    </section>
-
     <PillarsIsland client:visible />
   </main>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
-
-<style>
-  .platform-hero {
-    padding-block: clamp(64px, 10vw, 120px) clamp(48px, 6vw, 80px);
-    max-width: var(--maxw, 1240px);
-    margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
-  }
-  .platform-hero__eyebrow {
-    font-family: var(--f-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--fg-3);
-    margin: 0 0 0.75rem;
-  }
-  .platform-hero__title {
-    font-family: var(--f-display);
-    font-size: clamp(2.4rem, 5vw, 4rem);
-    line-height: 1.1;
-    letter-spacing: var(--display-tracking, -0.02em);
-    font-weight: var(--display-weight, 500);
-    color: var(--fg);
-    margin: 0 0 clamp(1rem, 2vw, 1.5rem);
-    max-width: 18ch;
-  }
-  .platform-hero__lede {
-    color: var(--fg-1);
-    font-size: clamp(1rem, 1.2vw, 1.15rem);
-    line-height: 1.55;
-    max-width: 56ch;
-    margin: 0;
-  }
-
-  .bridge-anchor {
-    scroll-margin-top: 80px;
-    border-top: 1px solid var(--line-soft);
-    padding-block: clamp(64px, 8vw, 120px);
-    max-width: var(--maxw, 1240px);
-    margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
-  }
-  .bridge-anchor__eyebrow {
-    font-family: var(--f-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 0.72rem;
-    color: var(--fg-3);
-    margin: 0 0 0.5rem;
-  }
-  .bridge-anchor h2 {
-    font-family: var(--f-display);
-    font-size: clamp(1.6rem, 3vw, 2.25rem);
-    line-height: 1.2;
-    margin: 0 0 1.25rem;
-    color: var(--fg);
-  }
-  .bridge-anchor__sentence {
-    font-size: 1.15rem;
-    line-height: 1.55;
-    color: var(--fg-1);
-    max-width: 60ch;
-    margin: 0 0 1rem;
-  }
-  .bridge-anchor__followup {
-    font-family: var(--f-mono);
-    font-size: 0.75rem;
-    color: var(--fg-3);
-    margin: 0;
-  }
-</style>
