@@ -20,14 +20,16 @@ const NAV_LINKS = [
 
 <header class="site-nav">
   <div class="container nav">
-    <a class="brand" href="/" aria-label="Artagon Home">
+    <a class="brand site-nav__brand" href="/" aria-label="Artagon Home">
       <img
         src="/icons/icon-64.png"
-        alt="Artagon"
+        alt=""
         width="32"
         height="32"
         style="display:block;"
+        aria-hidden="true"
       />
+      <span class="site-nav__wordmark">Artagon</span>
     </a>
     <nav aria-label="Primary">
       <ul class="links">
@@ -112,5 +114,43 @@ const NAV_LINKS = [
   .site-nav .right .btn {
     padding: 8px 14px;
     font-size: 13px;
+    /* Override the legacy theme.css icon decoration (◆ / ⚡ / ⭐ etc.)
+     * for nav-cta buttons — the new-design header keeps the CTAs
+     * clean without prefix glyphs. */
+  }
+  .site-nav .right .btn::before,
+  .site-nav .right .btn:hover::before {
+    content: none !important;
+  }
+  /* Force `.btn.primary` to render solid-filled per new-design
+   * global.css line 245. The legacy theme.css `.btn` rule paints a
+   * translucent-teal background with a faint border, which reads as
+   * a "ghost" button — wrong for the primary "Request access" CTA. */
+  .site-nav .right .btn.primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: transparent;
+  }
+  .site-nav .right .btn.primary:hover {
+    background: color-mix(in oklab, var(--accent) 90%, white);
+    color: var(--accent-ink);
+    border-color: transparent;
+    transform: translateY(-1px);
+  }
+
+  .site-nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .site-nav__wordmark {
+    font-family: var(--f-display);
+    font-size: 18px;
+    color: var(--fg);
+    line-height: 1;
   }
 </style>

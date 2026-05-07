@@ -126,6 +126,12 @@
     - [ ] 5.1n.5 Delete the `#faq` section + 4 details/summaries. `/faq` route exists and remains canonical.
     - [ ] 5.1n.6 Drop the now-unused imports (`MissionSection`). Trim scoped CSS that targeted the removed sections.
     - [ ] 5.1n.7 Build green; visual snapshots regenerated; verify `tests/home.spec.ts` smoke test still passes (it asserts hero / pillars / writing-strip / on-ramp visibility — all retained).
+  - [ ] 5.1o Visual chrome polish — close the gap between the shipped 5.1h-5.1n structure and the new-design mock's editorial finish. Surfaced when the user compared the post-prune render against `new-design/extracted/src/pages/index.html` and called out 5 outstanding deltas.
+    - [ ] 5.1o.1 Default accent flips to violet. Add `data-accent="violet"` on `<html>` in `BaseLayout.astro`. Ports the variant rules from new-design `global.css` lines 61-63 to `public/assets/theme.css`. The mock screenshot uses the violet variant; matching it is the design intent.
+    - [ ] 5.1o.2 Default hero font flips to serif. Add `data-hero-font="fraunces"` on `<html>` in `BaseLayout.astro`. Ports `[data-hero-font="fraunces"]` (and grotesk / dmserif / mono variants) from new-design `global.css` lines 38-41 to `public/assets/theme.css`. Adds the four `--f-sans / --f-mono / --f-serif / --f-display` tokens to the `:root` block. Fraunces falls back to Georgia until self-host-woff2-fonts ships the WOFF2.
+    - [ ] 5.1o.3 Header gains the "Artagon" wordmark. `Header.astro` renders the `<img>` icon (now `aria-hidden`) followed by `<span class="site-nav__wordmark">Artagon</span>` consuming `--f-display` for typographic continuity with the headline.
+    - [ ] 5.1o.4 `.btn.primary` in the nav renders solid-filled per new-design `global.css :245` rather than the legacy theme.css ghost-translucent style. Header.astro scoped CSS overrides `background: var(--accent)`, `color: var(--accent-ink)`, `border-color: transparent` for `.site-nav .right .btn.primary`. Brightness +10% on hover.
+    - [ ] 5.1o.5 Suppress the legacy `.btn::before` icon decorations (◆ / ⚡ / 📖 / ⭐) on every nav-cta button via `.site-nav .right .btn::before { content: none !important }`. The new-design nav CTAs are clean text — the icon prefix conflicts with the editorial typography.
 
 - [ ] 5.2 `/platform` REDESIGN: pillar tri-band (Identity · Credentials · Authorization) + `#bridge` section + inline code examples per pillar via Shiki at build time.
 - [ ] 5.3 `/use-cases` ADD: scenario cards, one references `/platform#bridge`.

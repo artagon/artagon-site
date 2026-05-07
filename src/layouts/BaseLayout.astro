@@ -9,7 +9,13 @@ export interface Props { title?: string; description?: string; path?: string; im
 const { title, description, path='/', image, robots } = Astro.props;
 ---
 <!doctype html>
-<html lang="en" class="no-js" data-theme="twilight">
+<html
+  lang="en"
+  class="no-js"
+  data-theme="twilight"
+  data-accent="violet"
+  data-hero-font="fraunces"
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

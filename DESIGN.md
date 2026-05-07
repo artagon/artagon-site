@@ -234,6 +234,14 @@ Default accent is cyan-teal (`185°`). Alternate accents are available via
 it for: primary CTAs, hover states, the trust-chain's current stage, chart
 series 1. Everything else is neutral.
 
+**Site-wide accent override**: USMR Phase 5.1o sets `data-accent="violet"`
+on `<html>` in `BaseLayout.astro` so every route renders with the violet
+accent (300°) per the new-design mock. The teal default is preserved as
+the fallback when `data-accent` is absent (e.g., embedded preview
+contexts that bypass `BaseLayout`). The trust-chain's `--ok` (PERMIT,
+green) and `--bad` (DENY, red) tokens stay constant across accent
+variants — only `--accent` and `--accent-dim` shift.
+
 ### 2.3 Semantic
 
 | Token    | OKLCH                  | Role                      |
