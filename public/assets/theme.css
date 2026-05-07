@@ -487,14 +487,16 @@ a {
   margin-inline: auto;
   padding: 0 20px;
 }
-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(10, 15, 30, 0.55);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-  backdrop-filter: saturate(150%) blur(10px);
-}
+/* USMR Phase 5.1p.19 — removed the legacy element-`header` rule
+ * (`position: sticky; background: rgba(10,15,30,.55); backdrop-filter
+ * blur(10px); border-bottom: rgba(148,163,184,.12)`). It collided
+ * with the `.site-nav` rule in `Header.astro` (5.1l) — same
+ * specificity, source-order decided. The `.site-nav` rule consumes
+ * the new-design tokens (`color-mix(in oklab, var(--bg) 72%, transparent)`
+ * + `var(--line-soft)` border + `blur(14px)`) and is the
+ * authoritative nav style. The remaining `header { min-height:
+ * var(--nav-h) }` block at line 1271 is structural sizing only —
+ * kept so the nav row reserves vertical space consistently. */
 .nav {
   display: flex;
   align-items: center;

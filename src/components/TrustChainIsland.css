@@ -26,6 +26,11 @@
   border-radius: 14px;
   background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
   padding: clamp(1.25rem, 2vw, 1.75rem);
+  /* USMR Phase 5.1p.18 — fixed minimum height per new-design
+   * index.html:1025 keeps the card stable across scenario swaps;
+   * without it the chain visibly pulses in height when SCENARIOS
+   * with different counts of skip / pending stages render. */
+  min-height: 560px;
   box-shadow: 0 0 80px -20px var(--accent);
   transition:
     box-shadow 0.6s ease,
