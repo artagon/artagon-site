@@ -291,6 +291,8 @@ micro 11px (mono, caps)           line-height 1.40   tracking  0.14em
 Fluid steps use `clamp()`. Min/max are tested at 360px and 1920px viewports.
 Never ship a heading that reflows more than 3× between breakpoints.
 
+**Bare-element rules.** USMR Phase 5.5.5 — the type scale is now applied at the bare `<h1>` / `<h2>` / `<h3>` selector (`public/assets/theme.css`), not only via the `.display` utility class. Any consumer of `theme.css` inherits the scale by default; the `.display` class survives as a token-only opt-in for non-heading elements (e.g. `<span class="display">` in card titles). 5.5.6 fixed a tracking-cascade bug: bare `<h1>` and `.display` now read `var(--display-tracking, var(--tracking-h1))` so the per-face tracking documented in §3.4 actually applies when `[data-hero-font]` toggles.
+
 ### 3.3 Tracking rules
 
 - **Display** (h1/h2): negative tracking (-0.025 to -0.035em) for optical balance at large sizes.
@@ -329,7 +331,16 @@ for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 **24–32px**. Gutter: **32px** desktop, **20px** dense, **44px** roomy (via
 `[data-density]`).
 
-`.wrap` caps content at `--maxw: 1240px`. Never nest `.wrap` inside `.wrap`.
+`.wrap` caps content at `--maxw: 1240px` and matches the canonical `new-design global.css:212` shape (`max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1`). Never nest `.wrap` inside `.wrap`. `.container` is an alias kept for legacy 5.1q components — new components should author against `.wrap`.
+
+**Density variants** (USMR Phase 5.5.6). The `--gutter` token defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Toggle via `<body data-density="dense">` (or the canonical Tweaks panel surface). Pre-5.5.6 the attribute was documented but inert — no override blocks shipped.
+
+**Token-only utility classes.** Beyond `.wrap`, theme.css exposes:
+
+- `.display` — display-family + tracking + weight (consumes `--f-display` + `--display-tracking` with `--tracking-h1` fallback).
+- `.serif` — serif-family at weight 400 (consumes `--f-serif`). Use sparingly for italic emphasis on a single word inside a display headline (e.g. `<span class="serif" style="font-style: italic">next</span>`).
+
+These are the only global utility classes — never invent component-scoped utility variants in `theme.css`.
 
 ---
 
@@ -401,7 +412,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Anatomy.** Slot text · dotted underline (1 px, `var(--fg-3)`). On hover or `:focus-visible` the text and underline both flip to `var(--accent)`. No background fill, no badge — the chip is a typographic primitive that sits inline in body copy, not a button.
 
-**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 60+ entries covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Two consumers share the contract:
+**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 60+ entries covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Four consumers share the global `.standard-chip` contract (count grew from 2 → 4 across Phase 5.2.x — 5.4):
 
 - **`<Standard term="…">`** (`src/components/Standard.astro`) — token-only static Astro chip for `.astro` and `.mdx` content.
 - **React `StandardChip`** (`src/components/PillarsIsland.tsx` inner) — emits identical markup so the global `.standard-chip` style applies to both server-rendered prose and React-island content.
@@ -462,7 +473,7 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 - First-stage evaluating window: 1100 ms.
 - Per-stage advance: 900 ms.
 - Halts on the first `fail` outcome — subsequent stages render as `skip` per the data contract.
-- Plays once on first mount only. Subsequent scenario changes (click / keyboard nav) settle the chain immediately to the resolved state — users who actively pick a scenario want the result, not a re-animation.
+- Plays on every scenario change — auto-cycle continues after click / keyboard input. USMR Phase 5.5.5 dropped the prior `userInteractedRef` permanent-freeze latch to restore the canonical Hero.jsx:116-121 UX: the chain re-animates whenever `scenarioIdx` changes, AND the parent effect auto-advances to the next scenario after `CYCLE_DELAY_MS`. The only pause path is `paused` (hover/focus on stage rows + scenario dots).
 
 **Keyboard navigation.** Stage rows are real `<button>` elements (USMR Phase 5.1p.1) so they appear in the tab order automatically. The scenario picker (`.trust-chain__scenarios`) follows the WAI-ARIA tablist pattern: `ArrowLeft` / `ArrowRight` walk between dots, `Home` / `End` jump to first / last. Click and keyboard paths converge on the same `setScenarioIdx` handler.
 
@@ -756,7 +767,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - **Tab strip** (`role="tablist"`) — three `<button role="tab">` elements above a 1px `var(--line-soft)` rule. Selected tab: 2px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 5%, transparent)` background tint.
 - **Active panel** (`role="tabpanel"`) — 2-column grid (1.1fr / 1fr at ≥ 1024 px, single-column below):
   - Left: serif italic tagline (consumes `--f-emphasis`), body paragraph, mono bullet list with `→` accent arrows. Bullets render glossary chips inline via `<Standard>` / React `StandardChip`.
-  - Right: `.pillar-specimen` code panel — mono header strip (`spec.kind` label uppercase + accent `● live` indicator) over a `<pre>` payload with `white-space: pre-wrap`.
+  - Right: `.pillar-specimen` code panel — mono header strip carries free-form per-kind content (5.5.2: JWK JSON literal for `kind: "jwt"`, sentence-case label for `"vc"`, mono filename for `"policy"`); CSS applies `text-transform: uppercase` so authored values stay in their natural case in source. Accent `● live` indicator on the right of the header. `<pre>` payload below with `white-space: pre-wrap`.
 
 **Rules.**
 
@@ -789,10 +800,10 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Rules.**
 
-- **Auto-cycle** every 2200 ms on first paint (matches new-design `setInterval(2200)`). Click any step button to commit + freeze the cycle (`userInteractedRef` flips to true permanently for the page lifetime). Skipped under `prefers-reduced-motion: reduce` AND `navigator.webdriver` (Playwright deterministic E2E) — both render with `step = 2` (Verify highlighted, the canonical resting screenshot).
+- **Auto-cycle** every 2200 ms (matches canonical `setInterval(2200)`). Click any step jumps the cycle to that step but does NOT freeze the timer — the cycle continues from the user-clicked step. USMR Phase 5.5.5 removed the previously-shipped `userInteractedRef` permanent-freeze latch to match canonical Bridge.jsx:16-19 UX. Skipped under `prefers-reduced-motion: reduce` AND `navigator.webdriver` (Playwright deterministic E2E) — both render with `step = 2` (Verify highlighted, the canonical resting screenshot).
 - **Data lives in `src/data/bridge.ts`** — `PARTIES` (3-tuple) + `STEPS` (4-tuple) with structured `LabelNode` tokens (text + glossary terms). The renderer maps `term` nodes to `<Standard>` chips inline.
 - **Each step's `nodeId` points at exactly one party**. The `tests/bridge-data.test.mts` invariant gate enforces (a) every nodeId resolves to a real party, (b) every party gets activated by at least one step.
-- **Click pauses the auto-cycle for the page lifetime**. To re-trigger the animation a user must reload — matches the canonical UX (animation is the first-paint wow; user choice signals "I've engaged, stop moving").
+- **Click jumps the cycle to the chosen step** without freezing the timer (USMR 5.5.5 reversed the earlier "freeze for page lifetime" behavior). The auto-cycle continues from the user-clicked step, matching canonical Bridge.jsx:16-19.
 
 **A11y.**
 
@@ -905,7 +916,53 @@ Small utility classes that ride alongside the named components above. They ship 
 - `<time datetime="ISO-8601">` wraps the date column so AT users get the canonical date string instead of the visually-stacked `2026 04 · 21` layout.
 - Forced-colors override: hover tint resolves to `Canvas`; focus outline resolves to `Highlight`.
 
-**Status: shipped.** USMR Phase 5.5 — `src/pages/writing/index.astro` rewrite (replaces the 5.1q `--brand-teal` stub). `/blog` → `/writing` 301 added to `public/_redirects`. The detail-route refresh (TOC sidebar + related posts + RSS CTA) lands separately as 5.6.
+**Status: shipped.** USMR Phase 5.5 — `src/pages/writing/index.astro` rewrite (replaces the 5.1q `--brand-teal` stub). `/blog` → `/writing` 301 added to `public/_redirects`. The detail-route refresh (TOC sidebar + related posts + RSS CTA) lands separately as 5.6. Hero padding tightened to `top clamp(56px, 7vw, 72px) / bottom 8px` per canonical `blog.html:823` in 5.5.5; the writing collection now ships 3 posts (welcome / compounding-trust-chain / bridge-strategy) all bylined to `giedrius-trumpickas` (5.5.5 + 5.5.6 authors-collection populate).
+
+### 6.22 ArtagonGlyph (shared brand mark)
+
+**Purpose.** Single-source SVG brand mark consumed by both `Header.astro` and `Footer.astro`. Replaced the 5.1-era `/icons/icon-64.png` raster in 5.5.4. The 4-element path (circle outline + triangle + filled center dot + base line) renders the canonical Artagon mark from `new-design/extracted/src/pages/index.html:538-546`. Eliminates ~26 lines of verbatim duplicated SVG across consumers.
+
+**Anatomy.**
+
+- 24×24 viewBox, default `size: 22` (matches canonical `<ArtagonGlyph size={22} />` consumed by `Nav` + `Footer`).
+- 4 path elements drawn with `currentColor` so consumers can swap colors via the surrounding scope's `color` rule (no explicit fill/stroke prop needed).
+- Optional `class` prop forwarded to the root `<svg>` so consumers add layout helpers (`.site-nav__glyph` for Header, `.footer-glyph` for Footer) without baking layout into the shared component.
+
+**Rules.**
+
+- Always use `currentColor` for fills/strokes — never hardcode `--accent` or `--fg`. Consumer's surrounding `color` cascades.
+- Default `size = 22` matches canonical `index.html:551`. Override only when a different surface needs a different visual scale (e.g. a hero badge); the wordmark consumer should never resize.
+- Do not author `aria-label` on the glyph — the wordmark consumer wraps it in a labeled `<a>` (e.g. `aria-label="Artagon home"`); the glyph itself is `aria-hidden="true"`.
+
+**A11y.** `aria-hidden="true"` on the SVG root — every consumer announces the brand via the adjacent `Artagon` wordmark text or via the link's `aria-label`. Forced-colors mode preserves the mark via `currentColor` cascade (resolves to `CanvasText` / `Highlight`).
+
+**Status: shipped.** USMR Phase 5.5.4 — `src/components/ArtagonGlyph.astro` (consumed by `Header.astro:25` + `Footer.astro:84`).
+
+### 6.23 HomeExplore (Home / 6-card explore grid)
+
+**Purpose.** The home page's "Explore" section between the writing strip and the on-ramp CTA. Six cards provide entry points into each marketing route (4 primary product surfaces + 2 wide cards for Roadmap and the external GitHub repo). Token-only port of the canonical `HomeExplore.jsx` (`new-design/extracted/src/components/HomeExplore.jsx`). Static — no React island.
+
+**Anatomy.**
+
+- **Heading row** (2-column grid at ≥ 720 px, stacked below) — left: mono eyebrow (`Explore`) + display headline `One platform. <span class="serif">Six</span> things to dive into.` (italic emphasis on "Six"); right: lede `Pick your entry point. Each page goes deep on one slice of the platform.`
+- **Primary grid** — 4-column (`repeat(4, 1fr)` at ≥ 1024 px, `repeat(2, 1fr)` between, single-column below 540 px). Cards: Platform / The Bridge / Use cases / Standards.
+- **Secondary grid** — 2-column wide cards (Roadmap / GitHub-external).
+- **Card** — 220 px min-height (180 for wide), 12 px radius, 1 px `var(--line-soft)` border, `var(--bg-1)` surface. Top row: mono index (`01`–`06`) + optional `↗ EXTERNAL` chip. Below: display title (26 px, weight 500, `-0.02em` tracking), body lede (13.5 px, `var(--fg-2)`), accent `Open →` CTA at the bottom.
+
+**Rules.**
+
+- **Card data lives inline as 2 typed const tuples** (`PRIMARY` of length 4, `SECONDARY` of length 2 wide). Order is product-narrative — do not reshuffle without a corresponding home-page narrative review.
+- **External cards** open in a new tab with `rel="noopener noreferrer"` (matches Footer convention 5.5.4).
+- **Hover tint** uses `color-mix(in oklab, var(--accent) 4%, var(--bg-1))` per canonical `global.css:303`. Border darkens to `var(--accent-dim)`. Card lifts via `transform: translateY(-2px)` on a 220 ms ease.
+- **The section is the canonical `#playground` anchor** (5.5.6) — the hero secondary CTA `Open the playground` jumps here, mirroring canonical `Hero.jsx:167`.
+
+**A11y.**
+
+- Cards are `<a>` links wrapping the index + title + body + CTA in a single tab stop (no double-announce of nested links).
+- `:focus-visible` outline 2 px `var(--accent)` with 2 px offset survives the hover tint background.
+- Forced-colors override: hover tint resolves to `Canvas`, border + CTA resolve to `Highlight`.
+
+**Status: shipped.** USMR Phase 5.5.2 — `src/components/HomeExplore.astro` mounted in `src/pages/index.astro` between the writing strip and the on-ramp `#get-started` section.
 
 ---
 
@@ -929,6 +986,18 @@ These rules apply site-wide. Component-specific do's/don'ts appear in the releva
 - Use marketing adverbs: _truly, simply, easily, seamlessly, revolutionary, next-generation_.
 - Use these phrases: "Unified platform for the modern enterprise", "AI-native", "AI-first", "Zero-trust" as a noun, "Passwordless" without context.
 - Paraphrase the positioning line — use it verbatim or omit it.
+
+#### Serif italic emphasis in MDX frontmatter (5.5.5+)
+
+**Do**
+
+- Wrap a single word in `*marker*` to emit fraunces serif italic. Pattern: `headline: "Build with the *next* generation of identity."` — the page renderer splits on the asterisks and emits `<em class="serif">next</em>` for odd-index segments. Mirrors the eyebrow ampersand-split convention from 5.1j.
+- Reserve emphasis for one word per heading. Multi-word emphasis is canonical only on the home hero (`.glow-amp` for `&`).
+
+**Don't**
+
+- Author raw HTML inside frontmatter strings (`headline: "...<em>next</em>..."`). The renderer rejects it; YAML doesn't escape it; SEO meta-tags duplicate the markup.
+- Mix the marker pattern with the `&`-split eyebrow pattern in the same string — readers expect one emphasis style per field.
 
 ### 7.2 Links and external resources
 

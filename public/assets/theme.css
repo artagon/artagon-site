@@ -215,8 +215,24 @@
   /* USMR Phase 5.1p.13 — bumped from 1200px to match new-design
    * tokens.css:23. Adds 40px of horizontal breathing room sitewide. */
   --maxw: 1240px;
+  /* USMR Phase 5.5.6 — `--gutter` token + `[data-density]` overrides
+   * per canonical tokens.css:24-25 + global.css:64-65. DESIGN.md §3.3
+   * documents the density attribute but the token was previously inert
+   * (no override blocks meant `<body data-density="dense">` did nothing). */
+  --gutter: 32px;
   --radius: 14px;
   --shadow: 0 10px 30px rgba(2, 8, 23, 0.35);
+}
+
+/* USMR Phase 5.5.6 — density-variant overrides. Toggled via
+ * `[data-density]` on `<body>` (or the Tweaks panel surface in the
+ * canonical mock). Default is `comfortable` (32px gutter); `dense`
+ * tightens to 20px, `roomy` opens to 44px. */
+[data-density="dense"] {
+  --gutter: 20px;
+}
+[data-density="roomy"] {
+  --gutter: 44px;
 }
 
 /* ========= THEME PACKS ========= */
@@ -464,7 +480,11 @@ h1 {
   font-family: var(--f-display, system-ui);
   font-size: var(--fs-h1);
   line-height: var(--lh-h1);
-  letter-spacing: var(--tracking-h1);
+  /* Per-face tracking via [data-hero-font]; falls back to the global
+   * --tracking-h1 token when no hero-font variant is active. Fixes the
+   * 5.5.5-introduced bug where `<h1>` ignored the per-face tracking
+   * documented in DESIGN.md §3.4. */
+  letter-spacing: var(--display-tracking, var(--tracking-h1));
   font-weight: 500;
   margin: 0;
 }
@@ -546,7 +566,7 @@ a {
  * previously scoped only inside `src/pages/index.astro`. */
 .display {
   font-family: var(--f-display, system-ui);
-  letter-spacing: var(--tracking-h1);
+  letter-spacing: var(--display-tracking, var(--tracking-h1));
   font-weight: var(--display-weight, 500);
 }
 .serif {
