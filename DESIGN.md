@@ -302,7 +302,7 @@ Never ship a heading that reflows more than 3× between breakpoints.
 
 Users can swap the display face via `[data-hero-font]`:
 `grotesk` (default) · `fraunces` · `dmserif` · `mono`.
-The override adjusts tracking and weight per family — see `src/styles/global.css`.
+The override adjusts tracking and weight per family — see `public/assets/theme.css` (the `[data-hero-font="..."]` rules near the file end). Earlier drafts of this section pointed at `src/styles/global.css`, which is not a file in this project; corrected in USMR Phase 5.1p.16.
 
 ---
 
@@ -422,7 +422,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **A11y.** Each scenario narrated via `aria-live="polite"`. Reduce-motion users see the full scenario statically with no cycling.
 
-**Explain layer.** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §6.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol.
+**Explain layer (Planned).** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §6.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol. **Status: not yet shipped.** The current `<TrustChainIsland />` component accepts no props; the explain layer is tracked as a follow-up to the USMR change. This subsection documents the intended shape so consumers know what to expect when it lands.
 
 ### 6.6 Explore grid
 
@@ -438,7 +438,7 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **Format.** `01.` mono grey · then the heading in Space Grotesk.
 
-**Class.** `.num-h2` with `.num` span. See `public/assets/theme.css`.
+**Class (Planned).** `.num-h2` with `.num` span. The class is referenced in three places in this document (§1.1.5, §6.7, §6.12) but has not been authored in `public/assets/theme.css` yet — implementation is tracked as a follow-up to USMR. This subsection documents the intended shape.
 
 ### 6.8 Buttons
 
@@ -464,7 +464,7 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 
 **Purpose.** Surface the latest blog post(s) on the home page. Communicates editorial cadence ("we publish") without becoming a full blog index.
 
-**Placements.** Controlled by `tweaks.writing`. The default is the in-hero strip; the others are larger sections that sit between Hero and Explore.
+**Placements (Planned).** Controlled by `tweaks.writing`. The default is the in-hero strip; the others are larger sections that sit between Hero and Explore. **Status: not yet shipped** — `Tweaks.astro` does not currently expose a `writing` placement control; the in-hero strip placement also pending (HeroLatestStrip placement gap is tracked in tasks.md).
 
 | Key              | Variant                    | Where                            | Use when                                                        |
 | ---------------- | -------------------------- | -------------------------------- | --------------------------------------------------------------- |
