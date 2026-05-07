@@ -65,6 +65,13 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
     env:
       HOME: /root
+      # Enables tests/device-tour.spec.ts on every PR push. The spec
+      # captures one above-the-fold PNG per playwright project and
+      # attaches it via testInfo.attach() — no snapshot baseline,
+      # purely artifact-only evidence. Adds ~15s per shard; reviewers
+      # download the playwright-report-shard-* artifact zip to scan
+      # device parity at a glance. To regenerate: re-run the workflow.
+      DEVICE_TOUR: "1"
     permissions:
       contents: read
     strategy:
