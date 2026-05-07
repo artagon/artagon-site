@@ -22,9 +22,13 @@ export type Pillar = {
   id: "identity" | "credentials" | "authorization";
   /** "01" / "02" / "03" — mono numeric prefix on the tab strip. */
   num: string;
-  /** Top-line eyebrow, e.g. "Unified OP / AS". */
+  /**
+   * Tab eyebrow taxonomy label — currently the closed canonical set
+   * "Identity" / "Credentials" / "Authorization". Rendered uppercased
+   * via `pillar.eyebrow.toUpperCase()` in PillarsIsland (5.2.4).
+   */
   eyebrow: string;
-  /** Bold tab title, e.g. "OIDC 2.1 + GNAP". */
+  /** Bold tab title — canonical brand name, e.g. "High-Assurance Identity". */
   title: string;
   /** Serif italic line under the active tab. */
   tagline: string;
@@ -46,7 +50,15 @@ export type BulletNode =
 export type Specimen = {
   /** Visual hint — affects header label rendering only today. */
   kind: "jwt" | "vc" | "policy";
-  /** Mono-uppercase header line (e.g. "DPOP KEY", "PRESENTED VC"). */
+  /**
+   * Header line rendered above the specimen body — free-form, shape
+   * varies by `kind`. Canonical examples:
+   *   jwt    → JSON literal, e.g. `'{"alg":"ES256","typ":"dpop+jwt","jwk":{…}}'`
+   *   vc     → descriptive label, e.g. `'Presented VC (SD-JWT) — selective disclosure'`
+   *   policy → mono filename, e.g. `'cedar — permit.cedar'`
+   * The renderer applies `text-transform: uppercase` via `.pillar-specimen__head`,
+   * so authored values stay in their natural case.
+   */
   header: string;
   /**
    * Code body. Multiline string with `\n` separators rendered into a

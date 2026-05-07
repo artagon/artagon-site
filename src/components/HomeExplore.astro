@@ -47,7 +47,7 @@ function isExternal(href: string): boolean {
       <a
         class="home-explore__card"
         href={card.href}
-        {...(isExternal(card.href) ? { target: '_blank', rel: 'noreferrer' } : {})}
+        {...(isExternal(card.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       >
         <div class="home-explore__card-row">
           <span class="home-explore__idx">{card.idx}</span>
@@ -65,7 +65,7 @@ function isExternal(href: string): boolean {
       <a
         class="home-explore__card home-explore__card--wide"
         href={card.href}
-        {...(isExternal(card.href) ? { target: '_blank', rel: 'noreferrer' } : {})}
+        {...(isExternal(card.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       >
         <div class="home-explore__card-row">
           <span class="home-explore__idx">{card.idx}</span>

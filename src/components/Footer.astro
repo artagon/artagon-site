@@ -1,6 +1,7 @@
 ---
 import { execSync } from 'node:child_process';
 import pkg from '../../package.json';
+import ArtagonGlyph from './ArtagonGlyph.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import taglines from '../content/taglines.json';
 
@@ -60,13 +61,18 @@ const cols = [
     ],
   },
   {
+    // Legal placeholders match canonical (`new-design/extracted/src/pages/index.html:631-635`)
+    // — only routes that exist resolve; the rest stay `'#'` until
+    // dedicated pages ship. Routing a misleading link (`Terms → /privacy`)
+    // would silently misdirect users — the silent-failure-hunter review
+    // (5.5.4) flagged that as a Major content-trust regression.
     label: 'Legal',
     links: [
-      { href: '/privacy',     text: 'Privacy' },
-      { href: '/privacy',     text: 'Terms' },
-      { href: '/security',    text: 'Trust center' },
-      { href: '/privacy',     text: 'DPA' },
-      { href: '/security.txt', text: 'security.txt' },
+      { href: '/privacy',  text: 'Privacy' },
+      { href: '#',         text: 'Terms' },
+      { href: '#',         text: 'Trust center' },
+      { href: '#',         text: 'DPA' },
+      { href: '#',         text: 'Sub-processors' },
     ],
   },
 ] as const;
@@ -75,19 +81,7 @@ const cols = [
   <div class="footer-inner wrap">
     <div class="footer-brand">
       <a href="/" class="footer-wordmark" aria-label="Artagon home">
-        <svg
-          class="footer-glyph"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-opacity="0.28" stroke-width="1" />
-          <path d="M12 2.5 L20 18.5 L4 18.5 Z" stroke="currentColor" stroke-width="1.25" fill="none" />
-          <circle cx="12" cy="13.2" r="2.1" fill="currentColor" />
-          <path d="M7 18.5 L17 18.5" stroke="currentColor" stroke-width="1.25" />
-        </svg>
+        <ArtagonGlyph class="footer-glyph" />
         <span>Artagon</span>
       </a>
       <p class="footer-positioning">{tagline.positioning}</p>

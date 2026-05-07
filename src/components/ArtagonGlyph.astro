@@ -1,0 +1,30 @@
+---
+// USMR Phase 5.5.4 — shared brand glyph. Single source of truth for
+// the Artagon SVG mark (circle + triangle + dot + base) consumed by
+// Header.astro and Footer.astro. Canonical pattern from
+// new-design/extracted/src/pages/index.html:538-546 (`ArtagonGlyph`)
+// and Footer.astro / Header.astro both consumed it via JSX.
+//
+// `currentColor` so the consumer's `:hover` color rule cascades into
+// the SVG strokes/fills without any extra props.
+interface Props {
+  /** Size in CSS pixels (square). Defaults to canonical 22. */
+  size?: number;
+  /** Optional class for the consumer's scoped layout (e.g. `.site-nav__glyph`). */
+  class?: string;
+}
+const { size = 22, class: className } = Astro.props;
+---
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  aria-hidden="true"
+>
+  <circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-opacity="0.28" stroke-width="1" />
+  <path d="M12 2.5 L20 18.5 L4 18.5 Z" stroke="currentColor" stroke-width="1.25" fill="none" />
+  <circle cx="12" cy="13.2" r="2.1" fill="currentColor" />
+  <path d="M7 18.5 L17 18.5" stroke="currentColor" stroke-width="1.25" />
+</svg>
