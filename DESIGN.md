@@ -10,8 +10,8 @@ colors:
   line-soft: "#181b1e"
   fg: "#f3f2ee"
   fg-1: "#c6c4be"
-  fg-2: "#888681"
-  fg-3: "#575550"
+  fg-2: "#a7a49f"
+  fg-3: "#888681"
   accent: "#3ceedd"
   accent-dim: "#00756b"
   accent-ink: "#001714"
@@ -20,12 +20,12 @@ colors:
   bad: "#ec5b57"
 typography:
   display:
-    fontFamily: Sohne, ui-sans-serif
+    fontFamily: '"Space Grotesk", "Inter Tight", sans-serif'
     fontSize: 32px
-    fontWeight: 700
+    fontWeight: 500
     lineHeight: 1.2
   body:
-    fontFamily: Sohne, ui-sans-serif
+    fontFamily: '"Inter Tight", ui-sans-serif, system-ui, sans-serif'
     fontSize: 16px
     fontWeight: 400
     lineHeight: 1.6
@@ -213,8 +213,8 @@ follow-up migration commit once consumers have moved.
 | `--line-soft` | `oklch(0.22 0.008 260)` | Divider, grid lines   |
 | `--fg`        | `oklch(0.96 0.005 85)`  | Primary text          |
 | `--fg-1`      | `oklch(0.82 0.008 85)`  | Body text             |
-| `--fg-2`      | `oklch(0.62 0.008 85)`  | Secondary text        |
-| `--fg-3`      | `oklch(0.45 0.008 85)`  | Tertiary / eyebrows   |
+| `--fg-2`      | `oklch(0.72 0.008 85)`  | Secondary text        |
+| `--fg-3`      | `oklch(0.62 0.008 85)`  | Tertiary / eyebrows   |
 
 Cool-neutral background (hue 260) under warm-neutral foreground (hue 85).
 The slight temperature shift makes text feel like ink on paper, not pixels on
