@@ -37,6 +37,51 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
   }, theme);
 }
 
+test.describe("Home (/) - 3 themes × 3 breakpoints reference", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      !runVisualRegression,
+      "Visual regression runs only when VISUAL_REGRESSION=1.",
+    );
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Snapshots are captured in chromium only to keep the baseline set bounded.",
+    );
+  });
+
+  for (const theme of THEMES) {
+    for (const bp of BREAKPOINTS) {
+      test(`hero — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        await page.waitForTimeout(200);
+        // Hero (above-the-fold) — covers USMR Phase 5.1a content.
+        await expect(page).toHaveScreenshot(
+          `home-hero-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+
+      test(`onramp — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        // Scroll the on-ramp section into view, then snapshot the viewport.
+        // Covers USMR Phase 5.1b content (design-partner card + contacts).
+        await page.locator("#get-started").scrollIntoViewIfNeeded();
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(
+          `home-onramp-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+    }
+  }
+});
+
 test.describe("Styling architecture - 3 themes × 3 breakpoints reference", () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(

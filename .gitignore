@@ -27,6 +27,13 @@ playwright-report/
 test-results/
 playwright/.cache/
 
+# Playwright visual-regression snapshot baselines. Only Linux-pinned PNGs
+# (*-chromium-linux.png) are committed; the .github/workflows/playwright.yml
+# workflow_dispatch job regenerates and auto-commits them on a Linux runner.
+# Local Darwin/Windows runs produce host-specific PNGs we don't track.
+tests/styling-snapshots.spec.ts-snapshots/*
+!tests/styling-snapshots.spec.ts-snapshots/*-chromium-linux.png
+
 # Lychee link-checker cache. The CI workflow now passes
 # `--cache-dir .build/cache/lychee` so the cache lives under the .build
 # umbrella, but lychee defaults to `.lycheecache/` at repo root if the
