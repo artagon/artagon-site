@@ -1,0 +1,286 @@
+/*
+ * USMR Phase 5.3 — /use-cases vertical tablist styling. Token-only
+ * port of new-design UseCases.jsx inline styles. Bundled via
+ * Vite/Astro alongside the JS chunk.
+ */
+
+.use-cases {
+  padding-block: clamp(64px, 8vw, 120px);
+}
+
+.use-cases__head {
+  margin-bottom: 56px;
+  max-width: var(--maxw, 1240px);
+  margin-inline: auto;
+  padding-inline: clamp(24px, 4vw, 40px);
+}
+
+.use-cases__eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin: 0 0 0.5rem;
+}
+
+.use-cases__title {
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: var(--display-tracking, -0.02em);
+  font-weight: var(--display-weight, 500);
+  color: var(--fg);
+  margin: 0;
+  max-width: 22ch;
+}
+.use-cases__title-emphasis {
+  font-family: var(--f-emphasis, var(--f-serif));
+  font-style: italic;
+}
+
+.use-cases__board {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 32px;
+  max-width: var(--maxw, 1240px);
+  margin-inline: auto;
+  padding-inline: clamp(24px, 4vw, 40px);
+}
+
+@media (max-width: 720px) {
+  .use-cases__board {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Left rail — vertical tablist */
+.use-cases__rail {
+  display: flex;
+  flex-direction: column;
+}
+
+.use-case-tab {
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  padding: 18px 18px;
+  border-left: 2px solid var(--line-soft);
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.use-case-tab.is-selected {
+  border-left-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+}
+.use-case-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.use-case-tab__short {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  color: var(--fg-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.use-case-tab.is-selected .use-case-tab__short {
+  color: var(--accent);
+}
+
+.use-case-tab__label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--fg-2);
+}
+.use-case-tab.is-selected .use-case-tab__label {
+  color: var(--fg);
+}
+
+/* Detail panel */
+.use-cases__panel {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-1);
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.use-cases__panel[hidden] {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .use-cases__panel {
+    padding: 24px;
+  }
+}
+
+.use-cases__panel-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.use-cases__panel-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  color: var(--fg-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.use-cases__panel-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.6rem, 3vw, 1.9rem);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+  max-width: 24ch;
+  color: var(--fg);
+}
+
+.use-cases__panel-body {
+  color: var(--fg-1);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 64ch;
+  margin: 0;
+}
+
+/* Metrics strip */
+.use-cases__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+@media (max-width: 540px) {
+  .use-cases__metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.use-cases__metric {
+  padding: 18px 0;
+  border-right: 1px solid var(--line-soft);
+}
+.use-cases__metric:last-child {
+  border-right: 0;
+}
+.use-cases__metric:not(:first-child) {
+  padding-left: 24px;
+}
+@media (max-width: 540px) {
+  .use-cases__metric {
+    border-right: 0;
+    padding-left: 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .use-cases__metric:last-child {
+    border-bottom: 0;
+  }
+}
+
+.use-cases__metric-key {
+  font-family: var(--f-mono);
+  font-size: 0.62rem;
+  color: var(--fg-3);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+.use-cases__metric-value {
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin: 0;
+}
+
+/* Protocol trace block */
+.use-cases__trace-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.62rem;
+  color: var(--fg-3);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.use-cases__trace-body {
+  list-style: none;
+  margin: 0;
+  padding: 16px 20px;
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  line-height: 1.85;
+  color: var(--fg-1);
+  background: var(--bg);
+  border-radius: 8px;
+  border: 1px solid var(--line-soft);
+}
+
+.use-cases__trace-line {
+  display: flex;
+  gap: 14px;
+  padding: 4px 0;
+  align-items: flex-start;
+}
+
+.use-cases__trace-num {
+  color: var(--fg-3);
+  width: 20px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.use-cases__trace-text {
+  color: var(--fg-1);
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.use-cases__trace-line.is-decision .use-cases__trace-text {
+  color: var(--accent);
+}
+
+@media (forced-colors: active) {
+  .use-case-tab.is-selected {
+    border-left-color: Highlight;
+    background: Canvas;
+  }
+  .use-case-tab.is-selected .use-case-tab__short {
+    color: Highlight;
+  }
+  .use-cases__trace-line.is-decision .use-cases__trace-text {
+    color: Highlight;
+  }
+  .use-cases__panel {
+    background: Canvas;
+    border-color: CanvasText;
+  }
+  .use-cases__trace-body {
+    background: Canvas;
+    border-color: CanvasText;
+  }
+}

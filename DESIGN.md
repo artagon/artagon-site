@@ -854,6 +854,33 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Status: shipped.** USMR Phase 5.7 — `src/components/RoadmapTimeline.astro` + `src/data/roadmap.ts` (extended from the 5.1c stub; the prior `kpis[]` field dropped — never consumed downstream). The earlier `RoadmapPhaseCard.astro` / `RoadmapTable.astro` / `public/assets/roadmap.css` cards/table-toggle helpers deleted as orphans.
 
+### 6.20 UseCasesIsland (Use-cases route)
+
+**Purpose.** The `/use-cases` page's centerpiece — a 4-scenario vertical tablist that walks the visitor through the canonical identity narrative arc (Human→Human same-domain, Human→Human cross-domain, Human→Machine ephemeral, Human→Autonomous-Machine). Each panel shows the scenario, a 3-metric divider strip, and an ordered protocol trace with the decision line painted in `--accent`.
+
+**Anatomy.**
+
+- **Hero strip** — eyebrow (`What you can build`) · `<h2>` with serif-italic emphasis on "— solved cleanly." · max-width 22 ch.
+- **Board** (`.use-cases__board`) — 2-column grid: 260 px left rail + `1fr` panel. Collapses to 1-column < 720 px.
+- **Left rail** (`role="tablist" aria-orientation="vertical"`) — vertical column of `<button role="tab">` elements; selected tab gets a 2 px `var(--accent)` left border + `color-mix(in oklab, var(--accent) 6%, transparent)` background; the `short` eyebrow flips to `var(--accent)`. Inactive tabs show `var(--line-soft)` left border.
+- **Detail panel** (`role="tabpanel"`) — outer card (1 px `var(--line)`, 12 px radius, 36 px padding) holding: (a) eyebrow + serif title + body paragraph, (b) `.use-cases__metrics` 3-column divider strip with `--line-soft` separators, (c) `.use-cases__trace` ordered list rendered in `var(--f-mono)` 0.78 rem with right-aligned 2-digit numbering. The trace's last `<li>` carries `is-decision` and recolors text to `var(--accent)` — that's the PERMIT/DENIED line.
+
+**Rules.**
+
+- **Data lives in `src/data/use-cases.ts`** — `USE_CASES` 4-tuple of `UseCaseScenario`. Every scenario has `id` · `label` · `short` · `title` · `scenario` · `trace` (≥ 3 lines, last line is the decision) · `metrics` (exactly 3 KV pairs). `tests/use-cases-data.test.mts` invariants gate the shape.
+- **Manual-activation tablist** matching the PillarsIsland 5.2.4 convention. ArrowUp / ArrowDown walk focus, Home / End jump to ends, Enter / Space commits the focused tab, click commits immediately. Roving `tabIndex` — only the active tab is in document tab order.
+- **Decision line is always last** — the test gate enforces a `PERMIT|DENIED` token in `trace[trace.length - 1]`. If a future scenario migrates the decision mid-trace the renderer's `is-decision` accent would visually misalign with the narrative; the gate fires before that ships.
+- **Scenario taxonomy is exhaustive** — Human→Human (same-domain + cross-domain), Human→Machine ephemeral, and a Human→Autonomous-Machine scenario must all be present. Test-gated.
+
+**A11y.**
+
+- Vertical-orientation tablist with manual activation. `aria-selected`, `aria-controls`, and `tabIndex` reflect the selected/focused split.
+- `:focus-visible` on each tab: 2 px `var(--accent)` outline with `outline-offset: -2px` so it survives the active-tab background tint.
+- Forced-colors override: active-tab border resolves to `Highlight`; the decision line falls back to `Highlight` (system-defined emphasis); panel + trace backgrounds collapse to `Canvas`.
+- The metrics grid is exposed as `role="list"` of `role="listitem"` so screen readers announce it as a discrete unit (the visual divider strip alone wouldn't convey list semantics).
+
+**Status: shipped.** USMR Phase 5.3 — `src/components/UseCasesIsland.tsx` + `src/components/UseCasesIsland.css` + `src/data/use-cases.ts`. Replaces the PageLayout stub from 5.1q.1.
+
 ---
 
 ## 7 · Do's and Don'ts

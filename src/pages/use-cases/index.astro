@@ -1,20 +1,34 @@
 ---
-// USMR Phase 5.1q.1 — minimal /use-cases route. Sources copy from
-// src/content/pages/use-cases.mdx via Astro content collections so
-// frontmatter remains the single source of truth. Full scenario card
-// matrix + per-scenario code paths land in Phase 5.3.
+// USMR Phase 5.3 — /use-cases route. Replaces the PageLayout stub from
+// 5.1q.1 with the canonical vertical-tablist composition ported from
+// new-design/extracted/src/components/UseCases.jsx.
 //
-// Page scaffolding lives in src/layouts/PageLayout.astro (extracted
-// post-5.1q review to remove the duplicated hero shell shared with
-// /standards).
+// The UseCasesIsland React island consumes src/data/use-cases.ts (4
+// scenarios) and renders a 260px left rail + scenario detail panel
+// (metrics strip + ordered protocol trace). Hydrated client:visible —
+// the panel is below the fold and the JS chunk only loads once the
+// section enters the viewport.
 import { getEntry } from 'astro:content';
-import PageLayout from '../../layouts/PageLayout.astro';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import UseCasesIsland from '../../components/UseCasesIsland.tsx';
+import '../../components/UseCasesIsland.css';
 
 const entry = await getEntry('pages', 'use-cases');
 if (!entry) {
   throw new Error(
-    "use-cases.mdx missing — Phase 5.1q.1 expects src/content/pages/use-cases.mdx to exist."
+    "use-cases.mdx missing — Phase 5.3 expects src/content/pages/use-cases.mdx to exist."
   );
 }
+const { title, description } = entry.data;
 ---
-<PageLayout entry={entry} path="/use-cases" />
+<Base title={title} description={description} path="/use-cases">
+  <Fragment slot="header"><Header /></Fragment>
+
+  <main id="main">
+    <UseCasesIsland client:visible />
+  </main>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>
