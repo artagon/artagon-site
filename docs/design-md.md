@@ -273,6 +273,12 @@ Tokens: `` `--ink-on-brand` ``, `` `--chip-bg-neutral` ``.
 
 Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklab, var(--nd-fg-2) 12%, transparent)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
 
+### 6.22 Glow component-private accent
+
+Tokens: `` `--g-accent` ``.
+
+Component-private alias declared inside each `.glow-tag` / `.glow-dot` / `.glow-text` / `.glow-amp` rule (USMR Phase 5.1i — glow component CSS port from `new-design/extracted/src/styles/global.css` lines 115-210). The `--g-` prefix marks it as glow-module-local; it defaults to `var(--accent)` and exists so consumers can override per-instance (e.g., `.glow-tag.is-warning { --g-accent: var(--warn); }` for an alert-tone pill) without rewriting any of the four `@keyframes` rules that reference it. It is structurally analogous to §6.12 (`--rm-` roadmap-module-local tokens): a deliberate scoped indirection over an already-documented palette token, not a new colour decision, and intentionally absent from the DESIGN.md frontmatter to avoid polluting the global token namespace with a single-component concern.
+
 ## 7 · Accepted `lint:design` warnings
 
 The following 10 lint warnings produced by `npm run lint:design` on the current `DESIGN.md` are accepted. Each is a deliberate architectural choice, not an oversight.
