@@ -1,0 +1,291 @@
+---
+// USMR Phase 5.1d (stage 2 — static). Renders the home hero's
+// "compounding trust chain" artefact using the typed STAGES + SCENARIOS
+// registry. The static version shows SCENARIOS[0] (healthy / PERMIT)
+// with all five stages rendered as `pass`. A later commit (stage 3)
+// will swap this for a React island that animates stage-by-stage and
+// lets visitors page through scenarios.
+import { STAGES, SCENARIOS } from "../data/trust-chain";
+
+const scenario = SCENARIOS[0];
+if (!scenario) throw new Error("SCENARIOS[0] missing — registry empty");
+const decisionClass = scenario.decision.toLowerCase();
+---
+
+<aside class="trust-chain" aria-labelledby="trust-chain-title">
+  <header class="trust-chain__head">
+    <span id="trust-chain-title" class="trust-chain__title">
+      Compounding trust chain
+    </span>
+    <span class="trust-chain__counter" aria-hidden="true">
+      0{SCENARIOS.findIndex((s) => s.id === scenario.id) + 1}/0{SCENARIOS.length}
+    </span>
+  </header>
+
+  <div class="trust-chain__scenario">
+    <span class="trust-chain__scenario-label">{scenario.label}</span>
+    <span class="trust-chain__scenario-context">{scenario.context}</span>
+  </div>
+
+  <ol class="trust-chain__stages" role="list">
+    {
+      STAGES.map((stage, i) => {
+        const outcome = scenario.stages[i];
+        return (
+          <li
+            class:list={["trust-chain__stage", `is-${outcome}`]}
+            id={`trust-chain-${stage.id}`}
+          >
+            <span class="trust-chain__stage-num" aria-hidden="true">
+              0{i + 1}
+            </span>
+            <div class="trust-chain__stage-body">
+              <span class="trust-chain__stage-label">{stage.label}</span>
+              <span class="trust-chain__stage-sub">{stage.sub}</span>
+            </div>
+            <span class="trust-chain__stage-status">
+              {outcome === "pass" && "✓ verified"}
+              {outcome === "fail" && "✕ blocked"}
+              {outcome === "skip" && "— skipped"}
+            </span>
+          </li>
+        );
+      })
+    }
+  </ol>
+
+  <div class:list={["trust-chain__decision", `is-${decisionClass}`]}>
+    <div class="trust-chain__decision-head">
+      <span>Decision · {scenario.decision}</span>
+      <span class="trust-chain__decision-pep" aria-hidden="true">→ PEP</span>
+    </div>
+    <div class="trust-chain__decision-claim">{scenario.finalClaim}</div>
+    <div class="trust-chain__decision-reason">// {scenario.reason}</div>
+  </div>
+</aside>
+
+<style>
+  .trust-chain {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    box-shadow: 0 0 80px -20px var(--brand-teal);
+    transition:
+      box-shadow 0.6s ease,
+      border-color 0.4s ease;
+  }
+
+  .trust-chain__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.875rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: var(--fs-micro);
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .trust-chain__counter {
+    color: var(--brand-teal);
+    font-weight: 600;
+  }
+
+  .trust-chain__scenario {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.125rem;
+    flex-wrap: wrap;
+  }
+
+  .trust-chain__scenario-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .trust-chain__scenario-context {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.65625rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .trust-chain__stages {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .trust-chain__stage {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr auto;
+    gap: 0.875rem;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-alt);
+    transition: all 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .trust-chain__stage.is-pass {
+    border-color: color-mix(in oklab, var(--brand-teal) 50%, var(--border));
+    background: color-mix(in oklab, var(--brand-teal) 14%, var(--bg-alt));
+    box-shadow:
+      0 0 18px -3px var(--brand-teal),
+      inset 0 0 14px -4px var(--brand-teal);
+  }
+
+  .trust-chain__stage.is-fail {
+    border-color: color-mix(in oklab, oklch(60% 0.22 25) 60%, var(--border));
+    background: color-mix(in oklab, oklch(60% 0.22 25) 10%, var(--bg-alt));
+    box-shadow:
+      0 0 24px -4px oklch(60% 0.22 25),
+      inset 0 0 18px -6px oklch(60% 0.22 25);
+  }
+
+  .trust-chain__stage.is-skip {
+    opacity: 0.4;
+  }
+
+  .trust-chain__stage-num {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.35s ease;
+  }
+
+  .trust-chain__stage.is-pass .trust-chain__stage-num {
+    border-color: var(--brand-teal);
+    color: var(--brand-teal);
+    background: color-mix(in oklab, var(--brand-teal) 20%, transparent);
+    box-shadow: 0 0 14px var(--brand-teal);
+  }
+
+  .trust-chain__stage.is-fail .trust-chain__stage-num {
+    border-color: oklch(60% 0.22 25);
+    color: oklch(60% 0.22 25);
+    background: color-mix(in oklab, oklch(60% 0.22 25) 22%, transparent);
+    box-shadow: 0 0 14px oklch(60% 0.22 25);
+  }
+
+  .trust-chain__stage-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .trust-chain__stage-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .trust-chain__stage.is-skip .trust-chain__stage-label {
+    color: var(--muted);
+  }
+
+  .trust-chain__stage-sub {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    color: var(--muted);
+  }
+
+  .trust-chain__stage-status {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    white-space: nowrap;
+    color: var(--muted);
+  }
+
+  .trust-chain__stage.is-pass .trust-chain__stage-status {
+    color: var(--brand-teal);
+  }
+
+  .trust-chain__stage.is-fail .trust-chain__stage-status {
+    color: oklch(60% 0.22 25);
+  }
+
+  .trust-chain__decision {
+    margin-top: 1.25rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--text);
+    transition: all 0.5s ease;
+  }
+
+  .trust-chain__decision.is-permit {
+    border-color: color-mix(in oklab, var(--brand-teal) 50%, var(--border));
+    background: color-mix(in oklab, var(--brand-teal) 8%, var(--bg));
+    box-shadow:
+      0 0 26px -4px var(--brand-teal),
+      inset 0 0 22px -8px var(--brand-teal);
+  }
+
+  .trust-chain__decision.is-deny {
+    border-color: color-mix(in oklab, oklch(60% 0.22 25) 60%, var(--border));
+    background: color-mix(in oklab, oklch(60% 0.22 25) 10%, var(--bg));
+    box-shadow:
+      0 0 20px -4px oklch(60% 0.22 25),
+      inset 0 0 20px -8px oklch(60% 0.22 25);
+  }
+
+  .trust-chain__decision-head {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .trust-chain__decision.is-permit .trust-chain__decision-pep {
+    color: var(--brand-teal);
+  }
+
+  .trust-chain__decision.is-deny .trust-chain__decision-pep {
+    color: oklch(60% 0.22 25);
+  }
+
+  .trust-chain__decision-claim {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .trust-chain__decision.is-permit .trust-chain__decision-claim {
+    color: var(--brand-teal);
+  }
+
+  .trust-chain__decision.is-deny .trust-chain__decision-claim {
+    color: oklch(60% 0.22 25);
+  }
+
+  .trust-chain__decision-reason {
+    margin-top: 0.375rem;
+    color: var(--muted);
+  }
+</style>

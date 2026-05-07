@@ -5,7 +5,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
-import HeroChart from "../components/HeroChart.astro";
+import TrustChainViz from "../components/TrustChainViz.astro";
 import { ORG } from "../data/organization";
 import { PILLARS } from "../data/pillars";
 
@@ -64,12 +64,7 @@ const dateFmt = new Intl.DateTimeFormat("en", {
         </div>
       </div>
       <div class="hero-art">
-        <HeroChart
-          data={[12,18,14,22,28,19,31,27,34]}
-          width={620}
-          height={360}
-          label="Verified claims & policy decisions trend"
-        />
+        <TrustChainViz />
       </div>
     </div>
 
