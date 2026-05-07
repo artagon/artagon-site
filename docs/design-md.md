@@ -279,6 +279,18 @@ Tokens: `` `--g-accent` ``.
 
 Component-private alias declared inside each `.glow-tag` / `.glow-dot` / `.glow-text` / `.glow-amp` rule (USMR Phase 5.1i — glow component CSS port from `new-design/extracted/src/styles/global.css` lines 115-210). The `--g-` prefix marks it as glow-module-local; it defaults to `var(--accent)` and exists so consumers can override per-instance (e.g., `.glow-tag.is-warning { --g-accent: var(--warn); }` for an alert-tone pill) without rewriting any of the four `@keyframes` rules that reference it. It is structurally analogous to §6.12 (`--rm-` roadmap-module-local tokens): a deliberate scoped indirection over an already-documented palette token, not a new colour decision, and intentionally absent from the DESIGN.md frontmatter to avoid polluting the global token namespace with a single-component concern.
 
+### 6.23 Card surface aliases
+
+Tokens: `` `--card-bg` ``, `` `--card-stroke` ``.
+
+USMR Phase 5.1p.9 component-surface aliases over `var(--bg-1)` and `var(--line)`. Introduced because the FAQ markup (`src/components/FaqItem.astro`, `src/components/FaqSearch.astro`, `src/pages/faq/index.astro`) consumes `--card-bg` / `--card-stroke` directly without fallbacks; absent the aliases, those surfaces rendered transparent with `currentColor` borders during the new-design migration. Same pattern as §6.21 (`--ink-on-brand` / `--chip-bg-neutral`): deliberate semantic indirections over already-documented palette tokens, not new colour decisions. They will retire when the FAQ surface promotes to an explicit `card` component in DESIGN.md frontmatter.
+
+### 6.24 Hero-font and display-class primitives
+
+Tokens: `` `--f-display` ``, `` `--f-sans` ``, `` `--f-serif` ``, `` `--f-mono` ``, `` `--display-tracking` ``, `` `--display-weight` ``.
+
+USMR Phase 5.1p.11–5.1p.12 font-stack + display-class primitives ported from `new-design/extracted/src/styles/tokens.css`. The `--f-*` tokens are the four canonical font-family stacks (Inter Tight sans · JetBrains Mono · Fraunces serif · Space Grotesk display). `--display-tracking` and `--display-weight` are per-hero-face typographic primitives that switch with `[data-hero-font="grotesk|fraunces|dmserif|mono"]` attribute scope on `<html>`, allowing per-page hero-face overrides without recompiling. The DESIGN.md `typography` namespace models a single `fontFamily` per role (display / body / etc.) and has no slot for the attribute-driven runtime switching mechanism or the paired `tracking` / `weight` adjustments that depend on the active face. Promoting these would require schema extensions upstream. Until then they live here as the single source of truth for hero typography in the codebase, structurally analogous to §6.20 (fluid type scale) which already documents `--tracking-*` per type role for the same upstream-schema-gap reason.
+
 ## 7 · Accepted `lint:design` warnings
 
 The following 10 lint warnings produced by `npm run lint:design` on the current `DESIGN.md` are accepted. Each is a deliberate architectural choice, not an oversight.
