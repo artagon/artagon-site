@@ -5,6 +5,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import MissionSection from "../components/MissionSection.astro";
 import TrustChainIsland from "../components/TrustChainIsland";
+import { AFFILIATIONS, HERO_SPECS } from "../data/affiliations";
 import { ORG } from "../data/organization";
 import { PILLARS } from "../data/pillars";
 
@@ -48,6 +49,29 @@ const headlineLines = headline.includes(". ")
 
 <Base title={title} description={description}>
   <Fragment slot="header"><Header /></Fragment>
+
+  <div class="hero__meta-strip container">
+    <span class="hero__meta-strip-tag">v0.9 · Design Partner Preview</span>
+    <span class="hero__meta-strip-specs">
+      {
+        HERO_SPECS.map((spec, i) => (
+          <Fragment>
+            {i > 0 && <span class="hero__meta-strip-sep" aria-hidden="true">·</span>}
+            <a
+              href={spec.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={spec.title}
+              class="hero__meta-strip-link"
+            >
+              {spec.label}
+            </a>
+          </Fragment>
+        ))
+      }
+    </span>
+    <span class="hero__meta-strip-loc">US — Philadelphia, PA</span>
+  </div>
 
   <section class="hero container">
     <div class="twocol">
@@ -95,6 +119,24 @@ const headlineLines = headline.includes(". ")
             </div>
           )
         }
+        <div class="hero__affiliations">
+          <div class="hero__affiliations-label">Implements & contributes to</div>
+          <div class="hero__affiliations-row">
+            {
+              AFFILIATIONS.map((aff) => (
+                <a
+                  href={aff.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={aff.title}
+                  class="hero__affiliations-link"
+                >
+                  {aff.label}
+                </a>
+              ))
+            }
+          </div>
+        </div>
       </div>
       <div class="hero-art">
         <TrustChainIsland client:visible />
@@ -323,6 +365,86 @@ const headlineLines = headline.includes(". ")
 </Base>
 
 <style>
+  /* USMR Phase 5.1k — hero meta-strip (above hero) + affiliations
+   * ticker (below hero CTAs). Both render only on home `/`. */
+  .hero__meta-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 56px;
+    padding-block: 1rem;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.04em;
+    flex-wrap: wrap;
+  }
+  .hero__meta-strip-tag,
+  .hero__meta-strip-loc {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hero__meta-strip-loc {
+    color: var(--fg-3);
+  }
+  .hero__meta-strip-specs {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hero__meta-strip-sep {
+    color: var(--fg-3);
+  }
+  .hero__meta-strip-link {
+    color: var(--fg);
+    font-weight: 500;
+    border-bottom: 1px dotted var(--fg-3);
+    padding-bottom: 1px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .hero__meta-strip-link:hover {
+    color: var(--accent);
+  }
+
+  .hero__affiliations {
+    margin-top: 72px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .hero__affiliations-label {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .hero__affiliations-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: center;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 13px;
+  }
+  .hero__affiliations-link {
+    color: var(--fg-1);
+    border-bottom: 1px dotted var(--fg-3);
+    padding-bottom: 1px;
+    opacity: 0.9;
+    text-decoration: none;
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+  .hero__affiliations-link:hover {
+    color: var(--accent);
+    opacity: 1;
+  }
+
   /* USMR Phase 5.1j — hero typography matches new-design global.css
    * (h1 clamp 56-108px, line-height 0.94, letter-spacing -0.035em).
    * Overrides the legacy .hero h1 rule in public/assets/theme.css. */
