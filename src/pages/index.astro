@@ -3,7 +3,6 @@ import { getCollection, getEntry } from "astro:content";
 import Base from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
 import TrustChainIsland from "../components/TrustChainIsland";
 import { ORG } from "../data/organization";
@@ -29,6 +28,22 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   month: "short",
   day: "numeric",
 });
+
+// USMR Phase 5.1j — eyebrow renders inside a .glow-tag pill. Splitting on
+// `&` lets the home.mdx string drive a serif-italic ampersand via the
+// `.glow-amp` primitive without authoring HTML in the MDX. Even-index
+// segments are plain text; odd-index slots get a single `<em>&</em>`.
+const eyebrowSegments = eyebrow.split(/\s*&\s*/);
+
+// USMR Phase 5.1j — headline stacks per the new-design mock. Splits the
+// frontmatter "Verified. Private. Attested." string on sentence
+// boundaries so each clause renders on its own visual line.
+const headlineLines = headline.includes(". ")
+  ? headline
+      .split(/\.\s+/)
+      .filter(Boolean)
+      .map((s) => (s.endsWith(".") ? s : `${s}.`))
+  : [headline];
 ---
 
 <Base title={title} description={description}>
@@ -37,10 +52,34 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   <section class="hero container">
     <div class="twocol">
       <div>
-        <p class="hero__eyebrow">{eyebrow}</p>
-        <h1 id="hero-h1">{headline}</h1>
+        <span class="hero__eyebrow-tag glow-tag">
+          <span class="glow-dot" />
+          <span class="glow-text">
+            {
+              eyebrowSegments.map((seg, i) =>
+                i === 0 ? (
+                  <Fragment>{seg}</Fragment>
+                ) : (
+                  <Fragment>
+                    <em class="glow-amp">&amp;</em>
+                    {seg}
+                  </Fragment>
+                ),
+              )
+            }
+          </span>
+        </span>
+        <h1 id="hero-h1" class="display">
+          {
+            headlineLines.map((line, i) => (
+              <Fragment>
+                {i > 0 && <br />}
+                {line}
+              </Fragment>
+            ))
+          }
+        </h1>
         <p id="hero-sub" class="sub">{lede}</p>
-        <div style="margin-top:6px"><Tagline /></div>
         {
           ctas.length > 0 && (
             <div class="actions">
@@ -56,12 +95,6 @@ const dateFmt = new Intl.DateTimeFormat("en", {
             </div>
           )
         }
-        <div class="badges" style="margin-top:14px">
-          <span class="pill">OIDC 2.1 + PAR/JAR/JARM/DPoP/mTLS</span>
-          <span class="pill">GNAP with PoP + continuation</span>
-          <span class="pill">SD-JWT & BBS+ VCs</span>
-          <span class="pill">Zanzibar graph + PDP</span>
-        </div>
       </div>
       <div class="hero-art">
         <TrustChainIsland client:visible />
@@ -290,6 +323,24 @@ const dateFmt = new Intl.DateTimeFormat("en", {
 </Base>
 
 <style>
+  /* USMR Phase 5.1j — hero typography matches new-design global.css
+   * (h1 clamp 56-108px, line-height 0.94, letter-spacing -0.035em).
+   * Overrides the legacy .hero h1 rule in public/assets/theme.css. */
+  .hero__eyebrow-tag {
+    margin-bottom: 28px;
+  }
+  .hero h1.display {
+    font-size: clamp(3.5rem, 7.2vw, 6.75rem);
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+    font-weight: 400;
+    margin: 0 0 32px;
+    font-family: var(--f-display, "Space Grotesk", "Inter Tight", sans-serif);
+  }
+  .hero h1.display br + * {
+    display: inline;
+  }
+
   .onramp {
     padding-block: var(--space-12);
   }
