@@ -6,6 +6,7 @@ import Footer from "../components/Footer.astro";
 import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
 import HeroChart from "../components/HeroChart.astro";
+import { ORG } from "../data/organization";
 
 // USMR Phase 5.1a — hero now reads from src/content/pages/home.mdx so
 // content edits don't require .astro changes. The remaining sections
@@ -13,7 +14,7 @@ import HeroChart from "../components/HeroChart.astro";
 // markup until Phase 5.x decomposes them into typed registries.
 const home = await getEntry("pages", "home");
 if (!home) throw new Error("home.mdx content entry not found");
-const { eyebrow, headline, lede, ctas, title, description } = home.data;
+const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
 ---
 
 <Base title={title} description={description}>
@@ -211,16 +212,140 @@ const { eyebrow, headline, lede, ctas, title, description } = home.data;
     </div>
   </section>
 
-  <section class="section cta-section">
-    <div class="container" style="text-align:center">
-      <h2 style="margin-bottom:1.5rem">Ready to Get Started?</h2>
-      <p style="color:var(--muted);max-width:700px;margin:0 auto 2rem">
-        Start building with Artagon's unified identity platform. Deploy passkey authentication,
-        verifiable credentials, and graph-native authorization in minutes.
-      </p>
-      <a class="cta cta-large" href="/get-started">Get Started</a>
-    </div>
-  </section>
+  {
+    onRamp && (
+      <section class="onramp section" id="get-started">
+        <div class="container">
+          <div class="onramp__card">
+            <div class="onramp__strip">
+              <span>{onRamp.programLabel}</span>
+              <span>{onRamp.statusLabel}</span>
+            </div>
+            <div class="onramp__grid">
+              <div class="onramp__lead">
+                <h2 class="onramp__headline">{onRamp.headline}</h2>
+                <p class="onramp__lede">{onRamp.lede}</p>
+                {onRamp.ctas.length > 0 && (
+                  <div class="actions">
+                    {onRamp.ctas.map((c) => (
+                      <a
+                        class={`btn ${c.variant === "primary" ? "primary" : ""}`}
+                        href={c.href}
+                        rel={c.rel}
+                      >
+                        {c.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <aside class="onramp__contacts" aria-label={onRamp.contactsTitle}>
+                <div class="onramp__contacts-title">{onRamp.contactsTitle}</div>
+                <dl class="onramp__rows">
+                  {ORG.contacts.map((r) => (
+                    <div class="onramp__row">
+                      <dt>{r.label}</dt>
+                      <dd>{r.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {ORG.contactFootnote && (
+                  <p class="onramp__footnote">{ORG.contactFootnote}</p>
+                )}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
+
+<style>
+  .onramp {
+    padding-block: var(--space-12);
+  }
+  .onramp__card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: clamp(2rem, 4vw, 4.5rem) clamp(1.25rem, 3vw, 4rem);
+    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg) 80%);
+    overflow: hidden;
+  }
+  .onramp__strip {
+    position: absolute;
+    top: 1rem;
+    left: 1.25rem;
+    right: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: var(--fs-micro);
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .onramp__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    margin-top: 2rem;
+  }
+  @media (max-width: 768px) {
+    .onramp__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .onramp__headline {
+    font-size: var(--fs-h2);
+    line-height: 1.05;
+    margin: 0 0 1.5rem;
+  }
+  .onramp__lede {
+    margin: 0 0 2rem;
+    max-width: 52ch;
+    color: var(--muted);
+  }
+  .onramp__contacts {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    background: var(--bg-alt);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: var(--fs-small);
+  }
+  .onramp__contacts-title {
+    font-size: var(--fs-micro);
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 0.875rem;
+  }
+  .onramp__rows {
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .onramp__row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .onramp__row dt {
+    color: var(--muted);
+    margin: 0;
+  }
+  .onramp__row dd {
+    color: var(--text);
+    margin: 0;
+  }
+  .onramp__footnote {
+    margin: 0.875rem 0 0;
+    color: var(--muted);
+    font-size: var(--fs-micro);
+    line-height: 1.5;
+  }
+</style>

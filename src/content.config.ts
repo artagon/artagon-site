@@ -41,6 +41,20 @@ const bridgeStory = z.object({
   variants: z.array(z.string()).default([]),
 });
 
+/**
+ * Optional on-ramp/design-partner card. Only home.mdx populates this today;
+ * the top-strip labels frame the program (left) and current status (right).
+ */
+const onRamp = z.object({
+  programLabel: z.string().min(1),
+  statusLabel: z.string().min(1),
+  headline: z.string().min(1),
+  lede: z.string().min(1),
+  ctas: z.array(cta).default([]),
+  /** Title for the contact mini-card; rows themselves come from `ORG`. */
+  contactsTitle: z.string().default("Primary contacts"),
+});
+
 /** Base frontmatter shared by every marketing page. */
 const pageBase = z.object({
   title: z.string().min(1),
@@ -62,6 +76,11 @@ const pageBase = z.object({
    * and forbids verbatim repetition on other routes.
    */
   bridge: bridgeStory.optional(),
+  /**
+   * Optional on-ramp card — only `home.mdx` populates this today. Rendered
+   * near the bottom of `/` as a design-partner CTA with a contact mini-card.
+   */
+  onRamp: onRamp.optional(),
 });
 
 // Astro 6 content layer: each collection declares its own loader so
