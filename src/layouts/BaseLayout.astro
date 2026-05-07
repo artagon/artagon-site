@@ -5,8 +5,31 @@ import SkipLink from '../components/SkipLink.astro';
 import ThemePreview from '../components/ThemePreviewPanel.astro';
 import Tweaks from '../components/Tweaks.astro';
 const DEV = import.meta.env.DEV;
-export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
-const { title, description, path='/', image, robots } = Astro.props;
+export interface Props {
+  title?: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  robots?: string;
+  // USMR Phase 5.1q.7 — passthrough for SeoTags Article schema.
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  tags?: readonly string[];
+}
+const {
+  title,
+  description,
+  path = '/',
+  image,
+  robots,
+  type,
+  publishedTime,
+  modifiedTime,
+  author,
+  tags,
+} = Astro.props;
 ---
 <!doctype html>
 <html
@@ -19,7 +42,18 @@ const { title, description, path='/', image, robots } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Seo {title} {description} {path} {image} {robots} />
+    <Seo
+      {title}
+      {description}
+      {path}
+      {image}
+      {robots}
+      {type}
+      {publishedTime}
+      {modifiedTime}
+      {author}
+      {tags}
+    />
     <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
     <script is:inline>
 (function(){

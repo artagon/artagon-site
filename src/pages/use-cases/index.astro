@@ -1,0 +1,78 @@
+---
+// USMR Phase 5.1q.1 — minimal /use-cases route. Sources copy from
+// src/content/pages/use-cases.mdx via Astro content collections so
+// frontmatter remains the single source of truth. Full scenario card
+// matrix + per-scenario code paths land in Phase 5.3.
+import { getEntry, render } from 'astro:content';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const entry = await getEntry('pages', 'use-cases');
+if (!entry) {
+  throw new Error(
+    "use-cases.mdx missing — Phase 5.1q.1 expects src/content/pages/use-cases.mdx to exist."
+  );
+}
+const { Content } = await render(entry);
+const { title, description, eyebrow, headline, lede, ctas } = entry.data;
+---
+<Base title={title} description={description} path="/use-cases">
+  <Fragment slot="header"><Header /></Fragment>
+
+  <article class="page container">
+    <header class="page__hero">
+      <p class="page__eyebrow">{eyebrow}</p>
+      <h1>{headline}</h1>
+      <p class="page__lede">{lede}</p>
+      {ctas.length > 0 && (
+        <div class="cluster page__cta">
+          {ctas.map((cta) => (
+            <a class={`btn ${cta.variant === 'primary' ? 'primary' : ''}`} href={cta.href}>
+              {cta.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <div class="page__body">
+      <Content />
+    </div>
+  </article>
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>
+
+<style>
+  .page {
+    padding-block: var(--space-12);
+    max-width: 48rem;
+  }
+  .page__hero {
+    margin-block-end: var(--space-10);
+  }
+  .page__eyebrow {
+    font-family: var(--f-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: var(--fg-2);
+    margin: 0 0 var(--space-2);
+  }
+  .page__hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+    margin: 0 0 var(--space-4);
+  }
+  .page__lede {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--fg-2);
+    margin: 0 0 var(--space-6);
+  }
+  .page__body {
+    color: var(--fg-2);
+    line-height: 1.7;
+  }
+</style>

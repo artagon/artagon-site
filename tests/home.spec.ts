@@ -155,6 +155,254 @@ test.describe("Home (/) — visual contracts (5.1p slices)", () => {
   });
 });
 
+test.describe("Home (/) — content split rendering (chromium)", () => {
+  // USMR Phase 5.1q.9 — pin the headline split-on-`. ` and the eyebrow
+  // ampersand-split shapes. Authors editing home.mdx that drop the
+  // trailing period collapse the headline to a single line; using a
+  // unicode `＆` instead of `&` bypasses the split. These tests catch
+  // both regressions on every PR.
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "DOM-shape checks; one engine covers the contract.",
+    );
+  });
+
+  test("hero headline splits into 3 stacked lines (current home.mdx: 'Verified. Private. Attested.')", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const brCount = await page.locator("h1#hero-h1 br").count();
+    // 3 sentence parts → 2 <br> elements between them. A regression to
+    // a single-line headline produces 0 <br>s.
+    expect(brCount).toBe(2);
+  });
+
+  test("hero eyebrow renders glow-amp `<em>` for the ampersand", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // The eyebrow string in home.mdx contains exactly one `&` ("for
+    // machines & humans"). The split logic in index.astro emits one
+    // `<em class="glow-amp">&</em>` per ampersand. A regression that
+    // drops the ampersand split renders the literal `&` character.
+    const ampCount = await page.locator(".glow-amp").count();
+    expect(ampCount).toBeGreaterThanOrEqual(1);
+    const ampText = await page.locator(".glow-amp").first().textContent();
+    expect(ampText?.trim()).toBe("&");
+  });
+});
+
+test.describe("Home (/) — scenario picker keyboard navigation (chromium / desktop)", () => {
+  // USMR Phase 5.1q.6 — WAI-ARIA tablist keyboard pattern.
+  test.skip(
+    ({ isMobile }) => isMobile,
+    "Keyboard nav simulation is desktop-only; tap-toggle on touch is in enhance-a11y-coverage.",
+  );
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Keyboard event simulation through the React island stays narrow to chromium.",
+    );
+  });
+
+  test("ArrowRight from dot 0 advances to dot 1 and swaps the decision class", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const dots = page.locator(".trust-chain__scenario-dot");
+    await dots.nth(0).focus();
+    // Default scenarioIdx=0 is PERMIT.
+    await expect(page.locator(".trust-chain__decision")).toHaveClass(
+      /is-permit/,
+    );
+    await page.keyboard.press("ArrowRight");
+    // SCENARIOS[1] is the DENY scenario (jailbroken phone).
+    await expect(dots.nth(1)).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator(".trust-chain__decision")).toHaveClass(/is-deny/);
+  });
+
+  test("Home jumps to the first dot; End jumps to the last", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const dots = page.locator(".trust-chain__scenario-dot");
+    const dotCount = await dots.count();
+    await dots.nth(2).focus();
+    await page.keyboard.press("End");
+    await expect(dots.nth(dotCount - 1)).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await page.keyboard.press("Home");
+    await expect(dots.nth(0)).toHaveAttribute("aria-selected", "true");
+  });
+});
+
+test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Token-paint checks read computed CSS variables; chromium covers the contract.",
+    );
+  });
+
+  test("data-accent='violet' resolves --accent to a violet OKLCH (5.1o)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const accent = await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent")
+        .trim(),
+    );
+    // The shipped violet sits in the 0.66 0.18 290 ± neighborhood (per
+    // theme.css `[data-accent="violet"]`). Don't pin the exact triple —
+    // any future contrast tweak would force a test churn — but assert
+    // the structural shape (oklch(...) function) AND the hue band 270-310
+    // so a regression that swaps to teal (~190) or amber (~80) fails.
+    expect(accent).toMatch(/^oklch\(/);
+    const hueMatch = accent.match(/oklch\([^)]*\s+(-?\d+(?:\.\d+)?)\)/);
+    expect(
+      hueMatch,
+      `--accent should expose an OKLCH hue: got ${accent}`,
+    ).not.toBeNull();
+    const hue = parseFloat(hueMatch![1] ?? "");
+    expect(hue).toBeGreaterThanOrEqual(270);
+    expect(hue).toBeLessThanOrEqual(310);
+  });
+
+  test("data-hero-font='fraunces' resolves the heading font to a Fraunces stack (5.1o)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const heroFont = await page
+      .locator("#hero-h1")
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    // Fraunces is self-hosted in a follow-up (self-host-woff2-fonts);
+    // for now the stack falls back through Fraunces → Georgia → serif.
+    // We just need the family token to advertise Fraunces or its
+    // documented fallback (the stack must not collapse to the
+    // sans-serif Inter Tight default).
+    expect(heroFont.toLowerCase()).toMatch(/fraunces|georgia|serif/);
+    expect(heroFont.toLowerCase()).not.toMatch(/inter\s*tight/);
+  });
+
+  test("primary CTA paints --accent solid (Header.astro:130)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const cta = page.locator(".site-nav .right .btn.primary").first();
+    const bg = await cta.evaluate((el) => getComputedStyle(el).backgroundColor);
+    // Computed bg should be a non-transparent rgb()/oklch() — a
+    // regression that drops `[data-accent="violet"]` collapses --accent
+    // to its fallback and the button reads as the default ghost.
+    expect(bg).not.toBe("rgba(0, 0, 0, 0)");
+    expect(bg).not.toBe("transparent");
+  });
+});
+
+test.describe("Home (/) — pre-paint theme bootstrap (security gate)", () => {
+  // The inline bootstrap at BaseLayout.astro:24-55 carries an allow-list
+  // ['twilight', 'midnight']; any other ?theme=… value MUST collapse to
+  // the default and MUST NOT be persisted. Regressions here are
+  // security-shaped (XSS via persisted localStorage that later inline
+  // scripts read).
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Allow-list semantics are JS-only; one engine covers the contract.",
+    );
+  });
+
+  test("?theme=fakevalue&persist=1 collapses to twilight and is not persisted", async ({
+    page,
+  }) => {
+    await page.goto("/?theme=fakevalue&persist=1");
+    await page.waitForLoadState("networkidle");
+    const applied = await page.evaluate(() =>
+      document.documentElement.getAttribute("data-theme"),
+    );
+    expect(applied).toBe("twilight");
+    const persisted = await page.evaluate(() =>
+      localStorage.getItem("artagon.theme"),
+    );
+    expect(persisted).toBe("twilight");
+  });
+
+  test("?theme=javascript:alert(1)&persist=1 also collapses (no eval-shaped strings persisted)", async ({
+    page,
+  }) => {
+    await page.goto("/?theme=javascript:alert(1)&persist=1");
+    await page.waitForLoadState("networkidle");
+    const applied = await page.evaluate(() =>
+      document.documentElement.getAttribute("data-theme"),
+    );
+    const persisted = await page.evaluate(() =>
+      localStorage.getItem("artagon.theme"),
+    );
+    expect(applied).toBe("twilight");
+    expect(persisted).toBe("twilight");
+  });
+
+  test("?theme=midnight&persist=1 is honored (positive control)", async ({
+    page,
+  }) => {
+    await page.goto("/?theme=midnight&persist=1");
+    await page.waitForLoadState("networkidle");
+    const applied = await page.evaluate(() =>
+      document.documentElement.getAttribute("data-theme"),
+    );
+    const persisted = await page.evaluate(() =>
+      localStorage.getItem("artagon.theme"),
+    );
+    expect(applied).toBe("midnight");
+    expect(persisted).toBe("midnight");
+  });
+});
+
+test.describe("Home (/) — TrustChainIsland keyboard focus contract", () => {
+  test.skip(
+    ({ isMobile }) => isMobile,
+    "Keyboard focus simulation is desktop-only; touch projects exercise the tap-toggle path covered by enhance-a11y-coverage.",
+  );
+
+  test("focusing a stage row swaps the decision claim to that stage's pass string", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // SSR baseline: the scenario's finalClaim is what the decision card
+    // shows before any focus event fires.
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "decision=PERMIT",
+    );
+    // Programmatic focus drives the React onFocus handler. Stage rows
+    // are real <button> elements (5.1p.1) so .focus() fires the event
+    // synchronously through the astro-island wrapper — unlike the
+    // earlier <li role="button"> pattern that the structural test in
+    // home.spec.ts:172-179 documented as unreliable.
+    await page.locator("#trust-chain-passkey").focus();
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "user.webauthn.verified",
+    );
+    // Blurring restores the scenario finalClaim.
+    await page.evaluate(() =>
+      (document.activeElement as HTMLElement | null)?.blur(),
+    );
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "decision=PERMIT",
+    );
+  });
+});
+
 test.describe("Home (/) — TrustChainIsland a11y contract (all device classes)", () => {
   // Structural a11y assertions — no mouse / touch / hover required, so
   // they run on every project (desktop, mobile, tablet, TV).

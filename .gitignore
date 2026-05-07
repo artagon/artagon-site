@@ -33,6 +33,8 @@ playwright/.cache/
 # Local Darwin/Windows runs produce host-specific PNGs we don't track.
 tests/styling-snapshots.spec.ts-snapshots/*
 !tests/styling-snapshots.spec.ts-snapshots/*-chromium-linux.png
+tests/device-tour.spec.ts-snapshots/*
+!tests/device-tour.spec.ts-snapshots/*-linux.png
 
 # Lychee link-checker cache. The CI workflow now passes
 # `--cache-dir .build/cache/lychee` so the cache lives under the .build

@@ -1,17 +1,141 @@
 ---
 import taglines from '../content/taglines.json';
-export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
+import { safeJsonLd } from '../lib/charset';
+
+// USMR Phase 5.1q + post-review hardening. The Article variant of
+// the Props union requires `publishedTime` (and accepts the optional
+// `modifiedTime` / `author` / `tags`) — this makes a malformed article
+// a compile-time error rather than a silent runtime "Article JSON-LD
+// dropped" surprise.
+interface BaseProps {
+  title?: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  robots?: string;
+}
+interface WebsiteProps extends BaseProps {
+  type?: 'website';
+}
+interface ArticleProps extends BaseProps {
+  type: 'article';
+  /** ISO 8601 publish date — required for articles. */
+  publishedTime: string;
+  modifiedTime?: string;
+  author?: string;
+  tags?: readonly string[];
+}
+export type Props = WebsiteProps | ArticleProps;
+// Discriminated-union narrowing: read the raw props, then derive each
+// field. We extract `type` first so subsequent reads can narrow on
+// `type === 'article'` without re-asserting the cast. A malformed
+// caller (`{type:'article'}` without `publishedTime`) fails type-check
+// AT THE CALLSITE — the narrowing here just keeps the SeoTags body
+// honest about which fields exist in each branch.
+const propsRaw = Astro.props;
+const propsType = (propsRaw as { type?: 'website' | 'article' }).type ?? 'website';
+const isArticle = propsType === 'article';
+if (isArticle) {
+  const ap = propsRaw as ArticleProps;
+  if (!ap.publishedTime) {
+    // Build-time invariant: the type system already flags this at the
+    // callsite, but a runtime throw here turns a future erasure (e.g.
+    // someone re-introduces `Partial<ArticleProps>`) into a loud
+    // build error rather than silent JSON-LD drop.
+    throw new Error(
+      "SeoTags: type='article' requires publishedTime (ISO 8601)."
+    );
+  }
+}
+const articleProps = isArticle ? (propsRaw as ArticleProps) : null;
+const baseProps = propsRaw as BaseProps & { type?: 'website' | 'article' };
 const {
   title = 'Artagon — Trusted Identity for Machines and Humans',
   description = `Passkeys, verifiable credentials, attested clients, and graph-native policy — ${taglines.tagline.full}`,
   path = '/',
-  // Use generated OG image from logos package (1200x630)
   image = '/assets/logos/og-image.png',
-  robots
-} = Astro.props;
-const url = new URL(path, Astro.site ?? 'https://artagon.com').toString();
+  robots,
+} = baseProps;
+const type = propsType;
+const publishedTime = articleProps?.publishedTime;
+const modifiedTime = articleProps?.modifiedTime;
+const author = articleProps?.author ?? 'Artagon';
+const tags: readonly string[] = articleProps?.tags ?? [];
+const SITE = (Astro.site ?? new URL('https://artagon.com')).toString().replace(/\/$/, '');
+const url = `${SITE}${path.startsWith('/') ? path : `/${path}`}`;
 const motto = taglines.tagline.full;
 const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
+const ogImageAbsolute = image.startsWith('http') ? image : `${SITE}${image.startsWith('/') ? image : `/${image}`}`;
+
+// USMR Phase 5.1q.8 — site-wide WebSite + BreadcrumbList JSON-LD.
+const segments = path.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+function safeDecode(seg: string): string {
+  try {
+    return decodeURIComponent(seg);
+  } catch {
+    // Malformed `%`-escapes throw URIError. Fall back to the raw
+    // segment so a bad path doesn't crash the SSR render.
+    return seg;
+  }
+}
+const breadcrumbItems = [
+  { name: 'Home', item: `${SITE}/` },
+  ...segments.map((seg, i) => ({
+    name: safeDecode(seg).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+    item: `${SITE}/${segments.slice(0, i + 1).map(encodeURIComponent).join('/')}`,
+  })),
+];
+
+// Critical hardening (post-5.1q review): see src/lib/charset.ts for the
+// rationale and escape-table coverage. We delegate to a shared helper
+// so all inline-JSON-LD-emitting components share the same hardened
+// pipeline (and tests).
+//
+// Sentinel: keep this comment block here so a future inline regression
+// is caught by reviewers; the helper at src/lib/charset.ts is the
+// single load-bearing path for inline JSON-LD escaping.
+
+const orgLd = safeJsonLd({
+  "@context":"https://schema.org","@type":"Organization","name":"Artagon",
+  "url":`${SITE}/`,
+  "logo":`${SITE}/assets/logos/logo-square-512.png`,
+  "slogan":taglines.tagline.full,
+  "sameAs":["https://github.com/artagon"]
+});
+const serviceLd = safeJsonLd({
+  "@context":"https://schema.org","@type":"Service","name":"Artagon Identity Platform",
+  "serviceType":"Identity and Access Management (IAM)","provider":{"@type":"Organization","name":"Artagon","url":`${SITE}/`},
+  "areaServed":"Worldwide","url":`${SITE}/`,
+  "description":`The Unified Identity Platform for Machines and Humans. OIDC 2.1 OpenID Provider with PAR, JAR, JARM, DPoP, mTLS. GNAP Authorization Server with proof-of-possession. Verifiable Credentials using SD-JWT and BBS+ via OID4VCI/VP. Passkey-first authentication (WebAuthn/FIDO2). Device and app attestation (Android Play Integrity, Apple App Attest). Zanzibar-style relationship graph with PDP policy engine (XACML, Cedar, OPA). Zero-knowledge selective disclosure. Privacy-by-design identity infrastructure. ${taglines.tagline.short}`
+});
+const websiteLd = safeJsonLd({
+  "@context":"https://schema.org","@type":"WebSite","name":"Artagon",
+  "url":`${SITE}/`,
+  "potentialAction":{
+    "@type":"SearchAction",
+    "target":{"@type":"EntryPoint","urlTemplate":`${SITE}/search/?q={search_term_string}`},
+    "query-input":"required name=search_term_string"
+  }
+});
+// Per schema.org rich-snippet rules, BreadcrumbList needs ≥ 2 items to
+// render — emit only when we're past the root.
+const breadcrumbLd = breadcrumbItems.length >= 2 ? safeJsonLd({
+  "@context":"https://schema.org","@type":"BreadcrumbList",
+  "itemListElement":breadcrumbItems.map((c, i) => ({
+    "@type":"ListItem","position":i + 1,"name":c.name,"item":c.item,
+  }))
+}) : null;
+const articleLd = type === 'article' && publishedTime ? safeJsonLd({
+  "@context":"https://schema.org","@type":"Article",
+  "headline":title,"description":metaDescription,
+  "datePublished":publishedTime,
+  ...(modifiedTime ? { "dateModified": modifiedTime } : {}),
+  "image":[ogImageAbsolute],
+  "author":{"@type":"Organization","name":author},
+  "publisher":{"@type":"Organization","name":"Artagon","logo":{"@type":"ImageObject","url":`${SITE}/assets/logos/logo-square-512.png`}},
+  "url":url,
+  ...(tags.length ? { "keywords": tags.join(', ') } : {}),
+}) : null;
 ---
 <title>{title}</title>
 <meta name="description" content={metaDescription} />
@@ -21,29 +145,30 @@ const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? des
 <meta property="og:description" content={metaDescription} />
 <meta property="og:site_name" content="Artagon" />
 <meta property="og:url" content={url} />
-<meta property="og:type" content="website" />
+<meta property="og:type" content={type} />
 <meta property="og:locale" content="en_US" />
-<meta property="og:image" content={image} />
+<meta property="og:image" content={ogImageAbsolute} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
+{type === 'article' && publishedTime && (
+  <meta property="article:published_time" content={publishedTime} />
+)}
+{type === 'article' && modifiedTime && (
+  <meta property="article:modified_time" content={modifiedTime} />
+)}
+{type === 'article' && tags.map((t) => (
+  <meta property="article:tag" content={t} />
+))}
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={metaDescription} />
-<meta name="twitter:image" content={image} />
-<script type="application/ld+json">
-{JSON.stringify({
-  "@context":"https://schema.org","@type":"Organization","name":"Artagon",
-  "url":"https://artagon.com/",
-  "logo":"https://artagon.com/assets/logos/logo-square-512.png",
-  "slogan":taglines.tagline.full,
-  "sameAs":["https://github.com/artagon"]
-}, null, 2)}
-</script>
-<script type="application/ld+json">
-{JSON.stringify({
-  "@context":"https://schema.org","@type":"Service","name":"Artagon Identity Platform",
-  "serviceType":"Identity and Access Management (IAM)","provider":{"@type":"Organization","name":"Artagon","url":"https://artagon.com/"},
-  "areaServed":"Worldwide","url":"https://artagon.com/",
-  "description":`The Unified Identity Platform for Machines and Humans. OIDC 2.1 OpenID Provider with PAR, JAR, JARM, DPoP, mTLS. GNAP Authorization Server with proof-of-possession. Verifiable Credentials using SD-JWT and BBS+ via OID4VCI/VP. Passkey-first authentication (WebAuthn/FIDO2). Device and app attestation (Android Play Integrity, Apple App Attest). Zanzibar-style relationship graph with PDP policy engine (XACML, Cedar, OPA). Zero-knowledge selective disclosure. Privacy-by-design identity infrastructure. ${taglines.tagline.short}`
-}, null, 2)}
-</script>
+<meta name="twitter:image" content={ogImageAbsolute} />
+<script type="application/ld+json" set:html={orgLd}></script>
+<script type="application/ld+json" set:html={serviceLd}></script>
+<script type="application/ld+json" set:html={websiteLd}></script>
+{breadcrumbLd && (
+  <script type="application/ld+json" set:html={breadcrumbLd}></script>
+)}
+{articleLd && (
+  <script type="application/ld+json" set:html={articleLd}></script>
+)}

@@ -1,7 +1,20 @@
 ---
+import { getEntry } from 'astro:content';
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+
+// USMR Phase 5.1q.4 — pull the canonical bridge sentence from
+// platform.mdx frontmatter so the Header anchor (`/platform#bridge`)
+// lands on the spec-controlled string. Full Bridge section + variants
+// + per-pillar code examples land in Phase 5.2.
+const platform = await getEntry('pages', 'platform');
+if (!platform?.data.bridge?.sentence) {
+  throw new Error(
+    "platform.mdx frontmatter `bridge.sentence` missing — Phase 5.1q.4 requires the spec-controlled string for `/platform#bridge`. Restore it in src/content/pages/platform.mdx."
+  );
+}
+const bridgeSentence = platform.data.bridge.sentence;
 ---
 <Base title="Platform — Artagon" description="The Artagon Identity Platform: unified identity and authorization infrastructure for machines and humans">
   <Fragment slot="header">
@@ -15,6 +28,15 @@ import Footer from '../../components/Footer.astro';
         <p class="hero-subtitle">
           Unified identity and authorization infrastructure for the next generation of digital trust
         </p>
+      </div>
+    </section>
+
+    <section id="bridge" class="section bridge-anchor" aria-labelledby="bridge-heading">
+      <div class="container">
+        <p class="bridge-anchor__eyebrow">The Bridge</p>
+        <h2 id="bridge-heading">From OIDC to verifiable credentials — without a rewrite.</h2>
+        <p class="bridge-anchor__sentence">{bridgeSentence}</p>
+        <p class="bridge-anchor__followup">Full bridge section with variants and code examples ships in Phase 5.2.</p>
       </div>
     </section>
 
@@ -295,5 +317,37 @@ import Footer from '../../components/Footer.astro';
   justify-content: center;
   margin-top: 4rem;
   flex-wrap: wrap;
+}
+
+.bridge-anchor {
+  scroll-margin-top: 80px;
+  border-top: 1px solid var(--line-soft);
+}
+.bridge-anchor__eyebrow {
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--fg-3);
+  margin: 0 0 0.5rem;
+}
+.bridge-anchor h2 {
+  font-size: clamp(1.6rem, 3vw, 2.25rem);
+  line-height: 1.2;
+  margin: 0 0 1.25rem;
+  color: var(--fg);
+}
+.bridge-anchor__sentence {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--fg-1);
+  max-width: 60ch;
+  margin: 0 0 1rem;
+}
+.bridge-anchor__followup {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  color: var(--fg-3);
+  margin: 0;
 }
 </style>

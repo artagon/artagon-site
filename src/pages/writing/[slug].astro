@@ -22,12 +22,22 @@ const dateFmt = new Intl.DateTimeFormat('en', {
   month: 'long',
   day: 'numeric',
 });
+
+// USMR Phase 5.1q.7 — pass post-specific og:image / og:type / publish
+// dates / tags through to SeoTags so writing posts emit Article JSON-LD
+// + correct social-share previews (was hardcoded to website + site OG).
+const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
 ---
 
 <Base
   title={`${post.data.title} — Artagon`}
   description={post.data.description}
   path={`/writing/${post.id}`}
+  image={articleImage}
+  type="article"
+  publishedTime={post.data.published.toISOString()}
+  modifiedTime={post.data.updated?.toISOString()}
+  tags={post.data.tags}
 >
   <Fragment slot="header"><Header /></Fragment>
 

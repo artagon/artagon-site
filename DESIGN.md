@@ -424,6 +424,15 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **Explain layer (Planned).** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §6.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol. **Status: not yet shipped.** The current `<TrustChainIsland />` component accepts no props; the explain layer is tracked as a follow-up to the USMR change. This subsection documents the intended shape so consumers know what to expect when it lands.
 
+**Animation primitives.** Two CSS keyframes ship in `public/assets/theme.css` ahead of the 5.1d-idle auto-progression wiring:
+
+- `chain-pulse` — 1.2 s ease-in-out infinite scale 1 → 1.08; consumed by `.trust-chain__stage.is-evaluating .trust-chain__stage-num` once auto-progression lands.
+- `chain-spin` + the `.chain-spinner` element — 0.7 s linear infinite rotation on an 8 px ring with a top accent border; consumed inline next to "checking…" copy in the 5.1d-idle evaluating state.
+
+Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { animation: none }`. Stage-rows do not currently consume these primitives — wiring is part of the 5.1d-idle follow-up; the keyframes ship now so the auto-progression task is purely a TSX change.
+
+**Keyboard navigation.** Stage rows are real `<button>` elements (USMR Phase 5.1p.1) so they appear in the tab order automatically. The scenario picker (`.trust-chain__scenarios`) follows the WAI-ARIA tablist pattern: `ArrowLeft` / `ArrowRight` walk between dots, `Home` / `End` jump to first / last. Click and keyboard paths converge on the same `setScenarioIdx` handler.
+
 ### 6.6 Explore grid
 
 **Purpose.** Home page sub-navigation. 4-up card grid linking to the four top-level surfaces.
@@ -431,6 +440,8 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 **Anatomy.** Numeric index (`01…04`) · title · description · `Go →` mono.
 
 **Rules.** Always 4 cards, always in this order: Platform · Bridge · Use cases · Standards. Cards hover with a subtle accent tint and 2px lift.
+
+**Status.** CSS primitives `.explore-grid` (responsive 4-up grid; collapses to 2-up < 720 px and 1-up < 480 px) and `.explore-card` (border + accent-tinted hover lift) are authored in `public/assets/theme.css` (USMR Phase 5.1q.5). The `<ExploreGrid>` Astro component sourcing `EXPLORE_CARDS` data is **Planned for Phase 5.x** — the home page does not yet render the section. Surfaces wanting the grid today can author it inline using the shipped classes.
 
 ### 6.7 Numbered section heading
 
@@ -683,6 +694,24 @@ borders), `--f-mono` (code, captions, eyebrow), `--f-display` (h1, h2),
 - Don't ship a JavaScript syntax highlighter.
 - Don't render diagrams via a `<script>` tag — pre-compile to SVG.
 - Don't paste code as a screenshot. It breaks selection, search, and a11y.
+
+### 6.15 Generic primitives
+
+Small utility classes that ride alongside the named components above. They ship in `public/assets/theme.css` (USMR Phase 5.1q.5) so component authors can reach for them without re-declaring layout / typography in scoped Astro styles.
+
+| Class      | Purpose                    | Anatomy                                                                                    |
+| ---------- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| `.cluster` | CTA / chip group           | `display: flex; flex-wrap: wrap; gap: 10px; align-items: center;`                          |
+| `.tag`     | Uppercase mono pill        | `var(--bg-1)` bg · `var(--line)` border · `var(--f-mono)` 0.7 rem · 0.12 em letter-spacing |
+| `.kbd`     | Keyboard-shortcut chip     | `var(--bg-1)` bg · `var(--line)` border · `var(--f-mono)` 0.72 rem · 4 px 8 px padding     |
+| `.badge`   | Mono numeric / status pill | `var(--bg-1)` bg · `var(--line)` border · `var(--f-mono)` 0.72 rem · 6 px 10 px padding    |
+
+**Rules.**
+
+- These primitives are token-only (`--bg-1` / `--fg-1` / `--line` / `--f-mono`) — no raw color literals. They re-tone automatically across `[data-theme]` / `[data-accent]` switches.
+- `.cluster` is for **layout**, not visual decoration. Don't add backgrounds or borders; consume `.tag` / `.btn` / `.badge` as children.
+- `.tag` and `.badge` look similar at a glance; reach for `.tag` when the content is a category label and `.badge` when it carries a numeric or status value.
+- `.kbd` accepts a single key per element (e.g. `<span class="kbd">Esc</span>`); compound shortcuts use multiple `.kbd` siblings separated by `+`.
 
 ---
 

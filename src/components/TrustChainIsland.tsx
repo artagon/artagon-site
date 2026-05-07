@@ -13,12 +13,8 @@
 // flash. A future commit can layer an animated reveal under a flag if
 // needed.
 
-import { useState } from "react";
-import {
-  SCENARIOS,
-  STAGES,
-  type StageOutcome,
-} from "../data/trust-chain.js";
+import { useRef, useState } from "react";
+import { SCENARIOS, STAGES, type StageOutcome } from "../data/trust-chain.js";
 import "./TrustChainIsland.css";
 
 /**
@@ -44,6 +40,10 @@ function stageStatusLabel(outcome: StageOutcome): string {
 export default function TrustChainIsland() {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
+  // Anchored ref for the scenario tablist — the keyboard handler walks
+  // siblings via this ref instead of `event.currentTarget.parentElement`
+  // so a future wrapper insertion doesn't silently break focus.
+  const tablistRef = useRef<HTMLDivElement>(null);
 
   // Defensive fallback: if a future refactor wires `scenarioIdx` from URL
   // state / localStorage / props and an out-of-range value lands, render
@@ -76,19 +76,60 @@ export default function TrustChainIsland() {
     <aside className="trust-chain" aria-labelledby="trust-chain-title">
       <header className="trust-chain__head">
         <span id="trust-chain-title">Compounding trust chain</span>
-        <div className="trust-chain__scenarios" role="tablist">
+        <div
+          ref={tablistRef}
+          className="trust-chain__scenarios"
+          role="tablist"
+          aria-label="Trust-chain scenarios"
+        >
           {SCENARIOS.map((s, i) => (
             <button
               key={s.id}
               type="button"
               role="tab"
               aria-selected={i === scenarioIdx}
+              aria-controls="trust-chain-decision"
+              tabIndex={i === scenarioIdx ? 0 : -1}
               aria-label={s.label}
               title={s.label}
+              data-scenario-idx={i}
               className={`trust-chain__scenario-dot is-${s.decision.toLowerCase()}${
                 i === scenarioIdx ? " is-active" : ""
               }`}
               onClick={() => setScenarioIdx(i)}
+              onKeyDown={(event) => {
+                // WAI-ARIA tablist keyboard pattern (USMR Phase 5.1q.6).
+                // ArrowLeft/Right walk between dots; Home/End jump to the
+                // ends. The roving tabIndex above keeps Tab order clean —
+                // only the active dot is in the document tab order.
+                let next: number | null = null;
+                if (event.key === "ArrowLeft") {
+                  next = (i - 1 + SCENARIOS.length) % SCENARIOS.length;
+                } else if (event.key === "ArrowRight") {
+                  next = (i + 1) % SCENARIOS.length;
+                } else if (event.key === "Home") {
+                  next = 0;
+                } else if (event.key === "End") {
+                  next = SCENARIOS.length - 1;
+                }
+                if (next !== null) {
+                  event.preventDefault();
+                  setScenarioIdx(next);
+                  const target =
+                    tablistRef.current?.querySelector<HTMLButtonElement>(
+                      `[data-scenario-idx="${next}"]`,
+                    );
+                  if (!target) {
+                    // Surface the missing-ref bug rather than silently
+                    // diverging keyboard state from visual focus.
+                    console.error(
+                      `[TrustChainIsland] tablist ref missing on key nav (next=${next})`,
+                    );
+                    return;
+                  }
+                  target.focus();
+                }
+              }}
             />
           ))}
         </div>
@@ -103,7 +144,10 @@ export default function TrustChainIsland() {
 
       <ol className="trust-chain__stages">
         {STAGES.map((stage, i) => {
-          const outcome = scenario.stages[i];
+          // The data contract pins `scenario.stages` as a 5-tuple aligned
+          // with STAGES (see src/data/trust-chain.ts); the runtime guard
+          // is structural — we iterate STAGES, so `i` is always in range.
+          const outcome = scenario.stages[i] ?? "skip";
           return (
             <li key={stage.id} className="trust-chain__stage-wrap">
               <button
@@ -127,7 +171,9 @@ export default function TrustChainIsland() {
                   0{i + 1}
                 </span>
                 <div className="trust-chain__stage-body">
-                  <span className="trust-chain__stage-label">{stage.label}</span>
+                  <span className="trust-chain__stage-label">
+                    {stage.label}
+                  </span>
                   <span className="trust-chain__stage-sub">{stage.sub}</span>
                 </div>
                 <span className="trust-chain__stage-status">

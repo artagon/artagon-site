@@ -22,8 +22,10 @@ if (!gitSha) {
 }
 const versionString = `v${version} — build ${gitSha}`;
 
-// /use-cases, /standards, /writing ship in USMR Phase 4-5; restore those
-// rows when their routes exist (lychee fails on dead links).
+// /writing shipped in USMR Phase 4.4-4.6 (collection + index + RSS) so it
+// rejoins the footer here. /use-cases and /standards still 404 (route
+// files absent — Phase 5.3 / 5.4); add their links once the Astro routes
+// land or lychee will block on dead links.
 const cols = [
   {
     label: 'Platform',
@@ -45,6 +47,7 @@ const cols = [
   {
     label: 'Company',
     links: [
+      { href: '/writing',    text: 'Writing' },
       { href: '/faq',        text: 'FAQ' },
       { href: '/get-started', text: 'Get started' },
       { href: '/how',        text: 'How it works' },
