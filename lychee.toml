@@ -44,4 +44,15 @@ exclude = [
   "^https?://169\\.254\\.169\\.254(?::[0-9]+)?(?:/.*)?$",
   # mailto and external services we shouldn't probe.
   "^mailto:",
+  # Upstream new-design mock tree — referenced from AGENTS.md and PR notes
+  # as the source of ported HTML/CSS, but intentionally not checked into
+  # this repo (lives in a sibling working tree). Lychee resolves the
+  # relative path to a file:// URL; exclude that target form.
+  "^file://.*/new-design/",
+  # Local Claude/agent skill references — `.claude/skills` is in
+  # exclude_path for input-scanning, but doc references like
+  # `./.claude/skills/<name>` still get checked as link targets. These
+  # name user-level skills installed outside the repo (e.g.
+  # review-verification-protocol); not all of them ship locally.
+  "^file://.*/\\.claude/skills/",
 ]
