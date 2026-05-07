@@ -220,7 +220,7 @@ const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [
                         <a
                           class={`btn ${c.variant === "primary" ? "primary" : ""}`}
                           href={c.href}
-                          rel={isExternal ? `noopener noreferrer ${c.rel ?? ""}`.trim() : c.rel}
+                          rel={isExternal ? "noopener noreferrer" : c.rel}
                           {...(isExternal ? { target: "_blank" } : {})}
                         >
                           {c.label}
