@@ -697,11 +697,20 @@ nav a:hover {
 
 /* Spacing & rhythm — global utilities */
 :root {
-  --section-pad: clamp(48px, 8vw, 112px);
+  --section-pad: clamp(64px, 8vw, 120px);
   --container-max: 1200px;
 }
+/* USMR Phase 5.1p.5 — section rhythm aligned with new-design
+ * global.css:214-219. 120 px padding at ≥1024 px (clamp floor
+ * 64 px below) + border-top divider, with :first-of-type
+ * stripping the border so the hero doesn't pick up a top line. */
 .section {
   padding-block: var(--section-pad);
+  border-top: 1px solid var(--line-soft);
+  position: relative;
+}
+.section:first-of-type {
+  border-top: 0;
 }
 .container.narrow {
   max-width: var(--container-max);
@@ -1098,6 +1107,13 @@ nav a:hover {
   display: grid;
   gap: 24px;
   grid-template-columns: 1.1fr 0.9fr;
+}
+/* USMR Phase 5.1p.4 — hero overrides the legacy .twocol gap (24 px)
+ * with the new-design `.grid-hero` value (clamp 56-80 px). The
+ * trust-chain card and the headline column visibly crowd at
+ * 24 px; mock specifies 80 px at desktop (new-design index.html:313). */
+.hero .twocol {
+  gap: clamp(56px, 6vw, 80px);
 }
 @media (max-width: 1000px) {
   .twocol {
