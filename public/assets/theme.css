@@ -648,6 +648,21 @@ nav a:hover {
   opacity: 0.6;
 }
 
+/* USMR Phase 5.1p.14 — screen-reader-only utility for visually-hidden
+ * landmarks that fix heading hierarchy (h1 → h2 → h3) without altering
+ * the rendered layout. Standard a11y utility. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* USMR Phase 5.1p.6 — suppress the legacy `.btn::before` glyph
  * decorations on every new-design surface. The hero / on-ramp /
  * writing-strip / nav-cta buttons render clean text (no ◆ / ⚡ /
