@@ -122,6 +122,33 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
+}
+/* USMR Phase 5.1p.7 — inter-stage connector line per new-design
+ * index.html:1164-1171. 1×10 px vertical bar bridges each stage row
+ * to the next via a pseudo-element on the wrapper. Hidden on the
+ * last stage. The connector tints accent-dim with a small glow so
+ * the chain reads as a continuous flow rather than 5 disconnected
+ * cards. Animation `chain-connector` matches new-design's transition
+ * timing (.35s ease) on accent shifts. */
+.trust-chain__stage-wrap:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  bottom: -10px;
+  width: 1px;
+  height: 10px;
+  background: var(--accent-dim);
+  box-shadow: 0 0 6px var(--accent);
+  transition:
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-chain__stage-wrap:not(:last-child)::after {
+    transition: none;
+  }
 }
 .trust-chain__stage {
   /* Real <button> per 5.1p.1 — reset UA defaults so the rendered
