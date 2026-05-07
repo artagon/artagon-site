@@ -196,6 +196,34 @@
   opacity: 0.4;
 }
 
+/* USMR Phase 5.1d-idle — evaluating + pending stage states. The
+ * `chain-pulse` keyframe ships in public/assets/theme.css per 5.1q.5;
+ * it is consumed here for the active stage's number circle so the
+ * chain visibly "thinks" while the timer-driven progression is in
+ * flight. `is-pending` mutes stages that haven't been reached yet. */
+.trust-chain__stage.is-evaluating {
+  border-color: color-mix(in oklab, var(--accent) 30%, var(--line));
+  background: color-mix(in oklab, var(--accent) 6%, var(--bg-1));
+}
+.trust-chain__stage.is-evaluating .trust-chain__stage-num {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  animation: chain-pulse 1.2s ease-in-out infinite;
+}
+.trust-chain__stage.is-pending {
+  opacity: 0.55;
+}
+.trust-chain__stage.is-pending .trust-chain__stage-num {
+  color: var(--fg-3);
+  border-color: var(--line);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-chain__stage.is-evaluating .trust-chain__stage-num {
+    animation: none;
+  }
+}
+
 .trust-chain__stage-num {
   width: 1.75rem;
   height: 1.75rem;

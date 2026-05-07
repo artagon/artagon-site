@@ -424,12 +424,20 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 **Explain layer (Planned).** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §6.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol. **Status: not yet shipped.** The current `<TrustChainIsland />` component accepts no props; the explain layer is tracked as a follow-up to the USMR change. This subsection documents the intended shape so consumers know what to expect when it lands.
 
-**Animation primitives.** Two CSS keyframes ship in `public/assets/theme.css` ahead of the 5.1d-idle auto-progression wiring:
+**Animation primitives.** Two CSS keyframes ship in `public/assets/theme.css` and are consumed by `<TrustChainIsland>` for the 5.1d-idle auto-progression:
 
-- `chain-pulse` — 1.2 s ease-in-out infinite scale 1 → 1.08; consumed by `.trust-chain__stage.is-evaluating .trust-chain__stage-num` once auto-progression lands.
-- `chain-spin` + the `.chain-spinner` element — 0.7 s linear infinite rotation on an 8 px ring with a top accent border; consumed inline next to "checking…" copy in the 5.1d-idle evaluating state.
+- `chain-pulse` — 1.2 s ease-in-out infinite scale 1 → 1.08; applied to `.trust-chain__stage.is-evaluating .trust-chain__stage-num` while a stage is in flight.
+- `chain-spin` + the `.chain-spinner` element — 0.7 s linear infinite rotation on an 8 px ring with a top accent border; rendered inline next to "checking…" copy in the evaluating state.
 
-Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { animation: none }`. Stage-rows do not currently consume these primitives — wiring is part of the 5.1d-idle follow-up; the keyframes ship now so the auto-progression task is purely a TSX change.
+Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { animation: none }`. Auto-progression itself is also gated: under reduced motion OR when `navigator.webdriver` is true (Playwright / automated browsers), the chain renders fully resolved on first paint and skips the timer-based reveal.
+
+**Auto-progression timing** (USMR Phase 5.1d-idle, ports `new-design/extracted/src/pages/index.html:851-891`):
+
+- Initial kickoff delay: 400 ms after hydration.
+- First-stage evaluating window: 1100 ms.
+- Per-stage advance: 900 ms.
+- Halts on the first `fail` outcome — subsequent stages render as `skip` per the data contract.
+- Plays once on first mount only. Subsequent scenario changes (click / keyboard nav) settle the chain immediately to the resolved state — users who actively pick a scenario want the result, not a re-animation.
 
 **Keyboard navigation.** Stage rows are real `<button>` elements (USMR Phase 5.1p.1) so they appear in the tab order automatically. The scenario picker (`.trust-chain__scenarios`) follows the WAI-ARIA tablist pattern: `ArrowLeft` / `ArrowRight` walk between dots, `Home` / `End` jump to first / last. Click and keyboard paths converge on the same `setScenarioIdx` handler.
 

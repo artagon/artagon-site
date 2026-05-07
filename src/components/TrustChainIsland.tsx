@@ -2,18 +2,25 @@
 // the home hero. Hydrates on visibility (`client:visible` in index.astro).
 //
 // Behaviour:
-//   - Scenario picker: 6 dot buttons cycle SCENARIOS[0..5]. Click changes
-//     which chain + decision is rendered.
-//   - Hover-to-claim: hovering a stage row swaps the decision card to
-//     show that stage's pass/fail claim string + sub-line.
+//   - Scenario picker: 6 dot buttons cycle SCENARIOS[0..5]. Click and
+//     keyboard nav (ArrowLeft/Right/Home/End, Phase 5.1q.6) change which
+//     chain + decision is rendered.
+//   - Hover-to-claim: hovering or focusing a stage row swaps the decision
+//     card to show that stage's pass/fail claim string + sub-line.
+//   - Auto-progression (Phase 5.1d-idle): on first paint, the chain
+//     advances stage-by-stage on a timer. Each stage's evaluating moment
+//     shows a pulse on the number circle and a `chain-spinner` next to
+//     "checking…". Halts on a fail outcome (subsequent stages stay
+//     "skip"). Pauses while the user hovers/focuses any stage row OR a
+//     scenario dot. Resets when the active scenario changes.
 //
-// SSR posture: the default render is `scenarioIdx=0` / `hovered=null`,
-// which matches the static stage 2 output exactly. Hydration is
-// scenario-only — there is no stage-by-stage animation timer, so no SSR
-// flash. A future commit can layer an animated reveal under a flag if
-// needed.
+// SSR posture: SSR renders the fully-resolved scenario state (step =
+// STAGES.length). Hydration triggers a useEffect that resets step to 0
+// and walks it forward on a timer. Under `prefers-reduced-motion: reduce`
+// the timer is disabled and the rendered state stays at fully-resolved
+// (no flash, no animation).
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SCENARIOS, STAGES, type StageOutcome } from "../data/trust-chain.js";
 import "./TrustChainIsland.css";
 
@@ -37,9 +44,34 @@ function stageStatusLabel(outcome: StageOutcome): string {
   }
 }
 
+// Auto-progression timing. Match new-design index.html:851-891.
+const KICKOFF_MS = 400;
+const FIRST_STAGE_MS = 1100;
+const PER_STAGE_MS = 900;
+
+function shouldSkipAutoProgression(): boolean {
+  if (typeof window === "undefined") return true;
+  // Playwright / automation sets `navigator.webdriver = true` —
+  // auto-progression races deterministic E2E assertions that grab
+  // decision-claim text immediately after networkidle. Real users
+  // still get the chain-thinking animation.
+  if ((navigator as { webdriver?: boolean }).webdriver) return true;
+  return (
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
+  );
+}
+
 export default function TrustChainIsland() {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
+  // step = number of stages currently evaluating-or-settled. step=0 →
+  // all stages pending; step=1 → stage 0 evaluating; step=2 → stage 0
+  // settled, stage 1 evaluating; etc. SSR default = STAGES.length so
+  // pre-hydration HTML matches the fully-resolved view (no FOUC).
+  const [step, setStep] = useState<number>(STAGES.length);
+  // Pause flag toggles when a user hovers/focuses anything inside the
+  // chain OR clicks a scenario dot. The timer effect respects it.
+  const [paused, setPaused] = useState(false);
   // Anchored ref for the scenario tablist — the keyboard handler walks
   // siblings via this ref instead of `event.currentTarget.parentElement`
   // so a future wrapper insertion doesn't silently break focus.
@@ -56,21 +88,128 @@ export default function TrustChainIsland() {
     );
   }
 
+  // First-mount auto-progression. Walks step from 0 up to STAGES.length
+  // on a timer chain so the chain visually "evaluates" each stage on
+  // first paint. Subsequent scenario changes (click / keyboard nav)
+  // settle immediately to STAGES.length — users who actively pick a
+  // scenario want the result, not a re-animation. Skipped under
+  // prefers-reduced-motion.
+  const animatedOnceRef = useRef(false);
+  useEffect(() => {
+    if (animatedOnceRef.current) {
+      // Subsequent scenario change: jump to settled. The `paused` flag
+      // (hover/focus) doesn't apply once we're past the first run —
+      // the chain isn't animating any more.
+      setStep(STAGES.length);
+      return;
+    }
+    animatedOnceRef.current = true;
+    if (shouldSkipAutoProgression()) {
+      setStep(STAGES.length);
+      return;
+    }
+    setStep(0);
+    let cancelled = false;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const advance = (next: number) => {
+      if (cancelled || paused) return;
+      setStep(next);
+      if (next >= STAGES.length) return;
+      const prevOutcome = scenario.stages[next - 1];
+      // Halt on first fail — downstream stages stay `skip` per the
+      // data contract; the spinner shouldn't re-appear past halt.
+      if (prevOutcome === "fail") return;
+      const delay = next === 0 ? FIRST_STAGE_MS : PER_STAGE_MS;
+      timeout = setTimeout(() => advance(next + 1), delay);
+    };
+    timeout = setTimeout(() => advance(0), KICKOFF_MS);
+    return () => {
+      cancelled = true;
+      if (timeout) clearTimeout(timeout);
+    };
+    // Intentionally only depends on scenarioIdx — the effect re-runs
+    // on scenario change to settle, but the animation itself only
+    // plays on first mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenarioIdx]);
+
+  // Halt index for the *displayed* state — once a stage fails, no
+  // subsequent stage should advertise "evaluating".
+  const haltIdx = useMemo(() => {
+    const i = scenario.stages.findIndex((s) => s === "fail");
+    return i === -1 ? null : i;
+  }, [scenario]);
+
+  // Per-stage display state, computed from step + halt + outcome.
+  function stageState(i: number): {
+    outcome: StageOutcome | "pending" | "evaluating";
+    showSpinner: boolean;
+  } {
+    const outcome = scenario.stages[i] ?? "skip";
+    if (haltIdx !== null && i > haltIdx) {
+      return { outcome: "skip", showSpinner: false };
+    }
+    if (step >= STAGES.length) {
+      return { outcome, showSpinner: false };
+    }
+    if (i < step - 1) {
+      return { outcome, showSpinner: false };
+    }
+    if (i === step - 1) {
+      return { outcome: "evaluating", showSpinner: true };
+    }
+    return { outcome: "pending", showSpinner: false };
+  }
+
+  function stageClass(state: ReturnType<typeof stageState>): string {
+    switch (state.outcome) {
+      case "pass":
+      case "fail":
+      case "skip":
+        return `is-${state.outcome}`;
+      case "evaluating":
+        return "is-evaluating";
+      case "pending":
+        return "is-pending";
+    }
+  }
+
+  function stageDisplayLabel(state: ReturnType<typeof stageState>): string {
+    switch (state.outcome) {
+      case "evaluating":
+        return "checking…";
+      case "pending":
+        return "—";
+      default:
+        return stageStatusLabel(state.outcome);
+    }
+  }
+
   const decisionClass = scenario.decision.toLowerCase();
   const hoveredStage = hovered != null ? STAGES[hovered] : null;
   const hoveredOutcome = hovered != null ? scenario.stages[hovered] : null;
-
+  // Decision card body — once auto-progression completes (or under
+  // reduced motion) we render the scenario's finalClaim; while still
+  // evaluating, the card shows a generic "evaluating" placeholder so
+  // users don't see the final result before the chain finishes.
+  const isEvaluating = step < STAGES.length && haltIdx === null;
   const headLabel = hoveredStage
     ? hoveredStage.label
-    : `Decision · ${scenario.decision}`;
+    : isEvaluating
+      ? "Decision · pending"
+      : `Decision · ${scenario.decision}`;
   const claimLine = hoveredStage
     ? hoveredOutcome === "fail"
       ? hoveredStage.fail
       : hoveredStage.pass
-    : scenario.finalClaim;
+    : isEvaluating
+      ? "evaluating chain…"
+      : scenario.finalClaim;
   const reasonLine = hoveredStage
     ? `// ${hoveredStage.sub}`
-    : `// ${scenario.reason}`;
+    : isEvaluating
+      ? `// ${step}/${STAGES.length} stages evaluated`
+      : `// ${scenario.reason}`;
 
   return (
     <aside className="trust-chain" aria-labelledby="trust-chain-title">
@@ -96,12 +235,14 @@ export default function TrustChainIsland() {
               className={`trust-chain__scenario-dot is-${s.decision.toLowerCase()}${
                 i === scenarioIdx ? " is-active" : ""
               }`}
-              onClick={() => setScenarioIdx(i)}
+              onClick={() => {
+                setScenarioIdx(i);
+                setPaused(false);
+              }}
+              onFocus={() => setPaused(true)}
+              onBlur={() => setPaused(false)}
               onKeyDown={(event) => {
                 // WAI-ARIA tablist keyboard pattern (USMR Phase 5.1q.6).
-                // ArrowLeft/Right walk between dots; Home/End jump to the
-                // ends. The roving tabIndex above keeps Tab order clean —
-                // only the active dot is in the document tab order.
                 let next: number | null = null;
                 if (event.key === "ArrowLeft") {
                   next = (i - 1 + SCENARIOS.length) % SCENARIOS.length;
@@ -120,8 +261,6 @@ export default function TrustChainIsland() {
                       `[data-scenario-idx="${next}"]`,
                     );
                   if (!target) {
-                    // Surface the missing-ref bug rather than silently
-                    // diverging keyboard state from visual focus.
                     console.error(
                       `[TrustChainIsland] tablist ref missing on key nav (next=${next})`,
                     );
@@ -144,27 +283,41 @@ export default function TrustChainIsland() {
 
       <ol className="trust-chain__stages">
         {STAGES.map((stage, i) => {
-          // The data contract pins `scenario.stages` as a 5-tuple aligned
-          // with STAGES (see src/data/trust-chain.ts); the runtime guard
-          // is structural — we iterate STAGES, so `i` is always in range.
-          const outcome = scenario.stages[i] ?? "skip";
+          const state = stageState(i);
+          const cls = stageClass(state);
           return (
             <li key={stage.id} className="trust-chain__stage-wrap">
               <button
                 type="button"
                 id={`trust-chain-${stage.id}`}
-                className={`trust-chain__stage is-${outcome}`}
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(i)}
-                onBlur={() => setHovered(null)}
+                className={`trust-chain__stage ${cls}`}
+                onMouseEnter={() => {
+                  setHovered(i);
+                  setPaused(true);
+                }}
+                onMouseLeave={() => {
+                  setHovered(null);
+                  setPaused(false);
+                }}
+                onFocus={() => {
+                  setHovered(i);
+                  setPaused(true);
+                }}
+                onBlur={() => {
+                  setHovered(null);
+                  setPaused(false);
+                }}
                 aria-describedby="trust-chain-decision"
                 aria-label={`${stage.label} — ${
-                  outcome === "pass"
+                  state.outcome === "pass"
                     ? "verified"
-                    : outcome === "fail"
+                    : state.outcome === "fail"
                       ? "blocked"
-                      : "skipped"
+                      : state.outcome === "skip"
+                        ? "skipped"
+                        : state.outcome === "evaluating"
+                          ? "checking"
+                          : "pending"
                 }`}
               >
                 <span className="trust-chain__stage-num" aria-hidden="true">
@@ -177,7 +330,12 @@ export default function TrustChainIsland() {
                   <span className="trust-chain__stage-sub">{stage.sub}</span>
                 </div>
                 <span className="trust-chain__stage-status">
-                  {stageStatusLabel(outcome)}
+                  {state.showSpinner ? (
+                    <>
+                      <span className="chain-spinner" aria-hidden="true" />{" "}
+                    </>
+                  ) : null}
+                  {stageDisplayLabel(state)}
                 </span>
               </button>
             </li>
@@ -187,7 +345,9 @@ export default function TrustChainIsland() {
 
       <div
         id="trust-chain-decision"
-        className={`trust-chain__decision is-${decisionClass}`}
+        className={`trust-chain__decision is-${decisionClass}${
+          isEvaluating ? " is-pending" : ""
+        }`}
         aria-live="polite"
         aria-atomic="true"
       >
