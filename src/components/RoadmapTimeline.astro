@@ -1,0 +1,291 @@
+---
+// USMR Phase 5.7 — /roadmap 5-card timeline. Token-only port of
+// new-design/extracted/src/components/Roadmap.jsx. Static — no
+// React island, no client interactivity.
+import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
+---
+<section class="roadmap-timeline" aria-labelledby="roadmap-timeline-heading" id="roadmap-timeline">
+  <div class="roadmap-timeline__head">
+    <div>
+      <p class="roadmap-timeline__eyebrow">Roadmap</p>
+      <h2 id="roadmap-timeline-heading" class="roadmap-timeline__title display">
+        From authentication<br />
+        to <span class="roadmap-timeline__title-emphasis">authority.</span>
+      </h2>
+    </div>
+    <p class="roadmap-timeline__lede lead">
+      Five phases. Eighteen months. We ship core trust first, layer verifiable
+      credentials on top, then scale into federation and AI-agent authorization.
+    </p>
+  </div>
+
+  <ol class="roadmap-timeline__phases" aria-label="Roadmap phases V1 through V5">
+    {ROADMAP_PHASES.map((phase) => {
+      const meta = ROADMAP_STATUS[phase.status];
+      return (
+        <li class={`roadmap-phase roadmap-phase--${phase.status}`}>
+          <header class="roadmap-phase__head">
+            <span class="roadmap-phase__version">{phase.version}</span>
+            <span class="roadmap-phase__when">{phase.when}</span>
+          </header>
+
+          <p class="roadmap-phase__status">
+            <span class="roadmap-phase__dot" aria-hidden="true" />
+            <span>{meta.label}</span>
+          </p>
+
+          <h3 class="roadmap-phase__title">{phase.title}</h3>
+
+          <ul class="roadmap-phase__items">
+            {phase.items.map((item) => (
+              <li class="roadmap-phase__item">
+                <span class="roadmap-phase__bullet" aria-hidden="true">·</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </li>
+      );
+    })}
+  </ol>
+</section>
+
+<style>
+  .roadmap-timeline {
+    padding-block: clamp(64px, 8vw, 120px);
+  }
+
+  .roadmap-timeline__head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 56px;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .roadmap-timeline__eyebrow {
+    font-family: var(--f-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    margin: 0 0 0.5rem;
+  }
+
+  .roadmap-timeline__title {
+    font-family: var(--f-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+    letter-spacing: var(--display-tracking, -0.02em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0;
+  }
+  .roadmap-timeline__title-emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+
+  .roadmap-timeline__lede {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--fg-1);
+    max-width: 48ch;
+    justify-self: end;
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .roadmap-timeline__head {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 40px;
+    }
+    .roadmap-timeline__lede {
+      justify-self: start;
+    }
+  }
+
+  .roadmap-timeline__phases {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-1);
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+  }
+
+  @media (max-width: 1024px) {
+    .roadmap-timeline__phases {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 540px) {
+    .roadmap-timeline__phases {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .roadmap-phase {
+    padding: 24px;
+    border-right: 1px solid var(--line-soft);
+    position: relative;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .roadmap-phase:last-child {
+    border-right: 0;
+  }
+  @media (max-width: 1024px) {
+    .roadmap-phase {
+      border-right: 1px solid var(--line-soft);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .roadmap-phase:nth-child(2n) {
+      border-right: 0;
+    }
+  }
+  @media (max-width: 540px) {
+    .roadmap-phase {
+      border-right: 0;
+    }
+  }
+
+  .roadmap-phase__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .roadmap-phase__version {
+    font-family: var(--f-mono);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+
+  .roadmap-phase__when {
+    font-family: var(--f-mono);
+    font-size: 0.7rem;
+    color: var(--fg-3);
+  }
+
+  .roadmap-phase__status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-family: var(--f-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .roadmap-phase__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+  }
+
+  /* Per-status colors. The dot fill + label color follow the
+   * RoadmapStatusMeta token reference; this mapping mirrors
+   * src/data/roadmap.ts (Test gate `roadmap-data.test.mts`
+   * verifies the status enumeration matches). */
+  .roadmap-phase--shipping .roadmap-phase__dot,
+  .roadmap-phase--shipping .roadmap-phase__status {
+    color: var(--ok);
+  }
+  .roadmap-phase--shipping .roadmap-phase__dot {
+    background: var(--ok);
+    box-shadow: 0 0 10px var(--ok);
+  }
+  .roadmap-phase--in-build .roadmap-phase__dot,
+  .roadmap-phase--in-build .roadmap-phase__status {
+    color: var(--accent);
+  }
+  .roadmap-phase--in-build .roadmap-phase__dot {
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+  }
+  .roadmap-phase--design .roadmap-phase__dot,
+  .roadmap-phase--design .roadmap-phase__status {
+    color: var(--warn);
+  }
+  .roadmap-phase--design .roadmap-phase__dot {
+    background: var(--warn);
+    box-shadow: 0 0 10px var(--warn);
+  }
+  .roadmap-phase--planned .roadmap-phase__dot,
+  .roadmap-phase--planned .roadmap-phase__status {
+    color: var(--fg-3);
+  }
+  .roadmap-phase--planned .roadmap-phase__dot {
+    background: var(--fg-3);
+  }
+
+  .roadmap-phase__title {
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    color: var(--fg);
+    margin: 0;
+  }
+
+  .roadmap-phase__items {
+    list-style: none;
+    padding: 18px 0 0;
+    margin: 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .roadmap-phase__item {
+    font-size: 0.78rem;
+    color: var(--fg-1);
+    line-height: 1.45;
+    display: flex;
+    gap: 8px;
+  }
+
+  .roadmap-phase__bullet {
+    color: var(--fg-3);
+    margin-top: 1px;
+  }
+
+  @media (forced-colors: active) {
+    .roadmap-phase__dot {
+      background: CanvasText;
+      box-shadow: none;
+    }
+    .roadmap-phase--shipping .roadmap-phase__dot,
+    .roadmap-phase--in-build .roadmap-phase__dot {
+      background: Highlight;
+    }
+    .roadmap-phase--design .roadmap-phase__dot {
+      background: Mark;
+    }
+    .roadmap-phase--shipping .roadmap-phase__status,
+    .roadmap-phase--in-build .roadmap-phase__status {
+      color: Highlight;
+    }
+    .roadmap-phase--design .roadmap-phase__status {
+      color: Mark;
+    }
+  }
+</style>

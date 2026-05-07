@@ -828,6 +828,32 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Status: shipped.** USMR Phase 5.4 — `src/components/StandardsWall.astro` + `src/data/standards.ts`. Replaces the PageLayout stub from 5.1q.2.
 
+### 6.19 RoadmapTimeline (Roadmap route)
+
+**Purpose.** The `/roadmap` page's centerpiece — a 5-card horizontal timeline (V1-V5, 18 months) showing per-phase status, scope, and time band. Compresses an 18-month delivery plan into a single legible scan.
+
+**Anatomy.**
+
+- **Hero strip** — eyebrow (`Roadmap`) · `<h2>` with serif-italic emphasis on "authority." · 2-column lede.
+- **5-card grid** (`.roadmap-timeline__phases`) — equal-width columns separated by 1 px `var(--line-soft)`, all wrapped in a single 1 px `var(--line)` outer card. Each phase card is a `<li>` with header (`<span class="roadmap-phase__version">` mono prefix + `<span class="roadmap-phase__when">` time band right-aligned), status row (colored dot + uppercase mono label), title, and `<ul>` of scope items.
+- **Status dot** — 6 × 6 px `border-radius: 999px` colored token + matching `box-shadow: 0 0 10px <color>`. Status → token mapping documented in `src/data/roadmap.ts ROADMAP_STATUS`. Forced-colors mode swaps to system Highlight / Mark.
+
+**Rules.**
+
+- **Data lives in `src/data/roadmap.ts`** — `ROADMAP_PHASES` (5-tuple) + `ROADMAP_STATUS` map. The status enumeration is exhaustive — `tests/roadmap-data.test.mts` gates that every phase resolves AND that the progression is monotonic (V1 ahead of V2 ahead of V3, etc.).
+- **`id` field preserved** for `/roadmap#v3`-style deep links carried over from the 5.1c-era stub. The card's anchor is `#roadmap-phase-<id>` if rendered with `id` props (no anchors today; track for 5.7.x if external links exist).
+- **Status drives appearance, not content** — the dot color and label come from `ROADMAP_STATUS[phase.status]`; the per-status BEM modifier (`.roadmap-phase--shipping` etc.) selects the color in CSS. Don't hardcode dot colors per phase.
+- **Static-only** — no React island. Future phases might add a "filter by status" dropdown; that would land as a separate sub-task (5.7.x).
+
+**A11y.**
+
+- `<ol>` because the V1-V5 ordering is meaningful (chronological).
+- Status dot has `aria-hidden="true"` — the adjacent label conveys the same information for AT users.
+- The 5-card layout collapses to 2-column < 1024 px, then 1-column < 540 px. No horizontal scroll on any breakpoint.
+- Forced-colors override maps shipping / in-build → Highlight; design → Mark; planned → CanvasText (no color signaling).
+
+**Status: shipped.** USMR Phase 5.7 — `src/components/RoadmapTimeline.astro` + `src/data/roadmap.ts` (extended from the 5.1c stub; the prior `kpis[]` field dropped — never consumed downstream). The earlier `RoadmapPhaseCard.astro` / `RoadmapTable.astro` / `public/assets/roadmap.css` cards/table-toggle helpers deleted as orphans.
+
 ---
 
 ## 7 · Do's and Don'ts
