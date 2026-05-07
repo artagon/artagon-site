@@ -295,10 +295,10 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   }
   .onramp__card {
     position: relative;
-    border: 1px solid var(--border);
+    border: 1px solid var(--line);
     border-radius: 16px;
     padding: clamp(2rem, 4vw, 4.5rem) clamp(1.25rem, 3vw, 4rem);
-    background: linear-gradient(135deg, var(--bg-alt) 0%, var(--bg) 80%);
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg) 80%);
     overflow: hidden;
   }
   .onramp__strip {
@@ -310,7 +310,7 @@ const dateFmt = new Intl.DateTimeFormat("en", {
     justify-content: space-between;
     font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: var(--fs-micro);
-    color: var(--muted);
+    color: var(--fg-2);
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -333,19 +333,19 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   .onramp__lede {
     margin: 0 0 2rem;
     max-width: 52ch;
-    color: var(--muted);
+    color: var(--fg-2);
   }
   .onramp__contacts {
-    border: 1px solid var(--border);
+    border: 1px solid var(--line);
     border-radius: 12px;
     padding: 1.75rem;
-    background: var(--bg-alt);
+    background: var(--bg-1);
     font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: var(--fs-small);
   }
   .onramp__contacts-title {
     font-size: var(--fs-micro);
-    color: var(--muted);
+    color: var(--fg-2);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     margin-bottom: 0.875rem;
@@ -361,16 +361,16 @@ const dateFmt = new Intl.DateTimeFormat("en", {
     gap: 1rem;
   }
   .onramp__row dt {
-    color: var(--muted);
+    color: var(--fg-2);
     margin: 0;
   }
   .onramp__row dd {
-    color: var(--text);
+    color: var(--fg);
     margin: 0;
   }
   .onramp__footnote {
     margin: 0.875rem 0 0;
-    color: var(--muted);
+    color: var(--fg-2);
     font-size: var(--fs-micro);
     line-height: 1.5;
   }
@@ -396,7 +396,7 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   .writing-strip__more {
     font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: 0.875rem;
-    color: var(--brand-teal);
+    color: var(--accent);
     text-decoration: none;
     white-space: nowrap;
   }
@@ -423,24 +423,24 @@ const dateFmt = new Intl.DateTimeFormat("en", {
     gap: var(--space-2);
     height: 100%;
     padding: var(--space-6);
-    border: 1px solid var(--border);
+    border: 1px solid var(--line);
     border-radius: 12px;
     color: inherit;
     text-decoration: none;
-    background: var(--bg-alt);
+    background: var(--bg-1);
     transition:
       border-color 0.15s ease,
       transform 0.15s ease;
   }
   .writing-strip__link:hover,
   .writing-strip__link:focus-visible {
-    border-color: var(--brand-teal);
+    border-color: var(--accent);
     transform: translateY(-2px);
   }
   .writing-strip__date {
     font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: var(--fs-micro);
-    color: var(--muted);
+    color: var(--fg-2);
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -450,7 +450,7 @@ const dateFmt = new Intl.DateTimeFormat("en", {
     margin: 0;
   }
   .writing-strip__lede {
-    color: var(--muted);
+    color: var(--fg-2);
     line-height: 1.55;
     margin: 0;
     display: -webkit-box;
@@ -462,7 +462,7 @@ const dateFmt = new Intl.DateTimeFormat("en", {
     margin-top: auto;
     font-family: ui-monospace, Menlo, Consolas, monospace;
     font-size: var(--fs-micro);
-    color: var(--brand-teal);
+    color: var(--accent);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }

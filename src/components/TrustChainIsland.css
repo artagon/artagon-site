@@ -13,9 +13,9 @@
  */
 
 .trust-chain {
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
   padding: clamp(1.25rem, 2vw, 1.75rem);
   box-shadow: 0 0 80px -20px var(--ok);
   transition:
@@ -30,10 +30,10 @@
   gap: 1rem;
   padding-bottom: 0.875rem;
   margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--line);
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: var(--fs-micro);
-  color: var(--muted);
+  color: var(--fg-2);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -50,7 +50,7 @@
   border-radius: 999px;
   border: 0;
   padding: 0;
-  background: var(--muted);
+  background: var(--fg-2);
   opacity: 0.35;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -91,13 +91,13 @@
 .trust-chain__scenario-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text);
+  color: var(--fg);
 }
 
 .trust-chain__scenario-context {
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.65625rem;
-  color: var(--muted);
+  color: var(--fg-2);
   letter-spacing: 0.05em;
 }
 
@@ -117,23 +117,23 @@
   align-items: center;
   padding: 0.875rem 1rem;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  background: var(--bg-1);
   cursor: pointer;
   transition: all 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .trust-chain__stage.is-pass {
-  border-color: color-mix(in oklab, var(--ok) 50%, var(--border));
-  background: color-mix(in oklab, var(--ok) 14%, var(--bg-alt));
+  border-color: color-mix(in oklab, var(--ok) 50%, var(--line));
+  background: color-mix(in oklab, var(--ok) 14%, var(--bg-1));
   box-shadow:
     0 0 18px -3px var(--ok),
     inset 0 0 14px -4px var(--ok);
 }
 
 .trust-chain__stage.is-fail {
-  border-color: color-mix(in oklab, var(--bad) 60%, var(--border));
-  background: color-mix(in oklab, var(--bad) 10%, var(--bg-alt));
+  border-color: color-mix(in oklab, var(--bad) 60%, var(--line));
+  background: color-mix(in oklab, var(--bad) 10%, var(--bg-1));
   box-shadow:
     0 0 24px -4px var(--bad),
     inset 0 0 18px -6px var(--bad);
@@ -147,14 +147,14 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 999px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--line);
   display: grid;
   place-items: center;
   background: var(--bg);
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.625rem;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--fg-2);
   transition: all 0.35s ease;
 }
 
@@ -181,24 +181,24 @@
 .trust-chain__stage-label {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--text);
+  color: var(--fg);
 }
 
 .trust-chain__stage.is-skip .trust-chain__stage-label {
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 .trust-chain__stage-sub {
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.6875rem;
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 .trust-chain__stage-status {
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.6875rem;
   white-space: nowrap;
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 .trust-chain__stage.is-pass .trust-chain__stage-status {
@@ -213,16 +213,16 @@
   margin-top: 1.25rem;
   padding: 0.875rem 1.125rem;
   border-radius: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   background: var(--bg);
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.75rem;
-  color: var(--text);
+  color: var(--fg);
   transition: all 0.5s ease;
 }
 
 .trust-chain__decision.is-permit {
-  border-color: color-mix(in oklab, var(--ok) 50%, var(--border));
+  border-color: color-mix(in oklab, var(--ok) 50%, var(--line));
   background: color-mix(in oklab, var(--ok) 8%, var(--bg));
   box-shadow:
     0 0 26px -4px var(--ok),
@@ -230,7 +230,7 @@
 }
 
 .trust-chain__decision.is-deny {
-  border-color: color-mix(in oklab, var(--bad) 60%, var(--border));
+  border-color: color-mix(in oklab, var(--bad) 60%, var(--line));
   background: color-mix(in oklab, var(--bad) 10%, var(--bg));
   box-shadow:
     0 0 20px -4px var(--bad),
@@ -244,7 +244,7 @@
   font-size: 0.625rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 .trust-chain__decision.is-permit .trust-chain__decision-pep {
@@ -257,7 +257,7 @@
 
 .trust-chain__decision-claim {
   font-weight: 500;
-  color: var(--text);
+  color: var(--fg);
 }
 
 .trust-chain__decision.is-permit .trust-chain__decision-claim {
@@ -270,5 +270,5 @@
 
 .trust-chain__decision-reason {
   margin-top: 0.375rem;
-  color: var(--muted);
+  color: var(--fg-2);
 }

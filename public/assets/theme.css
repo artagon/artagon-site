@@ -41,10 +41,27 @@
     --nd-bad: oklch(0.66 0.18 25);
     /* Public semantic aliases over the --nd-* staging set. Components
      * reference these (var(--bad), etc.) so the staging definitions
-     * can evolve without touching every consumer. */
+     * can evolve without touching every consumer. The --nd-* set is
+     * the new-design vocabulary verbatim; the public aliases drop the
+     * `--nd-` prefix per DESIGN.md §"Color tokens".
+     *
+     * USMR Phase 5.1h migrates legacy vocab (--text / --muted / --border
+     * / --brand-teal / --bg-alt) onto these aliases. Old aliases stay
+     * as deprecation shims for one release, dropped in a follow-up. */
     --bad: var(--nd-bad);
     --ok: var(--nd-ok);
     --warn: var(--nd-warn);
+    --fg: var(--nd-fg);
+    --fg-1: var(--nd-fg-1);
+    --fg-2: var(--nd-fg-2);
+    --fg-3: var(--nd-fg-3);
+    --accent: var(--nd-accent);
+    --accent-dim: var(--nd-accent-dim);
+    --accent-ink: var(--nd-accent-ink);
+    --bg-1: var(--nd-bg-1);
+    --bg-2: var(--nd-bg-2);
+    --line: var(--nd-line);
+    --line-soft: var(--nd-line-soft);
 
     /* ----- Motion ----- */
     --motion-duration-instant: 0ms;

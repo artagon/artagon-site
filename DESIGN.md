@@ -187,6 +187,21 @@ verbatim into the build output). `src/layouts/BaseLayout.astro` references
 the file via a `<link rel="stylesheet" href="/assets/theme.css">` tag, so
 every Astro page in `src/pages/*.astro` picks up the same token set.
 
+**Token aliasing.** The public tokens listed below (`--bg`, `--bg-1/2`,
+`--line`, `--line-soft`, `--fg`, `--fg-1/2/3`, `--accent`, `--accent-dim`,
+`--accent-ink`, `--ok`, `--warn`, `--bad`) are aliases over an internal
+`--nd-*` staging set defined earlier in `theme.css`. The aliases are the
+**stable contract** — components consume them. The `--nd-*` set is the
+new-design vocabulary verbatim; preserved so future palette experiments
+can revise OKLCH triples without touching every consumer. Never reference
+`--nd-*` directly from a component; always use the unprefixed alias.
+
+Legacy aliases `--text` / `--muted` / `--border` / `--brand-teal` /
+`--bg-alt` are deprecation shims retained for one release after USMR
+Phase 5.1h migrates the project. They map 1:1 to `--fg` / `--fg-2` /
+`--line` / `--accent` / `--bg-1` respectively. Drop them in the
+follow-up migration commit once consumers have moved.
+
 ### 2.1 Base palette (dark, default)
 
 | Token         | OKLCH                   | Role                  |
