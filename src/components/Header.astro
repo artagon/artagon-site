@@ -5,9 +5,9 @@ const active = (href: string) => path === href || path.startsWith(href + "/");
 
 // USMR Phase 5.1l — header route list matches the new-design mock.
 // Drops Vision / FAQ / Developers / Docs from the visible nav (those
-// routes still resolve when typed). Adds Bridge (→ /platform#bridge
-// once Phase 7.4 ships the redirect) and Use cases. Blog aliases
-// /writing for now; a /blog → /writing redirect ships in a follow-up.
+// routes still resolve when typed). Adds Bridge and Use cases. The
+// "Blog" label points at /writing (both URLs land on the same
+// content via the /blog → /writing 301 redirect added in 5.5).
 const NAV_LINKS = [
   { href: "/platform", label: "Platform" },
   { href: "/bridge", label: "Bridge" },

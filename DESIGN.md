@@ -881,6 +881,32 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Status: shipped.** USMR Phase 5.3 — `src/components/UseCasesIsland.tsx` + `src/components/UseCasesIsland.css` + `src/data/use-cases.ts`. Replaces the PageLayout stub from 5.1q.1.
 
+### 6.21 Writing index (Blog alias)
+
+**Purpose.** The `/writing` route — surfaced in the header nav as "Blog" — lists every published post. The new-design canonical brands the page as "Blog · Field notes from the Artagon team"; the underlying URL stays `/writing` and a `/blog` → `/writing` 301 redirect (Cloudflare `_redirects`, including `/blog/*` → `/writing/:splat` for slug parity) means both labels resolve.
+
+**Anatomy.**
+
+- **Hero strip** (`.writing-hero`) — eyebrow (mono uppercase, `Blog · Field notes from the Artagon team`) · `<h1>` with `<span class="writing-hero__emphasis">trust</span>` rendered in `var(--f-emphasis, var(--f-serif))` italic · 18 px lede in `var(--fg-2)`. Bottom border (1 px `--line-soft`) separates hero from list.
+- **Post list** (`.writing-list`) — vertical stack of `.post-card`s. Each card is a 2-column grid: 140 px mono-stacked date column (`YYYY` on first line, `MM · DD` on second) + flex content (display-font `<h2>`, lede excerpt, mono meta line `Tag · X min read · Author`). Bottom border (1 px `--line-soft`) per card.
+- **Empty state** — single line "No posts yet — check back soon." in `var(--fg-2)`. Renders if every post is marked `draft: true`.
+
+**Rules.**
+
+- **Sort order** — `published` desc. Drafts (`draft: true`) are filtered out at build time.
+- **Reading-time estimate** computed from the rendered body at build time using a 220 wpm baseline (see `readingMinutes()` in the page frontmatter). Floor of 1 minute.
+- **Primary tag** drives the meta-line eyebrow — first entry of `frontmatter.tags[]` (e.g. "Strategy" / "Engineering" / "Launch"). Falls back to `Field notes` when `tags[]` is empty.
+- **Author byline** is optional — resolves through the `authors` collection by slug. A missing or unresolved slug renders the meta line without a byline rather than failing the build.
+- **Hover tint** matches the canonical: `color-mix(in oklab, var(--accent) 4%, transparent)`. `:focus-visible` adds a 2 px `var(--accent)` outline with 4 px offset on top of the tint.
+
+**A11y.**
+
+- Hero is a `<section aria-labelledby="writing-hero-heading">`; list is a `<section aria-label="Posts">`. Each card is a single `<a>` (the entire card is the link target, so screen readers read once and don't double-announce).
+- `<time datetime="ISO-8601">` wraps the date column so AT users get the canonical date string instead of the visually-stacked `2026 04 · 21` layout.
+- Forced-colors override: hover tint resolves to `Canvas`; focus outline resolves to `Highlight`.
+
+**Status: shipped.** USMR Phase 5.5 — `src/pages/writing/index.astro` rewrite (replaces the 5.1q `--brand-teal` stub). `/blog` → `/writing` 301 added to `public/_redirects`. The detail-route refresh (TOC sidebar + related posts + RSS CTA) lands separately as 5.6.
+
 ---
 
 ## 7 · Do's and Don'ts

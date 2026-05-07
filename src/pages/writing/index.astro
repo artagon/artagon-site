@@ -1,20 +1,68 @@
 ---
+// USMR Phase 5.5 — /writing index. Refreshes the 5.1q-era stub to
+// match new-design/extracted/src/pages/blog.html (the canonical "Blog
+// · Field notes…" composition). The route remains canonically /writing
+// — the new /blog redirect (added in this phase) sends visitors here.
+//
+// Card layout is 140 px mono-stacked date column + flex content
+// (title + lede + meta strip). Hover tints with `color-mix(in oklab,
+// var(--accent) 4%, transparent)` matching the canonical .post-card
+// hover state.
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 
+interface PostMeta {
+  id: string;
+  data: {
+    headline: string;
+    lede: string;
+    published: Date;
+    tags: string[];
+    author?: string;
+  };
+  body: string | undefined;
+}
+
 const posts = (await getCollection('writing'))
   .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime()) as readonly PostMeta[];
 
-const dateFmt = new Intl.DateTimeFormat('en', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-});
+// Resolve authors lazily — a missing slug renders the post without a
+// byline rather than crashing the index. (Schema marks `author`
+// optional already, so bypassing the resolution is safe.)
+const authors = await getCollection('authors');
+const authorByName = new Map(authors.map((a) => [a.id, a.data.name]));
+
+// 5 wpm tail in the canonical "X min read" string. Reading speed of
+// 220 wpm is the WPM widely used by Medium/Substack-class readers.
+const WPM = 220;
+function readingMinutes(body: string | undefined): number {
+  if (!body) return 1;
+  const words = body.trim().split(/\s+/).length;
+  return Math.max(1, Math.round(words / WPM));
+}
+
+interface DateParts {
+  year: string;
+  monthDay: string;
+  iso: string;
+}
+function dateParts(d: Date): DateParts {
+  const year = String(d.getFullYear());
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return { year, monthDay: `${month} · ${day}`, iso: d.toISOString() };
+}
+
+// "Strategy" / "Engineering" / "Launch" — first tag as the meta-line
+// eyebrow. Matches the canonical "Strategy · 4 min read · Author"
+// pattern from new-design blog.html lines 846/855/864.
+function primaryTag(tags: string[]): string {
+  return tags[0] ?? 'Field notes';
+}
 ---
-
 <Base
   title="Writing — Artagon"
   description="Field notes, technical write-ups, and announcements from the team building the Artagon identity platform."
@@ -22,92 +70,178 @@ const dateFmt = new Intl.DateTimeFormat('en', {
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <article class="writing-index container">
-    <header class="writing-index__hero">
-      <p class="writing-index__eyebrow">Writing</p>
-      <h1>Field notes from the team building Artagon.</h1>
-    </header>
+  <main id="main">
+    <section class="writing-hero" aria-labelledby="writing-hero-heading">
+      <div class="writing-wrap">
+        <p class="writing-hero__eyebrow">Blog · Field notes from the Artagon team</p>
+        <h1 id="writing-hero-heading" class="writing-hero__title display">
+          Writing on <span class="writing-hero__emphasis">trust</span>, identity, and verifiable systems.
+        </h1>
+        <p class="writing-hero__lede">
+          Engineering notes, strategy, and field reports from the team building Artagon.
+        </p>
+      </div>
+    </section>
 
-    {
-      posts.length === 0 ? null : (
-        <ul role="list" class="writing-index__list">
-          {posts.map((post) => (
-            <li class="writing-index__item">
-              <a class="writing-index__link" href={`/writing/${post.id}`}>
-                <time
-                  class="writing-index__date"
-                  datetime={post.data.published.toISOString()}
-                >
-                  {dateFmt.format(post.data.published)}
+    {posts.length === 0 ? (
+      <section class="writing-list" aria-label="Posts">
+        <div class="writing-wrap">
+          <p class="writing-list__empty">No posts yet — check back soon.</p>
+        </div>
+      </section>
+    ) : (
+      <section class="writing-list" aria-label="Posts">
+        <div class="writing-wrap">
+          {posts.map((post) => {
+            const parts = dateParts(post.data.published);
+            const minutes = readingMinutes(post.body);
+            const tag = primaryTag(post.data.tags);
+            const byline = post.data.author ? authorByName.get(post.data.author) : undefined;
+            return (
+              <a class="post-card" href={`/writing/${post.id}`}>
+                <time class="post-card__date" datetime={parts.iso}>
+                  <span class="post-card__date-year">{parts.year}</span>
+                  <span class="post-card__date-md">{parts.monthDay}</span>
                 </time>
-                <h2 class="writing-index__title">{post.data.headline}</h2>
-                <p class="writing-index__lede">{post.data.lede}</p>
+                <div class="post-card__body">
+                  <h2 class="post-card__title">{post.data.headline}</h2>
+                  <p class="post-card__excerpt">{post.data.lede}</p>
+                  <p class="post-card__meta">
+                    {tag} · {minutes} min read{byline ? ` · ${byline}` : ''}
+                  </p>
+                </div>
               </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
-  </article>
+            );
+          })}
+        </div>
+      </section>
+    )}
+  </main>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
 
 <style>
-  .writing-index {
-    padding-block: var(--space-12);
-    max-width: 64rem;
+  .writing-wrap {
+    max-width: 920px;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
   }
-  .writing-index__hero {
-    margin-block-end: var(--space-12);
+
+  .writing-hero {
+    padding-block: clamp(56px, 8vw, 80px) clamp(40px, 6vw, 56px);
+    border-bottom: 1px solid var(--line-soft);
   }
-  .writing-index__eyebrow {
+  .writing-hero__eyebrow {
     font-family: var(--f-mono);
+    font-size: 0.72rem;
+    color: var(--fg-3);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.75rem;
-    color: var(--fg-2);
-    margin: 0 0 var(--space-2);
+    margin: 0 0 1.25rem;
   }
-  .writing-index__hero h1 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1.1;
+  .writing-hero__title {
+    font-family: var(--f-display);
+    font-size: clamp(44px, 5.5vw, 84px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.02em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0 0 20px;
+    max-width: 18ch;
+  }
+  .writing-hero__emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+  .writing-hero__lede {
+    color: var(--fg-2);
+    font-size: 18px;
+    line-height: 1.55;
+    max-width: 54ch;
     margin: 0;
   }
-  .writing-index__list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: var(--space-8);
+
+  .writing-list {
+    padding-block: clamp(40px, 6vw, 56px) clamp(80px, 12vw, 120px);
   }
-  .writing-index__link {
-    display: block;
-    color: inherit;
-    text-decoration: none;
-    border-block-end: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
-    padding-block-end: var(--space-6);
-    transition: border-color 0.15s ease;
-  }
-  .writing-index__link:hover,
-  .writing-index__link:focus-visible {
-    border-color: var(--brand-teal);
-  }
-  .writing-index__date {
-    font-family: var(--f-mono);
-    font-size: 0.8rem;
+  .writing-list__empty {
     color: var(--fg-2);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .writing-index__title {
-    font-size: clamp(1.5rem, 2.5vw, 2rem);
-    margin: var(--space-2) 0;
-    line-height: 1.2;
-  }
-  .writing-index__lede {
-    color: var(--fg-2);
+    font-size: 17px;
     line-height: 1.6;
     margin: 0;
+  }
+
+  .post-card {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--line-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease;
+  }
+  .post-card:hover,
+  .post-card:focus-visible {
+    background: color-mix(in oklab, var(--accent) 4%, transparent);
+  }
+  .post-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 540px) {
+    .post-card {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .post-card__date {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--fg-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .post-card__date-year { display: block; }
+  .post-card__date-md { display: block; }
+
+  .post-card__title {
+    font-family: var(--f-display);
+    font-size: clamp(24px, 2.2vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    margin: 0 0 10px;
+    font-weight: 500;
+  }
+  .post-card__excerpt {
+    color: var(--fg-2);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0 0 14px;
+    max-width: 64ch;
+  }
+  .post-card__meta {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--fg-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  @media (forced-colors: active) {
+    .post-card:hover,
+    .post-card:focus-visible {
+      background: Canvas;
+      outline: 2px solid Highlight;
+    }
   }
 </style>
