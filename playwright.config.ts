@@ -10,6 +10,11 @@ import { BUILD } from "./build.config.ts";
  */
 export default defineConfig({
   testDir: "./tests",
+  // Playwright tests use *.spec.ts; *.test.mjs runs under node:test
+  // (see test:node script) and *.test.mts under vitest (test:vitest).
+  // Without this restriction, Playwright's default testMatch picks up
+  // vitest files and crashes with @vitest/expect symbol collisions.
+  testMatch: "**/*.spec.ts",
   outputDir: BUILD.reports.playwright.results,
 
   // Run tests in parallel
