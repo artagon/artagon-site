@@ -241,7 +241,8 @@ export default function TrustChainIsland() {
       ? hoveredStage.fail
       : hoveredStage.pass
     : isEvaluating
-      ? "evaluating chain…"
+      ? // USMR 5.5.11 Task #34 — canonical Hero.jsx:417 stage-aware claim.
+        `evaluating stage ${String(Math.min(step + 1, STAGES.length)).padStart(2, "0")}/${String(STAGES.length).padStart(2, "0")}…`
       : scenario.finalClaim;
   const reasonLine = hoveredStage
     ? `// ${hoveredStage.sub}`
@@ -249,8 +250,39 @@ export default function TrustChainIsland() {
       ? `// ${step}/${STAGES.length} stages evaluated`
       : `// ${scenario.reason}`;
 
+  // USMR 5.5.11 Task #28 — dynamic card-shell glow + border per
+  // canonical Hero.jsx:215-243. Glow intensity grows with passed
+  // stages while evaluating; settled state flips to PERMIT-cyan or
+  // DENY-red. transition is on the inline style so the shadow
+  // animates as stages settle.
+  const isDeny = scenario.decision === "DENY";
+  const finalShown = step >= STAGES.length;
+  const passedCount = scenario.stages
+    .slice(0, Math.max(0, step))
+    .filter((s) => s === "pass").length;
+  const glowIntensity = Math.min(passedCount / STAGES.length, 1);
+  const C_PASS = "var(--accent)";
+  const C_FAIL = "var(--bad)";
+  const C_FAIL_DIM = "color-mix(in oklab, var(--bad) 60%, var(--bg))";
+  const cardShellStyle: React.CSSProperties = {
+    boxShadow: finalShown
+      ? isDeny
+        ? `0 0 60px -20px ${C_FAIL}, inset 0 0 60px -30px ${C_FAIL}`
+        : `0 0 80px -12px ${C_PASS}, inset 0 0 40px -20px ${C_PASS}`
+      : `0 0 ${40 + glowIntensity * 60}px -20px ${C_PASS}`,
+    borderColor: finalShown && isDeny ? C_FAIL_DIM : "var(--line)",
+    transition: "box-shadow .6s ease, border-color .4s ease",
+  };
+
   return (
-    <aside className="trust-chain" aria-labelledby="trust-chain-title">
+    <aside
+      className="trust-chain"
+      aria-labelledby="trust-chain-title"
+      style={cardShellStyle}
+      data-decision-final={
+        finalShown ? scenario.decision.toLowerCase() : "pending"
+      }
+    >
       <header className="trust-chain__head">
         <span id="trust-chain-title">Compounding trust chain</span>
         <div
