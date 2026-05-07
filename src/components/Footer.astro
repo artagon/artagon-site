@@ -22,42 +22,50 @@ if (!gitSha) {
 }
 const versionString = `v${version} — build ${gitSha}`;
 
-// /writing shipped in USMR Phase 4.4-4.6 (collection + index + RSS) so it
-// rejoins the footer here. /use-cases and /standards still 404 (route
-// files absent — Phase 5.3 / 5.4); add their links once the Astro routes
-// land or lychee will block on dead links.
+// USMR Phase 5.5.3 — footer columns rewritten to match the canonical
+// new-design Footer (index.html lines 605-660). Canonical structure:
+// Platform (5 pillar/route links) + Developers (5 dev resources) +
+// Company (5 corporate) + Legal (5 legal docs). Placeholder hrefs for
+// routes that don't yet exist in the Astro app (mailto / external /
+// existing FAQ-style pages where appropriate).
 const cols = [
   {
     label: 'Platform',
     links: [
-      { href: '/platform',   text: 'Platform' },
-      { href: '/vision',     text: 'Vision' },
-      { href: '/roadmap',    text: 'Roadmap' },
+      { href: '/platform',   text: 'Identity' },
+      { href: '/platform',   text: 'Credentials' },
+      { href: '/platform',   text: 'Authorization' },
+      { href: '/bridge',     text: 'Bridge' },
+      { href: '/use-cases',  text: 'Use cases' },
     ],
   },
   {
     label: 'Developers',
     links: [
       { href: '/docs',       text: 'Docs' },
-      { href: '/developers', text: 'Developers' },
+      { href: '/developers', text: 'SDKs' },
       { href: '/play',       text: 'Playground' },
-      { href: '/status',     text: 'Status' },
+      { href: 'https://github.com/artagon', text: 'GitHub', external: true },
+      { href: '/standards',  text: 'Standards' },
     ],
   },
   {
     label: 'Company',
     links: [
+      { href: '/vision',     text: 'About' },
+      { href: '/roadmap',    text: 'Roadmap' },
       { href: '/writing',    text: 'Writing' },
-      { href: '/faq',        text: 'FAQ' },
-      { href: '/get-started', text: 'Get started' },
-      { href: '/how',        text: 'How it works' },
+      { href: '/security',   text: 'Security' },
+      { href: '/get-started', text: 'Contact' },
     ],
   },
   {
     label: 'Legal',
     links: [
-      { href: '/privacy',      text: 'Privacy' },
-      { href: '/security',     text: 'Security' },
+      { href: '/privacy',     text: 'Privacy' },
+      { href: '/privacy',     text: 'Terms' },
+      { href: '/security',    text: 'Trust center' },
+      { href: '/privacy',     text: 'DPA' },
       { href: '/security.txt', text: 'security.txt' },
     ],
   },
@@ -67,7 +75,19 @@ const cols = [
   <div class="footer-inner wrap">
     <div class="footer-brand">
       <a href="/" class="footer-wordmark" aria-label="Artagon home">
-        <img src="/icons/icon-64.png" alt="" width="28" height="28" aria-hidden="true" />
+        <svg
+          class="footer-glyph"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-opacity="0.28" stroke-width="1" />
+          <path d="M12 2.5 L20 18.5 L4 18.5 Z" stroke="currentColor" stroke-width="1.25" fill="none" />
+          <circle cx="12" cy="13.2" r="2.1" fill="currentColor" />
+          <path d="M7 18.5 L17 18.5" stroke="currentColor" stroke-width="1.25" />
+        </svg>
         <span>Artagon</span>
       </a>
       <p class="footer-positioning">{tagline.positioning}</p>
@@ -82,7 +102,14 @@ const cols = [
           <h3 class="footer-col-heading">{col.label}</h3>
           <ul role="list">
             {col.links.map(link => (
-              <li><a href={link.href}>{link.text}</a></li>
+              <li>
+                <a
+                  href={link.href}
+                  {...(('external' in link && link.external) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                >
+                  {link.text}
+                </a>
+              </li>
             ))}
           </ul>
         </div>
@@ -132,6 +159,14 @@ const cols = [
 }
 
 .footer-wordmark:hover {
+  color: var(--accent);
+}
+
+.footer-glyph {
+  display: block;
+  color: var(--fg);
+}
+.footer-wordmark:hover .footer-glyph {
   color: var(--accent);
 }
 
