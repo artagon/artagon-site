@@ -5,7 +5,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Tagline from "../components/Tagline.astro";
 import MissionSection from "../components/MissionSection.astro";
-import TrustChainViz from "../components/TrustChainViz.astro";
+import TrustChainIsland from "../components/TrustChainIsland";
 import { ORG } from "../data/organization";
 import { PILLARS } from "../data/pillars";
 
@@ -64,7 +64,7 @@ const dateFmt = new Intl.DateTimeFormat("en", {
         </div>
       </div>
       <div class="hero-art">
-        <TrustChainViz />
+        <TrustChainIsland client:visible />
       </div>
     </div>
 
