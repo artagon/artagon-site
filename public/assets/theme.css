@@ -424,6 +424,38 @@ body {
     );
   background-color: var(--bg, #0b1220); /* fallback */
 }
+
+/* USMR Phase 5.1m — body backdrop grid (88x88 px lines, radial-mask
+ * fade-out from 50%/20% center). Ports new-design global.css lines
+ * 79-91. Sits behind page content via z-index: 0; main content rises
+ * above it. Disabled per-route via `body.no-grid` for surfaces that
+ * ship their own visual (e.g. /play). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 88px 88px;
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(
+    ellipse at 50% 20%,
+    black 30%,
+    transparent 80%
+  );
+  mask-image: radial-gradient(ellipse at 50% 20%, black 30%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+body.no-grid::before {
+  display: none;
+}
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
 a {
   color: var(--brand-sky, var(--primary, #22e3c5));
 }
