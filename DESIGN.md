@@ -924,6 +924,39 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 - Icon-only buttons have `aria-label`.
 - Landmark regions (`<header>`, `<main>`, `<nav>`, `<footer>`) on every page.
 
+### 11.6 Tap targets (WCAG 2.5.5 / 2.5.8)
+
+- **Minimum**: 44 × 44 CSS px hit area for every interactive control. Visible target may be smaller — invisible padding extends the hit area (e.g. trust-chain scenario dots are 9 × 9 px visually with 44 × 44 px parent button).
+- Implementation pattern: outer `<button>` with `padding`, inner `::before` pseudo-element renders the visible dot.
+- Consumed by: scenario picker (`.trust-chain__scenario-dot`), site-nav `.btn` CTAs, footer link list (single-line per row), theme toggle.
+
+### 11.7 Forced colors mode
+
+`@media (forced-colors: active)` mappings ship globally in `public/assets/theme.css`:
+
+| Token             | System color |
+| ----------------- | ------------ |
+| `--bg` / `--bg-1` | `Canvas`     |
+| `--fg*`           | `CanvasText` |
+| `--accent`        | `Highlight`  |
+| `--ok`            | `Highlight`  |
+| `--bad`/`--warn`  | `Mark`       |
+| `--line`          | `CanvasText` |
+
+All decorative `box-shadow` declarations and keyframe animations halt under forced-colors; component-scoped overrides (`TrustChainIsland.css`) handle composition-specific cases (pass border = `Highlight`, fail border = `Mark`).
+
+### 11.8 Touch tap-toggle
+
+Hover-only affordances are mirrored to a touch-friendly press state. Trust-chain stage rows expose `aria-pressed` toggled on tap (`pressedIdx` state in `<TrustChainIsland>`). Decision-claim resolution priority: pressed > hovered > scenario.finalClaim. Same affordance reaches keyboard users via `Enter` / `Space` on a focused row.
+
+### 11.9 Focus indicators
+
+Site-wide rule in `public/assets/theme.css`: every `<a>`, `<button>`, `<input>`, `<select>`, `<textarea>`, `<summary>`, and `[tabindex]:not([tabindex="-1"])` gains `outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px` on `:focus-visible`. Forced-colors mode swaps the outline to `Highlight`. Component-scoped overrides may tighten the outline (e.g. `.trust-chain__scenario-dot` uses 6 px radius to match the dot's rounding).
+
+### 11.10 Automated CI gate
+
+[`tests/home-axe.spec.ts`](./tests/home-axe.spec.ts) runs `@axe-core/playwright` with WCAG 2.1 A + AA tags on chromium / webkit / Mobile Safari. Mandatory since 5.1p.8 (no env-var opt-in). Future regressions block merge.
+
 ---
 
 ## 12 · Performance

@@ -64,6 +64,12 @@ function shouldSkipAutoProgression(): boolean {
 export default function TrustChainIsland() {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
+  // pressedIdx mirrors the hover affordance for touch users
+  // (enhance-a11y-coverage Phase 1). Tapping a stage row toggles
+  // pressed state; same idx → null, different idx → that idx.
+  // Decision-claim resolution priority: pressed > hovered > scenario
+  // finalClaim. `aria-pressed` reflects whether `pressedIdx === i`.
+  const [pressedIdx, setPressedIdx] = useState<number | null>(null);
   // step = number of stages currently evaluating-or-settled. step=0 →
   // all stages pending; step=1 → stage 0 evaluating; step=2 → stage 0
   // settled, stage 1 evaluating; etc. SSR default = STAGES.length so
@@ -186,8 +192,14 @@ export default function TrustChainIsland() {
   }
 
   const decisionClass = scenario.decision.toLowerCase();
-  const hoveredStage = hovered != null ? STAGES[hovered] : null;
-  const hoveredOutcome = hovered != null ? scenario.stages[hovered] : null;
+  // Pressed (touch) state takes precedence over hovered (mouse). The
+  // aria-pressed attribute on each stage row reflects whether THIS
+  // particular stage is pressed; hover-only users still get the
+  // hovered-driven decision-claim swap unchanged.
+  const focusedIdx = pressedIdx ?? hovered;
+  const hoveredStage = focusedIdx != null ? STAGES[focusedIdx] : null;
+  const hoveredOutcome =
+    focusedIdx != null ? scenario.stages[focusedIdx] : null;
   // Decision card body — once auto-progression completes (or under
   // reduced motion) we render the scenario's finalClaim; while still
   // evaluating, the card shows a generic "evaluating" placeholder so
@@ -290,7 +302,16 @@ export default function TrustChainIsland() {
               <button
                 type="button"
                 id={`trust-chain-${stage.id}`}
-                className={`trust-chain__stage ${cls}`}
+                className={`trust-chain__stage ${cls}${
+                  pressedIdx === i ? " is-pressed" : ""
+                }`}
+                aria-pressed={pressedIdx === i}
+                onClick={() => {
+                  // enhance-a11y-coverage Phase 1 — touch tap-toggle.
+                  // Same idx → release; different idx → press that idx.
+                  setPressedIdx((current) => (current === i ? null : i));
+                  setPaused(true);
+                }}
                 onMouseEnter={() => {
                   setHovered(i);
                   setPaused(true);

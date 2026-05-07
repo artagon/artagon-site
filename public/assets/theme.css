@@ -1869,6 +1869,86 @@ header .right .pill {
 }
 
 /* ============================================================
+ * enhance-a11y-coverage Phase 5 — forced-colors mode mapping.
+ * Windows High Contrast and equivalent modes ignore tinted CSS
+ * colors and substitute system colors. Map our semantic aliases
+ * so the surface remains legible without each component
+ * authoring its own forced-colors block. Component-scoped
+ * overrides (TrustChainIsland.css, etc.) handle the
+ * composition-specific cases on top of this base.
+ * ============================================================ */
+
+@media (forced-colors: active) {
+  :root {
+    --accent: Highlight;
+    --accent-dim: Highlight;
+    --accent-ink: Canvas;
+    --bad: Mark;
+    --ok: Highlight;
+    --warn: Mark;
+    --fg: CanvasText;
+    --fg-1: CanvasText;
+    --fg-2: CanvasText;
+    --fg-3: CanvasText;
+    --bg: Canvas;
+    --bg-1: Canvas;
+    --bg-2: Canvas;
+    --line: CanvasText;
+    --line-soft: CanvasText;
+    --card-bg: Canvas;
+    --card-stroke: CanvasText;
+  }
+  /* Decorative shadows do not render in forced-colors anyway, but
+   * making this explicit keeps the rendered tree predictable. */
+  .glow-tag,
+  .trust-chain,
+  .btn,
+  .footer-cols a,
+  .writing-strip__link {
+    box-shadow: none !important;
+  }
+  /* Keyframe animations are visually meaningless under forced-
+   * colors (no color change to perceive); halt them globally. */
+  *,
+  *::before,
+  *::after {
+    animation-play-state: paused !important;
+  }
+}
+
+/* ============================================================
+ * enhance-a11y-coverage Phase 7 — site-wide focus-visible
+ * indicators. Every interactive element gets a 2 px accent
+ * outline + 2 px offset so keyboard users always see focus,
+ * regardless of background tint. Component-scoped focus styles
+ * (TrustChainIsland.css, etc.) override where the contract
+ * needs a different rendering.
+ * ============================================================ */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (forced-colors: active) {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* ============================================================
  * USMR Phase 5.1q.5 — Generic primitives ported from new-design
  * (see DESIGN.md §6.15). Token-only; no raw color literals.
  * Ride alongside `.glow-tag` / `.btn` / `.section` so component

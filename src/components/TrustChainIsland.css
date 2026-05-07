@@ -54,41 +54,57 @@
 
 .trust-chain__scenarios {
   display: flex;
-  gap: 0.3125rem;
+  /* Negative gap absorbs the 44 × 44 hit area on each dot so the
+   * visible dot spacing matches the new-design mock (~5 px). */
+  gap: 0;
 }
 
+/* enhance-a11y-coverage Phase 2 — scenario-picker dots are 9 × 9 px
+ * visually (per new-design fidelity) but expose a 44 × 44 CSS-px
+ * tap target via padding to satisfy WCAG 2.5.5. The visible dot is
+ * rendered via `::before` so the button itself stays the focus
+ * target + ARIA announce point. */
 .trust-chain__scenario-dot {
   appearance: none;
-  width: 0.5625rem;
-  height: 0.5625rem;
-  border-radius: 999px;
-  border: 0;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  background: var(--fg-2);
-  opacity: 0.35;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
   cursor: pointer;
   transition: all 0.25s ease;
 }
-
-.trust-chain__scenario-dot:hover {
+.trust-chain__scenario-dot::before {
+  content: "";
+  display: block;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  border-radius: 999px;
+  background: var(--fg-2);
+  opacity: 0.35;
+  transition: inherit;
+}
+.trust-chain__scenario-dot:hover::before {
   opacity: 0.6;
 }
-
 .trust-chain__scenario-dot:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 6px;
 }
 
-.trust-chain__scenario-dot.is-active {
+.trust-chain__scenario-dot.is-active::before {
   opacity: 1;
 }
 
-.trust-chain__scenario-dot.is-active.is-permit {
+.trust-chain__scenario-dot.is-active.is-permit::before {
   background: var(--accent);
   box-shadow: 0 0 10px var(--accent);
 }
 
-.trust-chain__scenario-dot.is-active.is-deny {
+.trust-chain__scenario-dot.is-active.is-deny::before {
   background: var(--bad);
   box-shadow: 0 0 10px var(--bad);
 }
@@ -222,6 +238,84 @@
   .trust-chain__stage.is-evaluating .trust-chain__stage-num {
     animation: none;
   }
+}
+
+/* enhance-a11y-coverage Phase 5 — forced-colors mode mapping. System
+ * colors override any tinted accent / box-shadow chrome so the chain
+ * remains legible under Windows High Contrast and equivalent modes. */
+@media (forced-colors: active) {
+  .trust-chain {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .trust-chain__stage {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .trust-chain__stage.is-pass {
+    border-color: Highlight;
+  }
+  .trust-chain__stage.is-pass .trust-chain__stage-num {
+    border-color: Highlight;
+    color: Highlight;
+    background: Canvas;
+    box-shadow: none;
+  }
+  .trust-chain__stage.is-fail {
+    border-color: Mark;
+  }
+  .trust-chain__stage.is-fail .trust-chain__stage-num {
+    border-color: Mark;
+    color: Mark;
+    background: Canvas;
+    box-shadow: none;
+  }
+  .trust-chain__stage.is-evaluating .trust-chain__stage-num {
+    animation: none;
+    border-color: Highlight;
+  }
+  .trust-chain__decision {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .trust-chain__decision.is-permit {
+    border-color: Highlight;
+  }
+  .trust-chain__decision.is-deny {
+    border-color: Mark;
+  }
+  .trust-chain__scenario-dot:focus-visible {
+    outline-color: Highlight;
+  }
+  .chain-spinner {
+    border-top-color: Highlight;
+    animation: none;
+  }
+}
+
+/* enhance-a11y-coverage Phase 7 — explicit focus-visible on
+ * interactive trust-chain surfaces. Browser defaults can render
+ * invisible against tinted backgrounds; pin a 2 px accent outline
+ * + 2 px offset so keyboard users always see focus. */
+.trust-chain__stage:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.trust-chain__decision:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Pressed-state visual marker. Currently shares the is-pass
+ * box-shadow intensification — a future commit can split this if
+ * the design diverges. The contract is: pressed != settled. */
+.trust-chain__stage.is-pressed {
+  box-shadow:
+    0 0 22px -2px var(--accent),
+    inset 0 0 18px -3px var(--accent);
 }
 
 .trust-chain__stage-num {
