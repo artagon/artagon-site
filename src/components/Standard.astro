@@ -1,0 +1,77 @@
+---
+// USMR Phase 5.2.0 — Standard / glossary chip. Ports the new-design
+// `<T>` component (new-design/extracted/src/pages/index.html:513-528)
+// from inline-style React JSX to a token-only Astro static component.
+// Looks up the term in src/data/glossary.ts and renders a hover-able
+// dotted-underline link. Build-time warning on a missing term so
+// gaps are loud.
+//
+// Usage:
+//   <Standard term="OIDC 2.1" />
+//   <Standard term="DPoP">DPoP</Standard>  {/* override slot text */}
+//
+// The default slot mirrors the term — pass it explicitly only when
+// the displayed text differs from the lookup key (rare).
+import { lookupGlossary } from '../data/glossary';
+
+export interface Props {
+  term: string;
+}
+
+const { term } = Astro.props;
+const def = lookupGlossary(term);
+
+if (!def && import.meta.env.DEV) {
+  // Build-time signal — Astro's dev console picks this up. The chip
+  // still renders (as a plain span) so missing-glossary regressions
+  // don't blank the page.
+  console.warn(`[Standard] glossary miss: "${term}"`);
+}
+---
+{def ? (
+  <a
+    href={def.href}
+    target={def.external ? '_blank' : undefined}
+    rel={def.external ? 'noopener noreferrer' : undefined}
+    title={def.name}
+    class="standard-chip"
+  ><slot>{term}</slot></a>
+) : (
+  <span class="standard-chip standard-chip--missing"><slot>{term}</slot></span>
+)}
+
+<style>
+  .standard-chip {
+    color: inherit;
+    font-weight: 500;
+    border-bottom: 1px dotted var(--fg-3);
+    padding-bottom: 1px;
+    text-decoration: none;
+    cursor: help;
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease;
+  }
+  .standard-chip:hover,
+  .standard-chip:focus-visible {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .standard-chip--missing {
+    /* Fallback when the term isn't in the glossary registry. The chip
+     * still reads as text but the dotted underline disappears so a
+     * reviewer notices the gap visually too. */
+    border-bottom-color: transparent;
+    cursor: default;
+  }
+  @media (forced-colors: active) {
+    .standard-chip {
+      border-bottom-color: CanvasText;
+    }
+    .standard-chip:hover,
+    .standard-chip:focus-visible {
+      color: Highlight;
+      border-bottom-color: Highlight;
+    }
+  }
+</style>
