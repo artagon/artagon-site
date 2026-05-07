@@ -118,8 +118,19 @@
   flex-direction: column;
   gap: 0.625rem;
 }
-
+.trust-chain__stage-wrap {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .trust-chain__stage {
+  /* Real <button> per 5.1p.1 — reset UA defaults so the rendered
+   * row is indistinguishable from the previous <li role="button">. */
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  /* Stage row layout. */
   display: grid;
   grid-template-columns: 2.25rem 1fr auto;
   gap: 0.875rem;
@@ -128,6 +139,7 @@
   border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--bg-1);
+  color: inherit;
   cursor: pointer;
   transition: all 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }

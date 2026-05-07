@@ -101,11 +101,16 @@ test.describe("Home (/) — TrustChainIsland a11y contract (all device classes)"
     // contract is what matters for a11y and is the actual regression
     // surface (a future refactor that drops `tabIndex={0}` or `role`
     // would fail this test).
+    // Stage rows are real `<button>` elements wrapped in `<li>` per
+    // 5.1p.1 (aria-required-children fix). Tabindex + role come from
+    // the button's implicit accessibility tree, not literal attributes,
+    // so the contract assertion shifts from `tabindex="0"` /
+    // `role="button"` to "the element IS a button" + the explicit
+    // ARIA hookup we author.
     const stageRows = page.locator(".trust-chain__stage");
     await expect(stageRows).toHaveCount(5);
     for (let i = 0; i < 5; i++) {
-      await expect(stageRows.nth(i)).toHaveAttribute("tabindex", "0");
-      await expect(stageRows.nth(i)).toHaveAttribute("role", "button");
+      await expect(stageRows.nth(i)).toHaveJSProperty("tagName", "BUTTON");
       await expect(stageRows.nth(i)).toHaveAttribute(
         "aria-describedby",
         "trust-chain-decision",

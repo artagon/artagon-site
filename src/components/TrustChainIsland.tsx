@@ -101,39 +101,39 @@ export default function TrustChainIsland() {
         </span>
       </div>
 
-      <ol className="trust-chain__stages" role="list">
+      <ol className="trust-chain__stages">
         {STAGES.map((stage, i) => {
           const outcome = scenario.stages[i];
           return (
-            <li
-              key={stage.id}
-              id={`trust-chain-${stage.id}`}
-              className={`trust-chain__stage is-${outcome}`}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              onFocus={() => setHovered(i)}
-              onBlur={() => setHovered(null)}
-              tabIndex={0}
-              role="button"
-              aria-describedby="trust-chain-decision"
-              aria-label={`${stage.label} — ${
-                outcome === "pass"
-                  ? "verified"
-                  : outcome === "fail"
-                    ? "blocked"
-                    : "skipped"
-              }`}
-            >
-              <span className="trust-chain__stage-num" aria-hidden="true">
-                0{i + 1}
-              </span>
-              <div className="trust-chain__stage-body">
-                <span className="trust-chain__stage-label">{stage.label}</span>
-                <span className="trust-chain__stage-sub">{stage.sub}</span>
-              </div>
-              <span className="trust-chain__stage-status">
-                {stageStatusLabel(outcome)}
-              </span>
+            <li key={stage.id} className="trust-chain__stage-wrap">
+              <button
+                type="button"
+                id={`trust-chain-${stage.id}`}
+                className={`trust-chain__stage is-${outcome}`}
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(i)}
+                onBlur={() => setHovered(null)}
+                aria-describedby="trust-chain-decision"
+                aria-label={`${stage.label} — ${
+                  outcome === "pass"
+                    ? "verified"
+                    : outcome === "fail"
+                      ? "blocked"
+                      : "skipped"
+                }`}
+              >
+                <span className="trust-chain__stage-num" aria-hidden="true">
+                  0{i + 1}
+                </span>
+                <div className="trust-chain__stage-body">
+                  <span className="trust-chain__stage-label">{stage.label}</span>
+                  <span className="trust-chain__stage-sub">{stage.sub}</span>
+                </div>
+                <span className="trust-chain__stage-status">
+                  {stageStatusLabel(outcome)}
+                </span>
+              </button>
             </li>
           );
         })}
