@@ -1,0 +1,259 @@
+/*
+ * USMR Phase 5.2.8 — /bridge flow board styling. Token-only port of
+ * the inline styles in new-design/extracted/src/components/Bridge.jsx.
+ * Bundled via Vite/Astro alongside the JS chunk, mirroring
+ * PillarsIsland.css.
+ */
+
+.bridge-flow {
+  padding-block: clamp(64px, 8vw, 120px);
+  background: var(--bg-1);
+  border-block: 1px solid var(--line-soft);
+}
+
+.bridge-flow__head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  margin-bottom: 56px;
+  max-width: var(--maxw, 1240px);
+  margin-inline: auto;
+  padding-inline: clamp(24px, 4vw, 40px);
+}
+
+.bridge-flow__eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin: 0 0 0.5rem;
+}
+
+.bridge-flow__title {
+  font-family: var(--f-display);
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: var(--display-tracking, -0.02em);
+  font-weight: var(--display-weight, 500);
+  color: var(--fg);
+  margin: 0;
+  max-width: 22ch;
+}
+.bridge-flow__title-emphasis {
+  font-family: var(--f-emphasis, var(--f-serif));
+  font-style: italic;
+}
+
+.bridge-flow__lede {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--fg-1);
+  max-width: 50ch;
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .bridge-flow__head {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+}
+
+/* Flow board — outer card holding parties + steps */
+.bridge-flow__board {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  padding: 40px;
+  position: relative;
+  min-height: 340px;
+  max-width: var(--maxw, 1240px);
+  margin-inline: auto;
+  margin-block-end: 32px;
+}
+
+@media (max-width: 720px) {
+  .bridge-flow__board {
+    padding: 20px;
+  }
+}
+
+.bridge-flow__parties {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+@media (max-width: 720px) {
+  .bridge-flow__parties {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.bridge-party {
+  padding: 24px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  text-align: center;
+  transition:
+    border-color 0.35s ease,
+    background 0.35s ease;
+}
+.bridge-party.is-active {
+  border-color: var(--accent-dim);
+  background: color-mix(in oklab, var(--accent) 8%, var(--bg-1));
+}
+.bridge-party__role {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  color: var(--fg-3);
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.bridge-party.is-active .bridge-party__role {
+  color: var(--accent);
+}
+.bridge-party__label {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+}
+.bridge-party__sub {
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  color: var(--fg-3);
+  margin-top: 6px;
+}
+
+/* Step strip */
+.bridge-flow__steps {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+@media (max-width: 1024px) {
+  .bridge-flow__steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 540px) {
+  .bridge-flow__steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bridge-flow__step-wrap {
+  display: contents;
+}
+
+.bridge-step {
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  padding: 20px 20px;
+  border-top: 2px solid transparent;
+  margin-top: -1px;
+  border-right: 1px solid var(--line-soft);
+  border-left: 0;
+  border-bottom: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.25s ease;
+}
+.bridge-flow__step-wrap:last-child .bridge-step {
+  border-right: 0;
+}
+.bridge-step.is-active {
+  border-top-color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 4%, transparent);
+}
+.bridge-step.is-past {
+  border-top-color: var(--accent-dim);
+}
+.bridge-step:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.bridge-step__num {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  color: var(--fg-3);
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+.bridge-step.is-active .bridge-step__num {
+  color: var(--accent);
+}
+
+.bridge-step__title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--fg-2);
+}
+.bridge-step.is-active .bridge-step__title,
+.bridge-step.is-past .bridge-step__title {
+  color: var(--fg);
+}
+
+.bridge-step__desc {
+  font-size: 0.82rem;
+  color: var(--fg-2);
+  line-height: 1.45;
+}
+
+.bridge-flow__result {
+  font-family: var(--f-mono);
+  font-size: 0.82rem;
+  color: var(--fg-2);
+  text-align: center;
+  margin: 0;
+  max-width: var(--maxw, 1240px);
+  margin-inline: auto;
+  padding-inline: clamp(24px, 4vw, 40px);
+}
+.bridge-flow__result-accent {
+  color: var(--accent);
+}
+
+@media (forced-colors: active) {
+  .bridge-party.is-active {
+    border-color: Highlight;
+    background: Canvas;
+  }
+  .bridge-party.is-active .bridge-party__role {
+    color: Highlight;
+  }
+  .bridge-step.is-active {
+    border-top-color: Highlight;
+    background: Canvas;
+  }
+  .bridge-step.is-past {
+    border-top-color: Highlight;
+  }
+  .bridge-step.is-active .bridge-step__num {
+    color: Highlight;
+  }
+  .bridge-flow__result-accent {
+    color: Highlight;
+  }
+}

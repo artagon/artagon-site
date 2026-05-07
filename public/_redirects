@@ -1,5 +1,7 @@
 # Cloudflare Pages redirects (`migrate-deploy-to-cloudflare-pages`
 # spec: bare `301` is canonical; `301!` is Netlify-only).
 /faqs    /faq/                  301
-/bridge  /platform/#bridge      301
-/bridge/ /platform/#bridge      301
+# /bridge → /platform#bridge redirect dropped in USMR Phase 5.2.8;
+# /bridge now resolves to a real page. The /platform <section id=
+# "bridge"> anchor from 5.1q.4 stays in place for legacy inbound
+# links that hit /platform#bridge directly.

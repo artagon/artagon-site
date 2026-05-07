@@ -775,6 +775,34 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Status: shipped.** USMR Phase 5.2.5 — `src/components/PillarsIsland.tsx` + `src/components/PillarsIsland.css` + `src/data/pillars.ts` extension. Snapshot baselines for `/platform` on Tablet Safari + Mobile Chrome × 3 will need workflow_dispatch regen (task 5.2.x) — the mobile-fit shim from new-design platform.html:7-22 was deliberately NOT ported (resolved Open question 1) so the responsive layout diverges from the legacy 1280-fixed look on tablets.
 
+### 6.17 BridgeFlow (Bridge route)
+
+**Purpose.** The `/bridge` page's centerpiece — a 3-party board paired with a 4-step protocol strip, both wired to a single `step` state so each step in the strip activates exactly one party in the board. Visually narrates the OID4VP→OIDC bridge story for prospects who land on the route from the Header nav.
+
+**Anatomy.**
+
+- **Hero strip** — eyebrow (`The bridge strategy`) · `<h2>` with serif-italic emphasis on "cryptographically verified." · 2-column lede.
+- **Board** (`.bridge-flow__board`) — outer card (`var(--bg)` over `var(--bg-1)` page bg, 1 px `var(--line)`, 14 px radius) holding:
+  - **Parties row** — 3 equal `<div>` cards: Relying party (`Your OIDC App`, unchanged) · Trust service (`Artagon`, verifier + bridge) · Holder (`User's Wallet`, holds VCs). Active card: 1 px `var(--accent-dim)` border + `color-mix(in oklab, var(--accent) 8%, var(--bg-1))` background. Inactive cards stay neutral.
+  - **Steps strip** (`<ol>`) — 4 `<button role>`-elements separated by 1 px `var(--line-soft)` rules. Active step: 2 px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 4%, transparent)` tint. Past steps: 2 px `var(--accent-dim)` top border (visited indicator). Future steps: transparent border.
+- **Result sentence** — mono caption below the board: `Result: <accent>high-assurance identity</accent> flows through your existing stack. No migration. No rip-and-replace.`
+
+**Rules.**
+
+- **Auto-cycle** every 2200 ms on first paint (matches new-design `setInterval(2200)`). Click any step button to commit + freeze the cycle (`userInteractedRef` flips to true permanently for the page lifetime). Skipped under `prefers-reduced-motion: reduce` AND `navigator.webdriver` (Playwright deterministic E2E) — both render with `step = 2` (Verify highlighted, the canonical resting screenshot).
+- **Data lives in `src/data/bridge.ts`** — `PARTIES` (3-tuple) + `STEPS` (4-tuple) with structured `LabelNode` tokens (text + glossary terms). The renderer maps `term` nodes to `<Standard>` chips inline.
+- **Each step's `nodeId` points at exactly one party**. The `tests/bridge-data.test.mts` invariant gate enforces (a) every nodeId resolves to a real party, (b) every party gets activated by at least one step.
+- **Click pauses the auto-cycle for the page lifetime**. To re-trigger the animation a user must reload — matches the canonical UX (animation is the first-paint wow; user choice signals "I've engaged, stop moving").
+
+**A11y.**
+
+- `<ol>` for steps + `<button>` per step. `aria-current="step"` on the active step (and the active party).
+- Steps are keyboard-reachable via Tab; `:focus-visible` outline (2 px `var(--accent)`) is preserved with `outline-offset: -2px` so it survives the active-step background tint.
+- Cycle pauses naturally on hover/focus only via the click-commit path — there's no separate pause-on-hover today (the cycle is brief enough that hovering rarely intersects with the timer).
+- Reduced-motion: cycle skipped, `step = 2` rendered. Forced-colors: party + step active states resolve to `Highlight` border, neutral states stay system-default.
+
+**Status: shipped.** USMR Phase 5.2.8 — `src/components/BridgeFlow.tsx` + `src/components/BridgeFlow.css` + `src/data/bridge.ts`. The `/bridge → /platform/#bridge 301` redirect from 5.1q.3 dropped in this phase (the route now resolves directly). The `<section id="bridge">` anchor on `/platform` from 5.1q.4 stays in place for backwards compatibility with legacy inbound `#bridge` links.
+
 ---
 
 ## 7 · Do's and Don'ts
