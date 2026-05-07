@@ -84,6 +84,7 @@
   },
   "devDependencies": {
     "@ast-grep/cli": "0.42.1",
+    "@axe-core/playwright": "4.11.3",
     "@google/design.md": "0.1.1",
     "@lhci/cli": "0.15.1",
     "@playwright/test": "1.59.1",
