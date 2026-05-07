@@ -1,0 +1,111 @@
+import { test, expect } from "@playwright/test";
+
+/**
+ * Behavioural coverage for `/`. Two distinct layers:
+ *
+ *   1. home.mdx parse smoke — proves the content-collection schema +
+ *      frontmatter wiring resolves end-to-end. A typo in `home.mdx` (e.g.
+ *      drops `headline` or mistypes a Zod-validated key) crashes
+ *      `astro build` only — silent in vitest, silent in dev until someone
+ *      hits `/`. These tests are the smallest gate that surfaces the
+ *      crash on every PR.
+ *
+ *   2. TrustChainIsland interactivity — the React island ships a
+ *      scenario picker (click dot → swap chain) and a hover-to-claim
+ *      affordance (hover/focus stage row → swap decision card). Visual
+ *      snapshots only capture the SSR default state, so all behavioural
+ *      regressions ship green without these tests.
+ *
+ * Tests run on every PR (no `VISUAL_REGRESSION=1` gate); they're cheap
+ * (one `page.goto` per test, no per-theme/per-breakpoint sweep). The
+ * `data-astro-cid` selectors are intentionally avoided — we target
+ * stable BEM classnames + ids that the component contract explicitly
+ * exposes.
+ */
+
+test.describe("Home (/) — content parse + render smoke", () => {
+  test("home.mdx renders the expected hero + sections", async ({ page }) => {
+    await page.goto("/");
+    // Hero (USMR 5.1a): non-empty headline from home.mdx frontmatter.
+    await expect(page.locator("h1#hero-h1")).not.toBeEmpty();
+    await expect(page.locator("p#hero-sub")).not.toBeEmpty();
+    // Pillar grid (5.1c): 3 #pillar-* cards from PILLARS const.
+    await expect(page.locator("#pillar-identity")).toBeVisible();
+    await expect(page.locator("#pillar-credentials")).toBeVisible();
+    await expect(page.locator("#pillar-authorization")).toBeVisible();
+    // Latest-writing strip (5.1f).
+    await expect(page.locator("#writing")).toBeVisible();
+    // On-ramp card (5.1b).
+    await expect(page.locator("#get-started")).toBeVisible();
+  });
+});
+
+test.describe("Home (/) — TrustChainIsland interactivity", () => {
+  test("scenario picker click swaps the decision card to a DENY scenario", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // Default scenarioIdx=0 is the healthy PERMIT scenario (SSR state).
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "decision=PERMIT",
+    );
+    // 2nd dot is SCENARIOS[1] ("Jailbroken phone · blocked", DENY).
+    const dots = page.locator(".trust-chain__scenario-dot");
+    await dots.nth(1).click();
+    // Wait for the picker state to flip first (proves the React handler
+    // ran post-hydration); the decision-claim text follows.
+    await expect(dots.nth(1)).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "decision=DENY",
+    );
+    await expect(page.locator(".trust-chain__decision")).toHaveClass(/is-deny/);
+  });
+
+  test("hovering a stage row swaps the decision claim to that stage's pass string", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.locator("#trust-chain-passkey").hover();
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "user.webauthn.verified",
+    );
+    // Mousing out should restore the scenario's finalClaim.
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".trust-chain__decision-claim")).toContainText(
+      "decision=PERMIT",
+    );
+  });
+
+  test("stage rows are keyboard-focusable (a11y contract)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    // The component contract: every stage row carries `tabIndex={0}` +
+    // `role="button"` so it appears in the keyboard-tab order. We assert
+    // the contract structurally rather than by event-driven simulation —
+    // React's synthetic onFocus doesn't fire reliably from
+    // `locator.focus()` / `dispatchEvent("focus")` through the
+    // astro-island wrapper in chromium headless, but the focusable
+    // contract is what matters for a11y and is the actual regression
+    // surface (a future refactor that drops `tabIndex={0}` or `role`
+    // would fail this test).
+    const stageRows = page.locator(".trust-chain__stage");
+    await expect(stageRows).toHaveCount(5);
+    for (let i = 0; i < 5; i++) {
+      await expect(stageRows.nth(i)).toHaveAttribute("tabindex", "0");
+      await expect(stageRows.nth(i)).toHaveAttribute("role", "button");
+      await expect(stageRows.nth(i)).toHaveAttribute(
+        "aria-describedby",
+        "trust-chain-decision",
+      );
+    }
+    // Decision card carries the live region the rows describe.
+    await expect(page.locator("#trust-chain-decision")).toHaveAttribute(
+      "aria-live",
+      "polite",
+    );
+  });
+});
