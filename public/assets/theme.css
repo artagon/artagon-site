@@ -1855,6 +1855,11 @@ header .right .pill {
   --display-weight: 400;
 }
 
+[data-accent="cyan"] {
+  --accent: oklch(0.86 0.14 185);
+  --accent-dim: oklch(0.5 0.1 185);
+  --accent-ink: oklch(0.18 0.04 185);
+}
 [data-accent="violet"] {
   --accent: oklch(0.78 0.16 300);
   --accent-dim: oklch(0.48 0.12 300);

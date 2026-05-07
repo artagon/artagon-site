@@ -407,16 +407,21 @@ IETF GNAP · OpenID OID4VC · FIDO2 · W3C DIDs · W3C VCs · NIST 800-63 · eID
 
 - Failing stage halts the chain (subsequent stages show `skip`, not `pass`).
 - Decision badge + stage outlines + decision card border all key off
-  `--accent` (the page's primary accent — violet by default per Phase
-  5.1o, switchable via `[data-accent]`). DENY / fail uses `--bad`
-  (semantic red). The chain's visual cohesion comes from one accent
-  rendering eyebrow + stages + decision; the earlier draft of this
-  document mapped pass → `--ok` (semantic green), but the new-design
-  implementation (`new-design/extracted/src/pages/index.html` line
-  1012, `const C_PASS = 'var(--accent)'`) is the authoritative
-  contract. `--ok` and `--warn` remain for explicit status badges
-  outside the chain (logs, banners, inline icons next to a status
-  word).
+  `--accent` (the page's primary accent — **violet** for marketing
+  pages per the new-design rendered output, `oklch(0.78 0.16 300)`,
+  applied via `data-accent="violet"` on the `<html>` element in
+  `BaseLayout.astro`. The `:root` fallback in `tokens.css` is teal
+  `oklch(0.86 0.14 185)` for non-marketing surfaces).
+  `[data-accent="amber|lime"]` are optional palette overrides
+  authored via the Tweaks panel. DENY / fail uses `--bad`
+  (semantic red). The chain's visual cohesion comes
+  from one accent rendering eyebrow + stages + decision; the
+  earlier draft of this document mapped pass → `--ok` (semantic
+  green), but the new-design implementation
+  (`new-design/extracted/src/pages/index.html` line 1012,
+  `const C_PASS = 'var(--accent)'`) is the authoritative contract.
+  `--ok` and `--warn` remain for explicit status badges outside the
+  chain (logs, banners, inline icons next to a status word).
 - Final claim line uses mono and shows the actual decision string + latency.
 - Must be simplifiable to a static component on mobile <640px (see §9.2).
 

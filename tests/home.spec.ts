@@ -251,7 +251,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
     );
   });
 
-  test("data-accent='violet' resolves --accent to a violet OKLCH (5.1o)", async ({
+  test("data-accent='cyan' resolves --accent to the canonical teal OKLCH", async ({
     page,
   }) => {
     await page.goto("/");
@@ -261,11 +261,14 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
         .getPropertyValue("--accent")
         .trim(),
     );
-    // The shipped violet sits in the 0.66 0.18 290 ± neighborhood (per
-    // theme.css `[data-accent="violet"]`). Don't pin the exact triple —
-    // any future contrast tweak would force a test churn — but assert
-    // the structural shape (oklch(...) function) AND the hue band 270-310
-    // so a regression that swaps to teal (~190) or amber (~80) fails.
+    // BaseLayout sets `data-accent="cyan"` to match the new-design
+    // canonical default — `oklch(0.86 0.14 185)`
+    // (new-design/extracted/src/styles/tokens.css:12). Hue band
+    // 170-200 catches the triple while rejecting violet (~300),
+    // amber (~75), and lime (~135). The cyan label aligns with the
+    // Tweaks-panel preset name even though the OKLCH triple is in
+    // the teal/cyan border band — preserving the canonical naming
+    // matters for the tweaks UX.
     expect(accent).toMatch(/^oklch\(/);
     const hueMatch = accent.match(/oklch\([^)]*\s+(-?\d+(?:\.\d+)?)\)/);
     expect(
@@ -273,8 +276,8 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
       `--accent should expose an OKLCH hue: got ${accent}`,
     ).not.toBeNull();
     const hue = parseFloat(hueMatch![1] ?? "");
-    expect(hue).toBeGreaterThanOrEqual(270);
-    expect(hue).toBeLessThanOrEqual(310);
+    expect(hue).toBeGreaterThanOrEqual(170);
+    expect(hue).toBeLessThanOrEqual(200);
   });
 
   test("data-hero-font='fraunces' resolves the heading font to a Fraunces stack (5.1o)", async ({
@@ -302,7 +305,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
     const cta = page.locator(".site-nav .right .btn.primary").first();
     const bg = await cta.evaluate((el) => getComputedStyle(el).backgroundColor);
     // Computed bg should be a non-transparent rgb()/oklch() — a
-    // regression that drops `[data-accent="violet"]` collapses --accent
+    // regression that drops `[data-accent="cyan"]` collapses --accent
     // to its fallback and the button reads as the default ghost.
     expect(bg).not.toBe("rgba(0, 0, 0, 0)");
     expect(bg).not.toBe("transparent");

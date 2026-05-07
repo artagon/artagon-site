@@ -48,6 +48,10 @@ function stageStatusLabel(outcome: StageOutcome): string {
 const KICKOFF_MS = 400;
 const FIRST_STAGE_MS = 1100;
 const PER_STAGE_MS = 900;
+// Auto-cycle: after a chain settles, wait this long, then advance to the
+// next scenario and re-animate. Stops once a user clicks any scenario or
+// stage (per `userInteractedRef`).
+const CYCLE_DELAY_MS = 3400;
 
 function shouldSkipAutoProgression(): boolean {
   if (typeof window === "undefined") return true;
@@ -94,23 +98,15 @@ export default function TrustChainIsland() {
     );
   }
 
-  // First-mount auto-progression. Walks step from 0 up to STAGES.length
-  // on a timer chain so the chain visually "evaluates" each stage on
-  // first paint. Subsequent scenario changes (click / keyboard nav)
-  // settle immediately to STAGES.length — users who actively pick a
-  // scenario want the result, not a re-animation. Skipped under
-  // prefers-reduced-motion.
-  const animatedOnceRef = useRef(false);
+  // Auto-progression effect — animates the active scenario's chain
+  // stage-by-stage on a setTimeout chain. Plays on every scenario
+  // change UNTIL the user interacts (click / keyboard nav), at which
+  // point `userInteractedRef` flips and subsequent scenario changes
+  // settle immediately. Skipped under prefers-reduced-motion AND
+  // under navigator.webdriver (Playwright deterministic E2E).
+  const userInteractedRef = useRef(false);
   useEffect(() => {
-    if (animatedOnceRef.current) {
-      // Subsequent scenario change: jump to settled. The `paused` flag
-      // (hover/focus) doesn't apply once we're past the first run —
-      // the chain isn't animating any more.
-      setStep(STAGES.length);
-      return;
-    }
-    animatedOnceRef.current = true;
-    if (shouldSkipAutoProgression()) {
+    if (shouldSkipAutoProgression() || userInteractedRef.current) {
       setStep(STAGES.length);
       return;
     }
@@ -133,11 +129,23 @@ export default function TrustChainIsland() {
       cancelled = true;
       if (timeout) clearTimeout(timeout);
     };
-    // Intentionally only depends on scenarioIdx — the effect re-runs
-    // on scenario change to settle, but the animation itself only
-    // plays on first mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenarioIdx]);
+  }, [scenarioIdx, paused, scenario]);
+
+  // Auto-cycle effect — once a chain has settled (step >= STAGES.length),
+  // wait CYCLE_DELAY_MS then advance scenarioIdx to the next scenario.
+  // Disabled once the user has interacted, when the chain is paused
+  // (hover/focus), or under shouldSkipAutoProgression. The animation
+  // effect above replays for the new scenario, so the chain stays
+  // visibly in motion until the user takes over.
+  useEffect(() => {
+    if (shouldSkipAutoProgression() || userInteractedRef.current) return;
+    if (paused) return;
+    if (step < STAGES.length) return;
+    const t = setTimeout(() => {
+      setScenarioIdx((i) => (i + 1) % SCENARIOS.length);
+    }, CYCLE_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [step, scenarioIdx, paused]);
 
   // Halt index for the *displayed* state — once a stage fails, no
   // subsequent stage should advertise "evaluating".
@@ -248,6 +256,7 @@ export default function TrustChainIsland() {
                 i === scenarioIdx ? " is-active" : ""
               }`}
               onClick={() => {
+                userInteractedRef.current = true;
                 setScenarioIdx(i);
                 setPaused(false);
               }}
