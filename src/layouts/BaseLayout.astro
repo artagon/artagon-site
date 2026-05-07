@@ -1,35 +1,18 @@
 ---
-import Seo from '../components/SeoTags.astro';
+import Seo, { type Props as SeoProps } from '../components/SeoTags.astro';
 import SeoIcons from '../components/SeoIcons.astro';
 import SkipLink from '../components/SkipLink.astro';
 import ThemePreview from '../components/ThemePreviewPanel.astro';
 import Tweaks from '../components/Tweaks.astro';
 const DEV = import.meta.env.DEV;
-export interface Props {
-  title?: string;
-  description?: string;
-  path?: string;
-  image?: string;
-  robots?: string;
-  // USMR Phase 5.1q.7 — passthrough for SeoTags Article schema.
-  type?: 'website' | 'article';
-  publishedTime?: string;
-  modifiedTime?: string;
-  author?: string;
-  tags?: readonly string[];
-}
-const {
-  title,
-  description,
-  path = '/',
-  image,
-  robots,
-  type,
-  publishedTime,
-  modifiedTime,
-  author,
-  tags,
-} = Astro.props;
+// Re-export `SeoProps` so BaseLayout's prop contract tracks SeoTags
+// at compile time (USMR Phase 5.1q post-review fix). Drift between
+// the two interfaces was flagged by the type-design lens — a future
+// `'profile'` addition to SeoTags' `type` union now propagates here
+// automatically without a hand-mirrored update.
+export type Props = SeoProps;
+const passthrough = Astro.props as SeoProps;
+const path = passthrough.path ?? '/';
 ---
 <!doctype html>
 <html
@@ -42,18 +25,7 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Seo
-      {title}
-      {description}
-      {path}
-      {image}
-      {robots}
-      {type}
-      {publishedTime}
-      {modifiedTime}
-      {author}
-      {tags}
-    />
+    <Seo {...passthrough} />
     <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
     <script is:inline>
 (function(){
