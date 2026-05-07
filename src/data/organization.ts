@@ -29,17 +29,26 @@ export const ORG: Organization = {
     "PGP key & security disclosure policy at artagon.com/.well-known",
 };
 
-// Module-load runtime gate: catches an empty value or whitespace-only string
-// at content-load time (faster failure than waiting for the snapshot diff).
-for (const c of ORG.contacts) {
-  if (c.label.trim() === "" || c.value.trim() === "") {
-    throw new Error(
-      `[ORG] empty contact field: ${JSON.stringify(c)} — every label/value must be a non-empty string.`,
+// Module-load runtime gate. Fires once at first import (Astro/Vite eagerly
+// evaluate the module graph during `astro build`), aggregating all
+// violations into a single error so the developer fixes them in one pass
+// instead of build → fix → rebuild for each row.
+const validationErrors: string[] = [];
+for (const [i, c] of ORG.contacts.entries()) {
+  if (c.label.trim() === "")
+    validationErrors.push(`contacts[${i}].label is empty or whitespace-only`);
+  if (c.value.trim() === "")
+    validationErrors.push(
+      `contacts[${i}].value is empty or whitespace-only (label: ${c.label})`,
     );
-  }
 }
 if (ORG.contactFootnote !== undefined && ORG.contactFootnote.trim() === "") {
+  validationErrors.push(
+    "contactFootnote is set but empty — drop the key or set a non-empty string",
+  );
+}
+if (validationErrors.length > 0) {
   throw new Error(
-    "[ORG] contactFootnote is set but empty — drop the key or set a non-empty string.",
+    `src/data/organization.ts: ${validationErrors.length} ORG validation error${validationErrors.length === 1 ? "" : "s"}:\n  - ${validationErrors.join("\n  - ")}`,
   );
 }

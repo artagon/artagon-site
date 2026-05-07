@@ -27,10 +27,19 @@ export type TrustScenario = {
   /** One-line scenario context. */
   context: string;
   /**
-   * Per-stage outcomes. Length MUST match STAGES.length and is enforced by
-   * the trust-chain-data.test.mts shape gate.
+   * Per-stage outcomes. Tuple length is locked to STAGES.length (5) at the
+   * type level — adding/removing a stage from STAGES requires updating
+   * this tuple width AND every SCENARIO entry, surfacing the change at
+   * compile time. The trust-chain-data.test.mts shape gate runs as a
+   * runtime backstop.
    */
-  stages: readonly StageOutcome[];
+  stages: readonly [
+    StageOutcome,
+    StageOutcome,
+    StageOutcome,
+    StageOutcome,
+    StageOutcome,
+  ];
   decision: Decision;
   /** Plain-English reason the chain reached this decision. */
   reason: string;

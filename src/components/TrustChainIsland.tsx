@@ -14,15 +14,47 @@
 // needed.
 
 import { useState } from "react";
-import { SCENARIOS, STAGES } from "../data/trust-chain.js";
+import {
+  SCENARIOS,
+  STAGES,
+  type StageOutcome,
+} from "../data/trust-chain.js";
 import "./TrustChainIsland.css";
+
+/**
+ * Exhaustive-by-construction status label for a stage. The default arm
+ * narrows `outcome` to `never`, so adding a new `StageOutcome` member
+ * fails compilation here instead of silently rendering an empty span.
+ */
+function stageStatusLabel(outcome: StageOutcome): string {
+  switch (outcome) {
+    case "pass":
+      return "✓ verified";
+    case "fail":
+      return "✕ blocked";
+    case "skip":
+      return "— skipped";
+    default: {
+      const _exhaustive: never = outcome;
+      return _exhaustive;
+    }
+  }
+}
 
 export default function TrustChainIsland() {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
 
-  const scenario = SCENARIOS[scenarioIdx];
-  if (!scenario) return null;
+  // Defensive fallback: if a future refactor wires `scenarioIdx` from URL
+  // state / localStorage / props and an out-of-range value lands, render
+  // the healthy default scenario rather than blanking the hero. The
+  // console.error surfaces the actual bug so we don't silently degrade.
+  const scenario = SCENARIOS[scenarioIdx] ?? SCENARIOS[0]!;
+  if (scenarioIdx < 0 || scenarioIdx >= SCENARIOS.length) {
+    console.error(
+      `[TrustChainIsland] scenarioIdx ${scenarioIdx} out of range [0, ${SCENARIOS.length}); falling back to scenario 0.`,
+    );
+  }
 
   const decisionClass = scenario.decision.toLowerCase();
   const hoveredStage = hovered != null ? STAGES[hovered] : null;
@@ -100,9 +132,7 @@ export default function TrustChainIsland() {
                 <span className="trust-chain__stage-sub">{stage.sub}</span>
               </div>
               <span className="trust-chain__stage-status">
-                {outcome === "pass" && "✓ verified"}
-                {outcome === "fail" && "✕ blocked"}
-                {outcome === "skip" && "— skipped"}
+                {stageStatusLabel(outcome)}
               </span>
             </li>
           );

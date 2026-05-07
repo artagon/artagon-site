@@ -3,14 +3,13 @@
  * artefact rendered by TrustChainIsland.tsx. Imported by the React
  * component so vite/Astro bundles it alongside the JS island chunk.
  *
- * Token mapping per DESIGN.md §"Color tokens" (lines 226-228) and §6.5:
+ * Token mapping per DESIGN.md §"Color tokens" (lines 226-228):
  *   pass / decision PERMIT  → var(--ok)   (semantic green)
  *   fail / decision DENY    → var(--bad)  (semantic red)
- * Both are public aliases over the staging --nd-ok / --nd-bad. The
- * project's --brand-teal (= --accent) is reserved for primary CTAs and
- * the trust-chain's CURRENT/EVALUATING stage (§6.5). Glow/tint variants
- * are color-mix()'d against --ok / --bad so a palette swap touches the
- * alias only.
+ * Both are public aliases over the staging --nd-ok / --nd-bad. DESIGN.md
+ * §6.5 (Trust chain) line 386 specifies the decision-badge color rule
+ * directly. Glow/tint variants are color-mix()'d against --ok / --bad so
+ * a palette swap touches the alias only.
  */
 
 .trust-chain {
