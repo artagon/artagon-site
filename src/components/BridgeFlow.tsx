@@ -21,7 +21,7 @@
 // `<Standard>` chip styling (`.standard-chip`) lives globally in
 // `public/assets/theme.css` — this island reuses the same class.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { PARTIES, STEPS, type LabelNode } from "../data/bridge.js";
 import { lookupGlossary } from "../data/glossary.js";
 import "./BridgeFlow.css";
@@ -71,10 +71,14 @@ function Tokenized({ nodes }: { nodes: readonly LabelNode[] }) {
 
 export default function BridgeFlow() {
   const [step, setStep] = useState<number>(SSR_DEFAULT_STEP);
-  const userInteractedRef = useRef(false);
 
+  // USMR Phase 5.5.5 — dropped the `userInteractedRef` freeze. Canonical
+  // Bridge.jsx:16-19 keeps cycling after click (the timer never clears).
+  // Click on a step now resets step but doesn't stop the cycle; the
+  // animation continues from the user-clicked step. Skipped under
+  // prefers-reduced-motion AND navigator.webdriver.
   useEffect(() => {
-    if (shouldSkipAutoCycle() || userInteractedRef.current) return;
+    if (shouldSkipAutoCycle()) return;
     const timer = setInterval(() => {
       setStep((s) => (s + 1) % STEPS.length);
     }, CYCLE_MS);
@@ -145,10 +149,7 @@ export default function BridgeFlow() {
                     isActive ? " is-active" : isPast ? " is-past" : ""
                   }`}
                   aria-current={isActive ? "step" : undefined}
-                  onClick={() => {
-                    userInteractedRef.current = true;
-                    setStep(i);
-                  }}
+                  onClick={() => setStep(i)}
                 >
                   <span className="bridge-step__num">STEP 0{s.num}</span>
                   <span className="bridge-step__title">{s.title}</span>

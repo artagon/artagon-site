@@ -129,7 +129,11 @@ function primaryTag(tags: string[]): string {
   }
 
   .writing-hero {
-    padding-block: clamp(56px, 8vw, 80px) clamp(40px, 6vw, 56px);
+    /* USMR Phase 5.5.5 — canonical (new-design blog.html:823) uses
+     * `paddingTop: 72, paddingBottom: 8` flat. The earlier clamp
+     * inflated the bottom gap on wide viewports, breaking the visual
+     * tightness of the canonical hero → list stack. */
+    padding-block: clamp(56px, 7vw, 72px) 8px;
     border-bottom: 1px solid var(--line-soft);
   }
   .writing-hero__eyebrow {

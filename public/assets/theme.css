@@ -426,6 +426,13 @@ body {
     Roboto,
     Inter,
     Arial;
+  /* USMR Phase 5.5.5 — Inter Tight stylistic-set ligatures.
+   * Canonical (new-design global.css:69-75): ss01 = single-storey g,
+   * cv11 = open-bowl 4. DESIGN.md §3.1 documents the requirement.
+   * Without this rule the canonical mock typography never activates. */
+  font-feature-settings:
+    "ss01" on,
+    "cv11" on;
   color: var(--text, #e2e8f0);
   background:
     radial-gradient(
@@ -445,6 +452,37 @@ body {
       var(--bg, #0b1220) 100%
     );
   background-color: var(--bg, #0b1220); /* fallback */
+}
+
+/* USMR Phase 5.5.5 — global type scale rules. The `--fs-h1/h2/h3`,
+ * `--lh-*`, and `--tracking-*` tokens at line 170-188 were defined but
+ * never applied to bare `<h1>` / `<h2>` / `<h3>` — every non-hero
+ * page rendered at the browser default ~32px. Canonical
+ * (new-design global.css:229-231) attaches these at the element layer
+ * so any page picking up theme.css inherits the type scale. */
+h1 {
+  font-family: var(--f-display, system-ui);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  letter-spacing: var(--tracking-h1);
+  font-weight: 500;
+  margin: 0;
+}
+h2 {
+  font-family: var(--f-display, system-ui);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tracking-h2);
+  font-weight: 500;
+  margin: 0;
+}
+h3 {
+  font-family: var(--f-display, system-ui);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  letter-spacing: var(--tracking-h3);
+  font-weight: 500;
+  margin: 0;
 }
 
 /* USMR Phase 5.1m — body backdrop grid (88x88 px lines, radial-mask
@@ -486,6 +524,34 @@ a {
   max-width: var(--maxw);
   margin-inline: auto;
   padding: 0 20px;
+}
+/* USMR Phase 5.5.5 — canonical alias. new-design global.css:212 names
+ * the constrained content column `.wrap` (`max-width: var(--maxw);
+ * margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1`).
+ * Some ported components author against `.wrap` directly; alias both
+ * names so either marker works. */
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* USMR Phase 5.5.5 — display + serif + lead utilities. Canonical
+ * (new-design global.css:43-47, :95, :234) defines these at root scope
+ * so every consumer of `<h1 class="display">`, `<span class="serif">`,
+ * and `<p class="lead">` renders identically across pages. They were
+ * previously scoped only inside `src/pages/index.astro`. */
+.display {
+  font-family: var(--f-display, system-ui);
+  letter-spacing: var(--tracking-h1);
+  font-weight: var(--display-weight, 500);
+}
+.serif {
+  font-family: var(--f-serif, Georgia);
+  font-weight: 400;
 }
 /* USMR Phase 5.1p.19 — removed the legacy element-`header` rule
  * (`position: sticky; background: rgba(10,15,30,.55); backdrop-filter
@@ -765,10 +831,15 @@ nav a:hover {
   max-width: var(--container-max);
   margin-inline: auto;
 }
+/* USMR Phase 5.5.5 — `.lead` reset to canonical (new-design global.css:234)
+ * `font-size: 20px; max-width: 60ch`. Previous clamp(1rem, ..., 1.25rem)
+ * caused most viewports to render <20px (only hit canonical at the clamp
+ * ceiling). Canonical is a flat 20px. */
 .lead {
-  font-size: clamp(1rem, 0.65rem + 1vw, 1.25rem);
-  line-height: 1.6;
-  max-width: 62ch;
+  font-size: var(--fs-lead);
+  line-height: var(--lh-lead, 1.5);
+  max-width: 60ch;
+  color: var(--fg-2, #cbd5e1);
 }
 
 /* ===== UI UTILITIES ===== */

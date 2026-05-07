@@ -100,13 +100,16 @@ export default function TrustChainIsland() {
 
   // Auto-progression effect — animates the active scenario's chain
   // stage-by-stage on a setTimeout chain. Plays on every scenario
-  // change UNTIL the user interacts (click / keyboard nav), at which
-  // point `userInteractedRef` flips and subsequent scenario changes
-  // settle immediately. Skipped under prefers-reduced-motion AND
-  // under navigator.webdriver (Playwright deterministic E2E).
-  const userInteractedRef = useRef(false);
+  // change. USMR Phase 5.5.5 — dropped the `userInteractedRef` freeze
+  // pattern that previously latched-after-first-click, restoring the
+  // canonical "always cycling" UX (Hero.jsx:116-121 — `setScenarioIdx`
+  // never gates on a user-interacted ref). Click on a scenario dot
+  // now resets the chain to that scenario and the animation
+  // continues; the auto-cycle eventually advances past the
+  // user-clicked scenario as well. Skipped under prefers-reduced-motion
+  // AND under navigator.webdriver (Playwright deterministic E2E).
   useEffect(() => {
-    if (shouldSkipAutoProgression() || userInteractedRef.current) {
+    if (shouldSkipAutoProgression()) {
       setStep(STAGES.length);
       return;
     }
@@ -117,10 +120,26 @@ export default function TrustChainIsland() {
       if (cancelled || paused) return;
       setStep(next);
       if (next >= STAGES.length) return;
-      const prevOutcome = scenario.stages[next - 1];
-      // Halt on first fail — downstream stages stay `skip` per the
-      // data contract; the spinner shouldn't re-appear past halt.
-      if (prevOutcome === "fail") return;
+      // `next` just became the new step value — that means the stage
+      // at index (next - 1) is currently rendering as "evaluating"
+      // (per stageState's `i === step - 1` branch). Inspect its
+      // ACTUAL outcome to decide what to schedule next.
+      const evaluatingOutcome = scenario.stages[next - 1];
+      if (evaluatingOutcome === "fail") {
+        // The currently-evaluating stage is the failing stage. Hold
+        // it on "checking…" for one more PER_STAGE_MS window so the
+        // spinner reads, then JUMP to fully settled (step =
+        // STAGES.length). Without the jump, step would stay mid-
+        // chain, the auto-cycle effect (gated on step >=
+        // STAGES.length) would never fire, and the chain would
+        // freeze on "checking…" forever — the bug visible at PR #46
+        // smoke screenshot for the `device_fail` scenario.
+        timeout = setTimeout(() => {
+          if (cancelled || paused) return;
+          setStep(STAGES.length);
+        }, PER_STAGE_MS);
+        return;
+      }
       const delay = next === 0 ? FIRST_STAGE_MS : PER_STAGE_MS;
       timeout = setTimeout(() => advance(next + 1), delay);
     };
@@ -133,12 +152,11 @@ export default function TrustChainIsland() {
 
   // Auto-cycle effect — once a chain has settled (step >= STAGES.length),
   // wait CYCLE_DELAY_MS then advance scenarioIdx to the next scenario.
-  // Disabled once the user has interacted, when the chain is paused
-  // (hover/focus), or under shouldSkipAutoProgression. The animation
-  // effect above replays for the new scenario, so the chain stays
-  // visibly in motion until the user takes over.
+  // Pauses while hover/focus is active or under shouldSkipAutoProgression.
+  // USMR 5.5.5 dropped the user-interacted latch — clicking a scenario
+  // dot resets the chain but does not stop the cycle.
   useEffect(() => {
-    if (shouldSkipAutoProgression() || userInteractedRef.current) return;
+    if (shouldSkipAutoProgression()) return;
     if (paused) return;
     if (step < STAGES.length) return;
     const t = setTimeout(() => {
@@ -256,7 +274,6 @@ export default function TrustChainIsland() {
                 i === scenarioIdx ? " is-active" : ""
               }`}
               onClick={() => {
-                userInteractedRef.current = true;
                 setScenarioIdx(i);
                 setPaused(false);
               }}

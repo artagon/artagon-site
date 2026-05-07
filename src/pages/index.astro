@@ -44,35 +44,47 @@ const headlineLines = headline.includes(". ")
       .filter(Boolean)
       .map((s) => (s.endsWith(".") ? s : `${s}.`))
   : [headline];
+
+// USMR Phase 5.5.5 — onRamp.headline serif-italic emphasis. Splits on
+// `*marker*` so authors can wrap a single word in fraunces italic
+// (canonical Cta.jsx:27-29 — "Build with the <span class='serif italic'>
+// next</span><br/>generation of identity."). Even-index segments are
+// plain text; odd-index segments render as `<em class="serif">`.
+const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [];
 ---
 
 <Base title={title} description={description}>
   <Fragment slot="header"><Header /></Fragment>
 
-  <div class="hero__meta-strip container">
-    <span class="hero__meta-strip-tag">v0.9 · Design Partner Preview</span>
-    <span class="hero__meta-strip-specs">
-      {
-        HERO_SPECS.map((spec, i) => (
-          <Fragment>
-            {i > 0 && <span class="hero__meta-strip-sep" aria-hidden="true">·</span>}
-            <a
-              href={spec.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={spec.title}
-              class="hero__meta-strip-link"
-            >
-              {spec.label}
-            </a>
-          </Fragment>
-        ))
-      }
-    </span>
-    <span class="hero__meta-strip-loc">US — Philadelphia, PA</span>
-  </div>
-
   <section class="hero container">
+    {/* USMR Phase 5.5.5 — meta-strip moved INSIDE the hero section per
+     * canonical Hero.jsx:124-141 (single `<div.wrap>` holds the strip
+     * + headline grid). Was previously its own `<div class="container">`
+     * above the section, which created a visible top-margin gap and
+     * decoupled the strip from the hero card. */}
+    <div class="hero__meta-strip">
+      <span class="hero__meta-strip-tag">v0.9 · Design Partner Preview</span>
+      <span class="hero__meta-strip-specs">
+        {
+          HERO_SPECS.map((spec, i) => (
+            <Fragment>
+              {i > 0 && <span class="hero__meta-strip-sep" aria-hidden="true">·</span>}
+              <a
+                href={spec.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={spec.title}
+                class="hero__meta-strip-link"
+              >
+                {spec.label}
+              </a>
+            </Fragment>
+          ))
+        }
+      </span>
+      <span class="hero__meta-strip-loc">US — Philadelphia, PA</span>
+    </div>
+
     <div class="twocol">
       <div>
         <span class="hero__eyebrow-tag glow-tag">
@@ -187,7 +199,15 @@ const headlineLines = headline.includes(". ")
             </div>
             <div class="onramp__grid">
               <div class="onramp__lead">
-                <h2 class="onramp__headline">{onRamp.headline}</h2>
+                <h2 class="onramp__headline">
+                  {onRampHeadlineSegments.map((segment, i) =>
+                    i % 2 === 1 ? (
+                      <em class="onramp__headline-emphasis serif">{segment}</em>
+                    ) : (
+                      segment
+                    )
+                  )}
+                </h2>
                 <p class="onramp__lede">{onRamp.lede}</p>
                 {onRamp.ctas.length > 0 && (
                   <div class="actions">

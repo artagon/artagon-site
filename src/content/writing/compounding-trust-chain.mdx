@@ -1,0 +1,44 @@
+---
+title: "The Compounding Trust Chain — Artagon"
+description: "Every Artagon decision rests on five independent cryptographic proofs, composed so that compromising any single link doesn't collapse the others."
+eyebrow: "Engineering"
+headline: "The Compounding Trust Chain: five proofs, one decision"
+lede: "Most authorization systems rest on a single load-bearing fact. A session cookie. A bearer token. An SSO assertion. Pull that one thread and the whole sweater comes apart. Artagon authorizes differently."
+published: 2026-04-21
+tags:
+  - Engineering
+  - Authorization
+  - Cryptography
+---
+
+Every decision we issue rests on _five_ independent cryptographic proofs, each grounded in a different primitive. We call it the Compounding Trust Chain — compounding because each proof strengthens the others, and a chain because breaking a single link doesn't break the rest.
+
+The five links:
+
+1. **User passkey** — WebAuthn · hardware-bound · phishing-resistant. _Who._
+2. **Device attestation** — Play Integrity · App Attest · TPM quote. _What device._
+3. **Client DPoP key** — RFC 9449 · sender-constrained tokens. _What client._
+4. **Presented credential** — SD-JWT · BBS+ · verifier-checked. _What claims._
+5. **Policy engine** — Zanzibar graph + Cedar / OPA / XACML. _What authority._
+
+Each link contributes an independent cryptographic proof.
+
+## § 01 — Why compose, not consolidate
+
+The conventional wisdom is to simplify: pick one strong primitive and lean on it. We think that's backwards. Every single primitive we have is strong _until it isn't_ — passkey sync fabrics leak, attestation roots get compromised, token-binding implementations ship with bugs, credential issuers make mistakes. The question isn't which primitive to trust. It's how to stay safe when one of them fails.
+
+Composition is how. Each link in the chain checks something the others don't, so a single failure degrades the decision without collapsing it. A stolen passkey on an unattested device still fails at link 2. A rooted device presenting a valid credential still fails at link 4 if the credential was revoked. The attacker has to break five things that share no common ancestor.
+
+> Compromise any one link and the others still hold. Compromise all five and you're not breaking Artagon — you're breaking the laws of the web.
+
+## § 02 — Cryptographic binding, not correlation
+
+The subtle part is how the links connect. A naive system would just _collect_ five signals and vote. Ours _binds_ them: the DPoP key is bound to the passkey ceremony; the device attestation is bound to the DPoP key; the presented credential's holder proof is bound to the same key again. By the time the policy engine runs, it's not looking at five independent signals — it's looking at a single cryptographic artifact that could only have been produced if all five were true at the same moment.
+
+The payoff shows up in threat modeling. Replay attacks don't work because the chain is fresh. Phishing doesn't work because the passkey won't sign for the wrong origin. Token exfiltration doesn't work because the token is sender-constrained. Credential theft doesn't work because the holder proof is missing. Each attack you'd normally defend against with a dedicated mitigation dies to a side-effect of the composition.
+
+## § 03 — Ten milliseconds
+
+All of this happens on the hot path. The Zanzibar graph answers relationship queries in a millisecond or two. Cedar evaluates policy in tens of microseconds. The heaviest step is credential verification, and we cache the trusted issuer keys aggressively. End to end, a typical authorization decision closes in well under 10 ms — fast enough that you'd never notice it's doing this much work.
+
+That's the bet. Not "authenticate harder." Not "add more signals." But compose what's already strong into something whose security properties exceed any one ingredient — and make the composition cheap enough that turning it off would be a choice, not a necessity.
