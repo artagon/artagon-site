@@ -212,7 +212,9 @@
   --primary: #22e3c5;
   --accent: #7c5cff;
   --ring: rgba(34, 227, 197, 0.45);
-  --maxw: 1200px;
+  /* USMR Phase 5.1p.13 — bumped from 1200px to match new-design
+   * tokens.css:23. Adds 40px of horizontal breathing room sitewide. */
+  --maxw: 1240px;
   --radius: 14px;
   --shadow: 0 10px 30px rgba(2, 8, 23, 0.35);
 }
