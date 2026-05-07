@@ -633,6 +633,23 @@ nav a:hover {
   opacity: 0.6;
 }
 
+/* USMR Phase 5.1p.6 — suppress the legacy `.btn::before` glyph
+ * decorations on every new-design surface. The hero / on-ramp /
+ * writing-strip / nav-cta buttons render clean text (no ◆ / ⚡ /
+ * 📖 / ⭐ prefix) per the new-design mock. The legacy glyph remains
+ * the default for any remaining pre-USMR `.btn` consumer (FAQ /
+ * older docs surfaces) until a follow-up sweep removes it
+ * everywhere. Header.astro already scopes the suppression to
+ * `.site-nav .right .btn`; this extends to the home-page surfaces. */
+.hero .btn::before,
+.hero .btn:hover::before,
+.onramp .btn::before,
+.onramp .btn:hover::before,
+.writing-strip .btn::before,
+.writing-strip .btn:hover::before {
+  content: none !important;
+}
+
 .btn:hover {
   transform: translateY(-2px);
   border-color: var(--brand-teal);
