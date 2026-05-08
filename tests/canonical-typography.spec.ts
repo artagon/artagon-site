@@ -186,6 +186,42 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(radius).toBe("14px");
   });
 
+  test(".post-footer cta-card hover lifts border to full --accent (canonical post-*.html:458)", async ({
+    page,
+  }) => {
+    // Canonical post-footer cta-card hover swaps border-color to full
+    // `var(--accent)`. Pre-pt67 we used `var(--accent-dim, var(--accent))`
+    // which dimmed the activation. Reading the :hover rule directly from
+    // the stylesheet avoids the chromium :hover-state vs getComputedStyle
+    // race that breaks `await card.hover() + getComputedStyle()` reads.
+    await page.goto("/writing/bridge-strategy", {
+      waitUntil: "domcontentloaded",
+    });
+    const hoverRuleText = await page.evaluate(() => {
+      for (const sheet of Array.from(document.styleSheets)) {
+        try {
+          for (const rule of Array.from(sheet.cssRules || [])) {
+            if (
+              rule.cssText &&
+              rule.cssText.includes("cta-card") &&
+              rule.cssText.includes(":hover")
+            ) {
+              return rule.cssText;
+            }
+          }
+        } catch {
+          /* cross-origin stylesheet — skip */
+        }
+      }
+      return null;
+    });
+    expect(hoverRuleText).not.toBeNull();
+    // The hover rule must lift border-color to full var(--accent),
+    // NOT the dimmed --accent-dim variant.
+    expect(hoverRuleText).toContain("border-color: var(--accent)");
+    expect(hoverRuleText).not.toContain("--accent-dim");
+  });
+
   test(".post-body inline <code> is accent-colored (canonical post-*.html:374)", async ({
     page,
   }) => {

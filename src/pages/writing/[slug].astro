@@ -469,15 +469,19 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  /* USMR Phase 5.5.16-pt67 — canonical post-bridge-strategy.html:423-426
+   * letter-spacing 0.08em, no text-align (defaults to inherit/left).
+   * Pre-fix 0.06em + center misaligned the caption with the rest of
+   * the .post-body mono micro-text scale (0.08em is the standard for
+   * eyebrows / footer tags / chain-row .sub at this size). */
   .post-body :global(.chain-caption) {
     display: block;
     margin-top: 14px;
     font-family: var(--f-mono);
     font-size: 11px;
     color: var(--fg-3);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    text-align: center;
   }
   /* Canonical post-trusted-identity.html:428-429 — `gap: 16` (we had
    * 20). The tighter gap reads as a comparison pair instead of two
@@ -584,14 +588,20 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     background: var(--bg-1);
     text-decoration: none;
     color: inherit;
+    /* USMR Phase 5.5.16-pt67 — canonical post-bridge-strategy.html:456
+     * uses 2-property `.15s` transition (no `transform` — no rule sets
+     * one). Pre-fix shipped 3 props × 0.18s with a never-fired transform
+     * hint, slowing the hover and bloating the transition list. */
     transition:
-      border-color 0.18s ease,
-      background 0.18s ease,
-      transform 0.18s ease;
+      background 0.15s,
+      border-color 0.15s;
   }
   .post-footer__cta-card:hover,
   .post-footer__cta-card:focus-visible {
-    border-color: var(--accent-dim, var(--accent));
+    /* USMR Phase 5.5.16-pt67 — canonical post-bridge-strategy.html:458
+     * lifts hover border to full `var(--accent)`. Pre-fix `--accent-dim`
+     * dimmed the highlight, dropping the perceived activation weight. */
+    border-color: var(--accent);
     background: color-mix(in oklab, var(--accent) 6%, var(--bg-1));
   }
   .post-footer__cta-card:focus-visible {
