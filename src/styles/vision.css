@@ -50,15 +50,22 @@
 .vision-doc .content-block {
   margin: var(--margin-content-block) 0;
 }
+/* USMR Phase 5.5.16-pt129 — vision.css rem→px discipline (pt19-22).
+ * pt78 already migrated the legacy color tokens; pt129 closes the
+ * remaining 7 rem font-sizes. 1.25rem at root 16 = 20 px, which
+ * matches the canonical .lead contract (global.css:234). */
 .vision-doc .lead-text {
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 500;
   color: var(--fg);
   line-height: 1.6;
   margin-bottom: 1rem;
 }
 .vision-doc .pillars-title {
-  font-size: 1.8rem;
+  /* USMR Phase 5.5.16-pt129 — 1.8rem ≈ 28.8 → 29 px (section
+   * heading; intentionally smaller than the canonical h2 36-60
+   * range because /vision is a content-doc, not a marketing page). */
+  font-size: 29px;
   color: var(--accent);
   margin: 4rem 0 2rem;
   text-align: center;
@@ -66,13 +73,15 @@
 }
 .vision-doc .mission-breakdown h3 {
   color: var(--accent);
-  font-size: 1.6rem;
+  /* USMR Phase 5.5.16-pt129 — 1.6rem ≈ 25.6 → 26 px. */
+  font-size: 26px;
   margin: 0 0 1rem;
 }
 .vision-doc .mission-breakdown h4 {
   color: var(--accent);
   margin: 0 0 0.75rem;
-  font-size: 1.1rem;
+  /* USMR Phase 5.5.16-pt129 — 1.1rem ≈ 17.6 → 18 px. */
+  font-size: 18px;
 }
 .vision-doc .mission-intro {
   color: var(--fg-2);
@@ -97,7 +106,8 @@
 .vision-doc .principle-content h3 {
   color: var(--accent);
   margin: 0 0 0.5rem;
-  font-size: 1.2rem;
+  /* USMR Phase 5.5.16-pt129 — 1.2rem ≈ 19.2 → 19 px. */
+  font-size: 19px;
 }
 .vision-doc .principle-content p {
   margin: 0;
@@ -175,7 +185,8 @@
 }
 .vision-doc .phase-timeline {
   color: var(--fg-2);
-  font-size: 0.95rem;
+  /* USMR Phase 5.5.16-pt129 — 0.95rem ≈ 15.2 → 15 px (meta-text). */
+  font-size: 15px;
 }
 .vision-doc .phase-description {
   margin: 0 0 1rem;
@@ -189,7 +200,8 @@
 }
 .vision-doc .phase-deliverables li::before {
   left: 0;
-  font-size: 1rem;
+  /* USMR Phase 5.5.16-pt129 — 1rem → 16 px (bullet-marker glyph). */
+  font-size: 16px;
 }
 .vision-doc .phase-kpi {
   margin: 0;
