@@ -492,9 +492,7 @@ Generates logo variants from source files.
 
 **Documentation:**
 
-- `public/assets/logos/README.md` - Logo usage guidelines
-- `docs/LOGO_USAGE.md` - Detailed logo documentation
-- `docs/LOGO_CONVERSION_SUMMARY.md` - Conversion process
+- `public/assets/logos/README.md` - Logo usage guidelines and variant inventory
 
 ### Build Scripts
 
@@ -640,7 +638,7 @@ openspec archive <change-id> --yes
 
 ### Documentation
 
-- **`openspec/AGENTS.md`** - Comprehensive OpenSpec guide for AI agents
+- **`AGENTS.md`** - Canonical project + OpenSpec agent guide (CLAUDE.md / GEMINI.md symlink to it)
 - **`openspec/project.md`** - Project context and conventions
 - **`openspec/contributing.md`** - Contribution guidelines with examples
 
@@ -735,15 +733,15 @@ See **[openspec/contributing.md](./openspec/contributing.md)** for:
 
 - **`.agents/policies/guardrails.md`** - Development guardrails and constraints
 - **`.agents/policies/release-checklist.md`** - Pre-release validation steps
-- **`AGENTS.md`** → **`openspec/AGENTS.md`** - Main OpenSpec agent instructions
-- **`CLAUDE.md`** - Symlink to AGENTS.md
-- **`GEMINI.md`** - Symlink to AGENTS.md
+- **`AGENTS.md`** - Main OpenSpec + project agent instructions (single source of truth at the repo root)
+- **`CLAUDE.md`** → **`AGENTS.md`** (symlink)
+- **`GEMINI.md`** → **`AGENTS.md`** (symlink)
 
 ### Agent Workflow
 
 AI agents should:
 
-1. Read `openspec/AGENTS.md` for OpenSpec workflow
+1. Read `AGENTS.md` for OpenSpec workflow + project conventions
 2. Read `openspec/project.md` for project context
 3. Read `openspec/contributing.md` for contribution guidelines
 4. Use OpenSpec commands to understand existing work
@@ -756,9 +754,7 @@ AI agents should:
 ## Additional Documentation
 
 - **`docs/SITE_AUDIT.md`** - Site structure and content audit
-- **`docs/LOGO_USAGE.md`** - Logo usage guidelines and variants
-- **`docs/LOGO_CONVERSION_SUMMARY.md`** - Logo conversion process
-- **`public/assets/logos/README.md`** - Logo file reference
+- **`public/assets/logos/README.md`** - Logo file reference and variants
 - **`scripts/icons/README.md`** - Icon generation guide
 - **`scripts/icons/VERIFICATION.md`** - Icon verification checklist
 
