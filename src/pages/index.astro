@@ -795,8 +795,21 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   :global([data-writing-widget="A · strip"]) .writing-strip__item:not(:first-child) {
     display: none;
   }
-  :global([data-writing-widget="C · split"]) .writing-strip__list {
-    grid-template-columns: 1.5fr 1fr 1fr;
+  /* USMR Phase 5.5.16-pt113 — C · split mobile breakpoint. Without
+   * this, 540 px viewport rendered 3 columns squished into ~150 px
+   * each. The base @media (max-width: 540px) rule already collapses
+   * .writing-strip__list to 1fr, but the variant override (1.5fr 1fr
+   * 1fr) had higher specificity and won. Wrap the variant in the
+   * same media query to defer to single-column on narrow viewports. */
+  @media (min-width: 541px) {
+    :global([data-writing-widget="C · split"]) .writing-strip__list {
+      grid-template-columns: 1.5fr 1fr 1fr;
+    }
+  }
+  @media (max-width: 540px) {
+    :global([data-writing-widget="C · split"]) .writing-strip__list {
+      grid-template-columns: 1fr;
+    }
   }
   :global([data-writing-widget="D · ticker"]) .writing-strip__list {
     grid-template-columns: 1fr;
