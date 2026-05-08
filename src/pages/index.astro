@@ -179,7 +179,16 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
       <section class="writing-strip section" id="writing">
         <div class="container">
           <header class="writing-strip__head">
-            <h2>Field notes from the team building Artagon.</h2>
+            <div class="writing-strip__head-text">
+              <p class="eyebrow">Writing</p>
+              {/* Canonical index.html:1423 — serif-italic emphasis on
+                * "the team" via <span class="serif">. */}
+              <h2 class="writing-strip__title">
+                Field notes from
+                <span class="serif" style="font-style: italic;">the team</span>
+                building Artagon.
+              </h2>
+            </div>
             <a class="writing-strip__more" href="/writing">All writing →</a>
           </header>
           <ul role="list" class="writing-strip__list">
@@ -537,15 +546,26 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   .writing-strip {
     padding-block: var(--space-12);
   }
+  /* Canonical .grid-writing-header (index.html:324) — `grid-template-
+   * columns: 1fr auto`, `gap: 32`, `align-items: end`, `margin-bottom:
+   * 56`. Pre-fix used flex with baseline alignment + var(--space-8)
+   * margin (typically 32). The grid+end-align + 56 px margin push the
+   * "All writing →" anchor into clean alignment with the h2's baseline
+   * regardless of how the headline wraps across breakpoints. */
   .writing-strip__head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-6);
-    margin-block-end: var(--space-8);
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+    margin-bottom: 56px;
   }
-  .writing-strip__head h2 {
+  @media (max-width: 720px) {
+    .writing-strip__head {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+  .writing-strip__title {
     font-size: clamp(1.75rem, 3vw, 2.5rem);
     line-height: 1.15;
     margin: 0;
