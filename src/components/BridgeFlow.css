@@ -121,9 +121,11 @@
   border-color: var(--accent-dim);
   background: color-mix(in oklab, var(--accent) 8%, var(--bg-1));
 }
+/* Canonical Bridge.jsx:55 — `fontSize: 11`. We had 0.7rem (≈11.2);
+ * fixed px matches canonical exactly. */
 .bridge-party__role {
   font-family: var(--f-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
   color: var(--fg-3);
   letter-spacing: 0.12em;
   margin-bottom: 10px;
@@ -132,15 +134,18 @@
 .bridge-party.is-active .bridge-party__role {
   color: var(--accent);
 }
+/* Canonical Bridge.jsx:58 — `fontSize: 20`. (1.25rem resolves to
+ * 20 px at root 16; canonicalize to fixed px.) */
 .bridge-party__label {
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: -0.015em;
   color: var(--fg);
 }
+/* Canonical Bridge.jsx:59 — `fontSize: 12`. */
 .bridge-party__sub {
   font-family: var(--f-mono);
-  font-size: 0.75rem;
+  font-size: 12px;
   color: var(--fg-3);
   margin-top: 6px;
 }
