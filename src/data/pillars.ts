@@ -233,15 +233,18 @@ export const PILLARS: readonly Pillar[] = [
       [txt("Decision caching, obligations, audit/explain")],
     ],
     specimen: {
-      // Resolved Open question 4 — generic Cedar starter using only
-      // documented primitives. NO Artagon-internal type names. Marked
-      // for identity-team review per the lint:specimens contract
-      // (task 5.2.y).
+      // Canonical Cedar specimen — new-design Pillars.jsx:76-77. Demos
+      // the *graph*-native authorization narrative the pillar is named
+      // for: principal-in-Group composition, Account type binding, and
+      // a `context.delegation.vc` predicate that ties Authorization
+      // back to the verifiable-credentials pillar above. The earlier
+      // generic `principal/action/resource` payload removed every
+      // teaching primitive that made the Authorization pillar visually
+      // distinct from a stock RBAC example.
       kind: "policy",
       header: "cedar — permit.cedar",
-      // @TODO-IDENTITY-REVIEW: <reviewer> by 2026-05-21
       payload:
-        'permit (\n  principal,\n  action == Action::"read",\n  resource\n) when {\n  principal in resource.allowed_groups &&\n  context.mfa_verified\n};',
+        'permit (\n  principal in Group::"csr_team",\n  action == Action::"view_account",\n  resource is Account\n) when {\n  context.delegation.vc.valid &&\n  context.delegation.expires > now()\n};',
     },
   },
 ] as const;

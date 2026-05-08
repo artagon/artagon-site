@@ -2,7 +2,6 @@
 import { execSync } from 'node:child_process';
 import pkg from '../../package.json';
 import ArtagonGlyph from './ArtagonGlyph.astro';
-import ThemeToggle from './ThemeToggle.astro';
 import taglines from '../content/taglines.json';
 
 const { tagline } = taglines;
@@ -78,38 +77,33 @@ const cols = [
 ] as const;
 ---
 <footer role="contentinfo" class="site-footer">
-  <div class="footer-inner wrap">
+  <nav class="footer-inner wrap" aria-label="Footer">
     <div class="footer-brand">
       <a href="/" class="footer-wordmark" aria-label="Artagon home">
         <ArtagonGlyph class="footer-glyph" />
         <span>Artagon</span>
       </a>
       <p class="footer-positioning">{tagline.positioning}</p>
-      <div class="footer-theme">
-        <ThemeToggle />
-      </div>
     </div>
 
-    <nav class="footer-cols" aria-label="Footer">
-      {cols.map(col => (
-        <div class="footer-col">
-          <h3 class="footer-col-heading">{col.label}</h3>
-          <ul role="list">
-            {col.links.map(link => (
-              <li>
-                <a
-                  href={link.href}
-                  {...(('external' in link && link.external) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                >
-                  {link.text}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </nav>
-  </div>
+    {cols.map(col => (
+      <div class="footer-col">
+        <h3 class="footer-col-heading">{col.label}</h3>
+        <ul role="list">
+          {col.links.map(link => (
+            <li>
+              <a
+                href={link.href}
+                {...(('external' in link && link.external) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                {link.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </nav>
 
   <div class="footer-meta wrap">
     <span>© {year} Artagon, Inc. — Philadelphia, PA</span>
@@ -128,10 +122,15 @@ const cols = [
   font-size: 0.9rem;
 }
 
+/* Canonical flat 5-col grid — new-design BaseLayout.jsx:283
+ * (`gridTemplateColumns:'1.4fr repeat(4, 1fr)'`). The brand column is
+ * 1.4× as wide as each link column, all in one row. The pre-canonical
+ * 220px + nested 4-col arrangement created visual asymmetry on wide
+ * viewports. */
 .footer-inner {
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: var(--space-12);
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: var(--space-10);
   padding-bottom: var(--space-10);
   border-bottom: 1px solid var(--line-soft);
 }
@@ -165,21 +164,13 @@ const cols = [
 }
 
 .footer-positioning {
+  /* Canonical Footer/jsx:286 — `fontSize:13, color: var(--fg-2),
+   * maxWidth:'28ch', lineHeight:1.55`. */
   color: var(--fg-2);
-  font-size: 0.82rem;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.55;
   margin: 0;
-  max-width: 200px;
-}
-
-.footer-theme {
-  margin-top: auto;
-}
-
-.footer-cols {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-6);
+  max-width: 28ch;
 }
 
 .footer-col-heading {
@@ -204,18 +195,28 @@ const cols = [
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  /* Override the global `nav ul { align-items: center }` rule that the
+   * header uses (Footer.astro wraps columns in <nav> for semantics, so
+   * the descendant selector cascades in). Stretch lets each <a> fill
+   * the column width with text-align: start (left). */
+  align-items: stretch;
+  gap: 10px;
 }
 
 .footer-col a {
-  /* USMR Phase 5.5.11 Task #31 — invisible padding inflates each
-   * footer link's hit area to 44 px tall per WCAG 2.5.5. The
-   * visible label stays compact; the hit zone stretches via the
-   * inline-flex + min-height container. */
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--fg-2);
+  /* Canonical compact-list density — Hero.jsx:293-296 sets
+   * `gap: 10`, `fontSize: 13.5`, `color: var(--fg-1)`. The visible
+   * row is ~25.5 px tall with 10 px gap → 35.5 px center-to-center,
+   * comfortably above WCAG 2.5.8 AA (24 × 24 minimum) under the
+   * dense-link-block spacing rule. We avoid the 44 px min-height
+   * pattern from 5.5.11 that visually centered each label inside a
+   * 44 px box and made the column read as 250 px of whitespace
+   * (canonical column reads as ~120 px). */
+  display: block;
+  padding-block: 2px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--fg-1);
   text-decoration: none;
   transition: color 0.15s ease;
 }
@@ -241,19 +242,17 @@ const cols = [
 
 @media (max-width: 860px) {
   .footer-inner {
-    grid-template-columns: 1fr;
-  }
-
-  .footer-cols {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
   }
 }
 
 @media (max-width: 540px) {
-  .footer-cols {
+  .footer-inner {
     grid-template-columns: 1fr 1fr;
   }
-
   .footer-meta {
     flex-direction: column;
     align-items: flex-start;

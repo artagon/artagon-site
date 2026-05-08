@@ -31,10 +31,12 @@
   margin: 0 0 0.5rem;
 }
 
+/* Canonical Bridge.jsx — bare h2 picks up the global h2 type scale
+ * (clamp(36, 60) at line-height 1.02 + letter-spacing -0.025em from
+ * theme.css h2 rule). The local clamp(2.2rem, 4.5vw, 3.5rem) override
+ * undersized the heading by ~13 % at the 60 px ceiling. */
 .bridge-flow__title {
   font-family: var(--f-display);
-  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
-  line-height: 1.1;
   letter-spacing: var(--display-tracking, -0.02em);
   font-weight: var(--display-weight, 500);
   color: var(--fg);

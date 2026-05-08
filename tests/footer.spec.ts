@@ -98,4 +98,42 @@ test.describe("Footer (canonical 4×5 structure)", () => {
     await expect(brand.locator("svg.footer-glyph")).toBeVisible();
     await expect(brand.locator('img[src*="icon-64"]')).toHaveCount(0);
   });
+
+  // USMR 5.5.16 — canonical flat 5-col grid (BaseLayout.jsx:283
+  // `gridTemplateColumns:'1.4fr repeat(4, 1fr)'`). Pre-fix the layout
+  // was a 220 px brand col + 1fr nested 4-col grid which created
+  // visual asymmetry on wide viewports.
+  test("footer-inner grid is canonical 1.4fr repeat(4, 1fr)", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.setViewportSize({ width: 1240, height: 800 });
+    const cols = await page.$eval(
+      ".site-footer .footer-inner",
+      (el) => getComputedStyle(el).gridTemplateColumns,
+    );
+    // Computed values are pixel widths; assert ratio holds: brand col
+    // ≈ 1.4× each link col. At maxw 1240 + gap 40 px × 4, we expect
+    // brand col ≈ 280 px and each link col ≈ 200 px.
+    const widths = cols.split(/\s+/).map((v) => parseFloat(v));
+    expect(widths).toHaveLength(5);
+    const brand = widths[0]!;
+    const links = widths.slice(1);
+    const linkAvg = links.reduce((a, b) => a + b, 0) / links.length;
+    expect(brand / linkAvg).toBeGreaterThan(1.25);
+    expect(brand / linkAvg).toBeLessThan(1.6);
+  });
+
+  // USMR 5.5.16 — ThemeToggle was removed from the footer brand col
+  // (canonical Footer fn lines 284-288 has wordmark + positioning blurb
+  // ONLY). The toggle still lives in the header. A regression that
+  // re-injects it would surface as a visible control next to the
+  // wordmark.
+  test("footer brand has no theme toggle control", async ({ page }) => {
+    await page.goto("/");
+    const brandToggles = page.locator(
+      ".footer-brand [data-theme-toggle], .footer-brand button[aria-pressed]",
+    );
+    await expect(brandToggles).toHaveCount(0);
+  });
 });

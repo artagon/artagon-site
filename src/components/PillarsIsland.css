@@ -59,10 +59,13 @@
 
 @media (max-width: 1024px) {
   .pillars__head {
+    /* Canonical Pillars.jsx:102 — fixed `marginBottom: 40` across all
+     * breakpoints. The 48 we shipped at the tablet breakpoint reads as
+     * extra dead space below the lede vs the canonical mock. */
     grid-template-columns: 1fr;
     gap: 24px;
     align-items: start;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
   }
   .pillars__lede {
     justify-self: start;

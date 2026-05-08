@@ -247,10 +247,15 @@ export default function TrustChainIsland() {
       ? // USMR 5.5.11 Task #34 — canonical Hero.jsx:417 stage-aware claim.
         `evaluating stage ${String(Math.min(step + 1, STAGES.length)).padStart(2, "0")}/${String(STAGES.length).padStart(2, "0")}…`
       : scenario.finalClaim;
+  // Canonical reasoning fallback (Hero.jsx:421-423) is a static line
+  // explaining the chain semantics — NOT a progress counter. The
+  // counter form drifted in 5.5.11 and reads as a duplicate of the
+  // claim line above ("evaluating stage 0X/05" already conveys
+  // progress); the canonical line teaches the model instead.
   const reasonLine = hoveredStage
     ? `// ${hoveredStage.sub}`
     : isEvaluating
-      ? `// ${step}/${STAGES.length} stages evaluated`
+      ? `// chain composes proofs; any stage can halt`
       : `// ${scenario.reason}`;
 
   // USMR 5.5.11 Task #28 — dynamic card-shell glow + border per

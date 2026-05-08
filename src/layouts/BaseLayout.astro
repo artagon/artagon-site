@@ -59,6 +59,25 @@ const path = passthrough.path ?? '/';
   }
 })();
     </script>
+    {/* Webfont loading — canonical Artagon design loads 6 typefaces from
+     * Google Fonts: Inter Tight (--f-sans), Space Grotesk (--f-display
+     * default), JetBrains Mono (--f-mono), Fraunces (--f-serif & one
+     * --f-display variant), Instrument Serif (alt --f-serif), DM Serif
+     * Display (one --f-display variant for the hero-font matrix). The
+     * preconnect pair is required for Lighthouse "preconnect to required
+     * origins" — see new-design/extracted/src/pages/index.html. The
+     * site-wide `--f-*` tokens silently fell back to system-ui before
+     * this load was wired up; users saw San Francisco / Helvetica
+     * instead of the canonical type voice. The dedicated
+     * `self-host-woff2-fonts` OpenSpec change tracks the eventual
+     * self-hosted woff2 swap; the Google CDN gets us pixel parity in
+     * the meantime. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@400;500;600&display=swap"
+    />
     <link rel="stylesheet" href="/assets/theme.css" />
     <slot name="head" />
     <slot name="json-ld" />

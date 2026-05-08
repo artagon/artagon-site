@@ -276,6 +276,8 @@ Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
 Each family loads with `font-display: swap`. Preload the display face used
 above-the-fold. The site **must not** ship more than four custom families.
 
+**Webfont loading (USMR 5.5.16).** `BaseLayout.astro` ships the canonical Google-Fonts loader: `<link rel="preconnect">` to `fonts.googleapis.com` + `fonts.gstatic.com`, then a single `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?…">` request that pulls all 6 families above (`Inter Tight` 300-700, `JetBrains Mono` 300-600, `Instrument Serif` ital 0;1, `Fraunces` ital,opsz,wght variable, `DM Serif Display` ital 0;1, `Space Grotesk` 400-600). The `tests/webfonts.spec.ts` Playwright spec gates the loader's existence and verifies `h1.display` resolves to Space Grotesk + `body` to Inter Tight after `document.fonts.ready` settles. Without this loader every `--f-*` token silently fell back to system-ui (San Francisco on macOS, Segoe UI on Windows) and the hero rendered in a completely different typeface than the canonical mock — caught only when a user A/B-compared screenshots. The `self-host-woff2-fonts` OpenSpec change tracks the eventual move to self-hosted woff2; the CDN gets us pixel parity in the meantime.
+
 ### 3.2 Type scale
 
 ```
@@ -369,10 +371,10 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Purpose.** Primary wayfinding. Sticky, backdrop-blurred, 64px tall.
 
-**Anatomy.** Wordmark (left) · link row · right cluster (GitHub icon, Playground, Request access).
+**Anatomy.** Wordmark (left) · 4-item link row · right cluster (GitHub 34×34 icon button, Playground ghost CTA, Request access primary CTA, theme toggle).
 
-**Links (top nav):** Platform · Use cases · Standards · Writing.
-**Deliberately excluded:** Bridge (absorbed into Platform), Roadmap (footer only), GitHub (icon-button, right).
+**Links (top nav):** Platform · Use cases · Standards · Writing — exactly 4 (canonical BaseLayout.jsx:203-208). Bridge / Roadmap surface via /bridge and /roadmap routes + the home Explore grid; they are NOT in the primary nav. GitHub is a 34×34 rounded-square icon button in `.right`, NOT a `<li>` in the link list (canonical BaseLayout.jsx:220-238).
+**Deliberately excluded:** Bridge (link in footer + Explore card on home), Roadmap (link in footer + Explore card on home).
 
 **Tokens.** `--bg` (72% w/ backdrop blur) · `--line-soft` · `--fg-1` · `--accent` (active underline).
 
@@ -387,13 +389,18 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Purpose.** Sitemap + legal + trust signals.
 
-**Anatomy.** Brand column (wordmark + positioning line) · 4 link columns (Platform · Developers · Company · Legal) · meta strip (copyright · stack credit · version).
+**Anatomy.** Brand column (wordmark + 28ch positioning line) · 4 link columns (Platform · Developers · Company · Legal) · meta strip (copyright · stack credit · version).
+
+**Layout.** Flat 5-col grid: `grid-template-columns: 1.4fr repeat(4, 1fr)` (canonical BaseLayout.jsx:283). Brand column is 1.4× the width of each link column. The pre-canonical `220px 1fr` + nested 4-col arrangement was replaced in 5.5.16 — the nested wrapper produced visual asymmetry on wide viewports.
 
 **Rules.**
 
 - Copyright format: `© {YEAR} Artagon, Inc. — Philadelphia, PA`.
 - Version string format: `v{semver} — build {7-char git sha}`.
 - "Built on Astro · Open-source core · Apache 2.0" is the stack credit line. Do not edit.
+- Column links are LEFT-ALIGNED inside each column (default `text-align: start`); the `.footer-col ul` MUST set `align-items: stretch` to override the global `nav ul { align-items: center }` rule that the header relies on (Footer.astro wraps cols in `<nav>` for semantics, so the descendant selector cascades in).
+- Link row density (canonical Hero.jsx:293-296): `font-size: 13.5px`, `line-height: 1.55`, `padding-block: 2px`, `gap: 10px`. Center-to-center distance is ~34.9 px, ≥ WCAG 2.5.8 AA (24×24) under the dense-link-block spacing rule. Do NOT enforce `min-height: 44px` on each link — it visually centers each label inside a 44 px box and inflates the column to ~250 px (canonical column reads as ~120 px).
+- The brand column has wordmark + positioning blurb ONLY. ThemeToggle was injected here in 5.1g; that placement was non-canonical and was removed in 5.5.16. The toggle still ships in the header `.right` cluster — the footer is a sitemap, not a control surface.
 
 ### 6.3 Glow-tag (eyebrow)
 
@@ -489,6 +496,8 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 
 **Status.** CSS primitives `.explore-grid` (responsive 4-up grid; collapses to 2-up < 720 px and 1-up < 480 px) and `.explore-card` (border + accent-tinted hover lift) are authored in `public/assets/theme.css` (USMR Phase 5.1q.5). The `<ExploreGrid>` Astro component sourcing `EXPLORE_CARDS` data is **Planned for Phase 5.x** — the home page does not yet render the section. Surfaces wanting the grid today can author it inline using the shipped classes.
 
+**Sizing (USMR 5.5.16).** `.explore-card` consumes canonical (new-design global.css:296-303) `padding: 28px 24px 24px` (top inflated to clear the idx label), `gap: 14px` between rows, and `min-height: 220px` so cards align across the row even when the title text wraps. The pre-canonical 20 px / 12 px / no min-height arrangement gave shorter cards an inconsistent visual baseline on the home grid.
+
 ### 6.7 Numbered section heading
 
 **Purpose.** The audit-page signature. Every `<h2>` in a long-form page is numbered.
@@ -506,6 +515,8 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 | Icon button    | 34×34, bordered square             | GitHub icon, theme toggle, close |
 
 Height: 40px (primary) · 38px (secondary) · 34px (icon). Minimum tap target: 44×44 via hit-area padding. Never place two primary buttons adjacent.
+
+**Token contract (USMR 5.5.16).** Canonical `.btn` (new-design global.css:236-244): `padding: 12px 18px`, `gap: 10px`, `border-radius: 8px`, `font-size: 14px`, `font-weight: 500`, `transition: background .18s ease, border-color .18s ease, transform .18s ease`. Pre-canonical `0.5rem 0.85rem` / `border-radius: 10px` / `gap: 0.4rem` undersized every CTA against the mock; the FAQ-page `btn solid` non-canonical class was renamed to `btn primary` in the same diff. Wrapper `.wrap` consumes the density-aware `--gutter` token (`padding: 0 var(--gutter)`) instead of a hard 20 px so density toggles (`[data-density="dense" | "comfortable" | "roomy"]`) actually flow through.
 
 ### 6.9 Code block
 
@@ -669,6 +680,19 @@ Nav
   Footer rail      "Continue reading" 2-up · standards-row · share
 Footer
 ```
+
+**Post-body primitives — canonical contract (USMR 5.5.16).** The `/writing/[slug]` route ports primitives from canonical `new-design/extracted/src/pages/blog.html`. Drift from these values silently de-canonicalizes long-form content:
+
+| Primitive       | Property                  | Canonical value                                                      | Pre-fix value                                       |
+| --------------- | ------------------------- | -------------------------------------------------------------------- | --------------------------------------------------- |
+| `h2`            | margin-top                | `64px`                                                               | `56px`                                              |
+| `h2`            | font-size clamp           | `clamp(26px, 2.4vw, 34px)` / line-height `1.12`                      | `clamp(24, 32)` / `1.15`                            |
+| `h2 .num`       | layout                    | `display: block` + `margin-bottom: 8px` + tracking `0.14em`          | inline `vertical-align: middle` + tracking `0.12em` |
+| `code` (inline) | bg / border               | `var(--bg-1)` / `1px solid var(--line-soft)`                         | accent-tinted `color-mix(accent 6%, transparent)`   |
+| `.pull`         | border / padding / font   | full `1px solid var(--line)` / `36px` / `clamp(24, 32)` / lh `1.3`   | left-stripe accent-2px / `28×32` / `clamp(20, 26)`  |
+| `.chain-row`    | grid / framing            | `40px 1fr auto` + per-row `1px solid var(--line-soft)` + `var(--bg)` | `28px 1fr auto` + border-top divider only           |
+| CTA cards       | padding / border / height | `26px` / `var(--line)` / no `min-height`                             | `20×22` / `var(--line-soft)` / `min-height: 156px`  |
+| `.compare .col` | padding                   | `22px`                                                               | `24px`                                              |
 
 **Code blocks (the load-bearing requirement).**
 

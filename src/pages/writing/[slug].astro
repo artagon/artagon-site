@@ -254,23 +254,27 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     color: var(--fg);
     max-width: 60ch;
   }
+  /* Canonical post-body h2 — new-design blog.html:356-366. Top margin
+   * 64 (was 56), max font 34 (was 32), line-height 1.12 (was 1.15);
+   * the `.num` mono prefix renders as a *block* above the heading
+   * with `margin-bottom: 8px`, NOT inline-`vertical-align: middle`. */
   .post-body :global(h2) {
-    margin: 56px 0 18px;
+    margin: 64px 0 18px;
     font-family: var(--f-display);
-    font-size: clamp(24px, 2.4vw, 32px);
-    line-height: 1.15;
+    font-size: clamp(26px, 2.4vw, 34px);
+    line-height: 1.12;
     letter-spacing: -0.02em;
     color: var(--fg);
     font-weight: 500;
   }
   .post-body :global(h2 .num) {
+    display: block;
+    margin-bottom: 8px;
     font-family: var(--f-mono);
     font-size: 11px;
     color: var(--fg-3);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    margin-right: 10px;
-    vertical-align: middle;
   }
   .post-body :global(h3) {
     margin: 40px 0 14px;
@@ -297,26 +301,34 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     font-style: italic;
     color: var(--fg);
   }
+  /* Canonical inline code — blog.html:372-376. Neutral bg-1 + line-soft
+   * border, NOT the accent-tinted variant. The accent tint masked
+   * inline-code as the same affordance as a button or link, breaking
+   * scan-ability inside long-form prose. */
   .post-body :global(code) {
     font-family: var(--f-mono);
-    font-size: 0.9em;
-    color: var(--accent);
-    background: color-mix(in oklab, var(--accent) 6%, transparent);
-    border: 1px solid color-mix(in oklab, var(--accent) 18%, transparent);
+    font-size: 0.88em;
+    color: var(--fg);
+    background: var(--bg-1);
+    border: 1px solid var(--line-soft);
     border-radius: 4px;
     padding: 1px 6px;
   }
+  /* Canonical .pull — blog.html:378-388. Full 1px solid var(--line)
+   * border + 36 px padding + 32 px max font / 1.3 line-height. The
+   * accent left-stripe variant we shipped read as a sidebar callout,
+   * not the editorial pull-quote the canonical narrates. */
   .post-body :global(blockquote),
   .post-body :global(.pull) {
     font-family: var(--f-emphasis, var(--f-serif));
     font-style: italic;
-    font-size: clamp(20px, 2.2vw, 26px);
-    line-height: 1.4;
+    font-size: clamp(24px, 2.4vw, 32px);
+    line-height: 1.3;
     color: var(--fg);
     margin: 36px 0;
-    padding: 28px 32px;
+    padding: 36px;
     background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 4%, var(--bg-1)) 0%, var(--bg-1) 100%);
-    border-left: 2px solid var(--accent);
+    border: 1px solid var(--line);
     border-radius: 8px;
   }
   .post-body :global(.pull .attribution) {
@@ -337,17 +349,24 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     background: var(--bg-1);
     max-width: none;
   }
+  /* Canonical .chain-row — blog.html:401. 40 px first column (room for
+   * the mono index), 14 16 padding, per-row 1px solid var(--line-soft)
+   * frame + var(--bg) backdrop. The pre-canonical 28 px first col +
+   * border-top divider rendered as a list, not the boxed-row stage
+   * card the canonical narrates. */
   .post-body :global(.chain-row) {
     display: grid;
-    grid-template-columns: 28px 1fr auto;
+    grid-template-columns: 40px 1fr auto;
     gap: 14px;
-    padding: 14px 0;
+    padding: 14px 16px;
     align-items: center;
-    border-top: 1px solid var(--line-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 8px;
+    background: var(--bg);
+    margin-bottom: 8px;
   }
-  .post-body :global(.chain-row:first-child) {
-    border-top: 0;
-    padding-top: 0;
+  .post-body :global(.chain-row:last-child) {
+    margin-bottom: 0;
   }
   .post-body :global(.chain-row .num) {
     font-family: var(--f-mono);
@@ -392,7 +411,8 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     margin: 36px 0;
   }
   .post-body :global(.compare .col) {
-    padding: 24px;
+    /* Canonical blog.html:430 — 22 px padding (was 24). */
+    padding: 22px;
     border: 1px solid var(--line-soft);
     border-radius: 8px;
     background: var(--bg-1);
@@ -459,13 +479,17 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
       grid-template-columns: 1fr;
     }
   }
+  /* Canonical post-footer CTA cards — blog.html:452-453. 26 px
+   * padding all sides + var(--line) border (not line-soft) + no fixed
+   * min-height. The card height adapts to its title + description; the
+   * pre-canonical 20×22 + 156 min-height locked rows even when the
+   * description was a single line, leaving wide whitespace. */
   .post-footer__cta-card {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 20px 22px;
-    min-height: 156px;
-    border: 1px solid var(--line-soft);
+    padding: 26px;
+    border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--bg-1);
     text-decoration: none;

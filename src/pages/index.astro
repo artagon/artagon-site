@@ -285,7 +285,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     gap: 1rem;
     margin-bottom: 56px;
     padding-block: 1rem;
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: 12px;
     color: var(--fg-2);
     letter-spacing: 0.04em;
@@ -335,7 +335,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     border-top: 1px solid var(--line-soft);
   }
   .hero__affiliations-label {
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: 11px;
     letter-spacing: 0.12em;
     color: var(--fg-3);
@@ -347,7 +347,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     flex-wrap: wrap;
     gap: 28px;
     align-items: center;
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: 13px;
   }
   .hero__affiliations-link {
@@ -401,16 +401,19 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     right: 1.25rem;
     display: flex;
     justify-content: space-between;
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: var(--fs-micro);
     color: var(--fg-2);
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
+  /* Canonical Cta.jsx:23-28 — `gridTemplateColumns:'1.2fr 1fr'`. The
+   * 1.6fr was an off-canonical inflation that left too little room for
+   * the contact card on wide viewports. */
   .onramp__grid {
     display: grid;
     gap: clamp(1.5rem, 3vw, 3rem);
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     margin-top: 2rem;
   }
   @media (max-width: 768px) {
@@ -423,6 +426,15 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     line-height: 1.05;
     margin: 0 0 1.5rem;
   }
+  /* Canonical Cta.jsx:136-137 — italic Fraunces emphasis on the
+   * marker-split word ("next"). The visible italic was missing because
+   * this rule was absent. `--f-emphasis` falls back to `--f-serif`
+   * (Fraunces) per the hero-font matrix. */
+  .onramp__headline-emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+    font-weight: 400;
+  }
   .onramp__lede {
     margin: 0 0 2rem;
     max-width: 52ch;
@@ -433,12 +445,16 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     border-radius: 12px;
     padding: 1.75rem;
     background: var(--bg-1);
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: var(--fs-small);
   }
+  /* Canonical contact card colors — Cta.jsx:46,56,60-61. Title sits at
+   * fg-3 (deep label), `dt` at fg-3, `dd` at fg-1 (mono value),
+   * footnote at fg-3. Pre-canonical fg-2/fg/fg-2 made labels read as
+   * primary text. */
   .onramp__contacts-title {
     font-size: var(--fs-micro);
-    color: var(--fg-2);
+    color: var(--fg-3);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     margin-bottom: 0.875rem;
@@ -454,16 +470,16 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     gap: 1rem;
   }
   .onramp__row dt {
-    color: var(--fg-2);
+    color: var(--fg-3);
     margin: 0;
   }
   .onramp__row dd {
-    color: var(--fg);
+    color: var(--fg-1);
     margin: 0;
   }
   .onramp__footnote {
     margin: 0.875rem 0 0;
-    color: var(--fg-2);
+    color: var(--fg-3);
     font-size: var(--fs-micro);
     line-height: 1.5;
   }
@@ -487,7 +503,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     max-width: 28ch;
   }
   .writing-strip__more {
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: 0.875rem;
     color: var(--accent);
     text-decoration: none;
@@ -531,7 +547,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     transform: translateY(-2px);
   }
   .writing-strip__date {
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: var(--fs-micro);
     color: var(--fg-2);
     text-transform: uppercase;
@@ -553,7 +569,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   }
   .writing-strip__cta {
     margin-top: auto;
-    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--f-mono);
     font-size: var(--fs-micro);
     color: var(--accent);
     letter-spacing: 0.08em;

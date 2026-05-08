@@ -435,13 +435,16 @@ body {
 }
 body {
   margin: 0;
-  font:
-    16px/1.6 system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Inter,
-    Arial;
+  /* Canonical body type — `var(--f-sans)` resolves to "Inter Tight"
+   * via the webfont link in BaseLayout.astro. The previous `font:`
+   * shorthand pinned a `system-ui, -apple-system, …` chain that
+   * IGNORED the `--f-sans` token entirely, so users saw San Francisco
+   * even after webfonts loaded. Splitting into individual properties
+   * lets `--f-sans` take effect and per-component overrides cascade
+   * cleanly. */
+  font-family: var(--f-sans);
+  font-size: 16px;
+  line-height: 1.6;
   /* USMR Phase 5.5.5 — Inter Tight stylistic-set ligatures. */
   font-feature-settings:
     "ss01" on,
@@ -538,10 +541,13 @@ a {
  * Some ported components author against `.wrap` directly; alias both
  * names so either marker works. */
 .wrap {
+  /* Canonical .wrap — new-design global.css:212. Padding consumes the
+   * density-aware `--gutter` token (32 default, 20 dense, 44 roomy)
+   * shipped in 5.5.6, NOT a hard 20 px. */
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding: 0 20px;
+  padding: 0 var(--gutter, 20px);
   position: relative;
   z-index: 1;
 }
@@ -698,11 +704,15 @@ nav a:hover {
   margin-top: 22px;
 }
 .btn {
+  /* Canonical .btn — new-design global.css:236-244. `padding: 12 18`,
+   * `border-radius: 8`, `gap: 10`, `font-size: 14`, `font-weight: 500`.
+   * Pre-canonical 0.5rem 0.85rem (8 14) + 10px radius + 0.4rem gap
+   * undersized every CTA versus mock. */
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: 10px;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--brand-teal) 25%, transparent);
   background: color-mix(in srgb, var(--surface) 90%, var(--brand-teal) 5%);
   color: var(--text);
@@ -721,7 +731,7 @@ nav a:hover {
   backdrop-filter: blur(8px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 14px;
 }
 
 .btn::before {
@@ -2095,17 +2105,21 @@ summary:focus-visible,
   align-items: center;
 }
 
+/* Canonical .tag — new-design global.css:103-113. Asymmetric padding
+ * (4 right ≠ 4 left dot side) makes room for the leading dot without
+ * pushing the label off-center. The dot consumes the accent token and
+ * carries a 12 px box-shadow to bleed-glow against the bg-1 backdrop. */
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 8px;
+  padding: 4px 10px 4px 8px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: var(--bg-1);
+  background: color-mix(in oklab, var(--bg-1) 60%, transparent);
   color: var(--fg-2);
   font-family: var(--f-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -2114,6 +2128,7 @@ summary:focus-visible,
   height: 6px;
   border-radius: 999px;
   background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
 }
 
 .kbd {
@@ -2155,10 +2170,15 @@ summary:focus-visible,
   gap: 16px;
 }
 .explore-card {
+  /* Canonical .explore-card — new-design global.css:296-303. Top
+   * padding 28 (room for the idx label), inline + bottom 24, gap 14
+   * between rows, min-height 220 anchors a consistent card height
+   * across the 4-card row even when title text wraps. */
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px;
+  gap: 14px;
+  padding: 28px 24px 24px;
+  min-height: 220px;
   border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--bg-1);

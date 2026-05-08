@@ -100,3 +100,36 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
     expect(alpha!).toBeLessThan(1);
   });
 });
+
+// USMR 5.5.16 — canonical NAV_LINKS (BaseLayout.jsx:203-208) is
+// exactly 4 entries: Platform / Use cases / Standards / Writing.
+// GitHub is a 34×34 icon button in `.right`, NOT a `<li>` in the
+// link list. A regression that re-adds Bridge / Roadmap or drops
+// the icon button surfaces here.
+test.describe("Header — canonical NAV_LINKS structure", () => {
+  test("link list contains exactly 4 canonical entries", async ({ page }) => {
+    await page.goto("/");
+    const labels = (
+      await page.locator(".site-nav .links li > a").allTextContents()
+    ).map((s) => s.trim());
+    expect(labels).toEqual(["Platform", "Use cases", "Standards", "Writing"]);
+  });
+
+  test("GitHub appears as a 34×34 icon button in .right, not in .links", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    // No GitHub label inside .links
+    await expect(
+      page.locator(".site-nav .links a", { hasText: "GitHub" }),
+    ).toHaveCount(0);
+    // Icon button in .right with the canonical aria-label + dimensions
+    const gh = page.locator(".site-nav__github");
+    await expect(gh).toHaveAttribute("aria-label", "GitHub");
+    await expect(gh).toHaveAttribute("href", "https://github.com/artagon");
+    await expect(gh).toHaveAttribute("target", "_blank");
+    const box = await gh.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(34);
+    expect(box?.height).toBeGreaterThanOrEqual(34);
+  });
+});
