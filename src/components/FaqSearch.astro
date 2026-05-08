@@ -106,6 +106,25 @@
     font-size: 16px;
   }
 }
+
+/* USMR Phase 5.5.16-pt126 — forced-colors override per DESIGN.md §7.
+ * Under Windows High Contrast the focus-state border (var(--accent))
+ * + 3px box-shadow halo collapse to flat system colors and lose the
+ * "input-is-focused" signal entirely. Map:
+ *   - #faq-search:focus border + box-shadow → Highlight (system focus
+ *     color); box-shadow stripped because forced-colors blocks
+ *     synthetic shadows anyway and a 3px outline-style border on
+ *     Highlight is the canonical accessible focus chrome.
+ * Keeps all other input chrome (background, font-color) at the
+ * forced-colors defaults (Field / FieldText). */
+@media (forced-colors: active) {
+  #faq-search:focus {
+    border-color: Highlight;
+    box-shadow: none;
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+}
 </style>
 
 <script>

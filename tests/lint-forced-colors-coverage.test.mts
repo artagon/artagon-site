@@ -27,6 +27,12 @@ const ROOT = new URL("..", import.meta.url).pathname;
 const REQUIRED_FORCED_COLORS_FILES = [
   "src/components/Header.astro",
   "src/components/Footer.astro",
+  // USMR Phase 5.5.16-pt126 — added FAQ components. /faq is a high-
+  // traffic landing route off the marketing nav; the search input's
+  // focus chrome and the question-hover affordance both consumed
+  // var(--accent) without forced-colors fallback.
+  "src/components/FaqItem.astro",
+  "src/components/FaqSearch.astro",
 ] as const;
 
 describe("forced-colors mode coverage", () => {

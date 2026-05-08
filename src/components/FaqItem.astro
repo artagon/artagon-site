@@ -114,4 +114,28 @@ details[open] .faq-icon {
     font-size: 14px;
   }
 }
+
+/* USMR Phase 5.5.16-pt126 — forced-colors mode overrides per
+ * DESIGN.md §7. The OS palette remap (Windows High Contrast)
+ * collapses var(--accent) into a flat system color, so the FAQ
+ * question hover affordance + the in-answer link colors lose
+ * their signal. Map:
+ *   - .faq-question:hover (q-text fg flips to accent)  → Highlight
+ *   - .faq-answer a (the in-prose link color)          → LinkText
+ *   - .faq-answer a:hover                              → Highlight
+ * The default `<a>` underline + 2px text-underline-offset survive
+ * the palette remap because they're system-defaults under
+ * forced-colors. */
+@media (forced-colors: active) {
+  .faq-question:hover {
+    color: Highlight;
+  }
+  .faq-answer a {
+    color: LinkText;
+  }
+  .faq-answer a:hover,
+  .faq-answer a:focus-visible {
+    color: Highlight;
+  }
+}
 </style>

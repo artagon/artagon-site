@@ -1253,6 +1253,8 @@ Every `<input>`, `<textarea>`, and `<select>` MUST render at `font-size: 16px` o
 
 Component CSS authors: do not use `font-size: <rem>` inside `input` / `textarea` rules — pin to fixed-px 16 or larger so the contract is visually obvious in code review. Other text elements may use either px or rem; the rem→px discipline (pt19-22) applies to the island layer.
 
+**Forced-colors contract on inputs (USMR 5.5.16-pt126).** Input focus chrome MUST honor `@media (forced-colors: active)`. Specifically: if the rest-state focus uses `var(--accent)` border + a `box-shadow` halo, the forced-colors override maps the border to `Highlight`, drops the box-shadow (Windows High Contrast blocks synthetic shadows), and adds an explicit `outline: 2px solid Highlight; outline-offset: 1px` so the focus signal survives the OS palette remap. The FAQ search input (`#faq-search:focus`) demonstrates the canonical pattern.
+
 ---
 
 ## 10 · Content model
