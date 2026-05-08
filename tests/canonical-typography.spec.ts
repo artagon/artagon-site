@@ -77,6 +77,50 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(result.weight).toBe(result.token || "400");
   });
 
+  test("/faq h1.display renders in [40, 64] clamp range (pt114)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt114 caught the FAQ h1 rendering at 102.4 px
+    // (hero-sized) because the inline `clamp(2rem, 1.2rem+3vw, 3rem)`
+    // was invalid CSS (missing calc()) and the bare h1 default fired.
+    // pt115 added a global lint-clamp-syntax gate; this is the
+    // page-level regression case asserting the rendered size falls in
+    // the canonical FAQ-page range (40-64 px).
+    await page.goto("/faq", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 1422, height: 800 });
+    await page.evaluate(() => document.fonts.ready);
+    const result = await page.$eval("h1.faq-hero__title", (el) => {
+      const cs = getComputedStyle(el);
+      return {
+        fontSize: parseFloat(cs.fontSize),
+        weight: cs.fontWeight,
+      };
+    });
+    expect(result.fontSize).toBeGreaterThanOrEqual(40);
+    expect(result.fontSize).toBeLessThanOrEqual(64);
+    // Hero-sized would be 102; FAQ should NEVER render that big.
+    expect(result.fontSize).toBeLessThan(80);
+    // Canonical .display utility cascade → 500 weight under grotesk.
+    expect(result.weight).toBe("500");
+  });
+
+  test("/404 h1 renders in [36, 60] clamp range (pt70)", async ({ page }) => {
+    // USMR Phase 5.5.16-pt70 fixed the 404 page eyebrow/h1 sizing.
+    // Verify the h1 stays in its scoped clamp(36, 4vw, 60) range —
+    // not hero-sized — at typical desktop viewport.
+    await page.goto("/this-route-deliberately-does-not-exist", {
+      waitUntil: "domcontentloaded",
+    });
+    await page.setViewportSize({ width: 1422, height: 800 });
+    await page.evaluate(() => document.fonts.ready);
+    const fontSize = await page.$eval("h1.not-found__title", (el) =>
+      parseFloat(getComputedStyle(el).fontSize),
+    );
+    expect(fontSize).toBeGreaterThanOrEqual(36);
+    expect(fontSize).toBeLessThanOrEqual(60);
+    expect(fontSize).toBeLessThan(80);
+  });
+
   test("/writing index h1.display also resolves canonical --display-weight", async ({
     page,
   }) => {
