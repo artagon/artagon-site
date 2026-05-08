@@ -16,7 +16,10 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
 ];
 ---
 <Base
-  title="404 — Page not found"
+  {/* USMR Phase 5.5.16-pt143 — canonical title pattern per
+      DESIGN.md §9.5: `{Page} — Artagon`. Drop the redundant "404"
+      prefix; the page's own h1 already announces the error class. */}
+  title="Page not found — Artagon"
   description="The page you were looking for doesn't exist. Try one of these instead."
 >
   <Fragment slot="header"><Header /></Fragment>

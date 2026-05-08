@@ -5,7 +5,10 @@ import Footer from '../../components/Footer.astro';
 import Tagline from '../../components/Tagline.astro';
 ---
 <Base
-  title="Artagon Docs"
+  {/* USMR Phase 5.5.16-pt143 — canonical title pattern per
+      DESIGN.md §9.5: `{Page} — Artagon`. Pre-pt143 was "Artagon
+      Docs" (brand-first), inconsistent with every other route. */}
+  title="Docs — Artagon"
   description="Docs, APIs, SDKs, playground — coming with the design-partner program. Apply now to ship first."
   robots="noindex, nofollow"
 >

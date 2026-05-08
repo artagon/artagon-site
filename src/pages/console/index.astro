@@ -4,7 +4,9 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import Tagline from '../../components/Tagline.astro';
 ---
-<Base title="Artagon Console" description="Manage tenants, clients, credentials, and policy — Verified. Private. Attested." robots="noindex, nofollow">
+{/* USMR Phase 5.5.16-pt143 — canonical title pattern per DESIGN.md
+    §9.5: `{Page} — Artagon`. Pre-pt143 was "Artagon Console". */}
+<Base title="Console — Artagon" description="Manage tenants, clients, credentials, and policy — Verified. Private. Attested." robots="noindex, nofollow">
   <Fragment slot="header"><Header /></Fragment>
   {/* USMR Phase 5.5.16-pt119 — pre-pt119 the bare <h1>Welcome</h1>
       rendered at 102 px (hero-sized). Same drift class as pt114 / pt117
