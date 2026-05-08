@@ -195,7 +195,7 @@ export const PILLARS: readonly Pillar[] = [
     num: "03",
     eyebrow: "Authorization",
     title: "Graph-Native Authorization",
-    tagline: "Zanzibar relationships + Cedar / OPA policies. Under 10 ms.",
+    tagline: "Zanzibar relationships + Cedar/OPA policies. Under 10ms.",
     body: [
       txt("Fast-path "),
       t("ReBAC"),

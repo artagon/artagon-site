@@ -708,7 +708,16 @@ nav a:hover {
   color: var(--text);
   text-decoration: none;
   position: relative;
-  transition: all 0.3s ease;
+  /* USMR Phase 5.5.12 — canonical (new-design global.css:242):
+   *   transition: background .18s ease, border-color .18s ease, transform .18s ease;
+   * The `all 0.3s ease` we shipped earlier was 67 % slower than canonical
+   * AND included unintended properties (color, box-shadow, etc.). Snap-on
+   * canonical button feel is restored by scoping to the three properties
+   * canonical actually animates. */
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
   backdrop-filter: blur(8px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   font-weight: 500;

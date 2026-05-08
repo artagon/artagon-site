@@ -432,8 +432,14 @@ export default function TrustChainIsland() {
 
       <div
         id="trust-chain-decision"
-        className={`trust-chain__decision is-${decisionClass}${
-          isEvaluating ? " is-pending" : ""
+        // USMR Phase 5.5.12 — only emit `is-permit` / `is-deny` AFTER
+        // the chain has settled (per canonical Hero.jsx:393,396,401-405,
+        // 411,413). Pre-settle the decision card paints muted (var(--line-soft)
+        // border, var(--bg) background, accent-tinted claim) — DENY scenarios
+        // no longer "spoil" the verdict by glowing red before any stage
+        // has actually failed.
+        className={`trust-chain__decision${
+          isEvaluating ? " is-pending" : ` is-${decisionClass}`
         }`}
         aria-live="polite"
         aria-atomic="true"
