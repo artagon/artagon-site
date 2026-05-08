@@ -723,16 +723,19 @@ nav a:hover {
 .btn {
   /* Canonical .btn — new-design global.css:236-244. `padding: 12 18`,
    * `border-radius: 8`, `gap: 10`, `font-size: 14`, `font-weight: 500`.
-   * Pre-canonical 0.5rem 0.85rem (8 14) + 10px radius + 0.4rem gap
-   * undersized every CTA versus mock. */
+   * `border: 1px solid var(--line)`, `background: var(--bg-1)`,
+   * `color: var(--fg)`. Pre-canonical used teal-tinted border + bg
+   * (color-mix in srgb with brand-teal 25% / 5%), which made every
+   * secondary CTA read as a faint teal pill instead of the canonical
+   * neutral bordered button. */
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 12px 18px;
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--brand-teal) 25%, transparent);
-  background: color-mix(in srgb, var(--surface) 90%, var(--brand-teal) 5%);
-  color: var(--text);
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: var(--fg);
   text-decoration: none;
   position: relative;
   /* USMR Phase 5.5.12 — canonical (new-design global.css:242):
@@ -813,13 +816,16 @@ nav a:hover {
   transform: translate(2px, 0);
 }
 
+/* Canonical .btn:hover — global.css:244 — `border-color: var(--fg-3);
+ * background: var(--bg-2)`. Subtle: hover bumps to fg-3 (slightly
+ * lighter line) + bg-2 (slightly lifted surface). Pre-fix used
+ * brand-teal border + 12% teal-tint bg + dual box-shadow — too loud
+ * for secondary CTAs. The .btn.primary rule below provides its own
+ * accent-tinted hover state. */
 .btn:hover {
-  transform: translateY(-2px);
-  border-color: var(--brand-teal);
-  background: color-mix(in srgb, var(--surface) 85%, var(--brand-teal) 12%);
-  box-shadow:
-    0 4px 16px color-mix(in srgb, var(--brand-teal) 20%, transparent),
-    inset 0 0 20px color-mix(in srgb, var(--brand-teal) 5%, transparent);
+  border-color: var(--fg-3);
+  background: var(--bg-2);
+  transform: translateY(-1px);
 }
 
 /* USMR 5.5.16 — legacy hover + href-based ::before glyph rules
