@@ -186,6 +186,10 @@
     transition: none;
   }
 }
+/* Canonical Hero.jsx:319-323 — `gridTemplateColumns: '36px 1fr auto'`,
+ * `gap: 14`, `padding: '14px 16px'`, `borderRadius: 10`. Pre-fix
+ * used rem (2.25rem / 0.875rem / 0.875rem 1rem) which resolve to
+ * canonical at root 16; canonicalized to fixed px. */
 .trust-chain__stage {
   /* Real <button> per 5.1p.1 — reset UA defaults so the rendered
    * row is indistinguishable from the previous <li role="button">. */
@@ -195,10 +199,10 @@
   width: 100%;
   /* Stage row layout. */
   display: grid;
-  grid-template-columns: 2.25rem 1fr auto;
-  gap: 0.875rem;
+  grid-template-columns: 36px 1fr auto;
+  gap: 14px;
   align-items: center;
-  padding: 0.875rem 1rem;
+  padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--bg-1);
@@ -344,9 +348,11 @@
     inset 0 0 18px -3px var(--accent);
 }
 
+/* Canonical Hero.jsx:336 — `width: 28, height: 28` (rem 1.75 = 28
+ * at root 16). */
 .trust-chain__stage-num {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
   border: 1.5px solid var(--line);
   display: grid;
@@ -413,9 +419,11 @@
   color: var(--bad);
 }
 
+/* Canonical Hero.jsx:391-393 — `marginTop: 20, padding: '14px 18px',
+ * borderRadius: 10`. */
 .trust-chain__decision {
-  margin-top: 1.25rem;
-  padding: 0.875rem 1.125rem;
+  margin-top: 20px;
+  padding: 14px 18px;
   border-radius: 10px;
   /* USMR 5.5.13 — base border bumped from var(--line) to canonical
    * var(--line-soft) per Hero.jsx:393. Pre-settle decision card sits
@@ -447,10 +455,12 @@
 }
 
 /* Canonical Hero.jsx:407 — decision-head eyebrow `fontSize: 10`. */
+/* Canonical Hero.jsx:407 — decision-head `marginBottom: 8`,
+ * `fontSize: 10`. */
 .trust-chain__decision-head {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
