@@ -63,6 +63,17 @@ jobs:
       - name: Run design.md lint (Phase 2.4)
         run: npm run lint:design
 
+      # adopt-design-md-format Phase 2.10: assert lint:design made zero
+      # outbound network calls. The Linux runner has `unshare` available,
+      # so the verifier re-runs the lint inside an isolated network
+      # namespace and asserts exit 0 (no DNS / sockets possible). On
+      # macOS local this script exits 2 with a warning — Linux CI is
+      # the authoritative gate. Pre-pt183 the npm-script alias was
+      # defined but never invoked — drift the archived proposal's
+      # Phase 2.10 contract claimed was already in CI.
+      - name: Verify lint:design telemetry isolation (Phase 2.10)
+        run: npm run verify:design-md-telemetry
+
       - name: Run ast-grep checks (Phase 2.4)
         run: npm run lint:sg:ci
 
