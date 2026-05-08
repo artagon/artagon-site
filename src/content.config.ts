@@ -76,8 +76,16 @@ const pageBase = z.object({
   headline: z.string().min(1),
   lede: z.string().min(1),
   ctas: z.array(cta).default([]),
-  /** Optional hero font override (e.g. "fraunces" for italic-display). */
-  heroFont: z.enum(["space-grotesk", "fraunces", "inter-tight"]).optional(),
+  // USMR Phase 5.5.16-pt163 — `heroFont` frontmatter field removed.
+  // Pre-pt163 the schema accepted ["space-grotesk", "fraunces",
+  // "inter-tight"] but those token names don't match the runtime
+  // canonical set (["grotesk", "fraunces", "dmserif", "mono"] per
+  // [data-hero-font] in theme.css). AND no page actually read the
+  // value to propagate onto <html data-hero-font> — every page
+  // rendered BaseLayout's hardcoded "fraunces" default. Pure dead
+  // frontmatter with a broken schema. If per-page hero-font is
+  // re-introduced later, both schema enum AND BaseLayout wire-up
+  // need to land together.
   /** Optional accent token override (e.g. "--accent-warm"). */
   accent: z.string().optional(),
   /** Free-form taxonomy tags; reused by /standards and writing. */
