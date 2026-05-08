@@ -45,7 +45,7 @@ const faqSchema = {
   <section class="faq-hero">
     <div class="container narrow">
       <h1 class="faq-hero__title display">Frequently Asked Questions</h1>
-      <p class="faq-lead">
+      <p class="faq-lead lead">
         Everything you need to know about Artagon's identity platform—from OIDC and GNAP to verifiable credentials, device attestation, and graph-native authorization.
       </p>
     </div>
@@ -113,11 +113,23 @@ const faqSchema = {
   margin: 0;
 }
 
+/* USMR Phase 5.5.16-pt115 — same fix pattern as pt106 (onRamp lede)
+ * + pt114 (FAQ h1). Pre-pt115 the .faq-lead rule had three issues:
+ *   (a) Invalid clamp(): `clamp(1rem, 0.65rem + 1vw, 1.15rem)` — the
+ *       middle term `0.65rem + 1vw` is not a valid CSS length without
+ *       `calc()`, so the entire clamp() was unparseable. Browser fell
+ *       back to whatever the cascade provided (paragraph default 16px).
+ *   (b) Non-canonical color: `color-mix(..., white 6%)` produces an
+ *       off-white instead of the canonical .lead `var(--fg-1)` color.
+ *   (c) Scoped duplication: the .lead utility already provides
+ *       font-size 20 + line-height 1.5 + color fg-1; redefining them
+ *       in scope created drift.
+ *
+ * Fix: added `lead` to the markup classes (.faq-lead now extends the
+ * .lead utility); scoped rule retains only max-width + margin-top
+ * overrides per canonical FAQ-specific layout. */
 .faq-lead {
-  font-size: clamp(1rem, 0.65rem + 1vw, 1.15rem);
-  line-height: 1.6;
   max-width: 65ch;
-  color: color-mix(in srgb, var(--fg) 85%, white 6%);
   margin-top: 12px;
 }
 

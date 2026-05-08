@@ -639,8 +639,16 @@ a {
 .hero {
   padding: 80px 0 120px;
 }
+/* USMR Phase 5.5.16-pt115 — wrapped middle expression in calc().
+ * Pre-pt115 was `clamp(2rem, 2.6vw + 1rem, 4rem)` — invalid CSS
+ * (middle term needs `calc()`). The bare `.hero h1` rule was
+ * overridden everywhere by the scoped `.hero h1.display` rule in
+ * src/pages/index.astro so the bug had no visible effect, but the
+ * broken syntax was a latent landmine for any contributor who
+ * removed the `.display` class without realizing this rule was
+ * the fallback. */
 .hero h1 {
-  font-size: clamp(2rem, 2.6vw + 1rem, 4rem);
+  font-size: clamp(2rem, calc(2.6vw + 1rem), 4rem);
   line-height: 1.1;
   margin: 0 0 16px;
 }
