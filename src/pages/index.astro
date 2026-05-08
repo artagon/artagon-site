@@ -427,7 +427,8 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     letter-spacing: -0.035em;
     font-weight: 400;
     margin: 0 0 32px;
-    font-family: var(--f-display, "Space Grotesk", "Inter Tight", sans-serif);
+    /* Canonical Hero.jsx h1 — `var(--f-display, var(--f-sans))`. */
+    font-family: var(--f-display, var(--f-sans));
   }
   .hero h1.display br + * {
     display: inline;

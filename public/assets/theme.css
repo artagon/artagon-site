@@ -1875,10 +1875,14 @@ header .right .pill {
   );
 }
 
+/* Canonical global.css:185-191 — `.glow-amp { font-family: var(--f-
+ * serif); font-style: italic; ... }`. Pre-fix duplicated the
+ * --f-serif fallback chain inline; the token already provides
+ * "Fraunces", "Instrument Serif", Georgia, serif. */
 .glow-amp {
   --g-accent: var(--accent);
   display: inline-block;
-  font-family: var(--f-serif, "Fraunces", "Instrument Serif", Georgia, serif);
+  font-family: var(--f-serif);
   font-style: italic;
   font-size: 16px;
   letter-spacing: 0;
