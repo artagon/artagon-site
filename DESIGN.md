@@ -278,6 +278,12 @@ above-the-fold. The site **must not** ship more than four custom families.
 
 **Webfont loading (USMR 5.5.16).** `BaseLayout.astro` ships the canonical Google-Fonts loader: `<link rel="preconnect">` to `fonts.googleapis.com` + `fonts.gstatic.com`, then a single `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?…">` request that pulls all 6 families above (`Inter Tight` 300-700, `JetBrains Mono` 300-600, `Instrument Serif` ital 0;1, `Fraunces` ital,opsz,wght variable, `DM Serif Display` ital 0;1, `Space Grotesk` 400-600). The `tests/webfonts.spec.ts` Playwright spec gates the loader's existence and verifies `h1.display` resolves to Space Grotesk + `body` to Inter Tight after `document.fonts.ready` settles. Without this loader every `--f-*` token silently fell back to system-ui (San Francisco on macOS, Segoe UI on Windows) and the hero rendered in a completely different typeface than the canonical mock — caught only when a user A/B-compared screenshots. The `self-host-woff2-fonts` OpenSpec change tracks the eventual move to self-hosted woff2; the CDN gets us pixel parity in the meantime.
 
+**Font-family token contract (USMR 5.5.16-pt56-57).** Every `font-family` declaration in the codebase relies on the **token's own fallback chain** rather than duplicating font names inline. The canonical pattern is `var(--f-display, var(--f-sans))` — token-to-token cascade — NOT `var(--f-display, "Space Grotesk", "Inter Tight", sans-serif)` (5.1-era duplication). Each `--f-*` token already declares its full fallback chain in `:root` (e.g. `--f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace`). When `--f-display` fails to resolve, `var(--f-sans)` provides Inter Tight as the fallback display face — a cohesive type system. The 5 surfaces migrated in pt56-57: bare `h1, h2, h3, .display` (`var(--f-display, system-ui)` → `var(--f-display, var(--f-sans))`), `.serif` (drop `Georgia` since `--f-serif` already chains to it), `.glow-amp` (drop full chain duplication), `.hero h1.display` (canonical token-chain pattern).
+
+**H1 weight cascade (USMR 5.5.16-pt31, pt42).** Bare `<h1>` font-weight is **400** (regular) per canonical `global.css:229`; the catch-all `h1, h2, h3, h4 { font-weight: 500 }` is overridden by the h1-specific rule. The `.display` utility class deliberately **does NOT specify font-weight** — element-level rules drive weight per element (h1: 400, h2-h4: 500). Pre-fix the `.display` utility specified `font-weight: 500` which beat the canonical h1-specific 400 due to specificity (1 class vs 1 element); h1 consumers of `.display` (404, home index, writing index, post detail) all rendered at 500 — a noticeable thickness regression on Space Grotesk display.
+
+**Section ledes (USMR 5.5.16-pt27, pt34, pt45).** Every section lede consumes the canonical `.lead` contract: `font-size: 20px`, `color: var(--fg-1)`, `line-height: 1.5`. Section-specific overrides may set `max-width` (e.g. Pillars: 46ch, Bridge: 50ch, get-started: 52ch) or `justify-self`. Pre-fix scoped `*__lede` rules used `1.05rem` (≈16.8) on `var(--fg-2)` with `line-height: 1.55` — undersized by 3.2 px and dimmer than canonical. Total surfaces brought to canonical: 7 (Pillars, Bridge, Standards, Roadmap, HomeExplore, get-started, 404).
+
 ### 3.2 Type scale
 
 ```
@@ -343,6 +349,10 @@ for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 - `.serif` — serif-family at weight 400 (consumes `--f-serif`). Use sparingly for italic emphasis on a single word inside a display headline (e.g. `<span class="serif" style="font-style: italic">next</span>`).
 
 These are the only global utility classes — never invent component-scoped utility variants in `theme.css`.
+
+**Section vertical rhythm (USMR 5.5.16-pt25, pt48, pt49).** Every section consumes `padding-block: var(--section-pad)` which resolves to `clamp(80px, 8vw, 120px)`. Canonical `global.css:215` fixes 120; the 80-floor is a mobile concession (was 64 pre-pt25, undersized by 16). Hero section pads `80px 0 120px` (canonical Hero.jsx:124 — top is 80 to seat the meta strip, bottom is 120 to breathe before the writing strip). The 6 island sections (HomeExplore / Pillars / Bridge / UseCases / Standards / Roadmap) all consume the canonical 80→120 clamp (was 64→120 pre-pt49). Pre-fix `.writing-strip + .onramp` had scoped `padding-block: var(--space-12)` (=48) overriding the canonical `.section` padding by 72 px — the largest single vertical-rhythm regression caught in the canonical-fidelity sweep.
+
+**Flex-gap double-counting anti-pattern (USMR 5.5.16-pt53, pt54).** When a flex column container declares `gap` AND its children declare `marginBottom`, the spacing **stacks** — net distance is `child marginBottom + parent gap`. Canonical avoids this by either (a) `display: block` parent + element-level `marginBottom` driving rhythm, OR (b) flex parent with `gap` + children with `margin: 0`. Pre-fix `.pillars__panel-prose` and `.use-cases__panel-head` both had flex column with gap PLUS children with marginBottom — net spacing was 78-100 % oversized. Fix pattern: use `display: block` so element-level margins drive vertical rhythm exactly per canonical.
 
 ---
 
@@ -417,6 +427,20 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Do** use for the positioning line, section breakpoints, and "new" announcements.
 **Don't** use more than one per viewport. Don't stack two glow-tags.
+
+**Section eyebrow vs glow-tag distinction (USMR 5.5.16-pt15, pt16).** The hero uses the elaborate `.glow-tag` (animated conic ring + halo + shimmer text + serif italic amp). Every OTHER section break uses the canonical `.eyebrow` primitive — a simpler small-caps mono label with a leading 18 px teal accent dash. Per `global.css:220-226`:
+
+```
+display: inline-flex; align-items: center; gap: 10px;
+font-family: var(--f-mono); font-size: 12px;
+color: var(--fg-2); letter-spacing: 0.1em;
+text-transform: uppercase; margin-bottom: 24px;
+::before { content: ""; width: 18px; height: 1px; background: var(--accent); }
+```
+
+Total surfaces consuming this contract: 7 — global `.eyebrow` (theme.css), `.pillars__eyebrow`, `.bridge-flow__eyebrow`, `.use-cases__eyebrow`, `.standards-wall__eyebrow`, `.roadmap-timeline__eyebrow`, `.home-explore__eyebrow`, `.writing-hero__eyebrow`. The 18 px teal accent dash is the canonical signature element. Pre-fix all 7 used `0.7-0.72rem / fg-3 / 0.12em / no dash` — read as plain mono caps labels instead of canonical section-eyebrow primitives.
+
+The blog-hero variant (`.blog-hero__eyebrow`) intentionally **omits** the dash because the "← Blog" backlink IS the visual element; an extra dash before the arrow reads as clutter.
 
 ### 6.4 Standards chip
 
