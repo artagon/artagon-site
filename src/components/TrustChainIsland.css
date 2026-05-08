@@ -450,9 +450,11 @@
   border: 1px solid var(--line-soft);
   background: var(--bg);
   font-family: var(--f-mono);
-  /* Canonical Hero.jsx:398 — decision-card `fontSize: 12`. */
+  /* Canonical Hero.jsx:398-399 — decision-card `fontSize: 12,
+   * color: var(--fg-1)`. Pre-fix used `var(--fg)` (brighter); the
+   * fg-1 reads as canonical body weight against the bg-1 backdrop. */
   font-size: 12px;
-  color: var(--fg);
+  color: var(--fg-1);
   transition: all 0.5s ease;
 }
 
