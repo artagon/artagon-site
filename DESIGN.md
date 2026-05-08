@@ -135,9 +135,11 @@ respected on every animated surface.
 #### 1.1.5 Portable aesthetic
 
 The tokens travel. The same OKLCH palette, the same four font families, and
-the same `.glow-tag` / `.num-h2` primitives render identically across Astro
-components, static HTML prototypes, and third-party embeds. No design lives in
-one file.
+the same `.glow-tag` primitive render identically across Astro components,
+static HTML prototypes, and third-party embeds. The numbered-section heading
+(`.num-h2`, §6.7) is the next primitive in the portable set; its CSS is
+planned for a follow-up to USMR (referenced as planned in §6.7 and §6.12).
+No design lives in one file.
 
 ### 1.2 Voice & tone
 
