@@ -185,10 +185,13 @@
   display: none;
 }
 
+/* Canonical Pillars.jsx:132 — left column is just `<div>` with no
+ * gap. Each child carries its own marginBottom (tagline 28, body 36).
+ * Pre-fix flex column with `gap: 28` ADDED 28 px on top of each
+ * child's marginBottom — tagline → body separation was 56 instead
+ * of canonical 28; body → bullets was 64 instead of 36. */
 .pillars__panel-prose {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+  display: block;
 }
 
 /* Canonical Pillars.jsx:133 — `fontSize: 36`, `marginBottom: 28`,
