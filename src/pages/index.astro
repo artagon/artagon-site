@@ -148,6 +148,35 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
             </div>
           )
         }
+        {/* USMR Phase 5.5.16-pt110 — HeroLatestStrip per canonical
+            new-design/extracted/src/pages/index.html:1619 (HeroLatestStrip)
+            and :938 (mount inside Hero content column). Renders the
+            most-recent post as a 3-row mono caption inside the hero;
+            visible only when [data-writing-widget="in-hero"]. The
+            standalone .writing-strip section is hidden in that variant
+            (rule below). Closes task 5.8.in-hero. */}
+        {
+          latestPosts.length > 0 && (
+            <a
+              class="hero__latest-strip"
+              href={`/writing/${latestPosts[0].id}`}
+            >
+              <span class="hero__latest-strip-eyebrow">
+                <span class="hero__latest-strip-dot" aria-hidden="true" />
+                New
+              </span>
+              <span class="hero__latest-strip-title">
+                {latestPosts[0].data.headline}
+              </span>
+              <span class="hero__latest-strip-meta">
+                {dateFmt.format(latestPosts[0].data.published)}
+                {" · "}
+                Read{" "}
+                <span class="hero__latest-strip-arrow" aria-hidden="true">→</span>
+              </span>
+            </a>
+          )
+        }
         <div class="hero__affiliations">
           <div class="hero__affiliations-label">Implements & contributes to</div>
           <div class="hero__affiliations-row">
@@ -693,6 +722,72 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
    */
   :global([data-writing-widget="off"]) .writing-strip {
     display: none;
+  }
+  /* USMR Phase 5.5.16-pt110 — in-hero variant: hide the standalone
+   * writing-strip section AND show the .hero__latest-strip card. */
+  :global([data-writing-widget="in-hero"]) .writing-strip {
+    display: none;
+  }
+  .hero__latest-strip {
+    display: none;
+  }
+  :global([data-writing-widget="in-hero"]) .hero__latest-strip {
+    display: grid;
+    gap: 8px;
+    margin-top: 36px;
+    padding: 18px 22px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-1);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.22s ease,
+      background 0.22s ease;
+    max-width: 480px;
+  }
+  :global([data-writing-widget="in-hero"]) .hero__latest-strip:hover,
+  :global([data-writing-widget="in-hero"]) .hero__latest-strip:focus-visible {
+    border-color: var(--accent-dim);
+    background: color-mix(in oklab, var(--accent) 4%, var(--bg-1));
+  }
+  .hero__latest-strip-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .hero__latest-strip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+  .hero__latest-strip-title {
+    font-family: var(--f-display);
+    font-size: 16px;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .hero__latest-strip-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .hero__latest-strip-arrow {
+    color: var(--fg-1);
+    font-size: 14px;
   }
   :global([data-writing-widget="A · strip"]) .writing-strip__list {
     grid-template-columns: 1fr;
