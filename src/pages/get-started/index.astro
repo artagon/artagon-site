@@ -136,10 +136,14 @@ const generalContact = ORG.contacts.find((c) => c.label === 'General') ?? ORG.co
     font-family: var(--f-emphasis, var(--f-serif));
     font-style: italic;
   }
+  /* Canonical Cta.jsx:30 — uses `.lead` (20 / fg-1 / 1.5) with
+   * inline overrides marginBottom 32, maxWidth 52ch. Pre-fix
+   * scoped 17 / fg-2 / 1.55 — undersized + dimmer than canonical
+   * (same drift caught in iter 36 across 5 other section ledes). */
   .cta-lede {
-    color: var(--fg-2);
-    font-size: 17px;
-    line-height: 1.55;
+    color: var(--fg-1);
+    font-size: 20px;
+    line-height: 1.5;
     max-width: 52ch;
     margin: 0 0 32px;
   }

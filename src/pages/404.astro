@@ -78,10 +78,12 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
     font-family: var(--f-emphasis, var(--f-serif));
     font-style: italic;
   }
+  /* Canonical .lead — 20 / fg-1 / 1.5 — same contract as iter 36
+   * applied across 5 section ledes; consistency for 404 too. */
   .not-found__lede {
-    color: var(--fg-2);
-    font-size: 17px;
-    line-height: 1.55;
+    color: var(--fg-1);
+    font-size: 20px;
+    line-height: 1.5;
     max-width: 60ch;
     margin: 0 0 36px;
   }
