@@ -3,13 +3,43 @@
 // (twilight ↔ midnight). The slate pack still exists in theme.css but
 // is no longer user-toggleable; drop it from the dev preview to match
 // __setTheme's allow-list (it would silently collapse to twilight).
-const THEMES = ['twilight', 'midnight'];
+const THEMES = ['twilight', 'midnight'] as const;
 ---
 <div class="theme-panel" aria-label="Theme preview panel">
   {/* USMR Phase 5.5.16-pt137 — explicit type="button" per project
-      contract; prevents default-submit if ever embedded in a form. */}
-  {THEMES.map(t => <button type="button" onClick={`__setTheme('${t}')`}>{t}</button>)}
+      contract; prevents default-submit if ever embedded in a form.
+      USMR Phase 5.5.16-pt174 — replaced inline `onClick={...}` (which
+      Astro emits as `onclick="..."` in the rendered HTML, an inline
+      event-handler that violates project CSP discipline — see
+      `scripts/csp.mjs` strict-no-unsafe-inline gate) with a delegated
+      data-attribute click handler. Matches the canonical pattern
+      established by `Header.astro` (`[data-nav-toggle]`) and the
+      `[data-theme-toggle]` sync hook in `BaseLayout.astro`. */}
+  {THEMES.map(t => <button type="button" data-theme-target={t}>{t}</button>)}
 </div>
+
+<script>
+  // USMR Phase 5.5.16-pt174 — programmatic click binding for the dev
+  // ThemePreviewPanel. `__setTheme` is defined in BaseLayout.astro's
+  // is:inline script and validates against the same allow-list, so any
+  // unexpected `data-theme-target` value collapses to the project
+  // default ('twilight'). No innerHTML / outerHTML / inline-handler.
+  declare global {
+    interface Window {
+      __setTheme?: (t: string) => void;
+    }
+  }
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-theme-target]")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.themeTarget;
+        if (target && typeof window.__setTheme === "function") {
+          window.__setTheme(target);
+        }
+      });
+    });
+</script>
 
 <style>
 .theme-panel {

@@ -1249,6 +1249,14 @@ Every data surface (roadmap list, blog index, standards page) must render a desi
 
 External links use `rel="noopener noreferrer"` (both, always) and `target="_blank"`. Standards chips and footer GitHub link comply; gated by [`tests/lint-external-link-rel.test.mts`](./tests/lint-external-link-rel.test.mts) (USMR pt132). The gate's per-line allow-list opt-out is `<!-- lint-external-link-rel: ok -->` — set on the same line as the `target="_blank"` attribute when an exception is deliberate. Without `noopener` the new tab can read `window.opener` (a documented XSS / phishing vector), so the contract is security-relevant, not just stylistic.
 
+### 9.4.1 No inline event-handler attributes (CSP discipline)
+
+Inline event-handler attributes (`onclick="…"`, `onload="…"`, `onerror="…"`, …) are forbidden in `.astro` templates. The project's `script-src` Content-Security-Policy ships **without** `'unsafe-inline'` (enforced by `scripts/csp.mjs`'s postbuild gate); inline event-handler attributes execute outside the SRI/hash machinery and would either be silently CSP-blocked at runtime or force a `'unsafe-inline'` weakening of the policy. They're also a string→code conversion at parse time, the same XSS sink class as `set:html` and direct `innerHTML` (see `rules/security/no-set-html-directive.yml` / `no-inner-html.yml`).
+
+**Astro footgun.** `<button onClick={…}>` in an `.astro` template is **not** the JSX programmatic-listener syntax — Astro emits it verbatim as `onclick="…"` in the rendered HTML. A contributor copying the React idiom into an `.astro` file silently introduces an inline-handler attr.
+
+**Canonical pattern.** Use a `data-*` attribute + a scoped `<script>` that calls `addEventListener`. Examples: `Header.astro` `[data-nav-toggle]`, `BaseLayout.astro` `[data-theme-toggle]` sync hook, `ThemePreviewPanel.astro` `[data-theme-target]` (USMR pt174). Gated by [`tests/lint-no-inline-event-handler.test.mts`](./tests/lint-no-inline-event-handler.test.mts) — per-line `<!-- lint-no-inline-event-handler: ok -->` allow-list for deliberate exceptions (none today). JSX/TSX `onClick={…}` is fine — React binds those programmatically; no inline-handler attribute is ever emitted to HTML.
+
 ### 9.5 Opengraph & metadata
 
 - `<title>` format: `{Page Title} — Artagon` (home: just `Artagon`)
