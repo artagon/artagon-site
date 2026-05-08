@@ -1002,7 +1002,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - Default `size = 22` matches canonical `index.html:551`. Override only when a different surface needs a different visual scale (e.g. a hero badge); the wordmark consumer should never resize.
 - Do not author `aria-label` on the glyph — the wordmark consumer wraps it in a labeled `<a>` (e.g. `aria-label="Artagon home"`); the glyph itself is `aria-hidden="true"`.
 
-**A11y.** `aria-hidden="true"` on the SVG root — every consumer announces the brand via the adjacent `Artagon` wordmark text or via the link's `aria-label`. Forced-colors mode preserves the mark via `currentColor` cascade (resolves to `CanvasText` / `Highlight`).
+**A11y.** `aria-hidden="true"` on the SVG root — every consumer announces the brand via the adjacent `Artagon` wordmark text or via the link's `aria-label`. Forced-colors mode preserves the mark via `currentColor` cascade (resolves to `CanvasText` / `Highlight`). The contract is enforced project-wide by [`tests/lint-svg-aria.test.mts`](./tests/lint-svg-aria.test.mts) (USMR pt133): every `<svg>` in the codebase MUST be either decorative (`aria-hidden="true"`) or provide a name via `aria-label` / `aria-labelledby` / child `<title>`. Allow-list opt-out: `<!-- lint-svg-aria: ok -->`.
 
 **Status: shipped.** USMR Phase 5.5.4 — `src/components/ArtagonGlyph.astro` (consumed by `Header.astro:25` + `Footer.astro:84`).
 
