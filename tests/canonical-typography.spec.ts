@@ -186,6 +186,35 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(radius).toBe("14px");
   });
 
+  test("/404 .not-found__eyebrow honors canonical .eyebrow contract (8-surface dash)", async ({
+    page,
+  }) => {
+    // pt15/pt16 canonicalized 8 surface eyebrows to 12 / fg-2 / 0.1em
+    // + 18px accent-dash ::before. The 404 eyebrow was missed by that
+    // sweep and shipped 11 / fg-3 / 0.12em with no dash.
+    //
+    // Astro 404 routes don't auto-resolve via in-route navigation; pull
+    // the static-built HTML directly and inspect the rendered styles.
+    // (Astro emits 404.html for static builds; the dev server also
+    // serves it on a 404 fallback.)
+    await page.goto("/this-route-deliberately-does-not-exist", {
+      waitUntil: "domcontentloaded",
+    });
+    const styles = await page.$eval(".not-found__eyebrow", (el) => {
+      const cs = getComputedStyle(el);
+      const before = getComputedStyle(el, "::before");
+      return {
+        fontSize: cs.fontSize,
+        letterSpacing: cs.letterSpacing,
+        dashWidth: before.width,
+      };
+    });
+    expect(styles.fontSize).toBe("12px");
+    // 0.1em × 12 px = 1.2 px computed
+    expect(styles.letterSpacing).toBe("1.2px");
+    expect(styles.dashWidth).toBe("18px");
+  });
+
   test("/get-started .cta-section honors canonical .section + paddingBottom: 80 lock", async ({
     page,
   }) => {

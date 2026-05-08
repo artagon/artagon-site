@@ -56,13 +56,29 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
     margin-inline: auto;
     padding-inline: clamp(24px, 4vw, 40px);
   }
+  /* USMR Phase 5.5.16-pt70 — canonicalize 404 eyebrow to match the
+   * 8-surface .eyebrow contract from pt15/pt16 (DESIGN.md §6.3): 12 px
+   * / fg-2 / 0.1em + 18 px accent dash via ::before. Pre-fix shipped
+   * 11 / fg-3 / 0.12em with no dash — the dimmer color recedes and
+   * the missing dash breaks the visual signature consistent across
+   * every other section eyebrow on the site. */
   .not-found__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-family: var(--f-mono);
-    font-size: 11px;
-    color: var(--fg-3);
-    letter-spacing: 0.12em;
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     margin: 0 0 16px;
+  }
+  .not-found__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
   }
   .not-found__title {
     font-family: var(--f-display);
