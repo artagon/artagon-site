@@ -179,9 +179,16 @@
 /* USMR Phase 5.5.16-pt82 — pre-USMR :root pruned. Removed --ink, --primary,
  * --shadow (zero consumers); --surface and --muted are still defined here
  * for the legacy alias chain (theme blocks override --surface = var(--bg-1)
- * etc., this :root layer provides a fallback for unthemed contexts). */
+ * etc., this :root layer provides a fallback for unthemed contexts).
+ *
+ * USMR Phase 5.5.16-pt90 — also canonicalized the unlayered :root --bg
+ * fallback from `#0a0f1e` (RGB 10/15/30, visibly blue) to canonical
+ * `oklch(0.14 0.008 260)` (chroma 0.008, near-neutral). Without this,
+ * any data-theme value that doesn't match a [data-theme="..."] block
+ * would render against a blue navy bg instead of the canonical neutral
+ * dark — exactly the regression that pt87 missed. */
 :root {
-  --bg: #0a0f1e;
+  --bg: oklch(0.14 0.008 260);
   --surface: #0f172a;
   --muted: #94a3b8;
   --accent: #7c5cff;
@@ -235,6 +242,25 @@
  * themes now consume the canonical neutral-dark; the midnight /
  * twilight distinction now lives in --bg-1 / accent / surface tints
  * rather than the page bg itself. */
+
+/* USMR Phase 5.5.16-pt90 — Tweaks panel writes `data-theme="dark"`
+ * (per its dark/light switcher) but pre-pt90 there was no
+ * `[data-theme="dark"]` block in CSS — `--bg` fell through to the
+ * unlayered :root default `#0a0f1e` (the OG blue navy). pt87's
+ * canonical neutral-dark fix only landed on `[data-theme="midnight"]`
+ * and `[data-theme="twilight"]`, neither of which the Tweaks panel
+ * actually writes. The "dark" block is the one that matches the
+ * Tweaks `Theme: dark/light` vocabulary AND the canonical reference
+ * defaults. */
+
+/* Dark (canonical default — Tweaks panel writes data-theme="dark") */
+:root[data-theme="dark"] {
+  --bg: oklch(0.14 0.008 260);
+  --surface: var(--bg-1);
+
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
+}
 
 /* Midnight Teal */
 :root[data-theme="midnight"] {
