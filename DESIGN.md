@@ -354,6 +354,8 @@ These are the only global utility classes — never invent component-scoped util
 
 **Flex-gap double-counting anti-pattern (USMR 5.5.16-pt53, pt54).** When a flex column container declares `gap` AND its children declare `marginBottom`, the spacing **stacks** — net distance is `child marginBottom + parent gap`. Canonical avoids this by either (a) `display: block` parent + element-level `marginBottom` driving rhythm, OR (b) flex parent with `gap` + children with `margin: 0`. Pre-fix `.pillars__panel-prose` and `.use-cases__panel-head` both had flex column with gap PLUS children with marginBottom — net spacing was 78-100 % oversized. Fix pattern: use `display: block` so element-level margins drive vertical rhythm exactly per canonical.
 
+**Style-block brace-balance gate (USMR 5.5.16-pt68).** `tests/lint-style-block-balance.test.mts` walks every `.astro` file's `<style>` block and asserts `{` count equals `}` count after stripping `/* … */` comments. Astro's CSS parser silently drops orphan declarations and tolerates stray braces, so a build-clean `.astro` file can still carry latent CSS bugs (caught: orphan `gap: 1rem;` outside `.onramp__row` rule + stray `}` in `src/pages/index.astro` pre-pt68). Brace balance is a necessary but not sufficient condition for valid CSS — the gate covers the most common drift mode.
+
 ---
 
 ## 5 · Shapes
