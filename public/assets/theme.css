@@ -1739,6 +1739,35 @@ header {
   }
 }
 
+/* USMR Phase 5.5.16-pt131 — global reduced-motion override for the
+ * canonical interactive primitives (.btn / .btn.primary / .btn .arr /
+ * .ui-card--hover) that ship on every CTA + hoverable card across
+ * the site. Pre-pt131 each `:hover` lifted via `transform: translateY()`
+ * or slid the arrow chip via `transform: translate(2px, 0)` — the
+ * project DESIGN.md §8.2 contract says transform-based interactive
+ * motion MUST be opt-out under `prefers-reduced-motion: reduce`. The
+ * color + border state signals stay (those are state markers, not
+ * motion); only the transform + transition timing are zeroed. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn .arr {
+    transition: none;
+  }
+  .btn:hover,
+  .btn.primary:hover {
+    transform: none;
+  }
+  .btn:hover .arr {
+    transform: none;
+  }
+  .ui-card--hover {
+    transition: none;
+  }
+  .ui-card--hover:hover {
+    transform: none;
+  }
+}
+
 /* ============================================================
  * USMR Phase 5.1 — Hero-font + accent variants. Default tokens
  * live inside the `:root` block above; these attribute-scoped

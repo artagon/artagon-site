@@ -28,6 +28,13 @@ const REQUIRED_REDUCED_MOTION_FILES = [
   "src/components/FaqItem.astro",
   "src/components/HomeExplore.astro",
   "src/pages/index.astro",
+  // USMR Phase 5.5.16-pt131 — added theme.css. The `.btn` /
+  // `.btn.primary` / `.btn .arr` / `.ui-card--hover` rules ship
+  // hover-state transforms (translateY / translate) that render
+  // on every CTA + hoverable card site-wide; the global override
+  // covers those plus the existing .glow-* / .chain-spinner
+  // animations.
+  "public/assets/theme.css",
 ] as const;
 
 describe("prefers-reduced-motion coverage", () => {
