@@ -432,9 +432,11 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     max-width: 58ch;
   }
 
-  .onramp {
-    padding-block: var(--space-12);
-  }
+  /* .onramp inherits the canonical .section padding (`var(--section-
+   * pad)` clamp(80, 8vw, 120)). Pre-fix scoped `var(--space-12)` (=48)
+   * overrode the canonical 120 — undersized the section vertical
+   * padding by 72 px on wide viewports. Drop the override; let the
+   * .section catch-all drive. */
   /* Canonical Cta.jsx:14-17 — `padding: 72px 64px`, `borderRadius:
    * 16` (we had 16 ✓), gradient 135deg bg-1 → bg 80%. The fluid
    * clamp padding undersized to 32 64 on small screens; canonical
@@ -573,10 +575,11 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     line-height: 1.5;
   }
 
-  /* USMR Phase 5.1f — latest writing strip */
-  .writing-strip {
-    padding-block: var(--space-12);
-  }
+  /* USMR Phase 5.1f — latest writing strip. `.writing-strip` element
+   * also has `.section` class — let the canonical .section padding
+   * (var(--section-pad) clamp(80, 8vw, 120)) drive vertical rhythm.
+   * Pre-fix scoped var(--space-12) (=48) was overriding canonical
+   * 120 by 72 px on wide viewports. */
   /* Canonical .grid-writing-header (index.html:324) — `grid-template-
    * columns: 1fr auto`, `gap: 32`, `align-items: end`, `margin-bottom:
    * 56`. Pre-fix used flex with baseline alignment + var(--space-8)
