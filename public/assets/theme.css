@@ -900,7 +900,15 @@ a {
   border-radius: var(--radius-card);
   padding: var(--padding-card);
   color: var(--fg);
-  transition: all 0.3s ease;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all` per
+   * the same vibration-on-hover risk class pt120 caught on trust-chain.
+   * Cards animate border-color, background, color, and box-shadow on
+   * hover/focus only — never layout properties. */
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .ui-card--compact {

@@ -200,7 +200,13 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: all 0.25s ease;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all` to
+   * prevent the same vibration-on-hover class pt120 caught. Bridge
+   * steps animate border-top-color (active/past) + background. */
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
 }
 .bridge-flow__step-wrap:last-child .bridge-step {
   border-right: 0;

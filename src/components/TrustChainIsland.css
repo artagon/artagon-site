@@ -90,7 +90,12 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: all 0.25s ease;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all`. The
+   * dot button only animates the inner ::before (color via the
+   * .scenario-dot::before rule below), so no transition is needed
+   * on the button itself. Kept narrow for parity with the visible-
+   * dot transition timing. */
+  transition: background 0.25s ease;
 }
 /* USMR Phase 5.5.16-pt94 — canonical Hero.jsx:261-264 scenario dot:
  * `width: 9, height: 9, background: isThis ? (isDeny ? C_FAIL :
@@ -397,7 +402,13 @@
   font-size: 10px;
   font-weight: 600;
   color: var(--fg-2);
-  transition: all 0.35s ease;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all`
+   * (same vibration-on-hover risk class pt120 caught on .stage). */
+  transition:
+    border-color 0.35s ease,
+    background 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 .trust-chain__stage.is-pass .trust-chain__stage-num {
@@ -474,7 +485,14 @@
    * fg-1 reads as canonical body weight against the bg-1 backdrop. */
   font-size: 12px;
   color: var(--fg-1);
-  transition: all 0.5s ease;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all`. The
+   * decision card transitions between is-pending / is-permit / is-deny
+   * states; only color-mix bg, border-color, and box-shadow animate
+   * per canonical. */
+  transition:
+    border-color 0.5s ease,
+    background 0.5s ease,
+    box-shadow 0.5s ease;
 }
 
 .trust-chain__decision.is-permit {

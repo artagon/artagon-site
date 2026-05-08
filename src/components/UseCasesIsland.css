@@ -85,7 +85,14 @@
   background: transparent;
   cursor: pointer;
   color: inherit;
-  transition: all 0.2s ease;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all` to
+   * prevent the same vibration-on-hover class pt120 caught on
+   * trust-chain stages. Tabs animate border-color (active state)
+   * and background (hover state) only. */
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 6px;

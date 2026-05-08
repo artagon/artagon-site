@@ -1160,6 +1160,16 @@ for spinners only.
    freezes it. Test with the toggle on.
 3. **No parallax.** No scroll-hijacking. No scroll-triggered animations that
    block reading.
+4. **No `transition: all`.** Always enumerate the animated properties
+   (e.g. `transition: border-color 0.45s ease, background 0.45s ease,
+box-shadow 0.45s ease`). The shorthand animates layout properties
+   too, and on components that auto-cycle state (trust chain row
+   border-color cycles with the active stage every ~2s) a concurrent
+   pointer hover triggers two transitions on overlapping properties
+   and produces visible jitter — surfaced by USMR pt120 as
+   "vibrating" trust-chain stages on hover. The `lint:transition-all`
+   regression gate ([`tests/lint-transition-all.test.mts`](./tests/lint-transition-all.test.mts))
+   trips re-introduction.
 
 ---
 
