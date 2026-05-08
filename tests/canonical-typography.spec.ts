@@ -310,4 +310,34 @@ test.describe("Canonical typography + rhythm gates", () => {
     }, styles.accent);
     expect(styles.color).toBe(accentResolved);
   });
+
+  test("home writing-strip section h2 renders at canonical clamp(36, 4vw, 60) (pt95 regression)", async ({
+    page,
+  }) => {
+    // pt95 caught a class-name collision: BOTH the section h2 ("Field
+    // notes from the team building Artagon.") AND the per-post h3 cards
+    // used class="writing-strip__title". Two CSS rules with the SAME
+    // specificity matched both elements; the later rule (font-size: 22px,
+    // intended for h3) won by source order and shrank the h2 to post-card
+    // size. Renaming h3 → .writing-strip__post-title fixed it.
+    //
+    // Gate verifies the h2 renders at the canonical clamp range at a
+    // typical desktop viewport (1422 px → 4vw = 56.88, ceiling 60).
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 1422, height: 800 });
+    const sizes = await page.evaluate(() => {
+      const h2 = document.querySelector("h2.writing-strip__title");
+      const h3 = document.querySelector("h3.writing-strip__post-title");
+      const get = (el: Element | null) =>
+        el ? parseFloat(getComputedStyle(el).fontSize) : null;
+      return { h2: get(h2), h3: get(h3) };
+    });
+    // Section h2: clamp(36, 4vw=56.88, 60) → 56.88 at 1422 viewport.
+    expect(sizes.h2).not.toBeNull();
+    expect(sizes.h2!).toBeGreaterThanOrEqual(36);
+    expect(sizes.h2!).toBeLessThanOrEqual(60);
+    expect(sizes.h2!).toBeGreaterThan(40); // would be ~22 if pt95 reverted
+    // Post-card h3: 22 px fixed.
+    expect(sizes.h3).toBe(22);
+  });
 });
