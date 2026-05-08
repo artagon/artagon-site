@@ -164,4 +164,41 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(padding.top).toBe("28px");
     expect(padding.bottom).toBe("28px");
   });
+
+  test(".post-body inline <code> is accent-colored (canonical post-*.html:374)", async ({
+    page,
+  }) => {
+    // Canonical inline `<code>` chips render with `color: var(--accent)`
+    // — the cyan tint that distinguishes a cross-reference token from
+    // surrounding prose. Pre-pt65 shipped `var(--fg)` which collapsed
+    // inline code into the body text.
+    await page.goto("/writing/bridge-strategy", {
+      waitUntil: "domcontentloaded",
+    });
+    // bridge-strategy.mdx ships 5+ inline backticks → rendered <code>
+    // elements. welcome.mdx has none, so we anchor to bridge-strategy
+    // for a non-vacuous assertion.
+    const code = page.locator(".post-body code").first();
+    await code.waitFor({ state: "attached" });
+    const styles = await code.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const accentRoot = getComputedStyle(
+        document.documentElement,
+      ).getPropertyValue("--accent");
+      return { color: cs.color, accent: accentRoot.trim() };
+    });
+    // Resolved color must equal the --accent token's resolved color.
+    // (Rather than asserting the literal cyan — accent can be re-mapped
+    // via [data-accent] — assert that the inline-code color matches the
+    // token output in the same DOM.)
+    const accentResolved = await page.evaluate((accent) => {
+      const probe = document.createElement("span");
+      probe.style.color = accent;
+      document.body.appendChild(probe);
+      const c = getComputedStyle(probe).color;
+      probe.remove();
+      return c;
+    }, styles.accent);
+    expect(styles.color).toBe(accentResolved);
+  });
 });

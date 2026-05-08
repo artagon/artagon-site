@@ -325,10 +325,14 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
    * border, NOT the accent-tinted variant. The accent tint masked
    * inline-code as the same affordance as a button or link, breaking
    * scan-ability inside long-form prose. */
+  /* USMR Phase 5.5.16-pt65 — canonical post-bridge-strategy.html:372-376
+   * tints inline code with var(--accent) so the chip reads as a
+   * cross-reference signal rather than plain prose. Pre-fix `var(--fg)`
+   * collapsed inline code into surrounding text. */
   .post-body :global(code) {
     font-family: var(--f-mono);
     font-size: 0.88em;
-    color: var(--fg);
+    color: var(--accent);
     background: var(--bg-1);
     border: 1px solid var(--line-soft);
     border-radius: 4px;

@@ -710,16 +710,16 @@ Footer
 
 **Post-body primitives — canonical contract (USMR 5.5.16).** The `/writing/[slug]` route ports primitives from canonical `new-design/extracted/src/pages/blog.html`. Drift from these values silently de-canonicalizes long-form content:
 
-| Primitive       | Property                  | Canonical value                                                      | Pre-fix value                                       |
-| --------------- | ------------------------- | -------------------------------------------------------------------- | --------------------------------------------------- |
-| `h2`            | margin-top                | `64px`                                                               | `56px`                                              |
-| `h2`            | font-size clamp           | `clamp(26px, 2.4vw, 34px)` / line-height `1.12`                      | `clamp(24, 32)` / `1.15`                            |
-| `h2 .num`       | layout                    | `display: block` + `margin-bottom: 8px` + tracking `0.14em`          | inline `vertical-align: middle` + tracking `0.12em` |
-| `code` (inline) | bg / border               | `var(--bg-1)` / `1px solid var(--line-soft)`                         | accent-tinted `color-mix(accent 6%, transparent)`   |
-| `.pull`         | border / padding / font   | full `1px solid var(--line)` / `36px` / `clamp(24, 32)` / lh `1.3`   | left-stripe accent-2px / `28×32` / `clamp(20, 26)`  |
-| `.chain-row`    | grid / framing            | `40px 1fr auto` + per-row `1px solid var(--line-soft)` + `var(--bg)` | `28px 1fr auto` + border-top divider only           |
-| CTA cards       | padding / border / height | `26px` / `var(--line)` / no `min-height`                             | `20×22` / `var(--line-soft)` / `min-height: 156px`  |
-| `.compare .col` | padding                   | `22px`                                                               | `24px`                                              |
+| Primitive       | Property                  | Canonical value                                                      | Pre-fix value                                                   |
+| --------------- | ------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `h2`            | margin-top                | `64px`                                                               | `56px`                                                          |
+| `h2`            | font-size clamp           | `clamp(26px, 2.4vw, 34px)` / line-height `1.12`                      | `clamp(24, 32)` / `1.15`                                        |
+| `h2 .num`       | layout                    | `display: block` + `margin-bottom: 8px` + tracking `0.14em`          | inline `vertical-align: middle` + tracking `0.12em`             |
+| `code` (inline) | color / bg / border       | `var(--accent)` / `var(--bg-1)` / `1px solid var(--line-soft)`       | `var(--fg)` / accent-tinted `color-mix(accent 6%, transparent)` |
+| `.pull`         | border / padding / font   | full `1px solid var(--line)` / `36px` / `clamp(24, 32)` / lh `1.3`   | left-stripe accent-2px / `28×32` / `clamp(20, 26)`              |
+| `.chain-row`    | grid / framing            | `40px 1fr auto` + per-row `1px solid var(--line-soft)` + `var(--bg)` | `28px 1fr auto` + border-top divider only                       |
+| CTA cards       | padding / border / height | `26px` / `var(--line)` / no `min-height`                             | `20×22` / `var(--line-soft)` / `min-height: 156px`              |
+| `.compare .col` | padding                   | `22px`                                                               | `24px`                                                          |
 
 **Code blocks (the load-bearing requirement).**
 
