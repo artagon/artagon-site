@@ -2,13 +2,12 @@
 
 ## Theme System
 
-- **midnight**: Default Midnight Teal theme (current brand colors)
-- **twilight**: Twilight Indigo theme (dark blue with indigo accents)
-- **slate**: Deep Slate Blue theme (deep blue with slate tones)
-- **data-theme**: HTML attribute controlling active theme pack
-- **--brand-teal, --brand-violet, --brand-sky**: Primary brand color variables used across themes
-- **ThemeToggle**: Header component for switching themes
-- **ThemePreviewPanel**: Dev-only floating panel for quick theme testing
+- **dark**: Canonical default theme (the value the Tweaks panel writes via `data-theme="dark"`)
+- **midnight**: Midnight Teal theme variant
+- **twilight**: Twilight Indigo theme variant
+- **data-theme**: HTML attribute controlling active theme pack (live values: `dark`, `midnight`, `twilight`; the 5.1-era `slate` variant was removed in USMR pt167)
+- **--brand-teal**: Retained alias of `--accent` (per `theme.css` pt86 — internal `--teal-*` token defs still consume it; component code should use `--accent` directly)
+- **ThemePreviewPanel**: Dev-only floating panel for quick theme testing (legacy ThemeToggle component was removed in pt166 as orphan)
 
 ## Navigation System
 
