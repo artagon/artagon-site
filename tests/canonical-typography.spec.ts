@@ -98,6 +98,44 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(result.weight).toBe(result.token || "400");
   });
 
+  test("home hero h1 letter-spacing resolves --display-tracking × font-size (pt102)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt102 — same var() chain pattern as pt100/pt101
+    // but for `--display-tracking`. Canonical Hero.jsx + global.css h1
+    // sets `letter-spacing: var(--display-tracking, var(--tracking-h1))`.
+    // With [data-hero-font="grotesk"] the token resolves to -0.035em.
+    // Multiplied by the actual rendered font-size (e.g. 102.4 px at
+    // 1422 viewport), the computed letter-spacing should be
+    // -0.035 × 102.4 ≈ -3.58 px. The test verifies the var() chain
+    // resolves end-to-end without a hardcoded number.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 1422, height: 800 });
+    await page.evaluate(() => document.fonts.ready);
+    const result = await page.$eval(".hero h1.display", (el) => {
+      const cs = getComputedStyle(el);
+      const root = getComputedStyle(document.documentElement);
+      const trackingTokenStr = root
+        .getPropertyValue("--display-tracking")
+        .trim();
+      // Parse "-0.035em" → -0.035
+      const trackingNum = parseFloat(trackingTokenStr);
+      const fontSizeNum = parseFloat(cs.fontSize);
+      const expectedPx = trackingNum * fontSizeNum;
+      const actualPx = parseFloat(cs.letterSpacing);
+      return {
+        trackingToken: trackingTokenStr,
+        fontSize: cs.fontSize,
+        letterSpacing: cs.letterSpacing,
+        expectedPx,
+        actualPx,
+        delta: Math.abs(expectedPx - actualPx),
+      };
+    });
+    // Allow 0.05 px tolerance for sub-pixel rounding.
+    expect(result.delta).toBeLessThan(0.05);
+  });
+
   test(".lead consumes canonical 20px / fg-1 / 1.5", async ({ page }) => {
     // Home hero lede uses .lead class. Canonical font-size 20,
     // line-height 1.5, color var(--fg-1).
