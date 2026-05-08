@@ -430,12 +430,18 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   /* USMR Phase 5.5.16-pt100 — let the canonical .display utility's
    * `font-weight: var(--display-weight, 400)` cascade through. Pre-pt100
    * this scoped rule hardcoded 400, locking the home Hero h1 weight
-   * regardless of [data-hero-font]. With grotesk default the token
-   * resolves to 500 — Space Grotesk medium — matching canonical. */
+   * regardless of [data-hero-font].
+   *
+   * USMR Phase 5.5.16-pt103 — same fix for letter-spacing. Pre-pt103
+   * the rule hardcoded `-0.035em` (the grotesk-specific value),
+   * blocking the .display utility's `var(--display-tracking, ...)`
+   * cascade. Confirmed via Playwright probe: switching
+   * [data-hero-font="fraunces"] left tracking pinned at -0.035em
+   * even though --display-tracking resolves to -0.025em under fraunces.
+   * Removing the hardcode lets the canonical token chain rule. */
   .hero h1.display {
     font-size: clamp(56px, 7.2vw, 108px);
     line-height: 0.94;
-    letter-spacing: -0.035em;
     margin: 0 0 32px;
     /* Canonical Hero.jsx h1 — `var(--f-display, var(--f-sans))`. */
     font-family: var(--f-display, var(--f-sans));
