@@ -44,7 +44,7 @@ const faqSchema = {
 
   <section class="faq-hero">
     <div class="container narrow">
-      <h1 class="gradient-text" style="font-size:clamp(2rem,1.2rem+3vw,3rem)">Frequently Asked Questions</h1>
+      <h1 class="faq-hero__title display">Frequently Asked Questions</h1>
       <p class="faq-lead">
         Everything you need to know about Artagon's identity platform—from OIDC and GNAP to verifiable credentials, device attestation, and graph-native authorization.
       </p>
@@ -93,6 +93,24 @@ const faqSchema = {
 .faq-hero {
   padding: clamp(48px, 8vw, 80px) 0 clamp(32px, 6vw, 48px) 0;
   border-bottom: 1px solid var(--card-stroke);
+}
+
+/* USMR Phase 5.5.16-pt114 — canonical FAQ h1 size + cleanup. Pre-pt114
+ * the markup was `<h1 class="gradient-text" style="font-size:
+ * clamp(2rem, 1.2rem+3vw, 3rem)">` — the inline `1.2rem+3vw` (no
+ * calc()) is INVALID CSS and the browser ignored the entire clamp(),
+ * falling back to the bare h1 var(--fs-h1) = 102 px hero size. Plus
+ * `gradient-text` is a legacy class with no CSS rule defined.
+ *
+ * Fix: replaced markup with `class="faq-hero__title display"` so the
+ * .display utility's canonical token cascade applies (font-family,
+ * tracking, weight). Scoped sizing here is canonical clamp(40, 5vw,
+ * 64) — display-sized but smaller than the home-Hero clamp(56-108)
+ * since FAQ is a content page not the marketing front door. */
+.faq-hero__title {
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.05;
+  margin: 0;
 }
 
 .faq-lead {
