@@ -734,13 +734,16 @@ nav a:hover {
   font-size: 14px;
 }
 
-.btn::before {
-  content: "◆";
-  font-size: 0.6em;
-  color: var(--brand-teal);
-  transition: all 0.3s ease;
-  opacity: 0.6;
-}
+/* USMR 5.5.16 — legacy `.btn::before "◆"` decoration removed
+ * globally. Canonical (new-design global.css:236-244) `.btn` ships
+ * clean text + an optional trailing `.arr` chip on primary CTAs.
+ * The site-wide rule was suppressed surface-by-surface (.hero / .onramp
+ * / .writing-strip / .site-nav .right) since 5.1p.6, but each new
+ * page added a fresh suppression site (Get-started / FAQ / 404 / etc.)
+ * — the glyph kept leaking onto every untouched surface. Dropping the
+ * source rule eliminates the cleanup tax. The href-based variants
+ * (`[href*="docs"]` "📖" / `[href*="play"]` "⚡" / `[href*="github"]`
+ * "⭐") below are dropped in the same diff. */
 
 /* USMR Phase 5.1p.14 — screen-reader-only utility for visually-hidden
  * landmarks that fix heading hierarchy (h1 → h2 → h3) without altering
@@ -757,22 +760,8 @@ nav a:hover {
   border: 0;
 }
 
-/* USMR Phase 5.1p.6 — suppress the legacy `.btn::before` glyph
- * decorations on every new-design surface. The hero / on-ramp /
- * writing-strip / nav-cta buttons render clean text (no ◆ / ⚡ /
- * 📖 / ⭐ prefix) per the new-design mock. The legacy glyph remains
- * the default for any remaining pre-USMR `.btn` consumer (FAQ /
- * older docs surfaces) until a follow-up sweep removes it
- * everywhere. Header.astro already scopes the suppression to
- * `.site-nav .right .btn`; this extends to the home-page surfaces. */
-.hero .btn::before,
-.hero .btn:hover::before,
-.onramp .btn::before,
-.onramp .btn:hover::before,
-.writing-strip .btn::before,
-.writing-strip .btn:hover::before {
-  content: none !important;
-}
+/* USMR 5.5.16 — surface-scoped suppressions of the .btn::before glyph
+ * are no longer needed; the source rule was dropped globally above. */
 
 /* USMR Phase 5.5.9 — `.btn.primary` solid-fill ascends to global scope.
  * Canonical (`new-design global.css:245`): `.btn.primary { background:
@@ -816,39 +805,10 @@ nav a:hover {
     inset 0 0 20px color-mix(in srgb, var(--brand-teal) 5%, transparent);
 }
 
-.btn:hover::before {
-  color: var(--brand-sky);
-  opacity: 1;
-  transform: rotate(180deg);
-}
-
-/* Specific button icon styles */
-.btn[href*="docs"]::before {
-  content: "📖";
-  font-size: 0.9em;
-}
-
-.btn[href*="docs"]:hover::before {
-  transform: scale(1.15);
-}
-
-.btn[href*="play"]::before {
-  content: "⚡";
-  font-size: 0.9em;
-}
-
-.btn[href*="play"]:hover::before {
-  transform: scale(1.2) rotate(0deg);
-}
-
-.btn[href*="github"]::before {
-  content: "⭐";
-  font-size: 0.85em;
-}
-
-.btn[href*="github"]:hover::before {
-  transform: scale(1.15) rotate(0deg);
-}
+/* USMR 5.5.16 — legacy hover + href-based ::before glyph rules
+ * (`.btn:hover::before`, `[href*="docs"]` "📖", `[href*="play"]` "⚡",
+ * `[href*="github"]` "⭐") removed alongside the source `.btn::before`
+ * "◆" rule. Canonical CTAs ship clean text. */
 .grid {
   display: grid;
   gap: 18px;
