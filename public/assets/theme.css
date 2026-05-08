@@ -1600,120 +1600,17 @@ header .right .pill {
   font-weight: 600;
 }
 
-/* Domain Cards */
-.domain-highlight {
-  position: relative;
-  transition: all 0.3s ease;
-  border-color: color-mix(in srgb, var(--border) 70%, transparent);
-}
-
-.domain-highlight:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-  border-color: var(--brand-teal);
-}
-
-.domain-badge {
-  position: absolute;
-  top: -12px;
-  right: 20px;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--brand-teal);
-  background: var(--surface);
-  border: 2px solid var(--brand-teal);
-  border-radius: 50%;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand-teal) 30%, transparent);
-}
-
-.domain-highlight h3 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.75rem;
-  color: var(--text);
-  font-size: 1.3rem;
-}
-
-.domain-highlight p {
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* Pillar Cards */
-.pillar-card {
-  position: relative;
-  padding: 1.5rem 1.5rem 1.5rem 6rem;
-  transition: all 0.3s ease;
-  border-color: color-mix(in srgb, var(--border) 70%, transparent);
-}
-
-.pillar-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  border-color: var(--brand-violet);
-}
-
-.pill-number {
-  position: absolute;
-  left: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--brand-violet);
-  background: color-mix(in srgb, var(--brand-violet) 15%, transparent);
-  border: 2px solid var(--brand-violet);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.pillar-card h4 {
-  margin-top: 0;
-  margin-bottom: 0.6rem;
-  color: var(--text);
-  font-size: 1.15rem;
-}
-
-.pillar-card p {
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0;
-  font-size: 0.95rem;
-}
-
+/* USMR 5.5.16-pt58 — orphan CSS removed: `.domain-highlight`,
+ * `.domain-badge`, `.pillar-card`, `.pill-number` and their @media
+ * mobile overrides had ZERO consumers across src/ + tests/ (verified
+ * via rtk grep). They were 5.1-era styles for the legacy MissionSection
+ * + early Pillars markup that was replaced by `.pillars__panel` in
+ * 5.2. The .mission-badge mobile override stays — vision.mdx still
+ * consumes it. */
 @media (max-width: 768px) {
   .mission-badge {
     font-size: 0.7rem;
     padding: 0.5rem 1rem;
-  }
-
-  .domain-badge {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
-    top: -10px;
-    right: 15px;
-  }
-
-  .pillar-card {
-    padding-left: 20px;
-    padding-top: 3rem;
-  }
-
-  .pill-number {
-    left: auto;
-    right: 20px;
-    top: 15px;
   }
 }
 
