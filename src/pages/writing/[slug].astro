@@ -394,12 +394,42 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     border-radius: 10px;
     background: var(--bg);
     font-size: 14px;
+    position: relative;
   }
+  /* Canonical post-trusted-identity.html:408-411 — accent connector
+   * line in the 8 px gap between adjacent chain-rows. Anchors at the
+   * .num circle x-position (34 px from row left = 24 padding + 10 to
+   * center). The line teaches the reader that each row inherits state
+   * from the previous one. */
+  .post-body :global(.chain-row + .chain-row::before) {
+    content: "";
+    position: absolute;
+    left: 34px;
+    top: -8px;
+    width: 1px;
+    height: 8px;
+    background: var(--accent);
+  }
+  /* Canonical post-trusted-identity.html:412-419 — chain-row .num
+   * is a 28×28 accent-bordered circle, NOT a flat label. The mono
+   * 10 px text sits centered with `display: grid; place-items:
+   * center`. Accent-tinted bg + accent box-shadow give it the
+   * canonical "glowing node" look that visually anchors each stage
+   * row. The pre-canonical flat-text .num made the .chain-row read
+   * as a list, not a stage-card sequence. */
   .post-body :global(.chain-row .num) {
+    width: 28px;
+    height: 28px;
+    border-radius: 99px;
+    border: 1.5px solid var(--accent);
+    display: grid;
+    place-items: center;
     font-family: var(--f-mono);
-    font-size: 11px;
-    color: var(--fg-3);
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 600;
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+    box-shadow: 0 0 16px color-mix(in oklab, var(--accent) 50%, transparent);
   }
   .post-body :global(.chain-row .label) {
     font-size: 15px;
@@ -431,17 +461,22 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     text-transform: uppercase;
     text-align: center;
   }
+  /* Canonical post-trusted-identity.html:428-429 — `gap: 16` (we had
+   * 20). The tighter gap reads as a comparison pair instead of two
+   * independent cards. */
   .post-body :global(.compare) {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 16px;
     margin: 36px 0;
   }
   .post-body :global(.compare .col) {
-    /* Canonical blog.html:430 — 22 px padding (was 24). */
+    /* Canonical post-trusted-identity.html:431-433 — `padding: 22`,
+     * `border-radius: 12`. We had border-radius 8 — the larger
+     * radius matches the .chain-fig card-on-canvas weight. */
     padding: 22px;
     border: 1px solid var(--line-soft);
-    border-radius: 8px;
+    border-radius: 12px;
     background: var(--bg-1);
   }
   .post-body :global(.compare .col.before) {
