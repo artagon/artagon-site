@@ -119,4 +119,49 @@ test.describe("Canonical typography + rhythm gates", () => {
     );
     expect(gap).toBe("10px");
   });
+
+  test(".onramp__headline ceiling is 76px (canonical Cta.jsx:27)", async ({
+    page,
+  }) => {
+    // Pre-pt24, onRamp h2 used the regular `var(--fs-h2)` clamp(36,
+    // 4vw, 60) — undersized by 16px at the ceiling. onRamp is the
+    // editorial close, not a section break, so canonical scales h2
+    // up to clamp(44, 5vw, 76).
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 2000, height: 1000 });
+    const fontSize = await page.$eval(".onramp__headline", (el) =>
+      parseFloat(getComputedStyle(el).fontSize),
+    );
+    // 5vw of 2000 = 100; clamp(44, 100, 76) → 76 px (ceiling)
+    expect(fontSize).toBe(76);
+  });
+
+  test(".footer-meta is justify-content: space-between (canonical)", async ({
+    page,
+  }) => {
+    // Pre-pt39, footer meta strip clustered 3 spans on the left with
+    // a fixed gap. Canonical distributes copyright / stack / version
+    // evenly via space-between.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const justify = await page.$eval(
+      ".footer-meta",
+      (el) => getComputedStyle(el).justifyContent,
+    );
+    expect(justify).toBe("space-between");
+  });
+
+  test(".trust-chain card padding is 28px (canonical Hero.jsx:234)", async ({
+    page,
+  }) => {
+    // Pre-pt40, .trust-chain padding was clamp(20, 2vw, 28); shrunk
+    // to 20 on narrow viewports. Canonical fixes 28.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 320, height: 800 });
+    const padding = await page.$eval(".trust-chain", (el) => ({
+      top: getComputedStyle(el).paddingTop,
+      bottom: getComputedStyle(el).paddingBottom,
+    }));
+    expect(padding.top).toBe("28px");
+    expect(padding.bottom).toBe("28px");
+  });
 });
