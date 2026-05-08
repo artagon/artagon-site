@@ -611,29 +611,15 @@ a {
   justify-content: space-between;
   padding: 10px 0;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #f8fafc;
-  text-decoration: none;
-}
-nav ul {
-  display: flex;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  align-items: center;
-}
-nav a {
-  color: #e2e8f0;
-  padding: 0.45rem 0.6rem;
-  border-radius: 10px;
-}
-nav a:hover {
-  background: rgba(148, 163, 184, 0.12);
-}
+/* USMR Phase 5.5.16-pt76 — removed pre-USMR `.brand` / `nav ul` /
+ * `nav a` / `nav a:hover` rules (~22 lines). Each carried hardcoded
+ * colors (`#f8fafc`, `#e2e8f0`, `rgba(148,163,184,0.12)`) and was
+ * fully overridden by Header.astro's scoped `.site-nav__brand`,
+ * `.site-nav .links`, `.site-nav .links a`, `.site-nav .links a:hover`
+ * and Footer.astro's `.footer-col a`. The pre-pt76 lint:tokens
+ * allowlist of theme.css had been silently passing these violations;
+ * pt76 extended the linter to scan theme.css with a token-aware filter
+ * that flags raw colors outside `--token:` declarations. */
 /* USMR Phase 5.5.16-pt75 — removed pre-USMR `.cta` / `.cta::before`
  * / `.cta::after` / `.cta:hover` / `.cta:hover::before` /
  * `.cta:hover::after` / `.cta-large` / `.cta-section` (~80 lines).
@@ -668,11 +654,8 @@ nav a:hover {
   line-height: 1.1;
   margin: 0 0 16px;
 }
-.sub {
-  color: #a7b4c7;
-  max-width: 760px;
-  font-size: 1.15rem;
-}
+/* USMR Phase 5.5.16-pt76 — removed orphan `.sub` rule (4 lines).
+ * Carried hardcoded `#a7b4c7`. Zero consumers in src/. */
 /* Canonical .cluster contract — global.css gap 10 / no margin-top
  * (the prior block carries the spacing via its own margin-bottom).
  * Pre-fix used 0.75rem gap (=12) and 22 px margin-top, which
@@ -963,7 +946,7 @@ nav a:hover {
   top: -12px;
   right: 16px;
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   padding: 0.25rem 0.7rem;
   border-radius: var(--radius-full);
   font-size: 0.85rem;
@@ -982,7 +965,7 @@ nav a:hover {
   height: 40px;
   border-radius: var(--radius-full);
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1057,7 +1040,7 @@ nav a:hover {
   height: 40px;
   border-radius: var(--radius-full);
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1164,7 +1147,7 @@ nav a:hover {
   left: 0;
   top: 1.5rem;
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   width: 32px;
   height: 32px;
   border-radius: var(--radius-full);
@@ -1241,7 +1224,7 @@ nav a:hover {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border: 1px solid var(--line-soft);
   min-height: 260px;
   display: flex;
   align-items: center;
@@ -1302,7 +1285,7 @@ nav a:hover {
   padding: 16px;
 }
 .site-footer small {
-  color: #9fb1c8;
+  color: var(--fg-3);
 }
 .hide-sm {
   display: inline-flex;
@@ -1614,9 +1597,11 @@ header .right .pill {
     color-mix(in oklab, var(--g-accent) 80%, transparent) 330deg,
     color-mix(in oklab, var(--g-accent) 75%, transparent) 360deg
   );
+  /* `#000` mask shapes — pure black is the compositing primitive, not
+   * a theme color. Tokenizing would change the mask semantics. */
   -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
+    linear-gradient(#000 0 0) content-box /* lint-tokens: ok */,
+    linear-gradient(#000 0 0) /* lint-tokens: ok */;
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -1646,11 +1631,15 @@ header .right .pill {
   width: 9px;
   height: 9px;
   border-radius: 999px;
+  /* glow-dot center highlight (#fff) + edge shadow (#000) — pure
+   * white/black anchors for the radial gradient's metallic specular
+   * effect. Tokenizing would tint the highlight, breaking the metallic
+   * reading the canonical Hero glow-tag depends on. */
   background: radial-gradient(
     circle at 35% 35%,
-    #fff 0%,
+    #fff 0% /* lint-tokens: ok */,
     var(--g-accent) 55%,
-    color-mix(in oklab, var(--g-accent) 60%, #000) 100%
+    color-mix(in oklab, var(--g-accent) 60%, #000) 100% /* lint-tokens: ok */
   );
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--g-accent) 55%, transparent),
@@ -1679,12 +1668,15 @@ header .right .pill {
   position: relative;
   z-index: 1;
   color: transparent;
+  /* glow-text shimmer — pure-white highlights at 45% / 55% are the
+   * specular sweep that animates across the headline. Tokenizing
+   * would tint the highlight band and break the metallic shimmer. */
   background: linear-gradient(
     100deg,
     color-mix(in oklab, var(--fg) 85%, var(--g-accent)) 0%,
-    #fff 45%,
+    #fff 45% /* lint-tokens: ok */,
     var(--g-accent) 50%,
-    #fff 55%,
+    #fff 55% /* lint-tokens: ok */,
     color-mix(in oklab, var(--fg) 85%, var(--g-accent)) 100%
   );
   background-size: 220% 100%;
