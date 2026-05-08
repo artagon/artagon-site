@@ -65,7 +65,7 @@ describe("orphan imports in scripts/ (pt185)", () => {
       // Named imports: `import { a, b as c, type d } from "..."`.
       // Multi-line braces are tolerated by the [^}] character class.
       for (const m of body.matchAll(
-        /import\s+(?:type\s+)?\{([^}]+)\}\s+from\s+['"][^'"]+['"]/g,
+        /^\s*import\s+(?:type\s+)?\{([^}]+)\}\s+from\s+['"][^'"]+['"]/gm,
       )) {
         const importStmt = m[0];
         const idents = m[1]!
@@ -89,7 +89,7 @@ describe("orphan imports in scripts/ (pt185)", () => {
 
       // Default imports: `import Name from "..."`.
       for (const m of body.matchAll(
-        /import\s+([A-Za-z_$][A-Za-z0-9_$]*)\s+from\s+['"][^'"]+['"]/g,
+        /^\s*import\s+([A-Za-z_$][A-Za-z0-9_$]*)\s+from\s+['"][^'"]+['"]/gm,
       )) {
         const importStmt = m[0];
         const ident = m[1]!;
