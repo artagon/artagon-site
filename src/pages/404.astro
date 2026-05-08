@@ -23,6 +23,14 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
   {/* USMR Phase 5.5.16-pt144 — extended description to canonical
       150-160 char range per DESIGN.md §9.5. */}
   description="The page you were looking for doesn't exist on Artagon. Try the home page, the platform overview, the writing index, or the design-partner program instead."
+  {/* USMR Phase 5.5.16-pt145 — `noindex, nofollow` on the 404 page.
+      404 responses are error states, not content. Indexing them
+      pollutes search results with broken-link "this page exists"
+      false positives; the soft-404 + thin-content penalties
+      compound. The `nofollow` part stops link equity from leaking
+      into the alt-route list below the h1 (which already counts as
+      ordinary internal-link discovery via /sitemap.xml). */}
+  robots="noindex, nofollow"
 >
   <Fragment slot="header"><Header /></Fragment>
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout

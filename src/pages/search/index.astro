@@ -5,7 +5,14 @@ import Footer from '../../components/Footer.astro';
 ---
 {/* USMR Phase 5.5.16-pt144 — extended Base meta description to
     canonical 150-160 char range per DESIGN.md §9.5. */}
-<Base title="Search — Artagon" description="Search across Artagon documentation, posts, standards, and the platform pages. Powered by DocSearch — instant results across the identity-protocol corpus.">
+{/* USMR Phase 5.5.16-pt145 — `noindex, nofollow` on the search page.
+    Search-result pages are meant for users, not crawlers; indexing
+    them creates duplicate / thin-content footprints (every query
+    becomes a unique URL with mostly-the-same chrome). DocSearch
+    itself doesn't generate per-query routes here — the route is
+    static — but the `noindex` keeps the SERPs clean if someone
+    deep-links to /search?q=foo. */}
+<Base title="Search — Artagon" description="Search across Artagon documentation, posts, standards, and the platform pages. Powered by DocSearch — instant results across the identity-protocol corpus." robots="noindex, nofollow">
   <Fragment slot="header"><Header /></Fragment>
   {/* USMR Phase 5.5.16-pt119 — same canonical sizing pattern as
       pt117/pt118 — bare <h1>Search</h1> would render at 102 px
