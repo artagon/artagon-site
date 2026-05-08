@@ -79,8 +79,19 @@ const generalContact = ORG.contacts.find((c) => c.label === 'General') ?? ORG.co
 </Base>
 
 <style>
+  /* USMR Phase 5.5.16-pt69 — canonical Cta.jsx:9 wraps with
+   * `<section className="section" style={{paddingBottom: 80}}>`. The
+   * .section class drives `padding-block: clamp(80, 8vw, 120)`; the
+   * inline `paddingBottom: 80` then locks bottom to 80 flat (the
+   * onRamp is the closing section on the home page; on /get-started
+   * it's the only section, so the same lock applies). Pre-fix shipped
+   * `padding-block: clamp(64px, 8vw, 120px)` — floor 64 contradicts
+   * the canonical 80-floor established for every other section in
+   * pt25/pt48/pt49, AND the symmetric responsive bottom didn't honor
+   * the inline 80 lock. */
   .cta-section {
-    padding-block: clamp(64px, 8vw, 120px);
+    padding-top: clamp(80px, 8vw, 120px);
+    padding-bottom: 80px;
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
     padding-inline: clamp(24px, 4vw, 40px);

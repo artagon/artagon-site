@@ -186,6 +186,29 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(radius).toBe("14px");
   });
 
+  test("/get-started .cta-section honors canonical .section + paddingBottom: 80 lock", async ({
+    page,
+  }) => {
+    // Canonical Cta.jsx:9 — top responsive (clamp 80-120 / 8vw),
+    // bottom flat 80. Pre-pt69 shipped a symmetric clamp(64-120) which
+    // (a) under-floored the top to 64 (canonical 80, established in
+    // pt25/pt48/pt49) and (b) lost the bottom lock.
+    await page.goto("/get-started", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 1240, height: 800 });
+    const padding = await page.$eval(".cta-section", (el) => {
+      const cs = getComputedStyle(el);
+      return {
+        top: parseFloat(cs.paddingTop),
+        bottom: parseFloat(cs.paddingBottom),
+      };
+    });
+    // 8vw of 1240 = 99.2; clamp(80, 99.2, 120) → 99.2 px.
+    expect(padding.top).toBeGreaterThanOrEqual(80);
+    expect(padding.top).toBeLessThanOrEqual(120);
+    // Bottom is flat 80 (no clamp).
+    expect(padding.bottom).toBe(80);
+  });
+
   test(".post-footer cta-card hover lifts border to full --accent (canonical post-*.html:458)", async ({
     page,
   }) => {
