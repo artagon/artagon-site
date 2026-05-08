@@ -115,6 +115,21 @@ details[open] .faq-icon {
   }
 }
 
+/* USMR Phase 5.5.16-pt130 — `prefers-reduced-motion` override per
+ * DESIGN.md §8.2 motion principles. The chevron icon rotates 180°
+ * when the <details> opens (`details[open] .faq-icon { transform:
+ * rotate(180deg) }`). Rotation counts as motion under reduced-motion.
+ * Disabling the transition makes the rotation instant — the icon
+ * still flips to indicate state, just without the 0.3 s sweep. The
+ * .faq-question color transition is also zeroed to keep state
+ * changes paint-synchronous. */
+@media (prefers-reduced-motion: reduce) {
+  .faq-question,
+  .faq-icon {
+    transition: none;
+  }
+}
+
 /* USMR Phase 5.5.16-pt126 — forced-colors mode overrides per
  * DESIGN.md §7. The OS palette remap (Windows High Contrast)
  * collapses var(--accent) into a flat system color, so the FAQ

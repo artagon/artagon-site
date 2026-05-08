@@ -1159,7 +1159,16 @@ for spinners only.
    product's signature. Nothing else animates unless it helps the user.
 2. **Reduced motion is first-class.** Every `@keyframes` block has a
    `@media (prefers-reduced-motion: reduce)` counterpart that disables or
-   freezes it. Test with the toggle on.
+   freezes it. The same applies to **transform-based motion on
+   interactive states** (`transform: translate*` / `scale*` / `rotate*`
+   on `:hover` / `:focus-visible` / `details[open]`) — under reduced-motion
+   the transition is zeroed and the transform reset to `none` so state
+   changes paint instantly without movement. Color + border state
+   signals remain because they're state markers, not motion. WCAG 2.3.3
+   covers the contract; the
+   [`lint:reduced-motion-coverage`](./tests/lint-reduced-motion-coverage.test.mts)
+   gate enforces it on the components that ship transform-based hover
+   chrome (USMR pt130). Test with the OS toggle on.
 3. **No parallax.** No scroll-hijacking. No scroll-triggered animations that
    block reading.
 4. **No `transition: all`.** Always enumerate the animated properties

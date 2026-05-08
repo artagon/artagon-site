@@ -258,4 +258,21 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
       color: Highlight;
     }
   }
+
+  /* USMR Phase 5.5.16-pt130 — `prefers-reduced-motion` override per
+   * DESIGN.md §8.2 motion principles. The card hover lifts the
+   * surface 2 px via `transform: translateY(-2px)` — translation
+   * counts as motion under reduced-motion. The color + border
+   * change remain (those are state signals, not motion). Mirrors
+   * the WCAG 2.3.3 contract: non-essential motion is opt-out for
+   * users who set `prefers-reduced-motion: reduce`. */
+  @media (prefers-reduced-motion: reduce) {
+    .home-explore__card {
+      transition: none;
+    }
+    .home-explore__card:hover,
+    .home-explore__card:focus-visible {
+      transform: none;
+    }
+  }
 </style>
