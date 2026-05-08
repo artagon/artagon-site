@@ -509,8 +509,16 @@ body > * {
   z-index: 1;
 }
 
+/* USMR Phase 5.5.16-pt92 — bare anchor color migrated from
+ * var(--brand-sky, var(--primary, #22e3c5)) to var(--accent).
+ * Pre-fix the chain pointed at two pt81-deleted tokens (--brand-sky
+ * via pt84, --primary via pt82), so the literal #22e3c5 hex fallback
+ * was firing for every unscoped <a> on the site. The hex was
+ * coincidentally close to canonical accent cyan but the token chain
+ * was bypassed entirely — accent toggles via [data-accent] in the
+ * Tweaks panel had no effect on body links. */
 a {
-  color: var(--brand-sky, var(--primary, #22e3c5));
+  color: var(--accent);
 }
 /* Canonical only has `.wrap`. The 5.1-era `.container` was kept as
  * an alias since multiple Astro pages still author against it.
