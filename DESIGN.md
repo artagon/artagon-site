@@ -567,21 +567,24 @@ Used in blog posts and the Structure Audit page. JetBrains Mono 13px, `--bg-1`, 
 
 **Purpose.** Surface the latest blog post(s) on the home page. Communicates editorial cadence ("we publish") without becoming a full blog index.
 
-**Placements (Planned).** Controlled by `tweaks.writing`. The default is the in-hero strip; the others are larger sections that sit between Hero and Explore. **Status: not yet shipped** — `Tweaks.astro` does not currently expose a `writing` placement control; the in-hero strip placement also pending (HeroLatestStrip placement gap is tracked in tasks.md).
+**Status: Shipped (USMR 5.5.16-pt108/pt109/pt110).** Tweaks panel exposes `Writing widget` field with 6 variant buttons; default is `B · 3-up`. Switching writes `data-writing-widget` to `<html>` and persists to localStorage; `:global([data-writing-widget="..."])` selectors in `src/pages/index.astro` switch the visible layout. Live regression gate: `tests/canonical-typography.spec.ts` "writing-widget variant switching toggles strip + hero-strip visibility (pt110)".
 
-| Key              | Variant                    | Where                            | Use when                                                        |
-| ---------------- | -------------------------- | -------------------------------- | --------------------------------------------------------------- |
-| `h1` _(default)_ | Latest strip below CTAs    | Inside Hero, left column         | Always-on; lightest touch; doesn't compete with the trust chain |
-| `a`              | Featured strip + 2-up rail | Section between Hero and Explore | Promoting a single major post                                   |
-| `b`              | 3-up cards                 | Section                          | Showcasing recent cadence (3 most recent)                       |
-| `c`              | Editorial split            | Section                          | Mixing one prominent post + recent list                         |
-| `d`              | Dated ticker               | Section                          | Index-feeling, sticky title, dense rows                         |
-| `off`            | Hidden                     | —                                | Pages where Writing is not the right CTA                        |
+**Variants (Shipped).** All 6 canonical layouts from `new-design/extracted/explorations/writing-widget.jsx` are operational:
 
-**Rules.**
+| Key                    | Implementation                                                                              | Where                            | Use when                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------- |
+| `in-hero`              | `<a class="hero__latest-strip">` 3-row card inside Hero (eyebrow / title / date+arrow)      | Inside Hero, left column         | Lightest touch; doesn't compete with the trust chain |
+| `A · strip`            | `grid-template-columns: 1fr` + first card-only visible (siblings hidden)                    | Section between Hero and Explore | Promoting a single major post                        |
+| `B · 3-up` _(default)_ | `grid-template-columns: repeat(3, 1fr)` 3-card grid                                         | Section                          | Showcasing recent cadence (3 most recent)            |
+| `C · split`            | `grid-template-columns: 1.5fr 1fr 1fr` (featured first card visually wider)                 | Section                          | Mixing one prominent post + recent list              |
+| `D · ticker`           | Single column, `flex-direction: row` items, lede + cta hidden, title 16 px, mono date strip | Section                          | Index-feeling, sticky title, dense rows              |
+| `off`                  | `.writing-strip { display: none }`                                                          | —                                | Pages where Writing is not the right CTA             |
 
-- One placement per page. Do not combine `h1` with a section variant.
-- Use real post metadata only. Mock copy is forbidden.
+**Implementation rules.**
+
+- The default `B · 3-up` is the unscoped `.writing-strip__list` rule; other variants are `:global([data-writing-widget="..."])` overrides.
+- The `in-hero` variant pivots BOTH `.hero__latest-strip` (show) AND `.writing-strip` (hide); other variants pivot only the standalone strip.
+- Real post metadata only — `latestPosts` from the writing content collection. Mock copy is forbidden.
 - The strip card uses `var(--bg-1)` with `--line` border that lifts to `--accent-dim` on hover.
 - Title font follows `--f-display` so it inherits the hero-font tweak.
 
@@ -1403,7 +1406,7 @@ A PR cannot merge without:
 
 ### 2026-04-30
 
-- **Added §6.11 Writing widget.** Five placements (`h1` in-hero default, `a/b/c/d` lower section, `off`) wired through the Tweaks panel. Replaces the earlier ad-hoc "Latest writing" mention.
+- **Added §6.11 Writing widget.** Six placements (`in-hero`, `A · strip`, `B · 3-up` _(default)_, `C · split`, `D · ticker`, `off`) wired through the Tweaks panel. Shipped USMR 5.5.16-pt108/pt109/pt110. Replaces the earlier ad-hoc "Latest writing" mention. **Default changed**: pre-shipping the canonical default was `h1` (in-hero); shipping default is `B · 3-up` because the canonical user feedback showed the 3-up cards on the home page reference; in-hero remains a one-click toggle in the Tweaks panel.
 - **Open question.** Mobile reflow strategy: the current build uses `body { transform: scale() }` to fit narrow viewports, which §9.2 forbids. Tracked separately in `explorations/Mobile Optimization.html`. _(Resolved 2026-05-01 — see above.)_
 
 ---
