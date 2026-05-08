@@ -73,17 +73,21 @@ describe("public/_redirects — /blog → /writing 301 contract (5.5)", () => {
     return RULES.find((r) => r.source === source);
   }
 
-  test("`/blog` resolves to `/writing/`", () => {
+  // USMR Phase 5.5.16-pt157 — destinations are no-trailing-slash
+  // per `trailingSlash: "never"` in astro.config.ts. Pre-pt157
+  // these tests asserted `/writing/` (with trailing slash) which
+  // baked in a two-hop redirect chain (/blog → /writing/ → /writing).
+  test("`/blog` resolves to `/writing` (no trailing slash)", () => {
     const rule = find("/blog");
     expect(rule, "/blog redirect rule").toBeDefined();
-    expect(rule!.destination).toBe("/writing/");
+    expect(rule!.destination).toBe("/writing");
     expect(rule!.status).toBe(301);
   });
 
-  test("`/blog/` (trailing slash) also resolves to `/writing/`", () => {
+  test("`/blog/` (legacy trailing slash) also resolves to `/writing`", () => {
     const rule = find("/blog/");
     expect(rule, "/blog/ redirect rule").toBeDefined();
-    expect(rule!.destination).toBe("/writing/");
+    expect(rule!.destination).toBe("/writing");
   });
 
   test("`/blog/*` slug splat propagates to `/writing/:splat`", () => {
@@ -94,10 +98,10 @@ describe("public/_redirects — /blog → /writing 301 contract (5.5)", () => {
 });
 
 describe("public/_redirects — legacy /faqs alias (5.1)", () => {
-  test("`/faqs` resolves to `/faq/`", () => {
+  test("`/faqs` resolves to `/faq` (no trailing slash; pt157)", () => {
     const rule = RULES.find((r) => r.source === "/faqs");
     expect(rule, "/faqs alias").toBeDefined();
-    expect(rule!.destination).toBe("/faq/");
+    expect(rule!.destination).toBe("/faq");
     expect(rule!.status).toBe(301);
   });
 });
