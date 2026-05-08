@@ -35,14 +35,10 @@ const posts = (await getCollection('writing'))
 const authors = await getCollection('authors');
 const authorByName = new Map(authors.map((a) => [a.id, a.data.name]));
 
-// 5 wpm tail in the canonical "X min read" string. Reading speed of
-// 220 wpm is the WPM widely used by Medium/Substack-class readers.
-const WPM = 220;
-function readingMinutes(body: string | undefined): number {
-  if (!body) return 1;
-  const words = body.trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / WPM));
-}
+// USMR Phase 5.5.11 Task #30 — readingMinutes hoisted to
+// `src/lib/reading-time.ts` so the index card + detail byline
+// share one implementation and cannot drift.
+import { readingMinutes } from '../../lib/reading-time.ts';
 
 interface DateParts {
   year: string;
