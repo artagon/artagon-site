@@ -119,15 +119,14 @@ const cols = [
 
 <style>
 /* Canonical Footer (BaseLayout.jsx:281) — `padding: '64px 0 40px'`,
- * implicit body font-size 14 (1.4rem h1 catch-all). The footer
- * bg-1 + border-top var(--line-soft) match canonical. Pre-fix
- * 0.9rem (≈14.4) → 14 (canonical body). */
+ * font-size 14. Pre-fix used var(--space-12)=48 / var(--space-8)=32
+ * — undersized top by 16, undersized bottom by 8. */
 .site-footer {
   border-top: 1px solid var(--line-soft);
   background: var(--bg-1);
   color: var(--fg-1);
-  padding-top: var(--space-12);
-  padding-bottom: var(--space-8);
+  padding-top: 64px;
+  padding-bottom: 40px;
   font-size: 14px;
 }
 
@@ -136,18 +135,24 @@ const cols = [
  * 1.4× as wide as each link column, all in one row. The pre-canonical
  * 220px + nested 4-col arrangement created visual asymmetry on wide
  * viewports. */
+/* Canonical BaseLayout.jsx:283 — `gridTemplateColumns: '1.4fr
+ * repeat(4, 1fr)', gap: 40, marginBottom: 56`. Pre-fix used
+ * var(--space-10) (=40) for gap and padding-bottom; canonicalized
+ * to fixed px. The marginBottom: 56 → padding-bottom + border-
+ * bottom + meta strip padding-top 24 ≈ 40+24+strip = 64; meta
+ * strip uses padding-top 24 (per BaseLayout.jsx:301). */
 .footer-inner {
   display: grid;
   grid-template-columns: 1.4fr repeat(4, 1fr);
-  gap: var(--space-10);
-  padding-bottom: var(--space-10);
+  gap: 40px;
+  padding-bottom: 40px;
   border-bottom: 1px solid var(--line-soft);
 }
 
 .footer-brand {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 .footer-wordmark {
