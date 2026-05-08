@@ -165,6 +165,27 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(padding.bottom).toBe("28px");
   });
 
+  test(".post-body .pull / blockquote border-radius is 14px (canonical post-*.html:382)", async ({
+    page,
+  }) => {
+    // Canonical .pull renders as a card-on-canvas with the same
+    // border-radius (14) as .chain-fig — the editorial pull-quote and
+    // chain-row figure share the same surface treatment. Pre-pt66 the
+    // .pull radius was 8, reading as a sidebar callout instead.
+    //
+    // bridge-strategy.mdx renders a markdown `>` blockquote (line 34);
+    // CSS shares the rule between `.pull` and `blockquote`, so the
+    // blockquote is the live anchor on this route.
+    await page.goto("/writing/bridge-strategy", {
+      waitUntil: "domcontentloaded",
+    });
+    const radius = await page.$eval(
+      ".post-body blockquote",
+      (el) => getComputedStyle(el).borderRadius,
+    );
+    expect(radius).toBe("14px");
+  });
+
   test(".post-body inline <code> is accent-colored (canonical post-*.html:374)", async ({
     page,
   }) => {

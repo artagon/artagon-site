@@ -716,7 +716,7 @@ Footer
 | `h2`            | font-size clamp           | `clamp(26px, 2.4vw, 34px)` / line-height `1.12`                      | `clamp(24, 32)` / `1.15`                                        |
 | `h2 .num`       | layout                    | `display: block` + `margin-bottom: 8px` + tracking `0.14em`          | inline `vertical-align: middle` + tracking `0.12em`             |
 | `code` (inline) | color / bg / border       | `var(--accent)` / `var(--bg-1)` / `1px solid var(--line-soft)`       | `var(--fg)` / accent-tinted `color-mix(accent 6%, transparent)` |
-| `.pull`         | border / padding / font   | full `1px solid var(--line)` / `36px` / `clamp(24, 32)` / lh `1.3`   | left-stripe accent-2px / `28×32` / `clamp(20, 26)`              |
+| `.pull`         | bg / radius / margin      | `linear-gradient(bg-1 → bg)` / `14px` / `56px 0` / `max-width: none` | accent-tinted `bg-1 → bg-1` / `8px` / `36px 0`                  |
 | `.chain-row`    | grid / framing            | `40px 1fr auto` + per-row `1px solid var(--line-soft)` + `var(--bg)` | `28px 1fr auto` + border-top divider only                       |
 | CTA cards       | padding / border / height | `26px` / `var(--line)` / no `min-height`                             | `20×22` / `var(--line-soft)` / `min-height: 156px`              |
 | `.compare .col` | padding                   | `22px`                                                               | `24px`                                                          |
