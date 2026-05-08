@@ -216,10 +216,16 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
             <div class="writing-strip__head-text">
               <p class="eyebrow">Writing</p>
               {/* Canonical index.html:1423 — serif-italic emphasis on
-                * "the team" via <span class="serif">. */}
+                * "the team". USMR Phase 5.5.16-pt142 — switched from
+                * `<span class="serif" style="font-style: italic;">`
+                * to `<em class="serif">`. <em> is italic by default
+                * AND carries the emphasis semantics "the team" needs;
+                * dropping the inline style closes the only inline
+                * `style=` declaration in the page (CSP-friendly,
+                * style-budget-friendly). */}
               <h2 id="writing-strip-h" class="writing-strip__title">
                 Field notes from
-                <span class="serif" style="font-style: italic;">the team</span>
+                <em class="serif">the team</em>
                 building Artagon.
               </h2>
             </div>
