@@ -208,12 +208,17 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
    * larger ceiling broke 22ch wrap on widest viewports and the looser
    * line-height + tighter margin made the headline feel cramped
    * against the lede. */
+  /* Canonical post-trusted-identity.html h1 — `font-weight: 400`
+   * (regular Space Grotesk, h1-specific override of catch-all 500
+   * per pt31). Pre-fix used `var(--display-weight, 500)` which
+   * forced 500 on every post-detail h1 since [data-hero-font]
+   * doesn't override --display-weight to 400 except for fraunces /
+   * dmserif / mono variants. */
   .blog-hero__title {
     font-family: var(--f-display);
     font-size: clamp(40px, 5.4vw, 68px);
     line-height: 1.02;
     letter-spacing: var(--display-tracking, -0.025em);
-    font-weight: var(--display-weight, 500);
     color: var(--fg);
     margin: 0 0 24px;
     max-width: 22ch;

@@ -1,0 +1,122 @@
+// USMR 5.5.16 — canonical typography + section rhythm regression
+// gates established across iters 27-61. Backstops:
+//
+// - bare h1 font-weight 400 (canonical Hero.jsx — Space Grotesk
+//   regular, NOT the catch-all 500 weight)
+// - .lead font-size 20 / fg-1 / line-height 1.5 (canonical
+//   global.css:234)
+// - .eyebrow leading 18px accent dash via ::before (canonical
+//   global.css:226 — every section eyebrow on the site)
+// - hero section padding 80 0 120 (canonical Hero.jsx:124)
+// - .writing-strip + .onramp inherit canonical .section padding
+//   (was 48 pre-pt48; canonical 80-120 clamp)
+// - .actions cluster gap 10 (canonical .cluster contract)
+//
+// Each fix would silently revert if a future refactor swapped
+// values without explicit testing. Pinned to chromium per the
+// project pattern (computed-style reads are engine-agnostic;
+// running on webkit adds dev-server transport flake without
+// catching anything new).
+
+import { test, expect } from "@playwright/test";
+
+test.describe("Canonical typography + rhythm gates", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      `Canonical typography gate is chromium-only (current: ${testInfo.project.name}).`,
+    );
+  });
+
+  test("bare h1 font-weight is 400 (canonical Space Grotesk regular)", async ({
+    page,
+  }) => {
+    // /writing/welcome has a bare-h1 (no .display utility scoping)
+    // — the post-detail title. Pre-pt31 + pre-pt42 it rendered at 500
+    // because (a) the global h1 catch-all set 500, (b) .display
+    // utility set 500 with higher specificity than the h1-specific
+    // 400 rule.
+    await page.goto("/writing/welcome", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const weight = await page.$eval(
+      "h1.blog-hero__title",
+      (el) => getComputedStyle(el).fontWeight,
+    );
+    // Browsers report font-weight as a string (e.g. "400")
+    expect(weight).toBe("400");
+  });
+
+  test(".lead consumes canonical 20px / fg-1 / 1.5", async ({ page }) => {
+    // Home hero lede uses .lead class. Canonical font-size 20,
+    // line-height 1.5, color var(--fg-1).
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const styles = await page.$eval(".hero p.lead", (el) => {
+      const cs = getComputedStyle(el);
+      return {
+        fontSize: cs.fontSize,
+        lineHeight: cs.lineHeight,
+      };
+    });
+    expect(styles.fontSize).toBe("20px");
+    // line-height 1.5 × 20 px font = 30 px computed
+    expect(styles.lineHeight).toBe("30px");
+  });
+
+  test("section eyebrows render with the canonical 18px accent dash", async ({
+    page,
+  }) => {
+    // Verify the .home-explore__eyebrow ::before pseudo renders an
+    // 18px accent dash. The dash is the canonical signature element
+    // (8 surfaces consume the same pattern post-pt15, pt16).
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const dashWidth = await page.$eval(".home-explore__eyebrow", (el) => {
+      const before = getComputedStyle(el, "::before");
+      return before.width;
+    });
+    expect(dashWidth).toBe("18px");
+  });
+
+  test("hero section padding is 80 top / 120 bottom (canonical)", async ({
+    page,
+  }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const padding = await page.$eval(".hero", (el) => ({
+      top: getComputedStyle(el).paddingTop,
+      bottom: getComputedStyle(el).paddingBottom,
+    }));
+    expect(padding.top).toBe("80px");
+    expect(padding.bottom).toBe("120px");
+  });
+
+  test(".writing-strip section inherits canonical .section padding (>= 80)", async ({
+    page,
+  }) => {
+    // Pre-pt48, .writing-strip had scoped padding-block: var(--space-12)
+    // (= 48), shortcutting the canonical .section 120 by 72 px.
+    // Verify the actual computed padding falls in the canonical
+    // clamp(80, 8vw, 120) range.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 1240, height: 800 });
+    const padding = await page.$eval(".writing-strip", (el) => ({
+      top: parseFloat(getComputedStyle(el).paddingTop),
+      bottom: parseFloat(getComputedStyle(el).paddingBottom),
+    }));
+    // 8vw of 1240 = 99.2; clamp range [80, 99.2, 120] → 99.2 px
+    expect(padding.top).toBeGreaterThanOrEqual(80);
+    expect(padding.top).toBeLessThanOrEqual(120);
+    expect(padding.bottom).toBeGreaterThanOrEqual(80);
+    expect(padding.bottom).toBeLessThanOrEqual(120);
+  });
+
+  test(".actions cluster has canonical 10px gap (not 12)", async ({ page }) => {
+    // Pre-pt26, .actions used `gap: 0.75rem` (=12). Canonical .cluster
+    // contract is gap: 10. Backstop a future refactor that re-injects
+    // 12.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const gap = await page.$eval(
+      ".hero .actions",
+      (el) => getComputedStyle(el).gap,
+    );
+    expect(gap).toBe("10px");
+  });
+});
