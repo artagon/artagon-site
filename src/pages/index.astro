@@ -203,7 +203,12 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
                   </time>
                   <h3 class="writing-strip__title">{post.data.headline}</h3>
                   <p class="writing-strip__lede">{post.data.lede}</p>
-                  <span class="writing-strip__cta">Read →</span>
+                  {/* Canonical index.html:1505 — mono caption with
+                    * "Read →" split into label + aria-hidden arrow span
+                    * so the 6 px inline-flex gap applies between them.
+                    * Pre-fix had "Read →" as one text node, so the gap
+                    * didn't render. */}
+                  <span class="writing-strip__cta">Read <span aria-hidden="true">→</span></span>
                 </a>
               </li>
             ))}
