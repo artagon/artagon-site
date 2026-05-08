@@ -1734,7 +1734,11 @@ header .right .pill {
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  font-family: var(--f-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  /* Canonical global.css:119 — `var(--f-mono)` only; --f-mono itself
+   * declares the fallback chain "JetBrains Mono", ui-monospace,
+   * SFMono-Regular, Menlo, monospace. The redundant fallback list
+   * here was a 5.1-era safety net before --f-mono had a robust chain. */
+  font-family: var(--f-mono);
   font-size: 11.5px;
   text-transform: uppercase;
   letter-spacing: 0.26em;
