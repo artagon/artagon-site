@@ -6,8 +6,21 @@
  * Include this in the <head> of your base layout.
  *
  * Props:
- * - pinnedColor: Safari pinned tab color (default: #0EA5E9)
- * - themeColor: Browser theme color (default: #0B1220)
+ * - pinnedColor: Safari pinned tab color (default: canonical brand
+ *   teal `#3ceedd` — sRGB of the OKLCH `--accent` token; this is the
+ *   color Safari tints the pinned-tab mask-icon with)
+ * - themeColor: Browser theme color (default: canonical
+ *   `[data-theme="dark"]` --bg = oklch(0.14 0.008 260) ≈ #0a0d12;
+ *   this is what Chrome / Safari paint their UI chrome — address
+ *   bar, status bar — with when the tab is active)
+ *
+ * USMR Phase 5.5.16-pt155 — defaults updated to canonical values.
+ * Pre-pt155 the defaults were `#0EA5E9` (legacy sky-blue accent
+ * from before the cyan/teal canonical) and `#0B1220` (legacy
+ * neutral-dark from before the OKLCH token migration). BaseLayout
+ * always passes explicit overrides so production output was
+ * already canonical (pt107 fix), but the defaults misled any
+ * future consumer importing this component without props.
  */
 
 interface Props {
@@ -16,8 +29,8 @@ interface Props {
 }
 
 const {
-  pinnedColor = '#0EA5E9',
-  themeColor = '#0B1220'
+  pinnedColor = '#3ceedd',
+  themeColor = '#0a0d12'
 } = Astro.props;
 ---
 
