@@ -196,11 +196,17 @@ new-design vocabulary verbatim; preserved so future palette experiments
 can revise OKLCH triples without touching every consumer. Never reference
 `--nd-*` directly from a component; always use the unprefixed alias.
 
-Legacy aliases `--text` / `--muted` / `--border` / `--brand-teal` /
-`--bg-alt` are deprecation shims retained for one release after USMR
-Phase 5.1h migrates the project. They map 1:1 to `--fg` / `--fg-2` /
-`--line` / `--accent` / `--bg-1` respectively. Drop them in the
-follow-up migration commit once consumers have moved.
+Four 5.1h-era legacy aliases (the pre-USMR `text` / `muted` / `border`
+/ `bg-alt` token names used in the original new-design extraction) have
+been retired: pt86 / pt169 / pt170 pruned them once consumers migrated
+to canonical `--fg` / `--fg-2` / `--line` / `--bg-1`. `--brand-teal`
+and `--surface` remain aliased to `--accent` and `--bg-1` because
+internal `theme.css` gradient and `--teal-*` token definitions still
+consume them; do not introduce new component-level references — use
+`--accent` and `--bg-1` directly. Components MUST consume canonical
+names; raw legacy references are caught by `scripts/lint-tokens.mjs`
+(which walks `git ls-files`) and the `no-untraceable-token` ast-grep
+rule.
 
 ### 2.1 Base palette (dark, default)
 
