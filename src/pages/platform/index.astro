@@ -23,9 +23,9 @@ import PillarsIsland from '../../components/PillarsIsland.tsx';
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
-    <PillarsIsland client:visible />
-  </main>
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      wraps the slot in <main id="main-content"> already. */}
+  <PillarsIsland client:visible />
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

@@ -66,7 +66,8 @@ function primaryTag(tags: string[]): string {
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      provides <main id="main-content">. */}
     <section class="writing-hero" aria-labelledby="writing-hero-heading">
       <div class="writing-wrap">
         <p class="writing-hero__eyebrow">Blog · Field notes from the Artagon team</p>
@@ -112,7 +113,6 @@ function primaryTag(tags: string[]): string {
         </div>
       </section>
     )}
-  </main>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

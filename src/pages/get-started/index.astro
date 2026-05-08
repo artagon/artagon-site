@@ -27,7 +27,9 @@ const generalContact = ORG.contacts.find((c) => c.label === 'General') ?? ORG.co
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      provides <main id="main-content">. The <section> below remains
+      as the inner landmark. */}
     <section class="cta-section" id="get-started" aria-labelledby="cta-h">
       <div class="cta-card">
         <div class="cta-strip">
@@ -73,7 +75,6 @@ const generalContact = ORG.contacts.find((c) => c.label === 'General') ?? ORG.co
         </div>
       </div>
     </section>
-  </main>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

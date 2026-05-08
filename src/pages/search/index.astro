@@ -8,7 +8,10 @@ import Footer from '../../components/Footer.astro';
   {/* USMR Phase 5.5.16-pt119 — same canonical sizing pattern as
       pt117/pt118 — bare <h1>Search</h1> would render at 102 px
       hero size. Scoped to .display + clamp(40, 5vw, 64). */}
-  <main class="search-page">
+  {/* USMR Phase 5.5.16-pt138 — was <main class="search-page">; now
+      <div> to avoid nesting inside BaseLayout's <main id="main-
+      content">. Scoped CSS targets .search-page* unchanged. */}
+  <div class="search-page">
     <h1 class="search-page__title display">Search</h1>
     <div class="search-page__box">
       <div id="docsearch"></div>
@@ -18,7 +21,7 @@ import Footer from '../../components/Footer.astro';
       </div>
     </div>
     <section id="results" class="search-page__results"></section>
-  </main>
+  </div>
 
   <style>
     .search-page {

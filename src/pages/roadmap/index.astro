@@ -18,9 +18,9 @@ import RoadmapTimeline from '../../components/RoadmapTimeline.astro';
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
-    <RoadmapTimeline />
-  </main>
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      wraps the slot in <main id="main-content"> already. */}
+  <RoadmapTimeline />
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

@@ -26,9 +26,9 @@ const { title, description } = entry.data;
 <Base title={title} description={description} path="/use-cases">
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
-    <UseCasesIsland client:visible />
-  </main>
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      wraps the slot in <main id="main-content"> already. */}
+  <UseCasesIsland client:visible />
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

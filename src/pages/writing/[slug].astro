@@ -75,7 +75,9 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      provides <main id="main-content">. <article> below remains as
+      the post landmark. */}
     <article class="post">
       <section class="blog-hero" aria-labelledby="post-h1">
         <div class="blog-wrap">
@@ -149,7 +151,6 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
         </div>
       </section>
     </article>
-  </main>
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

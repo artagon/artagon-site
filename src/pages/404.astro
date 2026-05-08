@@ -20,7 +20,8 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
   description="The page you were looking for doesn't exist. Try one of these instead."
 >
   <Fragment slot="header"><Header /></Fragment>
-  <main id="main">
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      provides <main id="main-content">. */}
     <section class="not-found" aria-labelledby="not-found-h">
       <div class="not-found__wrap">
         <p class="not-found__eyebrow">Error · 404</p>
@@ -43,7 +44,6 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
         </ul>
       </div>
     </section>
-  </main>
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
 

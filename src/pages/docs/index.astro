@@ -34,7 +34,12 @@ import Tagline from '../../components/Tagline.astro';
      `/docs/vc`, `/docs/policy`) all 404'd. Until those routes ship,
      the page is `noindex, nofollow` and surfaces a single CTA back
      to the design-partner program for early access. */}
-  <main class="docs-main">
+  {/* USMR Phase 5.5.16-pt138 — was <main class="docs-main"> which
+      nested inside BaseLayout's <main id="main-content">. Replaced
+      with <div class="docs-main"> so the scoped CSS selectors
+      (.docs-main, .docs-main__title, .docs-main__lede,
+      .docs-main .actions) still resolve. */}
+  <div class="docs-main">
     <article class="doc card">
       <h2 class="docs-main__title display">Documentation in preparation</h2>
       <p class="docs-main__lede lead">
@@ -45,7 +50,7 @@ import Tagline from '../../components/Tagline.astro';
         <a class="btn" href="/platform">Read the platform overview</a>
       </div>
     </article>
-  </main>
+  </div>
 
   <style>
     .docs-hero,

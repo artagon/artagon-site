@@ -21,9 +21,12 @@ import BridgeFlow from '../../components/BridgeFlow.tsx';
 >
   <Fragment slot="header"><Header /></Fragment>
 
-  <main id="main">
-    <BridgeFlow client:visible />
-  </main>
+  {/* USMR Phase 5.5.16-pt138 — slot directly into BaseLayout's
+      `<main id="main-content">` rather than wrapping in another
+      `<main id="main">`. Pre-pt138 produced nested <main> elements
+      at runtime (BaseLayout's wraps the slot in <main>), which is
+      invalid HTML AND a duplicate WCAG landmark. */}
+  <BridgeFlow client:visible />
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
