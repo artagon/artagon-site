@@ -575,10 +575,18 @@ a {
  * so every consumer of `<h1 class="display">`, `<span class="serif">`,
  * and `<p class="lead">` renders identically across pages. They were
  * previously scoped only inside `src/pages/index.astro`. */
+/* Canonical global.css:43-47 — `.display` is just `font-family: var(--f-
+ * display)`. Pre-fix overrode font-weight to 500, which BEAT the
+ * canonical h1-specific weight 400 (because .display has higher
+ * specificity than bare h1). H1 consumers of .display (404, index,
+ * writing index, post detail) all rendered at 500 instead of 400.
+ * The display-tracking + display-weight tokens are still useful for
+ * the [data-hero-font] matrix; left them gated to per-face overrides
+ * only — bare h1/h2 catch-all (theme.css h1/h2 rules) drives the
+ * default weight per element. */
 .display {
   font-family: var(--f-display, system-ui);
   letter-spacing: var(--display-tracking, var(--tracking-h1));
-  font-weight: var(--display-weight, 500);
 }
 .serif {
   font-family: var(--f-serif, Georgia);
