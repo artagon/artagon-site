@@ -132,22 +132,39 @@ function primaryTag(tags: string[]): string {
     padding-block: clamp(56px, 7vw, 72px) 8px;
     border-bottom: 1px solid var(--line-soft);
   }
+  /* Canonical .eyebrow contract — global.css:220-226. font 12 / fg-2 /
+   * 0.1em / margin-bottom 24 / 18 px accent dash via ::before.
+   * Pre-fix the writing-hero used scoped 0.72rem / fg-3 / 0.12em /
+   * 1.25rem margin without the dash. */
   .writing-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-family: var(--f-mono);
-    font-size: 0.72rem;
-    color: var(--fg-3);
-    letter-spacing: 0.12em;
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin: 0 0 1.25rem;
+    margin: 0 0 24px;
   }
+  .writing-hero__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+  /* Canonical blog.html:828 — `margin: '16px 0 20px'`. The 16 top
+   * adds breathing room between eyebrow and h1 (eyebrow margin-bottom
+   * 24 + h1 margin-top 16 = 40 separation). Pre-fix 0 top margin
+   * had only 20 px (just the eyebrow's bottom margin). */
   .writing-hero__title {
     font-family: var(--f-display);
     font-size: clamp(44px, 5.5vw, 84px);
     line-height: 1.02;
     letter-spacing: var(--display-tracking, -0.02em);
-    font-weight: var(--display-weight, 500);
     color: var(--fg);
-    margin: 0 0 20px;
+    margin: 16px 0 20px;
     max-width: 18ch;
   }
   .writing-hero__emphasis {
