@@ -66,6 +66,17 @@ const url = `${SITE}${path.startsWith('/') ? path : `/${path}`}`;
 const motto = taglines.tagline.full;
 const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
 const ogImageAbsolute = image.startsWith('http') ? image : `${SITE}${image.startsWith('/') ? image : `/${image}`}`;
+// USMR Phase 5.5.16-pt148 — pre-pt148 the og:image:alt unconditionally
+// appended ` — Artagon` to title, producing "Platform — Artagon —
+// Artagon" / "FAQ — Artagon — Artagon" / etc. (because every page's
+// title already ends with the canonical suffix per DESIGN.md §9.5)
+// AND "Artagon — Trusted Identity ... — Artagon" on the home page
+// (which uses the §9.5 brand-first carve-out). Skip the append when
+// the title already mentions Artagon (suffix OR prefix). Mirrors the
+// metaDescription guard one line up.
+const ogImageAlt = /^Artagon\b|—\sArtagon$/.test(title)
+  ? title
+  : `${title} — Artagon`;
 
 // USMR Phase 5.1q.8 — site-wide WebSite + BreadcrumbList JSON-LD.
 const segments = path.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
@@ -150,7 +161,7 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
 <meta property="og:image" content={ogImageAbsolute} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content={`${title} — Artagon`} />
+<meta property="og:image:alt" content={ogImageAlt} />
 {type === 'article' && publishedTime && (
   <meta property="article:published_time" content={publishedTime} />
 )}
@@ -166,7 +177,7 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={metaDescription} />
 <meta name="twitter:image" content={ogImageAbsolute} />
-<meta name="twitter:image:alt" content={`${title} — Artagon`} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
 <script type="application/ld+json" set:html={orgLd}></script>
 <script type="application/ld+json" set:html={serviceLd}></script>
 <script type="application/ld+json" set:html={websiteLd}></script>
