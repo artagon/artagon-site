@@ -12,7 +12,7 @@ import Footer from '../../components/Footer.astro';
     itself doesn't generate per-query routes here — the route is
     static — but the `noindex` keeps the SERPs clean if someone
     deep-links to /search?q=foo. */}
-<Base title="Search — Artagon" description="Search across Artagon documentation, posts, standards, and the platform pages. Powered by DocSearch — instant results across the identity-protocol corpus." robots="noindex, nofollow">
+<Base title="Search — Artagon" description="Search across Artagon documentation, posts, standards, and the platform pages. Powered by DocSearch — instant results across the identity-protocol corpus." robots="noindex, nofollow" path="/search">
   <Fragment slot="header"><Header /></Fragment>
   {/* USMR Phase 5.5.16-pt119 — same canonical sizing pattern as
       pt117/pt118 — bare <h1>Search</h1> would render at 102 px

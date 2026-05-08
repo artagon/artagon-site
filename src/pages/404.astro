@@ -31,6 +31,10 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
       into the alt-route list below the h1 (which already counts as
       ordinary internal-link discovery via /sitemap.xml). */}
   robots="noindex, nofollow"
+  {/* USMR Phase 5.5.16-pt147 — `path` for canonical URL. Without
+      this, SeoTags defaults canonical to https://artagon.com/
+      (home), telling Google the 404 is a duplicate of home. */}
+  path="/404"
 >
   <Fragment slot="header"><Header /></Fragment>
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout

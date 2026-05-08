@@ -60,7 +60,7 @@ const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [
 const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} path="/">
   <Fragment slot="header"><Header /></Fragment>
 
   {/* USMR Phase 5.5.16-pt139 — aria-labelledby points at hero-h1 so
