@@ -86,8 +86,13 @@ const pageBase = z.object({
   // frontmatter with a broken schema. If per-page hero-font is
   // re-introduced later, both schema enum AND BaseLayout wire-up
   // need to land together.
-  /** Optional accent token override (e.g. "--accent-warm"). */
-  accent: z.string().optional(),
+  // USMR Phase 5.5.16-pt164 — `accent` field removed. Pre-pt164 the
+  // schema accepted `accent: z.string().optional()` but ZERO .mdx
+  // files set the value AND ZERO pages read `post.data.accent`. Pure
+  // dead schema. Per-page accent override is already runtime-toggleable
+  // via the Tweaks panel (`[data-accent]` on <html>); a content-level
+  // override would need both new schema + a BaseLayout wire-up to land
+  // together (mirrors the pt163 heroFont removal).
   /** Free-form taxonomy tags; reused by /standards and writing. */
   tags: z.array(z.string()).default([]),
   /**
@@ -128,8 +133,13 @@ const writing = defineCollection({
     updated: z.coerce.date().optional(),
     /** Hero image URL or path. */
     cover: z.string().optional(),
-    /** Companion source repo (for code-anchored posts). */
-    repo: z.string().url().optional(),
+    // USMR Phase 5.5.16-pt164 — `repo` field removed. Pre-pt164 the
+    // schema accepted `repo: z.string().url().optional()` for "code-
+    // anchored posts" companion source links, but ZERO .mdx files
+    // set the value AND ZERO consumers read post.data.repo. Pure
+    // dead schema field. Re-introduce when the first code-anchored
+    // post lands AND the post-detail layout actually renders the
+    // link (mirrors the pt163 heroFont + pt164 accent pattern).
     /** Author slug — must resolve in the `authors` collection. */
     author: z.string().optional(),
     /** Hide post from RSS + index until non-draft. */
