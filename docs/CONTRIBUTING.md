@@ -5,11 +5,12 @@ Thanks for contributing to the Artagon marketing site and docs shell.
 ## OpenSpec Workflow Overview
 
 This repository uses OpenSpec for spec-driven development:
+
 - Specs define what to build (GitHub Issues labeled `spec`).
 - Proposals describe how to implement specs (PR comments, discussions, or separate PRs).
 - Implementations are the code changes (PRs linked to the spec issue).
 
-Authoritative workflow guidance lives in `openspec/AGENTS.md`, `openspec/project.md`, and `openspec/contributing.md`.
+Authoritative workflow guidance lives in the root `AGENTS.md` (CLAUDE.md / GEMINI.md symlink to it), `openspec/project.md`, and `openspec/contributing.md`.
 
 ## How to Write a Good Specification
 
@@ -47,10 +48,12 @@ Authoritative workflow guidance lives in `openspec/AGENTS.md`, `openspec/project
 - Well-written implementations: look for PRs that link the spec, update tasks, and include tests.
 
 Example spec (summary format):
+
 - Title: `Spec: Add Tenant Audit Logs`
 - Summary: `Provide a new audit log feed for tenant administrators.`
 - Acceptance criteria: checklist with testable outcomes.
 
 Example implementation (summary format):
+
 - PR title: `feat(audit): add tenant audit log feed`
 - PR body: links to the spec issue and `openspec/changes/<change-id>/`.
