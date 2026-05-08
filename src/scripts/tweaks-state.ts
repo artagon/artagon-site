@@ -22,12 +22,28 @@ export type Density = "dense" | "comfortable" | "roomy";
 export type Theme = "dark" | "light";
 export type HeroFont = "grotesk" | "fraunces" | "dmserif" | "mono";
 
+/** USMR Phase 5.5.16-pt108 — Writing widget layout variants per
+ *  canonical `new-design/extracted/explorations/writing-widget.jsx`
+ *  (4 OPTION blocks A-D) + index.html:938 HeroLatestStrip (in-hero)
+ *  + an "off" no-op variant. The actual rendering switch (data
+ *  -writing-widget consumer) is task 5.8 in
+ *  openspec/changes/update-site-marketing-redesign/tasks.md — pt108
+ *  ships the Tweaks panel control surface only. */
+export type WritingWidget =
+  | "in-hero"
+  | "A · strip"
+  | "B · 3-up"
+  | "C · split"
+  | "D · ticker"
+  | "off";
+
 export interface Tweaks {
   accent: Accent;
   density: Density;
   theme: Theme;
   heroFont: HeroFont;
   showGrid: boolean;
+  writingWidget: WritingWidget;
 }
 
 /** USMR Phase 5.5.16-pt88 — bumped "v1" → "v2" to invalidate stale
@@ -38,7 +54,7 @@ export interface Tweaks {
  *  `data-accent="cyan"` default in BaseLayout. The key bump ensures
  *  the canonical defaults apply on first load until the user
  *  explicitly toggles via the Tweaks panel. */
-export const STORAGE_KEY = "artagon.tweaks.v2";
+export const STORAGE_KEY = "artagon.tweaks.v3";
 
 /** OKLCH swatch values for accent buttons (visual reference only — runtime CSS via data-accent). */
 export const ACCENT_SWATCH: Record<Accent, string> = {
@@ -54,7 +70,24 @@ export const DEFAULTS: Tweaks = {
   theme: "dark",
   heroFont: "grotesk",
   showGrid: true,
+  writingWidget: "B · 3-up",
 };
+
+export const WRITING_WIDGETS: ReadonlyArray<WritingWidget> = [
+  "in-hero",
+  "A · strip",
+  "B · 3-up",
+  "C · split",
+  "D · ticker",
+  "off",
+];
+
+export function isWritingWidget(v: unknown): v is WritingWidget {
+  return (
+    typeof v === "string" &&
+    (WRITING_WIDGETS as ReadonlyArray<string>).includes(v)
+  );
+}
 
 export const ACCENTS: ReadonlyArray<Accent> = [
   "cyan",
@@ -104,5 +137,8 @@ export function parse(raw: unknown): Tweaks {
     theme: isTheme(r.theme) ? r.theme : DEFAULTS.theme,
     heroFont: isHeroFont(r.heroFont) ? r.heroFont : DEFAULTS.heroFont,
     showGrid: typeof r.showGrid === "boolean" ? r.showGrid : DEFAULTS.showGrid,
+    writingWidget: isWritingWidget(r.writingWidget)
+      ? r.writingWidget
+      : DEFAULTS.writingWidget,
   };
 }

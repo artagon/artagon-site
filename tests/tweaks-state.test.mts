@@ -106,6 +106,7 @@ describe("parseTweaks", () => {
       theme: "light",
       heroFont: "fraunces",
       showGrid: false,
+      writingWidget: "C · split",
     };
     assert.deepEqual(parse(input), input);
   });
@@ -193,6 +194,7 @@ describe("DEFAULTS shape", () => {
     assert.ok(isTheme(DEFAULTS.theme));
     assert.ok(isHeroFont(DEFAULTS.heroFont));
     assert.equal(typeof DEFAULTS.showGrid, "boolean");
+    assert.equal(typeof DEFAULTS.writingWidget, "string");
   });
 });
 

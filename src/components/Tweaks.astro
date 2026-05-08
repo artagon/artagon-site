@@ -41,7 +41,7 @@ const isDev = import.meta.env.DEV;
       <script is:inline>
         (function () {
           try {
-            const raw = localStorage.getItem("artagon.tweaks.v2");
+            const raw = localStorage.getItem("artagon.tweaks.v3");
             if (!raw) return;
             const t = JSON.parse(raw);
             const html = document.documentElement;
@@ -49,10 +49,12 @@ const isDev = import.meta.env.DEV;
             const densities = ["dense", "comfortable", "roomy"];
             const themes = ["dark", "light"];
             const fonts = ["grotesk", "fraunces", "dmserif", "mono"];
+            const widgets = ["in-hero", "A · strip", "B · 3-up", "C · split", "D · ticker", "off"];
             if (accents.indexOf(t.accent) >= 0) html.setAttribute("data-accent", t.accent);
             if (densities.indexOf(t.density) >= 0) html.setAttribute("data-density", t.density);
             if (themes.indexOf(t.theme) >= 0) html.setAttribute("data-theme", t.theme);
             if (fonts.indexOf(t.heroFont) >= 0) html.setAttribute("data-hero-font", t.heroFont);
+            if (widgets.indexOf(t.writingWidget) >= 0) html.setAttribute("data-writing-widget", t.writingWidget);
             if (t.showGrid === false && document.body) document.body.classList.add("no-grid");
             else if (t.showGrid === false) {
               document.addEventListener("DOMContentLoaded", function () {

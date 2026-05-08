@@ -21,6 +21,7 @@ import {
   HERO_FONTS,
   STORAGE_KEY,
   THEMES,
+  WRITING_WIDGETS,
   parse,
   type Tweaks,
 } from "../scripts/tweaks-state.ts";
@@ -62,6 +63,11 @@ function applyToDom(t: Tweaks): void {
   html.setAttribute("data-density", t.density);
   html.setAttribute("data-theme", t.theme);
   html.setAttribute("data-hero-font", t.heroFont);
+  // pt108 — writingWidget projected to data-writing-widget on <html>;
+  // task 5.8 wires the per-variant rendering. Until then this is
+  // a no-op visually (control surface only) but the attribute is in
+  // place so 5.8 can hook on it without further wiring.
+  html.setAttribute("data-writing-widget", t.writingWidget);
   document.body.classList.toggle("no-grid", !t.showGrid);
 }
 
@@ -194,6 +200,26 @@ export default function TweaksPanel() {
           >
             on
           </Opt>
+        </Field>
+
+        {/* USMR Phase 5.5.16-pt108 — added Writing widget section to
+            match canonical Tweaks panel (per user's reference
+            screenshot). Writes data-writing-widget on <html>; the
+            actual layout switching is task 5.8 (recorded follow-up
+            in tasks.md). The control surface ships now so the user
+            can see + select; the rendered layout still uses the
+            current 3-up grid until 5.8 wires the data-attribute
+            consumers. */}
+        <Field label="Writing widget">
+          {WRITING_WIDGETS.map((w) => (
+            <Opt
+              key={w}
+              active={tweaks.writingWidget === w}
+              onClick={() => setTweak("writingWidget", w)}
+            >
+              {w}
+            </Opt>
+          ))}
         </Field>
 
         <footer className="tweaks-footer">
