@@ -1,19 +1,22 @@
 ---
 import ArtagonGlyph from "./ArtagonGlyph.astro";
-import ThemeToggle from "./ThemeToggle.astro";
 const path = Astro.url.pathname;
 const active = (href: string) => path === href || path.startsWith(href + "/");
 
-// Canonical NAV_LINKS — exactly 4 items per new-design BaseLayout.jsx:203-208
-// (Platform / Use cases / Standards / Writing). Bridge and Roadmap are
-// surfaced via /bridge and /roadmap routes + the home Explore grid; they
-// don't appear in the primary nav. GitHub is a 34×34 icon button in
-// `.right`, not a list item, per BaseLayout.jsx:220-238.
+// USMR Phase 5.5.16-pt87 — canonical NAV_LINKS per
+// new-design/extracted/src/pages/index.html:560-567. SIX items, in
+// this exact order: Platform / Bridge / Use cases / Standards /
+// Roadmap / Blog. The pre-pt87 4-item list was based on BaseLayout.jsx
+// (a different canonical reference) but the user-facing canonical is
+// the 6-item index.html nav. /writing remains the route name; the
+// nav label is "Blog" per canonical text.
 const NAV_LINKS = [
   { href: "/platform", label: "Platform" },
+  { href: "/bridge", label: "Bridge" },
   { href: "/use-cases", label: "Use cases" },
   { href: "/standards", label: "Standards" },
-  { href: "/writing", label: "Writing" },
+  { href: "/roadmap", label: "Roadmap" },
+  { href: "/writing", label: "Blog" },
 ] as const;
 ---
 
@@ -72,7 +75,11 @@ const NAV_LINKS = [
       <a class="btn primary nav-cta-primary" href="/#get-started"
         >Request access</a
       >
-      <ThemeToggle />
+      {/* USMR Phase 5.5.16-pt87 — ThemeToggle removed from header per
+         canonical new-design/extracted/src/pages/index.html nav. The
+         canonical site has no day/night toggle in the header. The
+         dev-only ThemePreviewPanel + Tweaks panel still expose theme
+         switching for tooling, but production users see neither. */}
     </div>
     {/* USMR Phase 5.5.11 — mobile hamburger toggle. Hidden on desktop;
       flex on touch viewports (<720px). Body.nav-open opens the
