@@ -701,11 +701,15 @@ nav a:hover {
   max-width: 760px;
   font-size: 1.15rem;
 }
+/* Canonical .cluster contract — global.css gap 10 / no margin-top
+ * (the prior block carries the spacing via its own margin-bottom).
+ * Pre-fix used 0.75rem gap (=12) and 22 px margin-top, which
+ * compounded vertically with .lead margin-bottom. */
 .actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-top: 22px;
+  align-items: center;
 }
 .btn {
   /* Canonical .btn — new-design global.css:236-244. `padding: 12 18`,

@@ -371,8 +371,13 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   .hero__eyebrow-tag {
     margin-bottom: 28px;
   }
+  /* Canonical Hero.jsx:154 — `marginBottom: 32` after the h1, then
+   * Hero.jsx:159 — `marginBottom: 40, maxWidth: 58ch` on the .lead
+   * paragraph. Pre-fix .lead had no hero-scoped margin → the CTA
+   * cluster crashed up against the lede. Canonicalize + bump max-
+   * width to 58ch (slightly tighter than the global .lead 60ch). */
   .hero h1.display {
-    font-size: clamp(3.5rem, 7.2vw, 6.75rem);
+    font-size: clamp(56px, 7.2vw, 108px);
     line-height: 0.94;
     letter-spacing: -0.035em;
     font-weight: 400;
@@ -381,6 +386,10 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   }
   .hero h1.display br + * {
     display: inline;
+  }
+  .hero .lead {
+    margin: 0 0 40px;
+    max-width: 58ch;
   }
 
   .onramp {
