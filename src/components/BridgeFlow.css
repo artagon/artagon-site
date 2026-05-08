@@ -5,10 +5,15 @@
  * PillarsIsland.css.
  */
 
+/* Canonical Bridge.jsx:22 — `<section className="section" style={{
+ * background: 'var(--bg-1)' }}>`. .section drives padding (120) +
+ * border-top via theme.css. Pre-fix used scoped border-block (top
+ * + bottom); the bottom border was non-canonical (canonical relies
+ * on the next section's border-top). */
 .bridge-flow {
   padding-block: clamp(80px, 8vw, 120px);
   background: var(--bg-1);
-  border-block: 1px solid var(--line-soft);
+  border-top: 1px solid var(--line-soft);
 }
 
 .bridge-flow__head {
