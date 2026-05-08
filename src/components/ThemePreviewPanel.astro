@@ -6,7 +6,9 @@
 const THEMES = ['twilight', 'midnight'];
 ---
 <div class="theme-panel" aria-label="Theme preview panel">
-  {THEMES.map(t => <button onClick={`__setTheme('${t}')`}>{t}</button>)}
+  {/* USMR Phase 5.5.16-pt137 — explicit type="button" per project
+      contract; prevents default-submit if ever embedded in a form. */}
+  {THEMES.map(t => <button type="button" onClick={`__setTheme('${t}')`}>{t}</button>)}
 </div>
 
 <style>

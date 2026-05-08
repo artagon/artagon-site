@@ -15,7 +15,13 @@
       aria-label="Search frequently asked questions"
       autocomplete="off"
     />
-    <button id="faq-clear" class="faq-clear-btn" aria-label="Clear search" style="display: none;">
+    {/* USMR Phase 5.5.16-pt137 — explicit type="button" prevents the
+        default-submit behavior. <button> elements inside a <form>
+        default to type="submit"; while the parent is currently a
+        <div>, future authoring that wraps the search in a <form>
+        would silently submit the page on click. Locked here per the
+        project-wide explicit-type contract. */}
+    <button type="button" id="faq-clear" class="faq-clear-btn" aria-label="Clear search" style="display: none;">
       <!-- USMR Phase 5.5.16-pt133 — aria-hidden + focusable=false on
            the icon-only button's child SVG. The parent button carries
            aria-label="Clear search" as the AT name; the inner SVG
