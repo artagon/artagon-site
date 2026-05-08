@@ -87,6 +87,24 @@ const metaDescription = skipMottoAppend
   ? trimmedDescription
   : `${trimmedDescription} — ${motto}`;
 const ogImageAbsolute = image.startsWith('http') ? image : `${SITE}${image.startsWith('/') ? image : `/${image}`}`;
+// USMR Phase 5.5.16-pt158 — og:image:type MIME hint. Facebook's
+// open-graph crawler ranks pages that declare image MIME slightly
+// higher (and the spec requires it for non-default formats).
+// Derived from the file extension; defaults to image/png because
+// every current OG image is a PNG.
+const ogImageMime = (() => {
+  const ext = ogImageAbsolute.toLowerCase().match(/\.([a-z0-9]+)(?:\?|$)/)?.[1];
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg': return 'image/jpeg';
+    case 'webp': return 'image/webp';
+    case 'avif': return 'image/avif';
+    case 'svg':  return 'image/svg+xml';
+    case 'gif':  return 'image/gif';
+    case 'png':
+    default:     return 'image/png';
+  }
+})();
 // USMR Phase 5.5.16-pt148 — pre-pt148 the og:image:alt unconditionally
 // appended ` — Artagon` to title, producing "Platform — Artagon —
 // Artagon" / "FAQ — Artagon — Artagon" / etc. (because every page's
@@ -232,6 +250,7 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
 <meta property="og:type" content={type} />
 <meta property="og:locale" content="en_US" />
 <meta property="og:image" content={ogImageAbsolute} />
+<meta property="og:image:type" content={ogImageMime} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:image:alt" content={ogImageAlt} />
