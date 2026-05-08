@@ -75,7 +75,7 @@
   ],
   "screenshots": [
     {
-      "src": "/assets/og-image.png",
+      "src": "/assets/logos/og-image.png",
       "sizes": "1200x630",
       "type": "image/png",
       "form_factor": "wide"
