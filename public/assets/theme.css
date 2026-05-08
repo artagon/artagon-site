@@ -112,32 +112,23 @@
      * component wired it; Tweaks.astro is the only sticky overlay and
      * uses `z-index: 9999` directly. */
 
-    /* ----- Spacing scale (4px base; legacy --spacing-* / --gap-* preserved) ----- */
-    --space-0: 0;
-    --space-px: 1px;
-    --space-0-5: 0.125rem; /*  2px */
-    --space-1: 0.25rem; /*  4px */
+    /* USMR Phase 5.5.16-pt82 — spacing scale pruned to active set.
+     * Pre-fix shipped 15 --space-{0,0-5,1,2,3,4,5,6,8,10,12,16,20,24,px}
+     * defs; only 5 had consumers: --space-2 (1), --space-6 (1),
+     * --space-8 (2), --space-10 (1), --space-12 (2). 10 dead defs
+     * removed. Components mostly use raw px/rem at call site (per the
+     * canonical fixed-px contract); the surviving --space-* tokens are
+     * the few legacy consumers that haven't migrated yet. */
     --space-2: 0.5rem; /*  8px */
-    --space-3: 0.75rem; /* 12px */
-    --space-4: 1rem; /* 16px */
-    --space-5: 1.25rem; /* 20px */
     --space-6: 1.5rem; /* 24px */
     --space-8: 2rem; /* 32px */
     --space-10: 2.5rem; /* 40px */
     --space-12: 3rem; /* 48px */
-    --space-16: 4rem; /* 64px */
-    --space-20: 5rem; /* 80px */
-    --space-24: 6rem; /* 96px */
 
-    /* ----- Radius scale (DISJOINT from legacy unlayered --radius-{card,sm,
-     *  lg,tiny,xl,full}; these new names don't overlap, so cascade-layer
-     *  ordering is irrelevant. If a future change adds an unlayered
-     *  --radius-md, it WILL win against this layered version — that is
-     *  expected per the spec's "Existing Token Preservation" rule.
-     */
-    --radius-none: 0;
-    --radius-xs: 4px;
-    --radius-md: 10px;
+    /* USMR Phase 5.5.16-pt82 — radius scale pruned. Pre-fix shipped
+     * --radius-{none,xs,md} (3 defs); ZERO consumers. Components use
+     * raw `border-radius: <n>` at call site per the canonical fixed-px
+     * contract. */
 
     /* ----- Fluid type scale (DESIGN.md §3.2; floors at 360px viewport,
      *       ceilings at 1440px+ viewport) -----
@@ -147,27 +138,24 @@
      *   - at 360px viewport: 7.2vw = 25.92px → clamped UP to 56px (floor) ✓
      *   - at 1440px viewport: 7.2vw = 103.68px (≤ 108px ceiling) ✓
      *   - at ≥ 1500px viewport: clamped DOWN to 108px (ceiling) ✓
-     */
+     *
+     * pt82 — pruned --fs-{body,lead}, --lh-{body,lead,micro,small},
+     * --tracking-mono-caps (7 defs, ZERO consumers). Surviving --fs-*
+     * + --lh-* + --tracking-* are consumed by the bare-h1/h2/h3 rules
+     * at line 478+. Components use scoped clamp / px directly. */
     --fs-h1: clamp(3.5rem, 7.2vw, 6.75rem); /* 56 → 108 */
     --fs-h2: clamp(2.25rem, 4vw, 3.75rem); /* 36 → 60 */
     --fs-h3: 1.375rem; /* 22 */
-    --fs-lead: 1.25rem; /* 20 */
-    --fs-body: 1rem; /* 16 */
     --fs-small: 0.84375rem; /* 13.5 */
     --fs-micro: 0.6875rem; /* 11 (mono caps) */
 
     --lh-h1: 0.94;
     --lh-h2: 1.02;
     --lh-h3: 1.2;
-    --lh-lead: 1.5;
-    --lh-body: 1.55;
-    --lh-small: 1.5;
-    --lh-micro: 1.4;
 
     --tracking-h1: -0.035em;
     --tracking-h2: -0.025em;
     --tracking-h3: -0.02em;
-    --tracking-mono-caps: 0.14em;
 
     /* ----- Semantic role aliases (USMR Phase 2) -----
      * These are aliases over upstream new-design tokens, not new color
@@ -176,7 +164,8 @@
      * layer (--nd-accent-ink). DESIGN.md frontmatter doesn't need new
      * entries; the underlying palette tokens are already documented.
      */
-    --ink-on-brand: var(--nd-accent-ink); /* matches accent-ink #001714 */
+    /* USMR Phase 5.5.16-pt82 — removed --ink-on-brand (zero consumers).
+     * Components use var(--accent-ink) directly. */
     --chip-bg-neutral: color-mix(
       in oklab,
       var(--nd-fg-2) 12%,
@@ -185,12 +174,14 @@
   }
 }
 
+/* USMR Phase 5.5.16-pt82 — pre-USMR :root pruned. Removed --ink, --primary,
+ * --shadow (zero consumers); --surface and --muted are still defined here
+ * for the legacy alias chain (theme blocks override --surface = var(--bg-1)
+ * etc., this :root layer provides a fallback for unthemed contexts). */
 :root {
-  --ink: #0b1220;
   --bg: #0a0f1e;
   --surface: #0f172a;
   --muted: #94a3b8;
-  --primary: #22e3c5;
   --accent: #7c5cff;
   /* USMR Phase 5.1p.13 — bumped from 1200px to match new-design
    * tokens.css:23. Adds 40px of horizontal breathing room sitewide. */
@@ -201,7 +192,6 @@
    * (no override blocks meant `<body data-density="dense">` did nothing). */
   --gutter: 32px;
   --radius: 14px;
-  --shadow: 0 10px 30px rgba(2, 8, 23, 0.35);
 }
 
 /* USMR Phase 5.5.6 — density-variant overrides. Toggled via
@@ -372,41 +362,31 @@
   --border-teal-table: 1px solid var(--teal-15);
   --border-left-accent: 4px solid var(--brand-teal);
 
-  /* Spacing */
+  /* Spacing — pt82 pruned --spacing-{section-large,hero-top,hero-inline},
+   * --padding-card-inline, --gap-{small,tiny}, --margin-subsection (7
+   * defs, ZERO consumers). */
   --spacing-section: 5rem;
   --spacing-section-simple: 4rem;
-  --spacing-section-large: 6rem;
   --spacing-hero-block: 80px 20px 60px;
-  --spacing-hero-top: 80px;
-  --spacing-hero-inline: 20px;
   --spacing-hero-bottom: 60px;
   --padding-card: 2rem;
   --padding-card-compact: 1.5rem;
-  --padding-card-inline: 1.5rem 2rem;
   --gap-large: 2rem;
   --gap-medium: 1.5rem;
-  --gap-small: 1rem;
-  --gap-tiny: 0.5rem;
   --margin-section-header: 2.5rem;
   --margin-content-block: 2rem;
-  --margin-subsection: 3rem;
 
-  /* Radius */
+  /* Radius — pt82 pruned --radius-tiny (zero consumers). */
   --radius-card: 12px;
   --radius-lg: 14px;
   --radius-sm: 8px;
-  --radius-tiny: 6px;
   --radius-xl: 16px;
   --radius-full: 999px;
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Shadows — pt82 pruned --shadow-{sm,xl,glow-teal,glow-teal-fallback}
+   * (4 defs, ZERO consumers). */
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
-  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.2);
-  --shadow-glow-teal-fallback: 0 4px 16px rgba(var(--brand-teal-rgb), 0.2);
-  --shadow-glow-teal: 0 4px 16px
-    color-mix(in srgb, var(--brand-teal) 20%, transparent);
 }
 
 * {
