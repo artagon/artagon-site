@@ -98,6 +98,47 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(result.weight).toBe(result.token || "400");
   });
 
+  test("writing-widget variant switching toggles strip + hero-strip visibility (pt110)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt110 — task 5.8 closed. Tweaks panel writes
+    // `data-writing-widget` on <html>; scoped CSS in
+    // `src/pages/index.astro` hooks 6 variants on that attribute.
+    // This test verifies the most-distinct visibility pivot:
+    //   B · 3-up   → standalone .writing-strip visible, hero-strip hidden
+    //   in-hero    → hero-strip visible inside Hero, standalone hidden
+    //   off        → both hidden (only in-hero pivot's hero-strip is the
+    //                visible one when the variant is in-hero)
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const probe = await page.evaluate(() => {
+      const html = document.documentElement;
+      const heroStrip = document.querySelector(".hero__latest-strip");
+      const writingStrip = document.querySelector(".writing-strip");
+      const result: Record<string, { hero: string; writing: string }> = {};
+      for (const variant of ["B · 3-up", "in-hero", "off"]) {
+        html.setAttribute("data-writing-widget", variant);
+        result[variant] = {
+          hero: heroStrip ? getComputedStyle(heroStrip).display : "no element",
+          writing: writingStrip
+            ? getComputedStyle(writingStrip).display
+            : "no element",
+        };
+      }
+      // Restore default
+      html.setAttribute("data-writing-widget", "B · 3-up");
+      return result;
+    });
+    // Default 3-up: writing strip visible, hero strip hidden.
+    expect(probe["B · 3-up"]?.hero).toBe("none");
+    expect(probe["B · 3-up"]?.writing).toBe("block");
+    // in-hero: hero strip visible (grid), writing strip hidden.
+    expect(probe["in-hero"]?.hero).toBe("grid");
+    expect(probe["in-hero"]?.writing).toBe("none");
+    // off: writing strip hidden.
+    expect(probe["off"]?.writing).toBe("none");
+  });
+
   test("home hero h1 letter-spacing resolves --display-tracking × font-size (pt102)", async ({
     page,
   }) => {
