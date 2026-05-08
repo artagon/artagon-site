@@ -234,14 +234,18 @@ const cols = [
   color: var(--accent);
 }
 
-/* Canonical Footer (BaseLayout.jsx:301) — meta strip `fontSize: 11,
- * letterSpacing: 0.08em, color fg-3`. Pre-fix 0.78rem (≈12.5) was
- * oversized. */
+/* Canonical Footer meta strip (BaseLayout.jsx:301) — `display: flex;
+ * justifyContent: space-between; alignItems: center; paddingTop: 24,
+ * fontSize: 11, color fg-3, letterSpacing: 0.08em`. Pre-fix used
+ * `gap: var(--space-6)` which clustered the 3 spans on the left
+ * instead of canonical evenly-distributed copyright/stack/version
+ * line. */
 .footer-meta {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-6);
-  padding-top: var(--space-5);
+  padding-top: 24px;
   color: var(--fg-3);
   font-size: 11px;
   letter-spacing: 0.08em;
