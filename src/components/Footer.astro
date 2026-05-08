@@ -208,6 +208,13 @@ const cols = [
 }
 
 .footer-col a {
+  /* USMR Phase 5.5.11 Task #31 — invisible padding inflates each
+   * footer link's hit area to 44 px tall per WCAG 2.5.5. The
+   * visible label stays compact; the hit zone stretches via the
+   * inline-flex + min-height container. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--fg-2);
   text-decoration: none;
   transition: color 0.15s ease;

@@ -355,8 +355,16 @@ export default function TrustChainIsland() {
         {STAGES.map((stage, i) => {
           const state = stageState(i);
           const cls = stageClass(state);
+          // USMR Phase 5.5.11 Task #32 — emit a per-wrap flag so the
+          // connector below this row can tint to accent only when THIS
+          // stage settled to pass (canonical Hero.jsx:379-380).
+          const settledPass = state.outcome === "pass";
           return (
-            <li key={stage.id} className="trust-chain__stage-wrap">
+            <li
+              key={stage.id}
+              className="trust-chain__stage-wrap"
+              data-prev-pass={settledPass ? "true" : "false"}
+            >
               <button
                 type="button"
                 id={`trust-chain-${stage.id}`}

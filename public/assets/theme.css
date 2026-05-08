@@ -1302,54 +1302,14 @@ footer {
   color: #8fa0b8;
   font-size: 0.92rem;
 }
-.menu {
-  display: none;
-}
-.menu-btn {
-  display: none;
-}
-@media (max-width: 860px) {
-  .menu-btn {
-    display: inline-flex;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    padding: 0.4rem 0.6rem;
-    border-radius: 10px;
-    background: transparent;
-    color: #e2e8f0;
-  }
-  .menu {
-    display: flex;
-    position: absolute;
-    top: 60px;
-    left: 0;
-    right: 0;
-    background: rgba(10, 15, 30, 0.98);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-    padding: 10px 20px;
-    backdrop-filter: blur(10px);
-  }
-  .menu ul {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-  }
-  .menu a {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0.75rem 0.5rem;
-  }
-  .menu .nav-icon {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-  }
-  nav ul {
-    display: none;
-  }
-  .menu[hidden] {
-    display: none;
-  }
-}
+/* USMR Phase 5.5.11 Task #35 — removed dead `.menu` / `.menu-btn`
+ * pre-USMR mobile-menu pattern (45 lines). No Astro component
+ * rendered `.menu` / `.menu-btn` — the only live rule was
+ * `nav ul { display: none }` at <860 px, which silently broke
+ * Header.astro's `.links` panel in the 720-859 px window where
+ * 5.5.11's hamburger doesn't show yet (only triggers <720 px).
+ * Header.astro now owns the mobile menu via `:global(body.nav-open)`
+ * + `.nav-toggle` per canonical index.html:387-421. */
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;

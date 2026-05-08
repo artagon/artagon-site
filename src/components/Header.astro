@@ -114,6 +114,14 @@ const NAV_LINKS = [
     color: var(--fg-1);
   }
   .site-nav .links a {
+    /* USMR Phase 5.5.11 Task #31 — invisible hit-area padding gives
+     * each nav link a 44 px vertical target per WCAG 2.5.5. The
+     * visible underline still tracks the original 6 px baseline via
+     * `border-bottom`; the inflated padding extends only the hit
+     * area, not the visual marker. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     padding: 6px 0;
     border-bottom: 1px solid transparent;
     color: inherit;

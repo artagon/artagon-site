@@ -164,12 +164,20 @@
   bottom: -10px;
   width: 1px;
   height: 10px;
-  background: var(--accent-dim);
-  box-shadow: 0 0 6px var(--accent);
+  /* USMR Phase 5.5.11 Task #32 — default to muted line-soft. Only
+   * the per-stage data-prev-pass="true" flag (set by TrustChainIsland
+   * when the upstream stage settled to pass) lights the connector
+   * accent-dim with a small glow. Mirrors canonical Hero.jsx:379-380. */
+  background: var(--line-soft);
+  box-shadow: none;
   transition:
     background 0.35s ease,
     box-shadow 0.35s ease;
   pointer-events: none;
+}
+.trust-chain__stage-wrap[data-prev-pass="true"]:not(:last-child)::after {
+  background: var(--accent-dim);
+  box-shadow: 0 0 6px var(--accent);
 }
 @media (prefers-reduced-motion: reduce) {
   .trust-chain__stage-wrap:not(:last-child)::after {
@@ -195,6 +203,17 @@
   color: inherit;
   cursor: pointer;
   transition: all 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* USMR Phase 5.5.11 Task #33 — mouse hover affordance per canonical
+ * Hero.jsx:298-300. On a row that's idle/pending (not pass / fail /
+ * skip — those have their own borders), bump the border to accent-dim
+ * so mouse users get feedback that the row is interactive. Press +
+ * focus-visible already have stronger visual states. */
+@media (hover: hover) {
+  .trust-chain__stage:not(.is-pass):not(.is-fail):not(.is-skip):hover {
+    border-color: var(--accent-dim);
+  }
 }
 
 .trust-chain__stage.is-pass {
