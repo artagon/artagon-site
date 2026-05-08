@@ -6,7 +6,7 @@
  */
 
 .bridge-flow {
-  padding-block: clamp(64px, 8vw, 120px);
+  padding-block: clamp(80px, 8vw, 120px);
   background: var(--bg-1);
   border-block: 1px solid var(--line-soft);
 }

@@ -61,8 +61,12 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
 </section>
 
 <style>
+  /* Canonical .section padding — `padding: 120 0` (per global.css:215;
+   * we use clamp(80, 8vw, 120) for mobile-floor compat). Pre-fix used
+   * clamp(64, 8vw, 120) — 16 px short on the mobile floor, matching
+   * the iter 27 .section clamp fix. */
   .home-explore {
-    padding-block: clamp(64px, 8vw, 120px);
+    padding-block: clamp(80px, 8vw, 120px);
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
     padding-inline: clamp(24px, 4vw, 40px);

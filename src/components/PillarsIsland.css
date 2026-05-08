@@ -7,7 +7,7 @@
  */
 
 .pillars {
-  padding-block: clamp(64px, 8vw, 120px);
+  padding-block: clamp(80px, 8vw, 120px);
   border-top: 1px solid var(--line-soft);
 }
 

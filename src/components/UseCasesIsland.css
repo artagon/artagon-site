@@ -5,7 +5,7 @@
  */
 
 .use-cases {
-  padding-block: clamp(64px, 8vw, 120px);
+  padding-block: clamp(80px, 8vw, 120px);
 }
 
 .use-cases__head {
