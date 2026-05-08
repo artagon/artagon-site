@@ -123,10 +123,11 @@
   outline-offset: -2px;
 }
 
+/* Canonical Pillars.jsx:119 — tab num `fontSize: 11`. */
 .pillar-tab__num {
   display: block;
   font-family: var(--f-mono);
-  font-size: 0.72rem;
+  font-size: 11px;
   color: var(--fg-3);
   letter-spacing: 0.12em;
   margin-bottom: 12px;
@@ -135,9 +136,10 @@
   color: var(--accent);
 }
 
+/* Canonical Pillars.jsx:122 — tab title `fontSize: 22`. */
 .pillar-tab__title {
   display: block;
-  font-size: 1.4rem;
+  font-size: 22px;
   font-weight: 500;
   color: var(--fg-2);
   letter-spacing: -0.02em;
@@ -203,12 +205,16 @@
   border-bottom: 1px solid var(--line-soft);
 }
 
+/* Canonical Pillars.jsx:136 — body paragraph `fontSize: 17,
+ * lineHeight: 1.6, marginBottom: 36, maxWidth: 52ch`. We had
+ * 1.05rem (≈16.8) and margin: 0 — the missing 36 px margin-bottom
+ * meant the body crashed against the bullets list directly below. */
 .pillars__body {
   color: var(--fg-1);
-  font-size: 1.05rem;
+  font-size: 17px;
   line-height: 1.6;
   max-width: 52ch;
-  margin: 0;
+  margin: 0 0 36px;
 }
 
 .pillars__bullets {
@@ -222,11 +228,12 @@
 
 .pillars__bullet {
   display: grid;
+  /* Canonical Pillars.jsx:141 — bullet `fontSize: 13`. */
   grid-template-columns: 18px 1fr;
   gap: 10px;
   align-items: baseline;
   font-family: var(--f-mono);
-  font-size: 0.82rem;
+  font-size: 13px;
   line-height: 1.55;
   color: var(--fg-1);
 }
