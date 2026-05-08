@@ -235,42 +235,51 @@
   --gutter: 44px;
 }
 
-/* ========= THEME PACKS ========= */
+/* ========= THEME PACKS =========
+ * USMR 5.5.16-pt28 — legacy tokens (--text / --muted / --border /
+ * --brand-teal / --bg-alt / --surface) now alias to canonical
+ * (--fg / --fg-2 / --line / --accent / --bg / --bg-1) per the 5.1h
+ * deprecation plan. Pre-fix the legacy values were independent
+ * hardcoded hex (e.g. midnight --text #e2e8f0 ≈ oklch 0.92, whereas
+ * canonical --fg = oklch 0.96 — the body text rendered ~4% darker
+ * than canonical across the site). The brand-teal-rgb tuple is
+ * preserved for the 4 surfaces consuming the rgba(...) gradient
+ * forms — those need the integer components, not a var() value. */
 
 /* Midnight Teal (current default) */
 :root[data-theme="midnight"] {
   --bg: #0b1220;
-  --bg-alt: #0a0f1e;
-  --surface: #0f172a;
-  --border: #1e293b;
+  --bg-alt: var(--bg-1);
+  --surface: var(--bg-1);
+  --border: var(--line);
 
-  --text: #e2e8f0;
-  --muted: #94a3b8;
+  --text: var(--fg);
+  --muted: var(--fg-2);
 
-  --brand-teal: #22e3c5; /* Verified */
-  --brand-teal-rgb: 34, 227, 197;
-  --brand-violet: #7c5cff; /* Attested */
-  --brand-sky: #38bdf8; /* Helpful actions/links */
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
+  --brand-violet: #7c5cff;
+  --brand-sky: #38bdf8;
 
-  --ring: rgba(34, 227, 197, 0.45);
+  --ring: rgba(60, 238, 221, 0.45);
 }
 
 /* Twilight Indigo */
 :root[data-theme="twilight"] {
   --bg: #0e1026;
-  --bg-alt: #101530;
-  --surface: #131a3a;
-  --border: #1e2a4a;
+  --bg-alt: var(--bg-1);
+  --surface: var(--bg-1);
+  --border: var(--line);
 
-  --text: #e5eaf3;
-  --muted: #a9b4cc;
+  --text: var(--fg);
+  --muted: var(--fg-2);
 
-  --brand-teal: #22d3ee;
-  --brand-teal-rgb: 34, 211, 238;
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
   --brand-violet: #a78bfa;
   --brand-sky: #6ea8fe;
 
-  --ring: rgba(110, 168, 254, 0.45);
+  --ring: rgba(60, 238, 221, 0.45);
 }
 
 /* Deep Slate Blue */
