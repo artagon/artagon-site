@@ -596,8 +596,14 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
       gap: 16px;
     }
   }
+  /* Canonical writing-strip h2 inherits global h2 scale `clamp(36px,
+   * 4vw, 60px)` (theme.css h2 rule). Pre-fix scoped override was
+   * clamp(1.75rem, 3vw, 2.5rem) ≈ clamp(28, 3vw, 40) — undersized
+   * the section h2 by 20 px at the ceiling. The line-height stays
+   * 1.15 for the canonical writing-header tighter wrap (vs the
+   * global h2 1.02 used by other section h2s). */
   .writing-strip__title {
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-size: clamp(36px, 4vw, 60px);
     line-height: 1.15;
     margin: 0;
     max-width: 28ch;
