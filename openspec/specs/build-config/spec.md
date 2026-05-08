@@ -33,7 +33,7 @@ The entire `.build/` tree MUST be a single `.gitignore` entry. Nested entries fo
 #### Scenario: Public deliverables stay outside .build
 
 - **WHEN** the repo is inspected
-- **THEN** `public/assets/logos/*.png`, `public/favicon.svg`, `public/icon-*.png`, `public/apple-touch-icon.png` remain under `public/` (committed deliverables, not runtime artifacts).
+- **THEN** `public/assets/logos/*.png`, `public/favicon.ico`, `public/icons/icon-*.png`, `public/apple-touch-icon.png` remain under `public/` (committed deliverables, not runtime artifacts).
 
 ### Requirement: Single Source of Truth Path Config
 
