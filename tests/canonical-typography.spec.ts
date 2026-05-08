@@ -576,4 +576,67 @@ test.describe("Canonical typography + rhythm gates", () => {
     // Post-card h3: 22 px fixed.
     expect(sizes.h3).toBe(22);
   });
+
+  test("/vision SectionHeader h2 canonical size + weight (pt122)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt122 — `.ui-section-header h2` (consumed by
+    // /vision via SectionHeader.astro) was sub-canonical pre-pt122:
+    //   font-size: clamp(28.8, 4vw, 40)  — ~33 % below canonical at
+    //   the ceiling (canonical h2 is 36-60)
+    //   font-weight: 700                 — sub-canonical (canonical
+    //   is the --display-weight token cascade, default 500)
+    //
+    // pt122 brought both to the canonical h2 contract from
+    // new-design/extracted/src/styles/global.css:230. We don't gate
+    // on color: the /vision page intentionally tints headings via
+    // the .vision-doc cascade in some places; the canonical contract
+    // we care about for SectionHeader is the size + weight, which is
+    // what visually breaks the type rhythm when wrong.
+    await page.goto("/vision", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    await page.setViewportSize({ width: 1422, height: 800 });
+    const probe = await page.evaluate(() => {
+      const h2 = document.querySelector(".ui-section-header h2");
+      if (!h2) return null;
+      const cs = getComputedStyle(h2);
+      return {
+        fontSize: parseFloat(cs.fontSize),
+        fontWeight: cs.fontWeight,
+      };
+    });
+    expect(probe).not.toBeNull();
+    // 4vw at 1422 px = 56.88 (within 36-60 clamp).
+    expect(probe!.fontSize).toBeGreaterThanOrEqual(36);
+    expect(probe!.fontSize).toBeLessThanOrEqual(60);
+    expect(probe!.fontSize).toBeGreaterThan(48); // would be ~40 if pt122 reverted
+    // Canonical weight resolves through the --display-weight token
+    // cascade per `[data-hero-font]` on <html>: grotesk = 500,
+    // fraunces/dmserif/mono = 400. The default is fraunces (set by
+    // BaseLayout.astro:23) so this test runs under 400. Pre-pt122
+    // shipped 700 hard-coded — too heavy against the canonical h2
+    // elsewhere on the site under either cascade.
+    expect(["400", "500"]).toContain(probe!.fontWeight);
+    expect(probe!.fontWeight).not.toBe("700");
+  });
+
+  test("/vision .ui-section-intro canonical (pt122)", async ({ page }) => {
+    // USMR Phase 5.5.16-pt122 — intro was 1.15rem ≈ 18.4 (1.6 px under
+    // canonical .lead 20) and fg-2 (a shade darker than the canonical
+    // brighter editorial weight). pt122 brought it to the canonical
+    // .lead contract.
+    await page.goto("/vision", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const probe = await page.evaluate(() => {
+      const intro = document.querySelector(".ui-section-intro");
+      if (!intro) return null;
+      const cs = getComputedStyle(intro);
+      return {
+        fontSize: parseFloat(cs.fontSize),
+        lineHeight: cs.lineHeight,
+      };
+    });
+    expect(probe).not.toBeNull();
+    expect(probe!.fontSize).toBe(20);
+  });
 });

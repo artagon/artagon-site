@@ -639,17 +639,22 @@ a {
 .hero {
   padding: 80px 0 120px;
 }
-/* USMR Phase 5.5.16-pt115 — wrapped middle expression in calc().
- * Pre-pt115 was `clamp(2rem, 2.6vw + 1rem, 4rem)` — invalid CSS
- * (middle term needs `calc()`). The bare `.hero h1` rule was
- * overridden everywhere by the scoped `.hero h1.display` rule in
- * src/pages/index.astro so the bug had no visible effect, but the
- * broken syntax was a latent landmine for any contributor who
- * removed the `.display` class without realizing this rule was
- * the fallback. */
+/* USMR Phase 5.5.16-pt122 — bring the hero h1 fallback rule to
+ * canonical (global.css:229 — `clamp(56, 7.2vw, 108)/0.94/-0.035em
+ * /weight 400/var(--f-display)`). Pre-pt122 used clamp(32-64) which
+ * was ~40 % below canonical at the ceiling. The rule was overridden
+ * by the scoped `.hero h1.display` everywhere, so the size bug had
+ * no visible effect, but the broken contract was a latent landmine
+ * for any contributor who dropped the `.display` class without
+ * realizing this rule was the fallback. (pt115 was the calc()
+ * wrap fix; pt122 brings the actual size + weight + tracking +
+ * line-height + family to canonical.) */
 .hero h1 {
-  font-size: clamp(2rem, calc(2.6vw + 1rem), 4rem);
-  line-height: 1.1;
+  font-family: var(--f-display);
+  font-size: clamp(56px, 7.2vw, 108px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  font-weight: 400;
   margin: 0 0 16px;
 }
 /* USMR Phase 5.5.16-pt76 — removed orphan `.sub` rule (4 lines).
@@ -858,28 +863,50 @@ a {
   gap: var(--gap-large);
 }
 
+/* USMR Phase 5.5.16-pt122 — canonicalize /vision SectionHeader h2.
+ * Pre-fix shipped clamp(28.8-40)/teal/700 — sub-canonical at the
+ * ceiling (40 vs canonical 60 = 33% smaller), wrong color
+ * (h2 is fg per global.css:230, not accent-tinted — accent is
+ * reserved for eyebrow dashes + CTAs), wrong weight (canonical
+ * 500 via --display-weight token, was 700 hard-coded). The token
+ * cascade ensures grotesk/fraunces/dmserif/mono variants land
+ * the right weight + tracking just like .display elsewhere. */
 .ui-section-header h2 {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  color: var(--brand-teal);
+  font-family: var(--f-display);
+  font-size: clamp(36px, 4vw, 60px);
+  line-height: 1.02;
+  letter-spacing: var(--display-tracking, -0.025em);
+  font-weight: var(--display-weight, 500);
+  color: var(--fg);
   margin: 0;
-  font-weight: 700;
   flex: 1;
 }
 
+/* USMR Phase 5.5.16-pt122 — drop legacy --teal-20 / --teal-20-
+ * fallback chain in favor of canonical --accent-dim, and pin
+ * 4rem (≈64) to fixed-px per the rem→px discipline (pt19-22).
+ * The decorative section number is intentionally subdued so it
+ * doesn't compete with the h2 for hierarchy. */
 .ui-section-number {
-  font-size: 4rem;
+  font-size: 64px;
   font-weight: 900;
-  color: var(--teal-20-fallback);
-  color: var(--teal-20);
+  color: var(--accent-dim);
   line-height: 1;
   flex-shrink: 0;
 }
 
+/* USMR Phase 5.5.16-pt122 — bring intro to canonical .lead
+ * contract (global.css:233-234 — `font-size: 20; color: fg-1;
+ * line-height: 1.5; max-width: 60ch`). Pre-fix 1.15rem ≈ 18.4 was
+ * 1.6 px under canonical, and fg-2 was a shade darker than the
+ * canonical brighter editorial weight (pt27 made the same fix on
+ * the global .lead utility). */
 .ui-section-intro {
-  font-size: 1.15rem;
-  color: var(--fg-2);
+  font-size: 20px;
+  color: var(--fg-1);
   margin-bottom: var(--margin-content-block);
-  line-height: 1.6;
+  line-height: 1.5;
+  max-width: 60ch;
 }
 
 .ui-grid {
@@ -1186,7 +1213,8 @@ a {
   }
 
   .ui-section-number {
-    font-size: 3rem;
+    /* USMR Phase 5.5.16-pt122 — rem→px parity with the desktop rule. */
+    font-size: 48px;
   }
 }
 /* Canonical .eyebrow — new-design global.css:220-226. Section-break
