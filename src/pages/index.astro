@@ -571,9 +571,11 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     margin: 0;
     max-width: 28ch;
   }
+  /* Canonical "All writing →" anchor — mono accent caption.
+   * `0.875rem` = 14 at root 16; canonicalize to fixed px. */
   .writing-strip__more {
     font-family: var(--f-mono);
-    font-size: 0.875rem;
+    font-size: 14px;
     color: var(--accent);
     text-decoration: none;
     white-space: nowrap;

@@ -118,13 +118,17 @@ const cols = [
 </footer>
 
 <style>
+/* Canonical Footer (BaseLayout.jsx:281) — `padding: '64px 0 40px'`,
+ * implicit body font-size 14 (1.4rem h1 catch-all). The footer
+ * bg-1 + border-top var(--line-soft) match canonical. Pre-fix
+ * 0.9rem (≈14.4) → 14 (canonical body). */
 .site-footer {
   border-top: 1px solid var(--line-soft);
   background: var(--bg-1);
   color: var(--fg-1);
   padding-top: var(--space-12);
   padding-bottom: var(--space-8);
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 /* Canonical flat 5-col grid — new-design BaseLayout.jsx:283
@@ -230,13 +234,17 @@ const cols = [
   color: var(--accent);
 }
 
+/* Canonical Footer (BaseLayout.jsx:301) — meta strip `fontSize: 11,
+ * letterSpacing: 0.08em, color fg-3`. Pre-fix 0.78rem (≈12.5) was
+ * oversized. */
 .footer-meta {
   display: flex;
   align-items: center;
   gap: var(--space-6);
   padding-top: var(--space-5);
   color: var(--fg-3);
-  font-size: 0.78rem;
+  font-size: 11px;
+  letter-spacing: 0.08em;
   flex-wrap: wrap;
 }
 
