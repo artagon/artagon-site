@@ -104,6 +104,67 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(result.weight).toBe("500");
   });
 
+  test("hero-size guard — only home Hero h1 renders ≥ 80 px (pt120)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt120 — comprehensive guard against the
+    // hero-sized h1 regression class caught individually by
+    // pt114 (FAQ), pt117 (ShimPage routes), pt118 (/docs),
+    // pt119 (/console + /search). The bug: a bare <h1> with no
+    // scoped sizing picks up var(--fs-h1) = clamp(56, 7.2vw, 108) =
+    // 102 px hero default. Only the marketing home Hero should
+    // render that big; every other route is content-sized.
+    //
+    // Walks 7 representative routes and asserts h1 < 80 px except
+    // for "/" which gets the canonical hero-size pass.
+    const routes: Array<{ path: string; allowHero: boolean }> = [
+      { path: "/", allowHero: true },
+      { path: "/writing", allowHero: false },
+      { path: "/writing/welcome", allowHero: false },
+      { path: "/faq", allowHero: false },
+      { path: "/how", allowHero: false },
+      { path: "/docs", allowHero: false },
+      { path: "/console", allowHero: false },
+    ];
+    await page.setViewportSize({ width: 1422, height: 800 });
+    for (const route of routes) {
+      await page.goto(route.path, { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => document.fonts.ready);
+      // Scope to <main> only — Astro's dev toolbar overlay injects
+      // h1 elements ("Audit", "Settings", etc.) outside <main> that
+      // shouldn't count toward the page's content-h1 count.
+      const h1Sizes = await page.$$eval("main h1", (els) =>
+        els.map((el) => parseFloat(getComputedStyle(el).fontSize)),
+      );
+      // Sanity: every page must have at least one h1 (a11y baseline).
+      expect(h1Sizes.length, `${route.path} must have an h1`).toBeGreaterThan(
+        0,
+      );
+      // Sanity: max one h1 per page (a11y best practice).
+      const h1Texts = await page.$$eval("main h1", (els) =>
+        els.map((el) => el.textContent?.trim().substring(0, 40)),
+      );
+      expect(
+        h1Sizes.length,
+        `${route.path} must have at most one h1; found ${h1Sizes.length}: ${JSON.stringify(h1Texts)}`,
+      ).toBeLessThanOrEqual(1);
+      const maxSize = Math.max(...h1Sizes);
+      if (route.allowHero) {
+        // Home Hero h1 SHOULD render at hero size at desktop.
+        expect(
+          maxSize,
+          `${route.path} (home Hero) expected ≥ 80 px`,
+        ).toBeGreaterThanOrEqual(80);
+      } else {
+        // Content / placeholder routes must NOT render hero-sized h1.
+        expect(
+          maxSize,
+          `${route.path} h1 should be content-sized (< 80 px), got ${maxSize}`,
+        ).toBeLessThan(80);
+      }
+    }
+  });
+
   test("/404 h1 renders in [36, 60] clamp range (pt70)", async ({ page }) => {
     // USMR Phase 5.5.16-pt70 fixed the 404 page eyebrow/h1 sizing.
     // Verify the h1 stays in its scoped clamp(36, 4vw, 60) range —

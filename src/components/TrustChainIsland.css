@@ -230,7 +230,19 @@
   background: var(--bg-1);
   color: inherit;
   cursor: pointer;
-  transition: all 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* USMR Phase 5.5.16-pt120 — user feedback "when hovering with mouse
+   * on trust chain it vibrates". Pre-pt120 used `transition: all 0.45s`
+   * which animates EVERY property change including layout-affecting
+   * ones (padding, border-width, gap). When the mouse hover triggers
+   * a border-color change during the auto-cycle's stage transitions,
+   * `transition: all` competed and produced visible jitter. Restricted
+   * to the 3 properties that actually animate per canonical Hero.jsx:
+   * border-color, background, box-shadow. Layout properties now snap
+   * immediately. */
+  transition:
+    border-color 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* USMR Phase 5.5.11 Task #33 — mouse hover affordance per canonical
