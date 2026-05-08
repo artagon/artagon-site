@@ -1,12 +1,147 @@
 ---
+// USMR Phase 5.5.14 — 404 page now offers recovery links instead of
+// dead-ending users at a single "home page" link. Audit feedback: a
+// user who mistypes a URL was getting one home link only. Now: 5
+// surface options + a search anchor.
 import Base from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string }> = [
+  { href: '/platform', label: 'Platform', desc: 'Three pillars under one runtime' },
+  { href: '/bridge', label: 'Bridge', desc: 'OID4VP → OIDC without a rewrite' },
+  { href: '/standards', label: 'Standards', desc: 'Every flow maps to a published spec' },
+  { href: '/writing', label: 'Writing', desc: 'Field notes from the team' },
+  { href: '/get-started', label: 'Get started', desc: 'Apply to the design-partner program' },
+];
 ---
-<Base title="404 — Not Found" description="Page not found">
+<Base
+  title="404 — Page not found"
+  description="The page you were looking for doesn't exist. Try one of these instead."
+>
   <Fragment slot="header"><Header /></Fragment>
-  <section class="container" style="padding:40px 0">
-    <div class="card"><h1>404</h1><p>We couldn’t find that page. Try the <a href="/">home page</a>.</p></div>
-  </section>
+  <main id="main">
+    <section class="not-found" aria-labelledby="not-found-h">
+      <div class="not-found__wrap">
+        <p class="not-found__eyebrow">Error · 404</p>
+        <h1 id="not-found-h" class="not-found__title display">
+          We couldn't find that <em class="not-found__emphasis serif">page</em>.
+        </h1>
+        <p class="not-found__lede">
+          The URL you visited doesn't resolve to a published Artagon route. Pick a starting point below, or jump to one of the canonical routes from the header nav.
+        </p>
+        <ul role="list" class="not-found__links">
+          {RECOVERY_LINKS.map((link) => (
+            <li>
+              <a class="not-found__link" href={link.href}>
+                <span class="not-found__link-label">{link.label}</span>
+                <span class="not-found__link-desc">{link.desc}</span>
+                <span class="not-found__link-arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  </main>
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
+
+<style>
+  .not-found {
+    padding-block: clamp(64px, 10vw, 120px);
+  }
+  .not-found__wrap {
+    max-width: 760px;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+  .not-found__eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--fg-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 16px;
+  }
+  .not-found__title {
+    font-family: var(--f-display);
+    font-size: clamp(36px, 4vw, 60px);
+    line-height: 1.05;
+    letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0 0 18px;
+    max-width: 22ch;
+  }
+  .not-found__emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+  .not-found__lede {
+    color: var(--fg-2);
+    font-size: 17px;
+    line-height: 1.55;
+    max-width: 60ch;
+    margin: 0 0 36px;
+  }
+  .not-found__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .not-found__link {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 24px;
+    align-items: center;
+    padding: 18px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+  .not-found__link:hover,
+  .not-found__link:focus-visible {
+    background: color-mix(in oklab, var(--accent) 4%, transparent);
+  }
+  .not-found__link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .not-found__link-label {
+    font-family: var(--f-display);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--fg);
+  }
+  .not-found__link-desc {
+    font-size: 14px;
+    color: var(--fg-2);
+    line-height: 1.4;
+  }
+  .not-found__link-arrow {
+    font-family: var(--f-mono);
+    color: var(--accent);
+    font-size: 14px;
+  }
+  @media (max-width: 540px) {
+    .not-found__link {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+  @media (forced-colors: active) {
+    .not-found__link:hover,
+    .not-found__link:focus-visible {
+      background: Canvas;
+      outline: 2px solid Highlight;
+    }
+  }
+</style>

@@ -4,29 +4,37 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import Tagline from '../../components/Tagline.astro';
 ---
-<Base title="Artagon Docs" description="Docs, APIs, SDKs, playground — Verified. Private. Attested.">
+<Base
+  title="Artagon Docs"
+  description="Docs, APIs, SDKs, playground — coming with the design-partner program. Apply now to ship first."
+  robots="noindex, nofollow"
+>
   <Fragment slot="header"><Header /></Fragment>
   <section class="container" style="padding:40px 0 0">
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div><div class="eyebrow">Docs</div><h1 style="margin:.2rem 0">Artagon Documentation</h1><div class="discrete">Developer‑first. Real tokens. Real policies.</div></div>
+      <div>
+        <div class="eyebrow">Docs</div>
+        <h1 style="margin:.2rem 0">Artagon Documentation</h1>
+        <div class="discrete">Developer-first. Real tokens. Real policies.</div>
+      </div>
       <Tagline />
     </div>
   </section>
-  <main class="container" style="display:grid;grid-template-columns:260px 1fr;gap:20px;">
-    <aside class="sidebar">
-      <nav>
-        <h2>Getting started</h2>
-        <a href="/docs/quickstart">Quickstart</a><br/>
-        <a href="/docs/oidc">OIDC 2.1</a><br/>
-        <a href="/docs/gnap">GNAP</a><br/>
-        <a href="/docs/vc">Verifiable Credentials</a><br/>
-        <a href="/docs/policy">Policy & Graph</a>
-      </nav>
-    </aside>
+  {/* USMR Phase 5.5.14 — docs site is in preparation. Five earlier
+     sidebar links (`/docs/quickstart`, `/docs/oidc`, `/docs/gnap`,
+     `/docs/vc`, `/docs/policy`) all 404'd. Until those routes ship,
+     the page is `noindex, nofollow` and surfaces a single CTA back
+     to the design-partner program for early access. */}
+  <main class="container" style="padding-block: 32px 64px;">
     <article class="doc card">
-      <h1>Welcome to Artagon Docs</h1>
-      <p>SDKs: Java, Rust, JS/TS, Go, Swift. Try the <a href="/play">playground</a> to issue tokens and present VCs.</p>
-      <pre class="code"><code>curl $OPENID_CONFIGURATION_URL</code></pre>
+      <h1>Documentation in preparation</h1>
+      <p>
+        Full docs (Quickstart · OIDC 2.1 · GNAP · Verifiable Credentials · Policy &amp; Graph) ship with the design-partner program. Joining the cohort gets you early access plus paired implementation support.
+      </p>
+      <div class="actions" style="margin-top:16px">
+        <a class="btn primary" href="/get-started">Apply as a design partner →</a>
+        <a class="btn" href="/platform">Read the platform overview</a>
+      </div>
     </article>
   </main>
   <Fragment slot="footer"><Footer /></Fragment>

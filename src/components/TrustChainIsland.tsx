@@ -59,7 +59,7 @@ function shouldSkipAutoProgression(): boolean {
   // auto-progression races deterministic E2E assertions that grab
   // decision-claim text immediately after networkidle. Real users
   // still get the chain-thinking animation.
-  if ((navigator as { webdriver?: boolean }).webdriver) return true;
+  if (navigator.webdriver) return true;
   return (
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
   );

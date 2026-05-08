@@ -10,10 +10,16 @@ import Tagline from '../../components/Tagline.astro';
     <h1>Welcome</h1>
     <div class="discrete"><Tagline variant="sentence" /></div>
     <p>Create a sandbox tenant, register a client, and issue your first DPoP‑bound token.</p>
+    {/* USMR Phase 5.5.14 — console preview not built yet. Three earlier
+       actions ("Create tenant" / "Register client" / "Open policy
+       editor") were href="#" dead anchors that took users nowhere.
+       Until the console ships, surface a single design-partner CTA
+       so visitors who land on /console (e.g. via earlier Get-Started
+       copy) reach the conversion path instead of dead buttons. */}
+    <p>The Artagon console is in private preview for design-partner cohorts.</p>
     <div class="actions" style="margin-bottom:12px">
-      <a class="btn" href="#">Create tenant</a>
-      <a class="btn" href="#">Register client</a>
-      <a class="btn" href="#">Open policy editor</a>
+      <a class="btn primary" href="/get-started">Apply as a design partner →</a>
+      <a class="btn" href="/platform">Read platform docs</a>
     </div>
   </section>
   <Fragment slot="footer"><Footer /></Fragment>

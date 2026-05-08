@@ -63,8 +63,15 @@ const onRamp = z.object({
 /** Base frontmatter shared by every marketing page. */
 const pageBase = z.object({
   title: z.string().min(1),
-  /** SEO description; lint-meta will enforce 80–160 chars at build time. */
-  description: z.string().min(1),
+  /**
+   * SEO description — bounded 80-160 chars to fit Google's SERP
+   * truncation window. USMR Phase 5.5.14 promoted this from a
+   * `lint-meta will enforce…` comment (the `lint:meta` script
+   * never existed) to a Zod-enforced bound; over-length descriptions
+   * now fail at content-load time, exactly where the violation is
+   * authored.
+   */
+  description: z.string().min(80).max(160),
   eyebrow: z.string().min(1),
   headline: z.string().min(1),
   lede: z.string().min(1),

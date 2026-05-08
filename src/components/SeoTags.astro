@@ -32,31 +32,31 @@ export type Props = WebsiteProps | ArticleProps;
 // caller (`{type:'article'}` without `publishedTime`) fails type-check
 // AT THE CALLSITE — the narrowing here just keeps the SeoTags body
 // honest about which fields exist in each branch.
-const propsRaw = Astro.props;
-const propsType = (propsRaw as { type?: 'website' | 'article' }).type ?? 'website';
-const isArticle = propsType === 'article';
-if (isArticle) {
-  const ap = propsRaw as ArticleProps;
-  if (!ap.publishedTime) {
-    // Build-time invariant: the type system already flags this at the
-    // callsite, but a runtime throw here turns a future erasure (e.g.
-    // someone re-introduces `Partial<ArticleProps>`) into a loud
-    // build error rather than silent JSON-LD drop.
-    throw new Error(
-      "SeoTags: type='article' requires publishedTime (ISO 8601)."
-    );
-  }
+// USMR Phase 5.5.14 — discriminated-union narrowing without casts.
+// Astro.props is typed `Props = WebsiteProps | ArticleProps`.
+// Reading via the union directly + type-guarding on `props.type ===
+// 'article'` lets TS narrow `publishedTime` into existence inside the
+// guard without any `as` cast. The earlier triple-cast (lines 36, 39,
+// 50, 51) erased the union's narrowing guarantees — a future variant
+// addition would have compiled silently. The runtime throw stays as
+// a defense-in-depth backstop in case a caller bypasses the
+// type-checker (e.g. dynamic JSX consumers).
+const props = Astro.props;
+const type = props.type ?? 'website';
+const isArticle = props.type === 'article';
+if (isArticle && !props.publishedTime) {
+  throw new Error(
+    "SeoTags: type='article' requires publishedTime (ISO 8601).",
+  );
 }
-const articleProps = isArticle ? (propsRaw as ArticleProps) : null;
-const baseProps = propsRaw as BaseProps & { type?: 'website' | 'article' };
+const articleProps: ArticleProps | null = isArticle ? props : null;
 const {
   title = 'Artagon — Trusted Identity for Machines and Humans',
   description = `Passkeys, verifiable credentials, attested clients, and graph-native policy — ${taglines.tagline.full}`,
   path = '/',
   image = '/assets/logos/og-image.png',
   robots,
-} = baseProps;
-const type = propsType;
+} = props;
 const publishedTime = articleProps?.publishedTime;
 const modifiedTime = articleProps?.modifiedTime;
 const author = articleProps?.author ?? 'Artagon';

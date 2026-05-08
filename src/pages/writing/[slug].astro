@@ -52,8 +52,11 @@ const byleDateFmt = new Intl.DateTimeFormat('en-GB', {
 const minutes = readingMinutes(post.body);
 
 // Eyebrow renders `← Blog · {Tag}`. Use first tag as the canonical
-// label; falls back to the frontmatter `eyebrow` field if no tags.
-const primaryTag = (post.data.tags && post.data.tags[0]) ?? post.data.eyebrow ?? 'Field notes';
+// label; the frontmatter `eyebrow` is a non-empty schema-required
+// fallback for tag-less posts. (USMR 5.5.14 — dropped the
+// `?? 'Field notes'` literal-string tail; it was unreachable since
+// content.config.ts requires `eyebrow: z.string().min(1)`.)
+const primaryTag = post.data.tags[0] ?? post.data.eyebrow;
 
 // Post-specific og:image / og:type / publish dates / tags through to
 // SeoTags (USMR 5.1q.7 — Article JSON-LD).

@@ -1,28 +1,188 @@
 ---
+// USMR Phase 5.5.14 — `/get-started` is the destination of the Hero
+// primary CTA + Header "Request access" button + every onRamp CTA on
+// /writing posts. It MUST be a real conversion route, not the previous
+// stub that linked to /console + /docs (both broken — /console has 3
+// `href="#"` dead buttons; /docs has 5 dead sidebar links). This page
+// now mirrors the canonical onRamp/CTA card from
+// new-design/extracted/src/components/Cta.jsx — design-partner program
+// strip, headline + lede, contact card with mono Enterprise / General
+// / Security / Location rows. Functions as a stand-alone landing page
+// for users who arrive via /get-started directly (vs hitting the
+// in-page anchor from home).
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import { ORG } from '../../data/organization.ts';
+
+// Apply CTA targets the General contact (canonical Cta.jsx:36 →
+// mailto:info@artagon.com). Falls back to the first contact if the
+// "General" label is renamed in a future ORG edit.
+const generalContact = ORG.contacts.find((c) => c.label === 'General') ?? ORG.contacts[0];
 ---
-<Base title="Get Started — Artagon" description="Create a tenant, register a client, issue your first DPoP-bound token.">
-  <Fragment slot="header">
-    <Header />
-  </Fragment>
-  <section class="container" style="padding:40px 0">
-    <div class="card">
-      <div class="eyebrow">Quickstart</div>
-      <h1>Get Started</h1>
-      <ol>
-        <li>Create a sandbox tenant in the <a href="/console">Console</a>.</li>
-        <li>Register a client (DCR) and enable DPoP + PAR.</li>
-        <li>Use an SDK to complete the auth code + DPoP flow.</li>
-      </ol>
-      <div class="actions" style="margin-top:12px">
-        <a class="cta" href="/console">Open Console</a>
-        <a class="btn" href="/docs">Open Docs</a>
+<Base
+  title="Design Partner Program — Artagon"
+  description="Apply to the Artagon design partner program. We're accepting roughly twelve partners for the Q2 cohort building on high-assurance auth, verifiable credentials, and graph-native authorization."
+  path="/get-started"
+>
+  <Fragment slot="header"><Header /></Fragment>
+
+  <main id="main">
+    <section class="cta-section" id="get-started" aria-labelledby="cta-h">
+      <div class="cta-card">
+        <div class="cta-strip">
+          <span>artagon · design partner program</span>
+          <span>accepting ~12 partners for Q2</span>
+        </div>
+        <div class="cta-grid">
+          <div class="cta-lead">
+            <h1 id="cta-h" class="cta-headline">
+              Build with the <em class="cta-headline-emphasis serif">next</em><br />generation of identity.
+            </h1>
+            <p class="cta-lede">
+              If you're working on high-assurance auth, verifiable credentials, or fine-grained authorization — we want to build with you. Design partners help shape the platform and ship first.
+            </p>
+            <div class="actions">
+              <a class="btn primary" href={`mailto:${generalContact.value}`}>
+                Apply as a design partner
+                <span class="arr" aria-hidden="true">→</span>
+              </a>
+              <a
+                class="btn"
+                href="https://github.com/artagon"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                github.com/artagon
+                <span class="sr-only"> (opens in new tab)</span>
+              </a>
+            </div>
+          </div>
+          <aside class="cta-contacts" aria-label="Primary contacts">
+            <p class="cta-contacts-title">Primary contacts</p>
+            <dl class="cta-contacts-rows">
+              {ORG.contacts.map((row) => (
+                <div class="cta-contacts-row">
+                  <dt>{row.label}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p class="cta-contacts-footnote">{ORG.contactFootnote}</p>
+          </aside>
+        </div>
       </div>
-    </div>
-  </section>
-  <Fragment slot="footer">
-    <Footer />
-  </Fragment>
+    </section>
+  </main>
+
+  <Fragment slot="footer"><Footer /></Fragment>
 </Base>
+
+<style>
+  .cta-section {
+    padding-block: clamp(64px, 8vw, 120px);
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+  .cta-card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 72px clamp(32px, 5vw, 64px) clamp(40px, 6vw, 72px);
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg) 80%);
+    overflow: hidden;
+  }
+  .cta-strip {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--fg-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .cta-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin-top: 18px;
+  }
+  @media (max-width: 720px) {
+    .cta-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .cta-strip {
+      flex-direction: column;
+      gap: 4px;
+    }
+  }
+  .cta-headline {
+    font-family: var(--f-display);
+    font-size: clamp(44px, 5vw, 76px);
+    line-height: 1.05;
+    letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0 0 24px;
+  }
+  .cta-headline-emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+  .cta-lede {
+    color: var(--fg-2);
+    font-size: 17px;
+    line-height: 1.55;
+    max-width: 52ch;
+    margin: 0 0 32px;
+  }
+  .cta-contacts {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px;
+    background: var(--bg-1);
+    font-family: var(--f-mono);
+    font-size: 13px;
+  }
+  .cta-contacts-title {
+    font-size: 10px;
+    color: var(--fg-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+  .cta-contacts-rows {
+    margin: 0;
+  }
+  .cta-contacts-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .cta-contacts-row:last-of-type {
+    border-bottom: 0;
+  }
+  .cta-contacts-row dt {
+    color: var(--fg-3);
+    font-weight: 400;
+    margin: 0;
+  }
+  .cta-contacts-row dd {
+    color: var(--fg-1);
+    margin: 0;
+  }
+  .cta-contacts-footnote {
+    margin: 14px 0 0;
+    color: var(--fg-3);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+</style>

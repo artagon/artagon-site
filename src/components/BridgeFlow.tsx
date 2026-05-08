@@ -31,7 +31,7 @@ const SSR_DEFAULT_STEP = 2;
 
 function shouldSkipAutoCycle(): boolean {
   if (typeof window === "undefined") return true;
-  if ((navigator as { webdriver?: boolean }).webdriver) return true;
+  if (navigator.webdriver) return true;
   return (
     window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false
   );
