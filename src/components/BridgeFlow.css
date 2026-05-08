@@ -209,10 +209,14 @@
   outline-offset: -2px;
 }
 
+/* Canonical Bridge.jsx:84-99 — step-num 11 / step-title 15 /
+ * step-desc 13 / result 13. Pre-fix used rem-based sizes (0.7 /
+ * 0.95 / 0.82 / 0.82) which drift 0.1-0.2 px from canonical at
+ * the default root font-size and lose alignment if root changes. */
 .bridge-step__num {
   display: block;
   font-family: var(--f-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
   color: var(--fg-3);
   letter-spacing: 0.12em;
   margin-bottom: 8px;
@@ -223,7 +227,7 @@
 
 .bridge-step__title {
   display: block;
-  font-size: 0.95rem;
+  font-size: 15px;
   font-weight: 500;
   margin-bottom: 4px;
   color: var(--fg-2);
@@ -234,14 +238,14 @@
 }
 
 .bridge-step__desc {
-  font-size: 0.82rem;
+  font-size: 13px;
   color: var(--fg-2);
   line-height: 1.45;
 }
 
 .bridge-flow__result {
   font-family: var(--f-mono);
-  font-size: 0.82rem;
+  font-size: 13px;
   color: var(--fg-2);
   text-align: center;
   margin: 0;

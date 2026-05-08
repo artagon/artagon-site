@@ -99,21 +99,24 @@
   outline-offset: -2px;
 }
 
+/* Canonical UseCases.jsx:98 — `fontSize: 11` fixed. */
 .use-case-tab__short {
   display: block;
   font-family: var(--f-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
   color: var(--fg-3);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  margin-bottom: 6px;
 }
 .use-case-tab.is-selected .use-case-tab__short {
   color: var(--accent);
 }
 
+/* Canonical UseCases.jsx:101 — `fontSize: 16` fixed. */
 .use-case-tab__label {
   display: block;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 500;
   color: var(--fg-2);
 }
@@ -215,9 +218,14 @@
   }
 }
 
+/* Canonical UseCases.jsx:126-127 — metric-key 10 / fg-3 / 0.14em /
+ * margin-bottom 6; metric-value 18 / 500 / -0.01em. Pre-fix had
+ * 0.62rem (≈9.9) and 1.05rem (≈16.8) — the value undersized by
+ * 1.2 px against canonical, making the SETUP / AUDIT / SCOPE
+ * triplet read smaller than the headline mock. */
 .use-cases__metric-key {
   font-family: var(--f-mono);
-  font-size: 0.62rem;
+  font-size: 10px;
   color: var(--fg-3);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -225,7 +233,7 @@
 }
 
 .use-cases__metric-value {
-  font-size: 1.05rem;
+  font-size: 18px;
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--fg);
@@ -246,12 +254,14 @@
   margin: 0 0 12px;
 }
 
+/* Canonical UseCases.jsx:138 — trace body `fontSize: 12.5`. Was
+ * 0.78rem (≈12.5 at root 16); fixed-px matches exactly. */
 .use-cases__trace-body {
   list-style: none;
   margin: 0;
   padding: 16px 20px;
   font-family: var(--f-mono);
-  font-size: 0.78rem;
+  font-size: 12.5px;
   line-height: 1.85;
   color: var(--fg-1);
   background: var(--bg);
