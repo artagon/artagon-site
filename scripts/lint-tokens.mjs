@@ -89,26 +89,27 @@ function shouldLint(relPath) {
 }
 
 // USMR 5.5.16-pt76 — theme.css uses a token-aware scan instead of the
-// blanket allowlist. A line is treated as a token DEFINITION (raw colors
-// allowed) when it contains either:
-//   - a custom-property declaration (`--anything:` syntax); OR
-//   - a continuation of one: a multi-line --token whose value spans more
-//     than one line (e.g. shadows). We detect continuations by tracking
-//     whether the most recent declaration that has not yet terminated
-//     with `;` is a `--*` declaration.
-//
-// Lines outside any --token declaration (class rules, ::before content,
-// raw gradient stops in non-token rules) are scanned normally.
-function isTokenDefinitionLine(line, inTokenContinuation) {
-  // A line that starts a `--token:` declaration. The match anchors at
-  // the property name (allowing leading whitespace) so values like
-  // `padding: var(--space-12)` (consuming a token) are NOT matched —
-  // var() consumption is `var(--token)`, with `var(` before the dashes.
-  if (/^\s*--[a-zA-Z][\w-]*\s*:/.test(line)) return true;
-  // Mid-declaration continuation of a `--token:` value (e.g. multi-line
-  // box-shadow that didn't terminate with `;` on the previous line).
-  if (inTokenContinuation) return true;
-  return false;
+// blanket allowlist. A char position is INSIDE a token DEFINITION (raw
+// colors allowed) when the most recent declaration boundary (`{`, `;`,
+// or start of file) is followed by `--name:`. This handles:
+//   - one-decl-per-line theme.css style
+//   - multi-decl-per-line cram-coded files
+//   - multi-line values (shadow lists) — continuation across newlines
+//     until the next `;`
+function indexInTokenDeclaration(body, idx) {
+  // Walk back from idx to find the nearest `{` or `;` (declaration
+  // boundary). Then check whether the chars from there to idx open a
+  // `--name:` declaration.
+  let i = idx;
+  while (i > 0) {
+    const ch = body[i - 1];
+    if (ch === ";" || ch === "{") break;
+    i--;
+  }
+  // body[i .. idx] is the current declaration prefix. Match against
+  // `\s*--[\w-]+\s*:` — i.e., whitespace, `--`, an identifier, `:`.
+  const segment = body.slice(i, idx);
+  return /\s*--[a-zA-Z][\w-]*\s*:/.test(segment);
 }
 
 // Strip CSS `/* ... */` comments (replace with same-length whitespace
@@ -133,59 +134,59 @@ function isLineAllowed(line) {
 function scanThemeCss(body, relPath) {
   const violations = [];
   // Strip comments first so prose mentions like "oklch(0.62 …)" inside
-  // /* ... */ don't trigger false positives.
+  // /* ... */ don't trigger false positives. lint-tokens:ok markers
+  // are preserved by stripCssComments so the per-line allow check can
+  // still find them.
   const stripped = stripCssComments(body);
-  const lines = stripped.split("\n");
-  let inTokenContinuation = false;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const isToken = isTokenDefinitionLine(line, inTokenContinuation);
-    if (!isToken && !isLineAllowed(line)) {
-      // Scan this line for raw color literals — but ALLOW them inside
-      // a `var(--token, FALLBACK)` call. Hardcoded fallbacks are a
-      // defensive pattern for browsers/contexts where the token isn't
-      // defined; they're intentional and exercised on theme bootstrap.
-      // Detect by checking whether the match sits inside a `var(...)`.
-      for (const { name, re } of COLOR_PATTERNS) {
-        re.lastIndex = 0;
-        let m;
-        while ((m = re.exec(line)) !== null) {
-          // Walk back from the match to find an unmatched `var(` before
-          // the match position with no closing `)` in between.
-          const before = line.slice(0, m.index);
-          const lastVar = before.lastIndexOf("var(");
-          if (lastVar !== -1) {
-            const between = line.slice(lastVar + 4, m.index);
-            // Count unmatched parens. var() can contain nested parens
-            // (e.g. var(--a, calc(var(--b) + 1px))) so count opens/closes.
-            let opens = 0;
-            let closes = 0;
-            for (const ch of between) {
-              if (ch === "(") opens++;
-              else if (ch === ")") closes++;
-            }
-            // If we're still inside the var(), opens >= closes.
-            if (opens >= closes) {
-              continue;
-            }
-          }
-          const col = m.index + 1;
-          violations.push({
-            relPath,
-            line: i + 1,
-            col,
-            kind: name,
-            text: m[0],
-          });
-        }
-      }
+  // Build a line-start index so we can map character offsets back to
+  // (line, col) for the violation report.
+  const lineStarts = [0];
+  for (let i = 0; i < stripped.length; i++) {
+    if (stripped[i] === "\n") lineStarts.push(i + 1);
+  }
+  const lineOf = (idx) => {
+    // Binary search lineStarts.
+    let lo = 0;
+    let hi = lineStarts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (lineStarts[mid] <= idx) lo = mid;
+      else hi = mid - 1;
     }
-    // Continuation tracking on the original-character line (not the
-    // stripped version) — a comment cannot terminate a declaration.
-    if (/^\s*--[a-zA-Z][\w-]*\s*:/.test(line)) {
-      inTokenContinuation = !line.includes(";");
-    } else if (inTokenContinuation) {
-      inTokenContinuation = !line.includes(";");
+    return { line: lo + 1, col: idx - lineStarts[lo] + 1 };
+  };
+  // Pre-compute which lines carry a /* lint-tokens: ok */ marker.
+  const allowLines = new Set();
+  const origLines = body.split("\n");
+  for (let i = 0; i < origLines.length; i++) {
+    if (isLineAllowed(origLines[i])) allowLines.add(i + 1);
+  }
+  // Scan the whole stripped body for color literals.
+  for (const { name, re } of COLOR_PATTERNS) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(stripped)) !== null) {
+      const idx = m.index;
+      const { line, col } = lineOf(idx);
+      // Allow if the line carries a `/* lint-tokens: ok */` marker.
+      if (allowLines.has(line)) continue;
+      // Allow if the position is inside a `--name:` declaration.
+      if (indexInTokenDeclaration(stripped, idx)) continue;
+      // Allow if inside a `var(--token, FALLBACK)` call. Walk back to
+      // find an unclosed `var(` with no balancing `)` in between.
+      const before = stripped.slice(0, idx);
+      const lastVar = before.lastIndexOf("var(");
+      if (lastVar !== -1) {
+        const between = stripped.slice(lastVar + 4, idx);
+        let opens = 0;
+        let closes = 0;
+        for (const ch of between) {
+          if (ch === "(") opens++;
+          else if (ch === ")") closes++;
+        }
+        if (opens >= closes) continue;
+      }
+      violations.push({ relPath, line, col, kind: name, text: m[0] });
     }
   }
   return violations;

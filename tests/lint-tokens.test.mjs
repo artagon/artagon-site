@@ -99,13 +99,87 @@ test("exits 0 on clean fixture (component css using only var())", () => {
   assert.match(result.stdout, /no raw color literals found/);
 });
 
-test("ALLOWLIST: theme.css with raw OKLCH does NOT trip", () => {
+// USMR Phase 5.5.16-pt76 — theme.css is no longer fully allowlisted.
+// Token DEFINITIONS (raw colors after `--name:`) remain allowed; raw
+// colors anywhere else (class rules, gradients, etc.) are violations.
+test("theme.css token definitions remain allowed (one decl per line)", () => {
+  const result = withFixture(
+    (root) => {
+      writeFile(
+        root,
+        "public/assets/theme.css",
+        ":root {\n  --bg: oklch(0.14 0.008 260);\n  --c: #abc;\n}\n",
+      );
+    },
+    (root) => runScript(root),
+  );
+  assert.equal(result.code, 0);
+});
+
+test("theme.css token definitions remain allowed (multi decl per line)", () => {
+  // The pre-pt76 fixture cram-codes two decls on a single line. The
+  // token-aware scanner walks back from each color match to the
+  // nearest `{` or `;` and checks for `--name:` — so multi-decl lines
+  // work the same as one-per-line.
   const result = withFixture(
     (root) => {
       writeFile(
         root,
         "public/assets/theme.css",
         ":root { --bg: oklch(0.14 0.008 260); --c: #abc; }\n",
+      );
+    },
+    (root) => runScript(root),
+  );
+  assert.equal(result.code, 0);
+});
+
+test("theme.css class-rule with raw color DOES trip (pt76 regression)", () => {
+  // Pre-pt76 this fixture passed (whole-file allowlist). Post-pt76 the
+  // class rule's raw `#abc` is flagged because it's not inside a
+  // `--name:` declaration. Captures the pt74/pt75 latent violations
+  // that pt76 is designed to surface.
+  const result = withFixture(
+    (root) => {
+      writeFile(
+        root,
+        "public/assets/theme.css",
+        ":root { --fg: oklch(0.96 0.005 85); }\n.cta { color: #abc; }\n",
+      );
+    },
+    (root) => runScript(root),
+  );
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /raw hex literal/);
+});
+
+test("theme.css var(--token, FALLBACK) hardcoded fallback is allowed", () => {
+  // Defensive `var(--text, #abc)` patterns are intentional — the
+  // fallback fires only when --text is unset, which shouldn't happen
+  // in well-formed themes but is a safety net for theme bootstrap.
+  const result = withFixture(
+    (root) => {
+      writeFile(
+        root,
+        "public/assets/theme.css",
+        ":root { --fg: oklch(0.96 0.005 85); }\n.x { color: var(--fg, #abc); }\n",
+      );
+    },
+    (root) => runScript(root),
+  );
+  assert.equal(result.code, 0);
+});
+
+test("theme.css /* lint-tokens: ok */ marker exempts gradient stops", () => {
+  // Per-line allow marker for compositing primitives (mask gradients)
+  // and shimmer specular highlights (#fff / #000 anchors that would
+  // lose semantic meaning if tokenized).
+  const result = withFixture(
+    (root) => {
+      writeFile(
+        root,
+        "public/assets/theme.css",
+        ".x { background: linear-gradient(#fff 0%, #000 100%); /* lint-tokens: ok */ }\n",
       );
     },
     (root) => runScript(root),
