@@ -1455,6 +1455,13 @@ header .right .pill {
   white-space: nowrap;
 }
 .skip-link:focus {
+  /* USMR 5.5.16-pt7 — canonical-token migration. Was reading the
+   * legacy 5.1-era aliases (--surface / --text / --border / --shadow)
+   * which still resolve via the alias chain but bypass the canonical
+   * --bg-1 / --fg / --line palette. Rewriting at the canonical layer
+   * makes the skip-link respond cleanly to [data-theme] toggles
+   * (twilight / midnight) and survives the migrate-legacy-tokens-to-
+   * layer OpenSpec change. */
   position: fixed;
   left: 12px;
   top: 12px;
@@ -1462,11 +1469,13 @@ header .right .pill {
   height: auto;
   padding: 0.55rem 0.85rem;
   z-index: 10001;
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
+  background: var(--bg-1);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--accent) 18%, transparent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Anchor targets not hidden under sticky header */
