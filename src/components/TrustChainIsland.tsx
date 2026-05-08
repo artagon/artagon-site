@@ -302,6 +302,10 @@ export default function TrustChainIsland() {
           {SCENARIOS.map((s, i) => (
             <button
               key={s.id}
+              /* USMR Phase 5.5.16-pt141 — id on each tab so the
+                 trust-chain-decision tabpanel can aria-labelledby
+                 the active scenario dynamically. */
+              id={`scenario-tab-${s.id}`}
               type="button"
               role="tab"
               aria-selected={i === scenarioIdx}
@@ -440,6 +444,14 @@ export default function TrustChainIsland() {
 
       <div
         id="trust-chain-decision"
+        /* USMR Phase 5.5.16-pt141 — role="tabpanel" + aria-labelledby
+           pointing at the active scenario tab. Pre-pt141 the decision
+           card had no role, so AT announced it as a generic div even
+           though the scenario dots above were `role="tab"` with
+           `aria-controls="trust-chain-decision"` — a half-built
+           tabpanel pattern. */
+        role="tabpanel"
+        aria-labelledby={`scenario-tab-${scenario.id}`}
         // USMR Phase 5.5.12 — only emit `is-permit` / `is-deny` AFTER
         // the chain has settled (per canonical Hero.jsx:393,396,401-405,
         // 411,413). Pre-settle the decision card paints muted (var(--line-soft)

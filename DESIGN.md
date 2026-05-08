@@ -502,7 +502,7 @@ The two paths share one CSS rule (`public/assets/theme.css` `.standard-chip` blo
 - Final claim line uses mono and shows the actual decision string + latency.
 - Must be simplifiable to a static component on mobile <640px (see §9.2).
 
-**A11y.** Each scenario narrated via `aria-live="polite"`. Reduce-motion users see the full scenario statically with no cycling.
+**A11y.** Each scenario narrated via `aria-live="polite"`. Reduce-motion users see the full scenario statically with no cycling. **WAI-ARIA tab pattern (USMR pt141)**: scenario picker dots are `role="tab"` inside `role="tablist" aria-label="Trust-chain scenarios"`; the decision card below is `role="tabpanel" aria-labelledby={`scenario-tab-${active.id}`}` so the AT user's "select scenario → focus jumps to its panel" mental model works. Each tab carries `id="scenario-tab-${id}"` so the panel can re-target dynamically as the cycle advances. Stage rows are a separate pattern (`aria-pressed` toggle buttons, NOT tabs) since each stage is a presence/state indicator within the active scenario's panel rather than a sibling switchable view.
 
 **Explain layer (Planned).** Opt-in via `<TrustChain explain>` (boolean prop, default `false`). When enabled, each stage row gains a `<TrustChainTooltip>` (see §6.13) exposing what+why+standard. Off by default everywhere; turned on for the public hero and the `/how` page; left off in dashboard/audit-log surfaces where the chain is reference-only and the operator already knows the protocol. **Status: not yet shipped.** The current `<TrustChainIsland />` component accepts no props; the explain layer is tracked as a follow-up to the USMR change. This subsection documents the intended shape so consumers know what to expect when it lands.
 
