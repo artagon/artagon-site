@@ -83,53 +83,34 @@
     --f-serif: "Fraunces", "Instrument Serif", Georgia, serif;
     --f-display: "Space Grotesk", "Inter Tight", sans-serif;
 
-    /* ----- Motion ----- */
-    --motion-duration-instant: 0ms;
-    --motion-duration-fast: 120ms;
-    --motion-duration-base: 180ms;
-    --motion-duration-slow: 300ms;
-    --motion-duration-slower: 480ms;
-
-    --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
-    --motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
-    --motion-easing-decelerate: cubic-bezier(0, 0, 0, 1);
-    --motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
-    --motion-easing-linear: linear;
-
-    /* ----- Elevation (drop shadows; existing --shadow-* preserved unlayered) ----- */
-    --elevation-0: none;
-    --elevation-1: 0 1px 2px rgba(2, 8, 23, 0.2);
-    --elevation-2: 0 2px 6px rgba(2, 8, 23, 0.25);
-    --elevation-3: 0 6px 16px rgba(2, 8, 23, 0.3);
-    --elevation-4: 0 12px 32px rgba(2, 8, 23, 0.35);
+    /* USMR Phase 5.5.16-pt81 — removed unused token clusters:
+     *   --motion-duration-{instant,fast,base,slow,slower} (5 defs)
+     *   --motion-easing-{standard,emphasized,decelerate,accelerate,linear} (5 defs)
+     *   --elevation-{0,1,2,3,4} (5 defs; --elevation-5 retained for Tweaks.astro)
+     * 15 token defs removed total. Each had ZERO consumers in src/ or
+     * public/. The motion + elevation systems were authored as a
+     * design-system specification but never wired into components —
+     * components use scoped transition / box-shadow values directly.
+     * Keeping unused token defs misleads contributors into believing
+     * the system is operational. */
     --elevation-5: 0 24px 48px rgba(2, 8, 23, 0.4);
 
-    /* ----- Focus ring -----
-     * --brand-teal and --bg are unlayered per-theme; BaseLayout always
-     * sets data-theme on <html>, so they always resolve. No `var(--x, ...)`
-     * fallback here — fallbacks would be unreachable dead code that
-     * misleads readers into thinking the ring is theme-aware in the
-     * layered context.
-     */
-    --focus-ring-width: 2px;
-    --focus-ring-offset: 2px;
-    --focus-ring-color: var(--brand-teal);
-    --focus-ring-shadow:
-      0 0 0 var(--focus-ring-offset) var(--bg),
-      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
-        var(--focus-ring-color);
+    /* USMR Phase 5.5.16-pt81 — removed dead `--focus-ring-*` cluster
+     * (--focus-ring-width / --focus-ring-offset / --focus-ring-color /
+     * --focus-ring-shadow). Designed for the pre-pt80 `--ring`-based
+     * focus system but had ZERO consumers anywhere in src/ or public/ —
+     * the global `:focus-visible` rule writes `outline: 2px solid
+     * var(--accent)` directly. Removing closes a documentation /
+     * implementation gap that misled readers into thinking focus rings
+     * are theme-aware. ~14 lines incl. comment. */
 
-    /* ----- z-index scale ----- */
-    --z-base: 0;
-    --z-raised: 10;
-    --z-dropdown: 1000;
-    --z-sticky: 1100;
-    --z-overlay: 1200;
-    --z-modal: 1300;
-    --z-popover: 1400;
-    --z-toast: 1500;
-    --z-tooltip: 1600;
-    --z-debug: 9999;
+    /* USMR Phase 5.5.16-pt81 — removed unused `--z-*` cluster
+     * (--z-base, --z-raised, --z-dropdown, --z-sticky, --z-overlay,
+     * --z-modal, --z-popover, --z-toast, --z-tooltip, --z-debug). 10
+     * token defs, ZERO consumers. Components use raw `z-index: <n>` at
+     * call site. The scale was authored as design-system spec but no
+     * component wired it; Tweaks.astro is the only sticky overlay and
+     * uses `z-index: 9999` directly. */
 
     /* ----- Spacing scale (4px base; legacy --spacing-* / --gap-* preserved) ----- */
     --space-0: 0;
