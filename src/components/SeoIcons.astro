@@ -54,10 +54,16 @@ const {
 <link rel="icon" type="image/png" href="/icons/icon-512.png" sizes="512x512" />
 <link rel="shortcut icon" href="/icons/favicon.ico" />
 
-<!-- Apple iOS — multi-size for iPhone (180) + iPad (152) retina -->
+<!-- Apple iOS — canonical 180x180 covers iPhone retina + iPad
+     scaling. USMR Phase 5.5.16-pt161 — pre-pt161 added two
+     additional <link> tags with sizes="152x152" + sizes="167x167"
+     pointing at icon-128.png (128x128) + icon-180.png (180x180)
+     respectively — both `sizes` attrs misdeclared the actual file
+     dimensions, so iOS would scale the image AND log a console
+     warning. Modern iOS handles 180->152/167 scaling cleanly with
+     no quality loss; the canonical pattern is one apple-touch-icon
+     at 180. -->
 <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
-<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-128.png" />
-<link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-180.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Artagon" />
