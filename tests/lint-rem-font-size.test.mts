@@ -62,12 +62,20 @@ function findRemFontSizes(body: string, rel: string): Finding[] {
   const findings: Finding[] = [];
   const lines = stripped.split("\n");
   const origLines = body.split("\n");
+  // Pattern A: bare `font-size: <n>rem` declaration.
+  // Pattern B: `font-size: clamp(<n>rem, ..., <n>rem)` — pt134 caught
+  //   the regex hole pt129 left open: vision.css had 3 clamp() ranges
+  //   in rem that the bare-rem scanner skipped.
+  const remDecl = /font-size\s*:\s*[0-9.]+rem/;
+  const remInClamp = /font-size\s*:\s*clamp\([^)]*[0-9.]+rem[^)]*\)/;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
-    if (!/font-size\s*:\s*[0-9.]+rem/.test(line)) continue;
+    const matchesBare = remDecl.test(line);
+    const matchesClamp = remInClamp.test(line);
+    if (!matchesBare && !matchesClamp) continue;
     const orig = origLines[i] ?? "";
     if (/lint-rem-font-size:\s*ok/i.test(orig)) continue;
-    const m = line.match(/font-size\s*:\s*[0-9.]+rem[^;]*;?/);
+    const m = line.match(/font-size\s*:\s*[^;]+;?/);
     findings.push({
       file: rel,
       line: i + 1,

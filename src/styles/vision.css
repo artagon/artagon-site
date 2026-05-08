@@ -21,25 +21,43 @@
   text-align: center;
   margin-bottom: var(--spacing-hero-bottom);
 }
+/* USMR Phase 5.5.16-pt134 — canonicalize vision.css hero typography.
+ * Pre-fix shipped:
+ *   - h1 weight 700 (hardcoded heavy) — canonical h1 cascades through
+ *     `--display-weight` token (fraunces 400, grotesk 500, etc.).
+ *     pt122 set the same fix on `.ui-section-header h2`.
+ *   - h1 clamp(40-56) in rem — pt129 converted bare `font-size: <rem>`
+ *     declarations but its scanner skipped `clamp(...rem, ...)`
+ *     ranges. Conversion: 2.5rem ≈ 40, 3.5rem ≈ 56.
+ *   - subtitle weight 300 (light) — non-canonical; the `Inter Tight`
+ *     family does not ship a 300 weight, so it fell back to 400
+ *     unpredictably (browser does the closest match). Pin to 400.
+ *   - subtitle clamp(19.2-24) in rem — same pt129-scanner-miss fix.
+ * Color (`--accent`) intentionally preserved — /vision is a doc page
+ * with its own brand-feel, not a marketing hero. */
 .vision-doc .hero-section h1 {
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-weight: 700;
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: var(--display-weight, 500);
   color: var(--accent);
   margin: 0 0 0.5rem;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--display-tracking, -0.02em);
 }
 .vision-doc .hero-subtitle {
-  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  font-size: clamp(19px, 3vw, 24px);
   color: var(--fg-2);
   margin: 0 0 2rem;
-  font-weight: 300;
+  font-weight: 400;
 }
 .vision-doc .mission-statement {
   max-width: 900px;
   margin: 2rem auto 0;
 }
 .vision-doc .mission-text {
-  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  /* USMR Phase 5.5.16-pt134 — clamp(1.3-1.8rem) → clamp(21-29 px).
+   * Same pt129-scanner-miss fix as the hero h1/subtitle. Weight 600
+   * preserved — this is the mission statement, intentionally heavier
+   * than body 400 to read as a proclamation. */
+  font-size: clamp(21px, 2.5vw, 29px);
   font-weight: 600;
   color: var(--accent);
   margin: 0;
@@ -64,12 +82,16 @@
 .vision-doc .pillars-title {
   /* USMR Phase 5.5.16-pt129 — 1.8rem ≈ 28.8 → 29 px (section
    * heading; intentionally smaller than the canonical h2 36-60
-   * range because /vision is a content-doc, not a marketing page). */
+   * range because /vision is a content-doc, not a marketing page).
+   * USMR Phase 5.5.16-pt134 — weight 700 → token cascade
+   * (`var(--display-weight, 500)`) per the same fix pt122 applied to
+   * `.ui-section-header h2`. Hardcoded heavy weights block the
+   * [data-hero-font] cascade. */
   font-size: 29px;
   color: var(--accent);
   margin: 4rem 0 2rem;
   text-align: center;
-  font-weight: 700;
+  font-weight: var(--display-weight, 500);
 }
 .vision-doc .mission-breakdown h3 {
   color: var(--accent);
