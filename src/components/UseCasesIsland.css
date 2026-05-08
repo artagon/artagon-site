@@ -15,13 +15,24 @@
   padding-inline: clamp(24px, 4vw, 40px);
 }
 
+/* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
 .use-cases__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--f-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--fg-3);
-  margin: 0 0 0.5rem;
+  color: var(--fg-2);
+  margin: 0 0 24px;
+}
+.use-cases__eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--accent);
 }
 
 .use-cases__title {

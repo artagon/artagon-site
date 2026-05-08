@@ -22,13 +22,28 @@
   padding-inline: clamp(24px, 4vw, 40px);
 }
 
+/* Canonical .eyebrow contract — global.css:220-226. font 12 / fg-2 /
+ * 0.1em / margin-bottom 24 / 18 px accent dash via ::before. The
+ * pre-canonical sizing (0.72rem / fg-3 / 0.12em / 0.5rem) appeared
+ * across all 5 island eyebrows and was canonicalized in
+ * USMR 5.5.16-pt16. */
 .pillars__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--f-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--fg-3);
-  margin: 0 0 0.5rem;
+  color: var(--fg-2);
+  margin: 0 0 24px;
+}
+.pillars__eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--accent);
 }
 
 .pillars__title {

@@ -1201,11 +1201,28 @@ nav a:hover {
     font-size: 3rem;
   }
 }
+/* Canonical .eyebrow — new-design global.css:220-226. Section-break
+ * primitive: mono uppercase 12 px / fg-2 / 0.1em tracking with a
+ * leading 18 px accent dash that anchors every section eyebrow on
+ * the site. Pre-canonical (5.1-era) used `var(--muted)` / 0.18em /
+ * 0.75rem with no dash. */
 .eyebrow {
-  color: var(--muted, #94a3b8);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--fg-2);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.75rem;
+  margin-bottom: 24px;
+}
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--accent);
 }
 .pill {
   display: inline-flex;
