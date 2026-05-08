@@ -144,10 +144,12 @@
   }
 }
 
+/* Canonical UseCases.jsx:114 — panel-head is just `<div>` with no
+ * gap. Each child carries its own marginBottom (eyebrow 12, title
+ * 14). Pre-fix flex column with gap 12 ADDED 12 px on top of each
+ * child's marginBottom, doubling the spacing. */
 .use-cases__panel-head {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: block;
 }
 
 /* Canonical UseCases.jsx:115-118 — panel-eyebrow font 11 / fg-3 /
