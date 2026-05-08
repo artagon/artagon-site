@@ -192,4 +192,21 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
     expect(box?.width).toBeGreaterThanOrEqual(34);
     expect(box?.height).toBeGreaterThanOrEqual(34);
   });
+
+  // USMR 5.5.16-pt5 — canonical CTA routing per BaseLayout.jsx:239-240.
+  // Both header CTAs jump to home anchors, NOT separate routes. The
+  // earlier 5.1l routing (Playground → /play, Request access →
+  // /get-started) bypassed the canonical anchor pattern; /play is a
+  // noindex shim and surfaced a "Placeholder page" landing.
+  test("header CTAs route to canonical home anchors", async ({ page }) => {
+    await page.goto("/");
+    const playground = page.locator(".site-nav .right a.btn", {
+      hasText: "Playground",
+    });
+    const request = page.locator(".site-nav .right a.btn.primary", {
+      hasText: "Request access",
+    });
+    await expect(playground).toHaveAttribute("href", "/#playground");
+    await expect(request).toHaveAttribute("href", "/#get-started");
+  });
 });

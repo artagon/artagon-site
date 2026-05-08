@@ -62,6 +62,23 @@ test.describe("Footer (canonical 4×5 structure)", () => {
     await expect(github).toHaveAttribute("rel", /noopener.*noreferrer/);
   });
 
+  // USMR 5.5.16-pt5 — canonical Developers col composition is
+  // Docs · SDKs · CLI · GitHub · Standards (BaseLayout.jsx:258-264).
+  // The 5.5.3 port renamed CLI → Playground; pt5 reverted that rename.
+  test("Developers column is canonical: Docs · SDKs · CLI · GitHub · Standards", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const labels = (
+      await page
+        .locator(".site-footer .footer-col")
+        .nth(1)
+        .locator("ul li a")
+        .allTextContents()
+    ).map((s) => s.trim());
+    expect(labels).toEqual(["Docs", "SDKs", "CLI", "GitHub", "Standards"]);
+  });
+
   test("Legal column placeholders use '#' anchors (canonical pattern)", async ({
     page,
   }) => {
