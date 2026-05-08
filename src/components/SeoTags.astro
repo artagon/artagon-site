@@ -244,6 +244,15 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
 {type === 'article' && tags.map((t) => (
   <meta property="article:tag" content={t} />
 ))}
+{/* USMR Phase 5.5.16-pt154 — article:author OG meta tag, parity
+    with pt151's Article JSON-LD author fix. Pre-pt154 the JSON-LD
+    shipped Person while the OG namespace had no article:author at
+    all — Facebook / LinkedIn / Slack unfurlers rely on OG, not
+    JSON-LD, so the visible author byline was missing from every
+    social-preview card. */}
+{type === 'article' && author && (
+  <meta property="article:author" content={author} />
+)}
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@artagon" />
 <meta name="twitter:creator" content="@artagon" />
