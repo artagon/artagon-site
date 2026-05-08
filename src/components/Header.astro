@@ -61,8 +61,15 @@ const NAV_LINKS = [
           />
         </svg>
       </a>
-      <a class="btn nav-cta-ghost" href="/play">Playground</a>
-      <a class="btn primary nav-cta-primary" href="/get-started"
+      {/* Canonical BaseLayout.jsx:239-240 routes both header CTAs to
+       * home-page anchors, NOT separate routes. /play is a noindex
+       * shim; /#playground jumps to the live HomeExplore section
+       * (5.5.6 anchor target). /get-started exists as a real page,
+       * but the canonical points at /#get-started for consistency
+       * — anchor jumps from /platform / /bridge / etc. land cleanly
+       * on the on-home onRamp card without a route reload. */}
+      <a class="btn nav-cta-ghost" href="/#playground">Playground</a>
+      <a class="btn primary nav-cta-primary" href="/#get-started"
         >Request access</a
       >
       <ThemeToggle />

@@ -378,6 +378,8 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Tokens.** `--bg` (72% w/ backdrop blur) · `--line-soft` · `--fg-1` · `--accent` (active underline).
 
+**CTA routing (USMR 5.5.16-pt5).** The Playground ghost CTA points at `/#playground` (the live HomeExplore section) and the Request access primary CTA points at `/#get-started` (the on-home onRamp card) per canonical BaseLayout.jsx:239-240. Both anchors land on the home page and scroll to the matching section; from non-home routes the browser navigates first then scrolls. The earlier 5.1l routing (Playground → `/play` shim, Request access → `/get-started` route) bypassed the canonical anchor pattern; `/play` is a noindex shim and surfaces a "Placeholder page" landing if reached directly.
+
 **A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus rings visible in both themes. Each link's hit target is ≥ 44 × 44 CSS px per WCAG 2.5.5 (`min-height: 44px` on `.site-nav .links a` since 5.5.11; visible underline still tracks the original 6px baseline).
 
 **Mobile menu (USMR Phase 5.5.11).** Below 720px viewport the link list and right cluster collapse. A 44×44 hamburger button (`<button class="nav-toggle">`) appears; clicking toggles `body.nav-open`. Open-state slides the link panel below the sticky bar (`top: 64px`) and docks the CTA cluster at the viewport bottom (`top: auto; bottom: 0`). Hamburger spans rotate into an `X` via `translate + rotate(±45deg)`; `prefers-reduced-motion: reduce` zeros the transition. Inline `<script>` binds the click handler and toggles the button's `aria-expanded`. Replaces the 5.1-era `.menu` / `.menu-btn` block deleted in 5.5.11.
@@ -401,6 +403,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 - Column links are LEFT-ALIGNED inside each column (default `text-align: start`); the `.footer-col ul` MUST set `align-items: stretch` to override the global `nav ul { align-items: center }` rule that the header relies on (Footer.astro wraps cols in `<nav>` for semantics, so the descendant selector cascades in).
 - Link row density (canonical Hero.jsx:293-296): `font-size: 13.5px`, `line-height: 1.55`, `padding-block: 2px`, `gap: 10px`. Center-to-center distance is ~34.9 px, ≥ WCAG 2.5.8 AA (24×24) under the dense-link-block spacing rule. Do NOT enforce `min-height: 44px` on each link — it visually centers each label inside a 44 px box and inflates the column to ~250 px (canonical column reads as ~120 px).
 - The brand column has wordmark + positioning blurb ONLY. ThemeToggle was injected here in 5.1g; that placement was non-canonical and was removed in 5.5.16. The toggle still ships in the header `.right` cluster — the footer is a sitemap, not a control surface.
+- Developers column composition (canonical BaseLayout.jsx:258-264): Docs · SDKs · CLI · GitHub · Standards. The 5.5.3 port renamed CLI → Playground; 5.5.16-pt5 reverted that rename. CLI lands on `'#'` placeholder until the route ships (same canonical pattern Legal uses for Terms / Trust center / DPA / Sub-processors).
 
 ### 6.3 Glow-tag (eyebrow)
 

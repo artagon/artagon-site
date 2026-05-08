@@ -40,11 +40,16 @@ const cols = [
     ],
   },
   {
+    // Canonical Developers col (BaseLayout.jsx:258-264): Docs / SDKs /
+    // CLI / GitHub / Standards. The 5.5.3 port renamed CLI → Playground;
+    // canonical fidelity restored here. CLI doesn't ship as a route
+    // yet — `'#'` placeholder per the same canonical pattern Legal
+    // uses for Terms / Trust center / DPA / Sub-processors.
     label: 'Developers',
     links: [
       { href: '/docs',       text: 'Docs' },
       { href: '/developers', text: 'SDKs' },
-      { href: '/play',       text: 'Playground' },
+      { href: '#',           text: 'CLI' },
       { href: 'https://github.com/artagon', text: 'GitHub', external: true },
       { href: '/standards',  text: 'Standards' },
     ],
