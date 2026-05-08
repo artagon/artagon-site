@@ -748,10 +748,14 @@ nav a:hover {
     background 0.18s ease,
     border-color 0.18s ease,
     transform 0.18s ease;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   font-weight: 500;
   font-size: 14px;
+  /* Canonical .btn (global.css:236-244) does NOT use backdrop-filter
+   * or box-shadow — it's a flat bordered pill. The pre-canonical
+   * `backdrop-filter: blur(8px)` + `box-shadow: 0 2px 8px rgba(0,0,0,
+   * 0.1)` were 5.1-era decorative additions that pushed every CTA
+   * one z-layer above the canvas. Drop both for canonical fidelity;
+   * the .btn.primary hover provides its own accent-tinted shadow. */
 }
 
 /* USMR 5.5.16 — legacy `.btn::before "◆"` decoration removed
