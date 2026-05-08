@@ -485,12 +485,17 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
    * pre-canonical 20×22 + 156 min-height locked rows even when the
    * description was a single line, leaving wide whitespace. */
   .post-footer__cta-card {
+    /* Canonical post-trusted-identity.html:452-453 — `border-radius:
+     * 14px` (we shipped 12 in 5.5.16-pt1). Subtle but the canonical
+     * radius matches the .onramp__card 16px / .post-body chain-fig
+     * 12px family — 14 lands the post-footer cards midway, which
+     * reads as the canonical visual rhythm. */
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 26px;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 14px;
     background: var(--bg-1);
     text-decoration: none;
     color: inherit;
