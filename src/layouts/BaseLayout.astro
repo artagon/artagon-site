@@ -83,7 +83,12 @@ const path = passthrough.path ?? '/';
     <slot name="json-ld" />
     <slot name="indexation" />
     <slot name="branding" />
-    <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
+    <script>document.documentElement.classList.remove('no-js');</script>
+    <!-- USMR Phase 5.5.16-pt85 — removed dead toggleMenu() function.
+         It targeted `#menu-btn` and `#menu` IDs that don't exist in
+         the markup. Mobile menu is owned by Header.astro's
+         `[data-nav-toggle]` handler + `body.nav-open` pivot per
+         canonical index.html:387-421. -->
     <script is:inline>
 window.__setTheme = function(t){
   // Validate against the allow-list before applying. Anything outside

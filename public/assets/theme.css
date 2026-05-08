@@ -1245,20 +1245,13 @@ a {
 header {
   min-height: var(--nav-h);
 }
-header .nav {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  height: var(--nav-h);
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  line-height: 1;
-  height: var(--ctl-h);
-}
+/* USMR Phase 5.5.16-pt85 — removed bare `header .nav` (display: grid)
+ * and `.brand` rules. Both fully overridden by Header.astro scoped
+ * `.site-nav .nav` (display: flex) and `.site-nav__brand`. Pre-fix
+ * `header .nav { display: grid; grid-template-columns: auto 1fr auto }`
+ * conflicted with the scoped `display: flex` (scoped wins via
+ * attribute-selector specificity, so the grid declarations were
+ * already dead — removing makes the conflict visible). */
 /* USMR Phase 5.5.16-pt84 — removed pre-USMR `header .links*` rule
  * cluster (~57 lines) and the `header .right .pill` + `@keyframes
  * tagline-shimmer` block (~33 lines). 90 lines of dead pre-USMR CSS:
@@ -1282,20 +1275,10 @@ header .nav {
  * `header .links a::after`'s `var(--brand-sky)` removed.
  */
 
-/* Mobile menu button */
-.menu-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  font: inherit;
-  transition: all 0.2s ease;
-}
-header .right {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
+/* USMR Phase 5.5.16-pt85 — removed `.menu-btn` rule (orphan; pre-USMR
+ * mobile-menu pattern superseded by Header.astro `.nav-toggle` per
+ * canonical index.html:387-421). Plus removed bare `header .right`
+ * (fully overridden by Header.astro scoped `.site-nav .right`). */
 
 /* Accessible skip link: hidden until keyboard focus */
 .skip-link {
