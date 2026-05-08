@@ -22,7 +22,15 @@ const NAV_LINKS = [
 
 <header class="site-nav">
   <div class="container nav">
-    <a class="brand site-nav__brand" href="/" aria-label="Artagon Home">
+    {/* USMR Phase 5.5.16-pt173 — aria-label="Artagon home" (lowercase
+        'h') matches Footer's brand link. Pre-pt173 Header used
+        "Artagon Home" (title-case) and Footer used "Artagon home"
+        (sentence-case) — same destination, different AT
+        announcement, inconsistent across the two surfaces a screen
+        reader user encounters on every page. Sentence-case is the
+        canonical project pattern (matches `aria-label="Toggle
+        navigation"` etc.). */}
+    <a class="brand site-nav__brand" href="/" aria-label="Artagon home">
       <ArtagonGlyph class="site-nav__glyph" />
       <span class="site-nav__wordmark">Artagon</span>
     </a>
