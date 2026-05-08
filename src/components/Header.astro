@@ -354,4 +354,32 @@ const NAV_LINKS = [
       transition: none;
     }
   }
+
+  /* USMR Phase 5.5.16-pt125 — forced-colors mode overrides per
+   * DESIGN.md §7. Header renders on every page so it MUST honor
+   * the OS high-contrast contract. The OKLCH --accent token has
+   * no semantic meaning under forced-colors (Windows High Contrast
+   * remaps every color to a system palette: Canvas / CanvasText /
+   * Highlight / LinkText / etc.). Map:
+   *   - hover/focus border + active link border → Highlight
+   *   - primary CTA background → ButtonText (accent ink contrast)
+   *   - focus outlines → Highlight (browser default 2px)
+   *   - body backgrounds → Canvas / ButtonFace
+   * Components: site-nav (active link), nav-toggle (focus), and the
+   * header CTAs (.btn / .btn.primary inherit from theme.css's
+   * forced-colors block; only header-scoped accent uses overridden
+   * here). */
+  @media (forced-colors: active) {
+    .site-nav .links a[aria-current="page"],
+    .site-nav .links a:hover {
+      border-color: Highlight;
+    }
+    .nav-toggle:focus-visible,
+    .site-nav a:focus-visible {
+      outline-color: Highlight;
+    }
+    .nav-toggle span {
+      background: CanvasText;
+    }
+  }
 </style>

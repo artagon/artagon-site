@@ -285,4 +285,23 @@ const cols = [
     gap: var(--space-2);
   }
 }
+
+/* USMR Phase 5.5.16-pt125 — forced-colors overrides per DESIGN.md
+ * §7. Footer renders on every page; OS high-contrast mode (Windows
+ * High Contrast / forced-colors: active) remaps colors to the
+ * system palette, so OKLCH --accent loses meaning. Map link hover
+ * to Highlight (the standard hover affordance) and ensure the
+ * heading + meta colors fall through to CanvasText / GrayText. */
+@media (forced-colors: active) {
+  .footer-col a:hover,
+  .footer-col a:focus-visible {
+    color: Highlight;
+  }
+  .footer-col h3 {
+    color: CanvasText;
+  }
+  .footer-meta {
+    color: GrayText;
+  }
+}
 </style>
