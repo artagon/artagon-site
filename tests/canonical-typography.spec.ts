@@ -28,21 +28,39 @@ test.describe("Canonical typography + rhythm gates", () => {
     );
   });
 
-  test("bare h1 font-weight is 400 (canonical Space Grotesk regular)", async ({
+  test(".blog-hero h1 font-weight is 500 (canonical post-detail medium)", async ({
     page,
   }) => {
-    // /writing/welcome has a bare-h1 (no .display utility scoping)
-    // — the post-detail title. Pre-pt31 + pre-pt42 it rendered at 500
-    // because (a) the global h1 catch-all set 500, (b) .display
-    // utility set 500 with higher specificity than the h1-specific
-    // 400 rule.
+    // USMR Phase 5.5.16-pt99 corrected an earlier misread. Canonical
+    // `new-design/extracted/src/pages/blog.html:341` defines
+    //   .blog-hero h1 { font-weight: var(--display-weight, 500) }
+    // — the post-detail title falls back to 500. The home `h1.display`
+    // utility class falls back to 400 (different selector, different
+    // intent). Pre-pt31 we caught the home h1 rendering at 500 and
+    // forced 400 across the board; pre-pt99 the .blog-hero__title
+    // inherited the bare-h1 400 too. pt99 restored the canonical 500
+    // fallback to .blog-hero__title only.
     await page.goto("/writing/welcome", { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts.ready);
     const weight = await page.$eval(
       "h1.blog-hero__title",
       (el) => getComputedStyle(el).fontWeight,
     );
-    // Browsers report font-weight as a string (e.g. "400")
+    expect(weight).toBe("500");
+  });
+
+  test("home hero h1.display font-weight is 400 (canonical Space Grotesk regular)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt99 — verifies the home Hero h1 stays at 400
+    // (canonical `h1.display { font-weight: var(--display-weight, 400) }`).
+    // This is intentionally distinct from .blog-hero h1's 500 fallback.
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const weight = await page.$eval(
+      ".hero h1.display",
+      (el) => getComputedStyle(el).fontWeight,
+    );
     expect(weight).toBe("400");
   });
 

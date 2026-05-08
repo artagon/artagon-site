@@ -214,11 +214,19 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
    * forced 500 on every post-detail h1 since [data-hero-font]
    * doesn't override --display-weight to 400 except for fraunces /
    * dmserif / mono variants. */
+  /* USMR Phase 5.5.16-pt99 — canonical .blog-hero h1 (blog.html:339-344)
+   * uses `font-weight: var(--display-weight, 500)`. Pre-pt99 inherited
+   * the bare h1 weight: 400 (canonical home .display utility falls
+   * back to 400, post-detail blog-hero falls back to 500 — they're
+   * intentionally different per canonical). The `.display` utility
+   * class on the h1 doesn't set weight (per pt42 fix), so we restore
+   * the canonical 500 fallback explicitly here. */
   .blog-hero__title {
     font-family: var(--f-display);
     font-size: clamp(40px, 5.4vw, 68px);
     line-height: 1.02;
     letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
     color: var(--fg);
     margin: 0 0 24px;
     max-width: 22ch;
