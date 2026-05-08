@@ -316,7 +316,7 @@ Every hero `<h1>` / `<h2>` may contain an italic `<em>` span (e.g. `Three pillar
 | `dmserif`          | DM Serif Display | `inherit`                   | display-serif throughout |
 | `mono`             | JetBrains Mono   | `inherit`                   | mono italic throughout   |
 
-The `inherit` cases drop the italic span back to the surrounding family — never a clashing swap. Italic styling (`font-style: italic`) stays on the span unconditionally; every shipped face has an italic variant. The `tests/hero-font-matrix.spec.ts` Playwright contract (Phase 5.2.7) gates the table against future regressions.
+The `inherit` cases drop the italic span back to the surrounding family — never a clashing swap. Italic styling (`font-style: italic`) stays on the span unconditionally; every shipped face has an italic variant. **Test gate (USMR Phase 5.5.15):** `tests/hero-font-matrix.spec.ts` is a Playwright matrix that toggles `[data-hero-font]` to each of the four variants and asserts (a) `--f-display` head matches the canonical font-stack, (b) `--display-tracking` and `--display-weight` resolve to the per-face values, (c) `--f-emphasis` swaps to `var(--f-serif)` under grotesk and inherits otherwise, and (d) the home `<h1>` `font-family` propagates from the toggled root. Closes the phantom-test promise that DESIGN.md had been making since Phase 5.2.7.
 
 Earlier drafts of this section pointed at `src/styles/global.css`, which is not a file in this project; corrected in USMR Phase 5.1p.16.
 
@@ -376,7 +376,9 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Tokens.** `--bg` (72% w/ backdrop blur) · `--line-soft` · `--fg-1` · `--accent` (active underline).
 
-**A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus rings visible in both themes.
+**A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus rings visible in both themes. Each link's hit target is ≥ 44 × 44 CSS px per WCAG 2.5.5 (`min-height: 44px` on `.site-nav .links a` since 5.5.11; visible underline still tracks the original 6px baseline).
+
+**Mobile menu (USMR Phase 5.5.11).** Below 720px viewport the link list and right cluster collapse. A 44×44 hamburger button (`<button class="nav-toggle">`) appears; clicking toggles `body.nav-open`. Open-state slides the link panel below the sticky bar (`top: 64px`) and docks the CTA cluster at the viewport bottom (`top: auto; bottom: 0`). Hamburger spans rotate into an `X` via `translate + rotate(±45deg)`; `prefers-reduced-motion: reduce` zeros the transition. Inline `<script>` binds the click handler and toggles the button's `aria-expanded`. Replaces the 5.1-era `.menu` / `.menu-btn` block deleted in 5.5.11.
 
 **Do** use sentence case for link labels.
 **Don't** add a seventh top-level link without deleting one — the ceiling is 5 text links + 1 icon + 2 CTAs.
@@ -963,6 +965,48 @@ Small utility classes that ride alongside the named components above. They ship 
 - Forced-colors override: hover tint resolves to `Canvas`, border + CTA resolve to `Highlight`.
 
 **Status: shipped.** USMR Phase 5.5.2 — `src/components/HomeExplore.astro` mounted in `src/pages/index.astro` between the writing strip and the on-ramp `#get-started` section.
+
+### 6.24 Get-started landing page (`/get-started`)
+
+**Purpose.** Stand-alone landing page for the design-partner program. Mirrors the canonical `Cta.jsx` composition (`new-design/extracted/src/components/Cta.jsx:7-67`) so users who arrive at `/get-started` directly (Hero primary CTA, Header "Request access" button, every onRamp CTA on /writing posts, footer "Contact" link) see the same on-ramp UX as the in-page `#get-started` anchor on home.
+
+**Anatomy.**
+
+- Outer card (1px `var(--line)`, 16px radius, linear-gradient `var(--bg-1) → var(--bg)` 135deg, 72px top padding to clear the absolute-positioned strip).
+- Mono caption strip absolutely-positioned at top: `artagon · design partner program` left, `accepting ~12 partners for Q2` right.
+- 2-column grid: 1.2fr lead column (display headline with serif italic emphasis on "next" + 17px lede + 2 CTAs — primary mailto + ghost github.com/artagon with `target="_blank"` + sr-only "(opens in new tab)") and 1fr contact card (1px `var(--line)`, 12px radius, 28px padding, mono 13px, 4 rows: Enterprise / General / Security / Location resolved through `ORG.contacts`, with PGP footnote below).
+- Collapses to single column at < 720 px.
+
+**Rules.**
+
+- The primary CTA href is `mailto:` resolved via `ORG.contacts.find(c => c.label === 'General')` so renames/relabels in `src/data/organization.ts` propagate automatically.
+- The page is a real Astro route — NOT a `noindex` shim — so it's discoverable + indexable as the design-partner conversion target.
+- USMR Phase 5.5.14 replaced the earlier stub-quality version (links to `/console` + `/docs`, both broken) with the canonical Cta.jsx-shaped page.
+
+**Status: shipped.** USMR Phase 5.5.14 — `src/pages/get-started/index.astro` rewritten end-to-end. Hero primary CTA (`#get-started` anchor) AND the dedicated `/get-started` route both land on conversion paths.
+
+### 6.25 404 page
+
+**Purpose.** Recovery surface — replaces a dead-end "Page not found" with 5 navigable entry points back into the marketing site. The previous 5.1-era version offered one home link only.
+
+**Anatomy.**
+
+- Brand frame (`Header` + `Footer` slots).
+- 760px max-width content card with mono `Error · 404` eyebrow, display headline ("We couldn't find that **page**." — italic-serif emphasis on "page"), 17px lede.
+- 5 recovery links rendered as a `<ul role="list">`: Platform / Bridge / Standards / Writing / Get started — each row is a 200px label + 1fr description + accent arrow grid; hover tints `color-mix(in oklab, var(--accent) 4%, transparent)`. Collapses to single column < 540 px.
+
+**Rules.**
+
+- 404 is intentionally crawlable (no `noindex`) so search engines see the soft-404 signal correctly.
+- Recovery-link list is hand-curated — not derived from sitemap — so 404s prioritize the canonical conversion path (Platform → Standards → Writing → Get-started) instead of every route alphabetically.
+
+**A11y.**
+
+- `<ul role="list">` for the recovery links so screen readers announce as a list.
+- `:focus-visible` outline 2px `var(--accent)` with 2px offset on each link.
+- Forced-colors override: hover tint resolves to `Canvas`, focus outline to `Highlight`.
+
+**Status: shipped.** USMR Phase 5.5.14 — `src/pages/404.astro`.
 
 ---
 
