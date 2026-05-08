@@ -371,7 +371,7 @@ WCAG 2.1 AA is the floor (project convention is WCAG 2.2 AA where it tightens 2.
 - **Reduced motion**: `@media (prefers-reduced-motion: reduce)` blocks set `animation: none` and `transition: none` on animated UI; in particular the upstream `glow-tag` / `glow-text-shimmer` etc. (see [`new-design/extracted/src/styles/global.css`](./new-design/extracted/src/styles/global.css) lines 200-202).
 - **Forced colors**: `@media (forced-colors: active)` overrides map semantic aliases to system colors (`Canvas` / `CanvasText` / `Highlight` / `Mark`). Trust-chain tints derived via `color-mix()` lose meaning in forced-colors mode without explicit overrides.
 - **Pointer + keyboard + touch parity**: every interactive component on a content route must support all three modalities. Hover-only affordances need a tap-toggle equivalent on touch (`aria-pressed`).
-- **Live region announcements**: `aria-live="polite"` on the trust-chain decision card; `tests/screen-reader.spec.ts` (Phase 6) drives Tab-navigation as a proxy for actual SR announcements.
+- **Live region announcements**: `aria-live="polite"` on the trust-chain decision card. The planned screen-reader Tab-navigation proxy test (owned by [`enhance-a11y-coverage`](./openspec/changes/enhance-a11y-coverage/), Phase 6) is the next step beyond axe-core; until it ships, today's coverage is the live-region attribute itself plus the axe-core audit at [`tests/home-axe.spec.ts`](./tests/home-axe.spec.ts).
 - **Automated CI gate**: [`tests/home-axe.spec.ts`](./tests/home-axe.spec.ts) runs `@axe-core/playwright` on chromium / webkit / Mobile Safari with WCAG 2.1 A + AA tags; gate flips from informational to mandatory after `enhance-a11y-coverage` Phase 4 lands.
 
 <!-- ACCESSIBILITY:END -->
