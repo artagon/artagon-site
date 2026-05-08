@@ -101,6 +101,66 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
   });
 });
 
+// USMR 5.5.16 — mobile hamburger contract. The 5.5.11 menu contract
+// was never gated in Playwright; iter 5 of the canonical-fidelity
+// sweep added this regression backstop. Validates: 44×44 toggle visible
+// only below 720px, body.nav-open pivot, fixed-position panels (links
+// at top:64px, right docked at bottom:0), aria-expanded sync.
+test.describe("Header — mobile hamburger menu", () => {
+  test("toggle is hidden on desktop, visible 44×44 below 720px", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await page.goto("/");
+    const toggle = page.locator(".nav-toggle");
+    await expect(toggle).toBeHidden();
+
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(toggle).toBeVisible();
+    const box = await toggle.boundingBox();
+    expect(box?.width).toBe(44);
+    expect(box?.height).toBe(44);
+  });
+
+  test("clicking toggle opens menu, swaps aria-expanded, fixed-positions panels", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    const toggle = page.locator(".nav-toggle");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+
+    // body.nav-open class drives the open-state pivot
+    const bodyOpen = await page.evaluate(() =>
+      document.body.classList.contains("nav-open"),
+    );
+    expect(bodyOpen).toBe(true);
+
+    // Links panel slides below the sticky bar (top:64px); right panel
+    // docks at the viewport bottom (bottom:0).
+    const linksPos = await page.$eval(".site-nav .links", (el) => ({
+      display: getComputedStyle(el).display,
+      position: getComputedStyle(el).position,
+      top: getComputedStyle(el).top,
+    }));
+    expect(linksPos.display).toBe("flex");
+    expect(linksPos.position).toBe("fixed");
+    expect(linksPos.top).toBe("64px");
+
+    const rightPos = await page.$eval(".site-nav .right", (el) => ({
+      display: getComputedStyle(el).display,
+      position: getComputedStyle(el).position,
+      bottom: getComputedStyle(el).bottom,
+    }));
+    expect(rightPos.display).toBe("flex");
+    expect(rightPos.position).toBe("fixed");
+    expect(rightPos.bottom).toBe("0px");
+  });
+});
+
 // USMR 5.5.16 — canonical NAV_LINKS (BaseLayout.jsx:203-208) is
 // exactly 4 entries: Platform / Use cases / Standards / Writing.
 // GitHub is a 34×34 icon button in `.right`, NOT a `<li>` in the
