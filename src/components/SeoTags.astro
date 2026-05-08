@@ -242,6 +242,13 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
 <title>{title}</title>
 <meta name="description" content={metaDescription} />
 <link rel="canonical" href={url} />
+{/* USMR Phase 5.5.16-pt197 — RSS auto-discovery. Without this
+    `<link>`, browser RSS extensions, feed aggregators, and
+    discovery crawlers can't find /writing/feed.xml even though
+    it builds and ships. Emitted on every page so any inbound
+    visitor (homepage, blog, deep article link) can subscribe
+    via their reader of choice. */}
+<link rel="alternate" type="application/rss+xml" title="Artagon — Writing" href="/writing/feed.xml" />
 {robots && <meta name="robots" content={robots} />}
 <meta property="og:title" content={title} />
 <meta property="og:description" content={metaDescription} />
