@@ -513,15 +513,26 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   .writing-strip__more:focus-visible {
     text-decoration: underline;
   }
+  /* Canonical home writing 3-up — index.html:1487-1508 (grid-writing-3up).
+   * The pre-canonical layout consumed `--line` border / 0.15s transition
+   * / `--accent` hover / smaller title; the canonical card-on-canvas
+   * variant uses `--line-soft` (subtler frame), 0.22s transition (less
+   * snappy), `--accent-dim` hover (deeper teal), and a 22 px title that
+   * lines up with the explore-grid card title size. */
   .writing-strip__list {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: var(--space-6);
+    gap: 20px;
     grid-template-columns: repeat(3, 1fr);
   }
   @media (max-width: 900px) {
+    .writing-strip__list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 540px) {
     .writing-strip__list {
       grid-template-columns: 1fr;
     }
@@ -529,50 +540,68 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   .writing-strip__link {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
-    height: 100%;
-    padding: var(--space-6);
-    border: 1px solid var(--line);
+    gap: 14px;
+    min-height: 280px;
+    padding: 28px 24px 24px;
+    border: 1px solid var(--line-soft);
     border-radius: 12px;
     color: inherit;
     text-decoration: none;
     background: var(--bg-1);
     transition:
-      border-color 0.15s ease,
-      transform 0.15s ease;
+      border-color 0.22s ease,
+      background 0.22s ease,
+      transform 0.22s ease;
   }
   .writing-strip__link:hover,
   .writing-strip__link:focus-visible {
-    border-color: var(--accent);
+    border-color: var(--accent-dim, var(--accent));
     transform: translateY(-2px);
+  }
+  .writing-strip__link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
   .writing-strip__date {
     font-family: var(--f-mono);
-    font-size: var(--fs-micro);
-    color: var(--fg-2);
+    font-size: 10.5px;
+    color: var(--fg-3);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
   }
   .writing-strip__title {
-    font-size: 1.25rem;
-    line-height: 1.25;
-    margin: 0;
+    font-family: var(--f-display);
+    font-size: 22px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    margin: 4px 0 0;
+    font-weight: 500;
   }
+  /* Canonical excerpt — 13.5 px / fg-2 / 1.5 line-height (was inheriting
+   * body 1.55). The 3-line clamp survives. */
   .writing-strip__lede {
     color: var(--fg-2);
-    line-height: 1.55;
+    font-size: 13.5px;
+    line-height: 1.5;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  /* Canonical "Read →" CTA — mono 11 / accent / 0.1em / inline-flex
+   * with the trailing arrow as a separate span so it tracks the
+   * canonical 6 px gap between label and arrow. */
   .writing-strip__cta {
     margin-top: auto;
     font-family: var(--f-mono);
-    font-size: var(--fs-micro);
+    font-size: 11px;
     color: var(--accent);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 </style>
