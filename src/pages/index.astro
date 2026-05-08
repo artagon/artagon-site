@@ -63,7 +63,11 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 <Base title={title} description={description}>
   <Fragment slot="header"><Header /></Fragment>
 
-  <section class="hero container">
+  {/* USMR Phase 5.5.16-pt139 — aria-labelledby points at hero-h1 so
+      AT announces the section landmark by its heading. Same pattern
+      used by .home-explore / .pillars / .standards-wall / .roadmap
+      already. */}
+  <section class="hero container" aria-labelledby="hero-h1">
     {/* USMR Phase 5.5.5 — meta-strip moved INSIDE the hero section per
      * canonical Hero.jsx:124-141 (single `<div.wrap>` holds the strip
      * + headline grid). Was previously its own `<div class="container">`
@@ -205,14 +209,15 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 
   {
     latestPosts.length > 0 && (
-      <section class="writing-strip section" id="writing">
+      // USMR Phase 5.5.16-pt139 — landmark labelling for section.
+      <section class="writing-strip section" id="writing" aria-labelledby="writing-strip-h">
         <div class="container">
           <header class="writing-strip__head">
             <div class="writing-strip__head-text">
               <p class="eyebrow">Writing</p>
               {/* Canonical index.html:1423 — serif-italic emphasis on
                 * "the team" via <span class="serif">. */}
-              <h2 class="writing-strip__title">
+              <h2 id="writing-strip-h" class="writing-strip__title">
                 Field notes from
                 <span class="serif" style="font-style: italic;">the team</span>
                 building Artagon.
@@ -251,7 +256,8 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 
   {
     onRamp && (
-      <section class="onramp section" id="get-started">
+      // USMR Phase 5.5.16-pt139 — landmark labelling for section.
+      <section class="onramp section" id="get-started" aria-labelledby="onramp-h">
         <div class="container">
           <div class="onramp__card">
             <div class="onramp__strip">
@@ -260,7 +266,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
             </div>
             <div class="onramp__grid">
               <div class="onramp__lead">
-                <h2 class="onramp__headline">
+                <h2 id="onramp-h" class="onramp__headline">
                   {onRampHeadlineSegments.map((segment, i) =>
                     i % 2 === 1 ? (
                       <em class="onramp__headline-emphasis serif">{segment}</em>

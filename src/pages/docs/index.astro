@@ -17,11 +17,12 @@ import Tagline from '../../components/Tagline.astro';
       has its own structure. The "Documentation in preparation" h1 is
       promoted to h2 (single h1 per page rule). Both headings get the
       .display utility for canonical 500 weight + Space Grotesk. */}
-  <section class="docs-hero">
+  {/* USMR Phase 5.5.16-pt139 — landmark labelling. */}
+  <section class="docs-hero" aria-labelledby="docs-hero-h">
     <div class="card docs-hero__card">
       <div>
         <div class="eyebrow">Docs</div>
-        <h1 class="docs-hero__title display">Artagon Documentation</h1>
+        <h1 id="docs-hero-h" class="docs-hero__title display">Artagon Documentation</h1>
         <p class="docs-hero__lede lead">
           Developer-first. Real tokens. Real policies.
         </p>

@@ -42,9 +42,10 @@ const faqSchema = {
 <Base title={page.title} description={page.description}>
   <Fragment slot="header"><Header /></Fragment>
 
-  <section class="faq-hero">
+  {/* USMR Phase 5.5.16-pt139 — landmark labelling. */}
+  <section class="faq-hero" aria-labelledby="faq-hero-h">
     <div class="container narrow">
-      <h1 class="faq-hero__title display">Frequently Asked Questions</h1>
+      <h1 id="faq-hero-h" class="faq-hero__title display">Frequently Asked Questions</h1>
       <p class="faq-lead lead">
         Everything you need to know about Artagon's identity platform—from OIDC and GNAP to verifiable credentials, device attestation, and graph-native authorization.
       </p>

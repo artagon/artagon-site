@@ -10,8 +10,9 @@ import Tagline from '../../components/Tagline.astro';
       rendered at 102 px (hero-sized). Same drift class as pt114 / pt117
       / pt118. Canonicalized to .display + clamp(40, 5vw, 64) sizing.
       The .discrete description swaps to .lead utility. */}
-  <section class="console-hero card">
-    <h1 class="console-hero__title display">Welcome</h1>
+  {/* USMR Phase 5.5.16-pt139 — landmark labelling. */}
+  <section class="console-hero card" aria-labelledby="console-hero-h">
+    <h1 id="console-hero-h" class="console-hero__title display">Welcome</h1>
     <p class="console-hero__lede lead"><Tagline variant="sentence" /></p>
     <p>Create a sandbox tenant, register a client, and issue your first DPoP‑bound token.</p>
     {/* USMR Phase 5.5.14 — console preview not built yet. Three earlier
