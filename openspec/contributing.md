@@ -81,6 +81,7 @@ feature/site(<spec#>)-<feature-short-name>
 `<spec#>` is the GitHub issue number created for the OpenSpec change.
 
 Example:
+
 ```bash
 feature/site(42)-quality-checks-workflow
 ```
@@ -92,6 +93,7 @@ For non-OpenSpec work, follow the conventional commits pattern:
 ```
 
 **Types:**
+
 - `feat/` - New feature or capability
 - `fix/` - Bug fix
 - `docs/` - Documentation only
@@ -103,10 +105,12 @@ For non-OpenSpec work, follow the conventional commits pattern:
 - `archive/` - OpenSpec archiving operations
 
 **Scope** (optional but recommended):
+
 - Component or area affected: `faq`, `roadmap`, `auth`, `build`, `openspec`
 - For OpenSpec changes, use the change-id as scope when applicable
 
 **Examples (non-OpenSpec):**
+
 ```bash
 feat/faq-search-functionality
 fix/roadmap-mobile-layout
@@ -136,9 +140,12 @@ Fixes #55
 
 ## AI Agent Workflow (OpenSpec)
 
+> **Note on examples**: The following sections use `add-two-factor-auth` as a hypothetical change-id in worked examples. Substitute your real change-id (run `openspec list` to see active changes); the literal `openspec/changes/add-two-factor-auth/` path does not exist in this repository.
+
 When an AI agent works from an OpenSpec item, it must:
 
 1. **Identify the change-id and affected spec(s)**
+
    ```bash
    # List active changes to find the change-id
    openspec list
@@ -148,12 +155,14 @@ When an AI agent works from an OpenSpec item, it must:
    ```
 
 2. **Create a GitHub issue** - Include either a link to the spec or a copy of the spec as the issue description
+
    ```bash
    # Example issue title: "Add Two-Factor Authentication [add-two-factor-auth]"
    # Include in body: Link to openspec/changes/add-two-factor-auth/
    ```
 
 3. **Create a branch** following the naming strategy:
+
    ```bash
    # Required for OpenSpec changes
    git checkout -b feature/site(42)-two-factor-auth
@@ -170,6 +179,7 @@ When an AI agent works from an OpenSpec item, it must:
 5. **Update agent context** - Summarize all branch changes in the agent context document
 
 6. **Follow conventional commits** - Structure commit messages with references:
+
    ```bash
    # Pattern: <type>(<spec-id>): <description>
    git commit -m "feat(auth): add two-factor authentication
@@ -209,6 +219,7 @@ openspec validate --strict
 ```
 
 **Important:**
+
 - Always pass the exact `change-id` explicitly (don't rely on defaults)
 - Use `--yes` flag for non-interactive automation
 - Run validation after archiving to ensure specs remain consistent
@@ -217,6 +228,7 @@ openspec validate --strict
 ### 2. Update Specifications (if applicable)
 
 If the change introduced new capabilities or modified existing ones:
+
 - The archive process should have updated `openspec/specs/` with the delta changes
 - Verify the specs reflect the current deployed state
 - If using `--skip-specs`, manually update specs or document why they weren't changed
@@ -224,11 +236,13 @@ If the change introduced new capabilities or modified existing ones:
 ### 3. Close Related GitHub Issues
 
 When closing issues after deployment:
+
 - Reference the merged PR number
 - Confirm the change is live in production
 - Include link to archived change if applicable
 
 Example:
+
 ```
 Resolved in #123. Change archived to openspec/changes/archive/2025-12-26-add-feature-name/.
 Deployed to production and verified.
@@ -237,11 +251,13 @@ Deployed to production and verified.
 ### 4. Create Separate Archive PR
 
 Per OpenSpec best practices:
+
 - Create a **separate PR** for the archive operation
 - Do not mix archiving with implementation work
 - This keeps the git history clean and makes rollbacks easier
 
 Example workflow:
+
 ```bash
 # After feature PR is merged and deployed
 git checkout main
@@ -265,6 +281,7 @@ git push origin archive/add-feature-name
 ### When NOT to Archive
 
 Do not archive changes that:
+
 - Are still in development or testing
 - Have not been deployed to production
 - Encountered blockers or were abandoned (document in proposal.md instead)
