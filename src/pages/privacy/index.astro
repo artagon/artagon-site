@@ -4,7 +4,11 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ShimPage from '../../components/ShimPage.astro';
 ---
-<Base title="Privacy — Artagon" description="Privacy (shim)" robots="noindex, nofollow">
+{/* USMR Phase 5.5.16-pt144 — DESIGN.md §9.5 mandates 150-160 char
+    descriptions for SEO; pre-pt144 the Base meta-description was a
+    14-char stub ("Privacy (shim)"). Body description on ShimPage
+    below is the longer in-page render. */}
+<Base title="Privacy — Artagon" description="Artagon's privacy posture: data minimization, on-device key custody, and selective disclosure via verifiable credentials. Full policy ships with the design-partner program." robots="noindex, nofollow">
   <Fragment slot="header">
     <Header />
   </Fragment>

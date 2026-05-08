@@ -20,7 +20,9 @@ const RECOVERY_LINKS: ReadonlyArray<{ href: string; label: string; desc: string 
       DESIGN.md §9.5: `{Page} — Artagon`. Drop the redundant "404"
       prefix; the page's own h1 already announces the error class. */}
   title="Page not found — Artagon"
-  description="The page you were looking for doesn't exist. Try one of these instead."
+  {/* USMR Phase 5.5.16-pt144 — extended description to canonical
+      150-160 char range per DESIGN.md §9.5. */}
+  description="The page you were looking for doesn't exist on Artagon. Try the home page, the platform overview, the writing index, or the design-partner program instead."
 >
   <Fragment slot="header"><Header /></Fragment>
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
