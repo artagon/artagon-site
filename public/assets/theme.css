@@ -484,7 +484,11 @@ h1 {
    * 5.5.5-introduced bug where `<h1>` ignored the per-face tracking
    * documented in DESIGN.md §3.4. */
   letter-spacing: var(--display-tracking, var(--tracking-h1));
-  font-weight: 500;
+  /* Canonical global.css:229 — h1 `font-weight: 400` (regular).
+   * Pre-fix used 500 (medium), which read as semibold on Space
+   * Grotesk display. The lighter regular weight is canonical;
+   * h2-h4 inherit 500 from the catch-all rule (global.css:228). */
+  font-weight: 400;
   margin: 0;
 }
 h2 {
@@ -538,11 +542,16 @@ body > * {
 a {
   color: var(--brand-sky, var(--primary, #22e3c5));
 }
+/* Canonical only has `.wrap`. The 5.1-era `.container` was kept as
+ * an alias since multiple Astro pages still author against it.
+ * Aliasing the padding to `var(--gutter)` makes density toggles
+ * (`[data-density="dense" | "comfortable" | "roomy"]`) flow through
+ * `.container` consumers too. */
 .container {
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding: 0 20px;
+  padding: 0 var(--gutter, 20px);
 }
 /* USMR Phase 5.5.5 — canonical alias. new-design global.css:212 names
  * the constrained content column `.wrap` (`max-width: var(--maxw);
