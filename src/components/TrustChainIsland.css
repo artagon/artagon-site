@@ -123,15 +123,17 @@
   flex-wrap: wrap;
 }
 
+/* Canonical Hero.jsx:281 — scenario label `fontSize: 14`. */
 .trust-chain__scenario-label {
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 500;
   color: var(--fg);
 }
 
+/* Canonical Hero.jsx:282 — scenario context `fontSize: 10.5`. */
 .trust-chain__scenario-context {
   font-family: var(--f-mono);
-  font-size: 0.65625rem;
+  font-size: 10.5px;
   color: var(--fg-2);
   letter-spacing: 0.05em;
 }
@@ -351,7 +353,8 @@
   place-items: center;
   background: var(--bg);
   font-family: var(--f-mono);
-  font-size: 0.625rem;
+  /* Canonical Hero.jsx:353 — node-circle index `fontSize: 10`. */
+  font-size: 10px;
   font-weight: 600;
   color: var(--fg-2);
   transition: all 0.35s ease;
@@ -377,8 +380,9 @@
   gap: 0.125rem;
 }
 
+/* Canonical Hero.jsx:359 — stage-label `fontSize: 15`. */
 .trust-chain__stage-label {
-  font-size: 0.9375rem;
+  font-size: 15px;
   font-weight: 500;
   color: var(--fg);
 }
@@ -387,15 +391,16 @@
   color: var(--fg-2);
 }
 
+/* Canonical Hero.jsx:362,367 — stage-sub + stage-status both 11. */
 .trust-chain__stage-sub {
   font-family: var(--f-mono);
-  font-size: 0.6875rem;
+  font-size: 11px;
   color: var(--fg-2);
 }
 
 .trust-chain__stage-status {
   font-family: var(--f-mono);
-  font-size: 0.6875rem;
+  font-size: 11px;
   white-space: nowrap;
   color: var(--fg-2);
 }
@@ -419,7 +424,8 @@
   border: 1px solid var(--line-soft);
   background: var(--bg);
   font-family: var(--f-mono);
-  font-size: 0.75rem;
+  /* Canonical Hero.jsx:398 — decision-card `fontSize: 12`. */
+  font-size: 12px;
   color: var(--fg);
   transition: all 0.5s ease;
 }
@@ -440,11 +446,12 @@
     inset 0 0 20px -8px var(--bad);
 }
 
+/* Canonical Hero.jsx:407 — decision-head eyebrow `fontSize: 10`. */
 .trust-chain__decision-head {
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
-  font-size: 0.625rem;
+  font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--fg-2);
