@@ -674,6 +674,64 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
       grid-template-columns: 1fr;
     }
   }
+
+  /* USMR Phase 5.5.16-pt109 — writing-widget layout variants (task 5.8).
+   * Pt108 added the Tweaks panel control surface that writes
+   * `data-writing-widget` on <html>; pt109 hooks variant CSS on that
+   * attribute. The 4 canonical OPTION blocks from
+   * `new-design/extracted/explorations/writing-widget.jsx`:
+   *
+   *   B · 3-up   (default — already shipped at .writing-strip__list above)
+   *   off        → hide the strip
+   *   A · strip  → single full-bleed card (grid-template-columns: 1fr,
+   *                first card spans all rows so only it renders visibly)
+   *   D · ticker → mono-list, vertical, no card-on-canvas; lighter weight
+   *   C · split  → 1.5fr 1fr layout, featured first card visually wider
+   *
+   * `in-hero` is deferred (task 5.8.in-hero) — it requires moving the
+   * latest-post strip INTO the Hero block, which is markup not just CSS.
+   */
+  :global([data-writing-widget="off"]) .writing-strip {
+    display: none;
+  }
+  :global([data-writing-widget="A · strip"]) .writing-strip__list {
+    grid-template-columns: 1fr;
+  }
+  :global([data-writing-widget="A · strip"]) .writing-strip__item:not(:first-child) {
+    display: none;
+  }
+  :global([data-writing-widget="C · split"]) .writing-strip__list {
+    grid-template-columns: 1.5fr 1fr 1fr;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__list {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__link {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 24px;
+    min-height: 0;
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line-soft);
+    border-radius: 0;
+    background: transparent;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__lede,
+  :global([data-writing-widget="D · ticker"]) .writing-strip__cta {
+    display: none;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__post-title {
+    font-size: 16px;
+    margin: 0;
+    flex: 1;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__date {
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+
   .writing-strip__link {
     display: flex;
     flex-direction: column;
