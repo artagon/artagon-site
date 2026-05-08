@@ -183,26 +183,29 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
 
   .roadmap-phase__version {
     font-family: var(--f-mono);
-    /* USMR 5.5.10 — bumped to canonical 28 px (Roadmap.jsx:54). */
-    font-size: 1.75rem;
+    /* Canonical Roadmap.jsx:54 — `fontSize: 28` (was 1.75rem = 28
+     * at root 16; canonical fixes px). */
+    font-size: 28px;
     font-weight: 500;
     color: var(--fg);
     letter-spacing: -0.02em;
   }
 
+  /* Canonical Roadmap.jsx:57 — when label `fontSize: 11`. */
   .roadmap-phase__when {
     font-family: var(--f-mono);
-    font-size: 0.7rem;
+    font-size: 11px;
     color: var(--fg-3);
   }
 
+  /* Canonical Roadmap.jsx:62 — status pill `fontSize: 10.5`. */
   .roadmap-phase__status {
     display: flex;
     align-items: center;
     gap: 8px;
     margin: 0;
     font-family: var(--f-mono);
-    font-size: 0.65rem;
+    font-size: 10.5px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -249,8 +252,9 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
     background: var(--fg-3);
   }
 
+  /* Canonical Roadmap.jsx:65 — phase title `fontSize: 18`. */
   .roadmap-phase__title {
-    font-size: 1.15rem;
+    font-size: 18px;
     font-weight: 500;
     letter-spacing: -0.015em;
     line-height: 1.25;
@@ -268,8 +272,9 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
     border-top: 1px solid var(--line-soft);
   }
 
+  /* Canonical Roadmap.jsx:71 — list item `fontSize: 12.5`. */
   .roadmap-phase__item {
-    font-size: 0.78rem;
+    font-size: 12.5px;
     color: var(--fg-1);
     line-height: 1.45;
     display: flex;
