@@ -33,6 +33,12 @@ const REQUIRED_FORCED_COLORS_FILES = [
   // var(--accent) without forced-colors fallback.
   "src/components/FaqItem.astro",
   "src/components/FaqSearch.astro",
+  // USMR Phase 5.5.16-pt127 — added /standards island + /faq page
+  // route. StandardsWall.astro's eyebrow accent dash and the FAQ
+  // page's `.faq-category-title` (accent fg + accent-tinted border)
+  // both consumed --accent without a forced-colors fallback.
+  "src/components/StandardsWall.astro",
+  "src/pages/faq/index.astro",
 ] as const;
 
 describe("forced-colors mode coverage", () => {

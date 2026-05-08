@@ -142,8 +142,13 @@ const faqSchema = {
   margin-bottom: 48px;
 }
 
+/* USMR Phase 5.5.16-pt127 — rem→px discipline (pt19-22).
+ * 1.5rem at root 16 = 24 px; pinned fixed-px so the category
+ * heading scale is visually obvious in code review. Category
+ * dividers use accent + 30%-tinted border bottom so they read
+ * as section breaks, not normal headings. */
 .faq-category-title {
-  font-size: 1.5rem;
+  font-size: 24px;
   color: var(--accent);
   margin-bottom: 20px;
   padding-bottom: 8px;
@@ -205,6 +210,20 @@ const faqSchema = {
 
   .faq-cta-actions .btn {
     width: 100%;
+  }
+}
+
+/* USMR Phase 5.5.16-pt127 — forced-colors override per DESIGN.md §7.
+ * Category-title heading + its accent-tinted border-bottom collapse
+ * to flat system colors under Windows High Contrast. Map the title
+ * color to CanvasText (regular heading body) and the divider to
+ * GrayText 1px solid (system divider line) so the section-break
+ * signal survives. The 30%-tint color-mix() in the border-bottom
+ * gets dropped because forced-colors blocks color-mix() blending. */
+@media (forced-colors: active) {
+  .faq-category-title {
+    color: CanvasText;
+    border-bottom-color: GrayText;
   }
 }
 </style>

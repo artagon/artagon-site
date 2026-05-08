@@ -242,4 +242,18 @@ import { lookupGlossary } from '../data/glossary';
     margin: 0;
     color: var(--fg);
   }
+
+  /* USMR Phase 5.5.16-pt127 — forced-colors override per DESIGN.md §7.
+   * The eyebrow accent dash (18 × 1 px ::before line tinted with
+   * var(--accent)) collapses to a flat system color under Windows
+   * High Contrast — the canonical solution is to map it to Highlight
+   * so the section-break signal survives the OS palette remap. The
+   * rest of the StandardsWall composition (h2 fg, lede fg-1, badge
+   * borders + values) uses fg-* tokens that the system handles
+   * automatically. */
+  @media (forced-colors: active) {
+    .standards-wall__eyebrow::before {
+      background: Highlight;
+    }
+  }
 </style>
