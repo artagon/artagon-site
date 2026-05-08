@@ -151,12 +151,30 @@ const websiteLd = safeJsonLd({
 });
 // Per schema.org rich-snippet rules, BreadcrumbList needs ≥ 2 items to
 // render — emit only when we're past the root.
-const breadcrumbLd = breadcrumbItems.length >= 2 ? safeJsonLd({
-  "@context":"https://schema.org","@type":"BreadcrumbList",
-  "itemListElement":breadcrumbItems.map((c, i) => ({
-    "@type":"ListItem","position":i + 1,"name":c.name,"item":c.item,
-  }))
-}) : null;
+//
+// USMR Phase 5.5.16-pt150 — also skip when the page is `noindex`.
+// BreadcrumbList tells crawlers "this URL exists as a navigable
+// destination at position N in a hierarchy"; noindex says "don't
+// index this URL". Emitting both is the same mixed-signal class
+// pt146 caught for the sitemap. Pre-pt150 /404 shipped a "Home →
+// 404" breadcrumb even though pt145 had noindexed it; same for the
+// 8 shim/dev routes. Now BreadcrumbList ships only for indexable
+// inner routes (faq / platform / roadmap / standards / use-cases /
+// vision / writing[/slug] / get-started / bridge).
+const isNoindex = robots !== undefined && /\bnoindex\b/i.test(robots);
+const breadcrumbLd =
+  breadcrumbItems.length >= 2 && !isNoindex
+    ? safeJsonLd({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbItems.map((c, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: c.name,
+          item: c.item,
+        })),
+      })
+    : null;
 const articleLd = type === 'article' && publishedTime ? safeJsonLd({
   "@context":"https://schema.org","@type":"Article",
   "headline":title,"description":metaDescription,
