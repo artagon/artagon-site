@@ -50,7 +50,7 @@
   padding-bottom: 0.875rem;
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--line);
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--f-mono);
   font-size: var(--fs-micro);
   color: var(--fg-2);
   letter-spacing: 0.12em;
@@ -130,7 +130,7 @@
 }
 
 .trust-chain__scenario-context {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--f-mono);
   font-size: 0.65625rem;
   color: var(--fg-2);
   letter-spacing: 0.05em;
@@ -350,7 +350,7 @@
   display: grid;
   place-items: center;
   background: var(--bg);
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--f-mono);
   font-size: 0.625rem;
   font-weight: 600;
   color: var(--fg-2);
@@ -388,13 +388,13 @@
 }
 
 .trust-chain__stage-sub {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--f-mono);
   font-size: 0.6875rem;
   color: var(--fg-2);
 }
 
 .trust-chain__stage-status {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--f-mono);
   font-size: 0.6875rem;
   white-space: nowrap;
   color: var(--fg-2);
@@ -418,7 +418,7 @@
    * feel before the verdict commits. */
   border: 1px solid var(--line-soft);
   background: var(--bg);
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: var(--f-mono);
   font-size: 0.75rem;
   color: var(--fg);
   transition: all 0.5s ease;
