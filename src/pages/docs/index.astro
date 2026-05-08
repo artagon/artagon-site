@@ -10,12 +10,21 @@ import Tagline from '../../components/Tagline.astro';
   robots="noindex, nofollow"
 >
   <Fragment slot="header"><Header /></Fragment>
-  <section class="container" style="padding:40px 0 0">
-    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+  {/* USMR Phase 5.5.16-pt118 — pre-pt118 had TWO <h1> elements
+      (a11y violation: only one h1 per page) AND both rendered at 102 px
+      hero size (`var(--fs-h1)` default with no scoped sizing). pt117
+      shipped the same fix for ShimPage; pt118 ports it to /docs which
+      has its own structure. The "Documentation in preparation" h1 is
+      promoted to h2 (single h1 per page rule). Both headings get the
+      .display utility for canonical 500 weight + Space Grotesk. */}
+  <section class="docs-hero">
+    <div class="card docs-hero__card">
       <div>
         <div class="eyebrow">Docs</div>
-        <h1 style="margin:.2rem 0">Artagon Documentation</h1>
-        <div class="discrete">Developer-first. Real tokens. Real policies.</div>
+        <h1 class="docs-hero__title display">Artagon Documentation</h1>
+        <p class="docs-hero__lede lead">
+          Developer-first. Real tokens. Real policies.
+        </p>
       </div>
       <Tagline />
     </div>
@@ -25,17 +34,55 @@ import Tagline from '../../components/Tagline.astro';
      `/docs/vc`, `/docs/policy`) all 404'd. Until those routes ship,
      the page is `noindex, nofollow` and surfaces a single CTA back
      to the design-partner program for early access. */}
-  <main class="container" style="padding-block: 32px 64px;">
+  <main class="docs-main">
     <article class="doc card">
-      <h1>Documentation in preparation</h1>
-      <p>
+      <h2 class="docs-main__title display">Documentation in preparation</h2>
+      <p class="docs-main__lede lead">
         Full docs (Quickstart · OIDC 2.1 · GNAP · Verifiable Credentials · Policy &amp; Graph) ship with the design-partner program. Joining the cohort gets you early access plus paired implementation support.
       </p>
-      <div class="actions" style="margin-top:16px">
+      <div class="actions">
         <a class="btn primary" href="/get-started">Apply as a design partner →</a>
         <a class="btn" href="/platform">Read the platform overview</a>
       </div>
     </article>
   </main>
+
+  <style>
+    .docs-hero,
+    .docs-main {
+      max-width: var(--maxw, 1240px);
+      margin-inline: auto;
+      padding-inline: clamp(24px, 4vw, 40px);
+    }
+    .docs-hero {
+      padding-top: clamp(48px, 8vw, 80px);
+    }
+    .docs-main {
+      padding-block: clamp(32px, 6vw, 48px) clamp(48px, 8vw, 80px);
+    }
+    .docs-hero__card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .docs-hero__title {
+      font-size: clamp(40px, 5vw, 64px);
+      line-height: 1.05;
+      margin: 12px 0 16px;
+    }
+    .docs-main__title {
+      font-size: clamp(32px, 3.5vw, 48px);
+      line-height: 1.1;
+      margin: 0 0 16px;
+    }
+    .docs-hero__lede,
+    .docs-main__lede {
+      margin-bottom: 16px;
+    }
+    .docs-main .actions {
+      margin-top: 0;
+    }
+  </style>
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
