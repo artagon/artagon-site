@@ -24,7 +24,9 @@
      * during the redesign cutover. Components migrating to the new design
      * system reference --nd-* directly.
      */
-    --nd-bg: oklch(0.14 0.008 260);
+    /* USMR Phase 5.5.16-pt83 — removed --nd-bg (zero consumers).
+     * --bg is aliased from the unlayered :root :root --bg, not from
+     * --nd-bg. Only --nd-bg-1 / --nd-bg-2 are consumed. */
     --nd-bg-1: oklch(0.17 0.008 260);
     --nd-bg-2: oklch(0.2 0.008 260);
     --nd-line: oklch(0.28 0.008 260);
@@ -216,10 +218,13 @@
  * preserved for the 4 surfaces consuming the rgba(...) gradient
  * forms — those need the integer components, not a var() value. */
 
+/* USMR Phase 5.5.16-pt83 — pruned --bg-alt from all 3 theme blocks.
+ * Zero consumers (every `var(--bg-alt)` site-wide migrated to
+ * `var(--bg-1)` in the legacy-token sweeps pt78/pt79). */
+
 /* Midnight Teal (current default) */
 :root[data-theme="midnight"] {
   --bg: #0b1220;
-  --bg-alt: var(--bg-1);
   --surface: var(--bg-1);
   --border: var(--line);
 
@@ -235,7 +240,6 @@
 /* Twilight Indigo */
 :root[data-theme="twilight"] {
   --bg: #0e1026;
-  --bg-alt: var(--bg-1);
   --surface: var(--bg-1);
   --border: var(--line);
 
@@ -251,7 +255,6 @@
 /* Deep Slate Blue */
 :root[data-theme="slate"] {
   --bg: #0a0e19;
-  --bg-alt: #0e1526;
   --surface: #101a2e;
   --border: #20314e;
 
@@ -322,44 +325,29 @@
     transparent
   );
 
-  /* Color opacity */
-  --teal-5-fallback: rgba(var(--brand-teal-rgb), 0.05);
-  --teal-5: color-mix(in srgb, var(--brand-teal) 5%, transparent);
-  --teal-8-fallback: rgba(var(--brand-teal-rgb), 0.08);
-  --teal-8: color-mix(in srgb, var(--brand-teal) 8%, transparent);
+  /* Color opacity — pt83 pruned --teal-{5,8,12,30,40} + their
+   * fallbacks (10 defs, ZERO consumers). Surviving --teal-{10,15,20}
+   * are consumed by --border-teal-{faint,subtle*}. */
   --teal-10-fallback: rgba(var(--brand-teal-rgb), 0.1);
   --teal-10: color-mix(in srgb, var(--brand-teal) 10%, transparent);
-  --teal-12-fallback: rgba(var(--brand-teal-rgb), 0.12);
-  --teal-12: color-mix(in srgb, var(--brand-teal) 12%, transparent);
-  --teal-15-fallback: rgba(var(--brand-teal-rgb), 0.15);
-  --teal-15: color-mix(in srgb, var(--brand-teal) 15%, transparent);
   --teal-20-fallback: rgba(var(--brand-teal-rgb), 0.2);
   --teal-20: color-mix(in srgb, var(--brand-teal) 20%, transparent);
-  --teal-30-fallback: rgba(var(--brand-teal-rgb), 0.3);
-  --teal-30: color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  --teal-40-fallback: rgba(var(--brand-teal-rgb), 0.4);
-  --teal-40: color-mix(in srgb, var(--brand-teal) 40%, transparent);
 
-  --surface-teal-5-fallback: rgba(var(--brand-teal-rgb), 0.05);
-  --surface-teal-5: color-mix(in srgb, var(--brand-teal) 5%, var(--surface));
-  --surface-teal-8-fallback: rgba(var(--brand-teal-rgb), 0.08);
-  --surface-teal-8: color-mix(in srgb, var(--brand-teal) 8%, var(--surface));
-  --surface-teal-10-fallback: rgba(var(--brand-teal-rgb), 0.1);
-  --surface-teal-10: color-mix(in srgb, var(--brand-teal) 10%, var(--surface));
+  /* pt83 pruned --surface-teal-{5,8,10} + their fallbacks (6 defs,
+   * ZERO consumers). --surface-teal-15 is consumed by vision.css's
+   * .closing-statement / .vision-2030 backdrop. */
   --surface-teal-15-fallback: rgba(var(--brand-teal-rgb), 0.15);
   --surface-teal-15: color-mix(in srgb, var(--brand-teal) 15%, var(--surface));
 
-  /* Borders */
+  /* Borders — pt83 pruned --border-teal-{solid-thick,table,
+   * table-fallback} (3 defs, ZERO consumers). */
   --border-teal-solid: 2px solid var(--brand-teal);
-  --border-teal-solid-thick: 4px solid var(--brand-teal);
   --border-teal-subtle-fallback: 2px solid var(--teal-20-fallback);
   --border-teal-subtle: 2px solid var(--teal-20);
   --border-teal-subtle-thin-fallback: 1px solid var(--teal-20-fallback);
   --border-teal-subtle-thin: 1px solid var(--teal-20);
   --border-teal-faint-fallback: 1px solid var(--teal-10-fallback);
   --border-teal-faint: 1px solid var(--teal-10);
-  --border-teal-table-fallback: 1px solid var(--teal-15-fallback);
-  --border-teal-table: 1px solid var(--teal-15);
   --border-left-accent: 4px solid var(--brand-teal);
 
   /* Spacing — pt82 pruned --spacing-{section-large,hero-top,hero-inline},
