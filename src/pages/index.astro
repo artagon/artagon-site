@@ -201,7 +201,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
                   >
                     {dateFmt.format(post.data.published)}
                   </time>
-                  <h3 class="writing-strip__title">{post.data.headline}</h3>
+                  <h3 class="writing-strip__post-title">{post.data.headline}</h3>
                   <p class="writing-strip__lede">{post.data.lede}</p>
                   {/* Canonical index.html:1505 — mono caption with
                     * "Read →" split into label + aria-hidden arrow span
@@ -690,7 +690,14 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     text-transform: uppercase;
     letter-spacing: 0.14em;
   }
-  .writing-strip__title {
+  /* USMR Phase 5.5.16-pt95 — class-name collision fix. Pre-pt95 BOTH
+   * the section h2 (`.writing-strip__head h2.writing-strip__title`)
+   * AND the post-card h3 used `class="writing-strip__title"`, so the
+   * 22 px rule below was winning on the section h2 too — the section
+   * heading rendered at 22 px instead of the canonical clamp(36, 4vw,
+   * 60) sized by the rule above. Renamed the post-card class to
+   * `.writing-strip__post-title` to disambiguate. */
+  .writing-strip__post-title {
     font-family: var(--f-display);
     font-size: 22px;
     line-height: 1.15;
