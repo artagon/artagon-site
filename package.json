@@ -1,6 +1,9 @@
 {
   "name": "artagon-web",
   "version": "0.1.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "description": "Artagon Identity Platform - The Unified Identity Platform: Trusted Identity for Machines and Humans. OIDC 2.1 Provider, GNAP Authorization Server, Verifiable Credentials (SD-JWT, BBS+), Passkeys, WebAuthn, Device Attestation, Zanzibar Policy Engine. Verified, Private, Attested.",
   "keywords": [
     "OIDC",
