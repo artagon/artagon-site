@@ -39,7 +39,7 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--muted);
+  color: var(--fg-2);
   pointer-events: none;
 }
 
@@ -50,18 +50,18 @@
   background: var(--card-bg);
   border: 2px solid var(--card-stroke);
   border-radius: 12px;
-  color: var(--text);
+  color: var(--fg);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #faq-search:focus {
   outline: none;
-  border-color: var(--brand-teal);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-teal) 15%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 #faq-search::placeholder {
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 .faq-clear-btn {
@@ -73,7 +73,7 @@
   border: none;
   padding: 8px;
   cursor: pointer;
-  color: var(--muted);
+  color: var(--fg-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,13 +83,13 @@
 
 .faq-clear-btn:hover {
   background: color-mix(in srgb, var(--card-stroke) 50%, transparent);
-  color: var(--text);
+  color: var(--fg);
 }
 
 .faq-results {
   margin-top: 12px;
   font-size: 0.9rem;
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 @media (max-width: 768px) {

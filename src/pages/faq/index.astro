@@ -99,7 +99,7 @@ const faqSchema = {
   font-size: clamp(1rem, 0.65rem + 1vw, 1.15rem);
   line-height: 1.6;
   max-width: 65ch;
-  color: color-mix(in srgb, var(--text) 85%, white 6%);
+  color: color-mix(in srgb, var(--fg) 85%, white 6%);
   margin-top: 12px;
 }
 
@@ -114,10 +114,10 @@ const faqSchema = {
 
 .faq-category-title {
   font-size: 1.5rem;
-  color: var(--brand-teal);
+  color: var(--accent);
   margin-bottom: 20px;
   padding-bottom: 8px;
-  border-bottom: 2px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .faq-list {
@@ -136,11 +136,11 @@ const faqSchema = {
 
 .faq-cta h2 {
   margin: 0 0 8px 0;
-  color: var(--text);
+  color: var(--fg);
 }
 
 .faq-cta p {
-  color: var(--muted);
+  color: var(--fg-2);
   margin: 0 0 24px 0;
 }
 

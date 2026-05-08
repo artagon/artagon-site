@@ -34,7 +34,7 @@ const renderedAnswer = await renderMarkdown(item.answer);
   gap: 16px;
   font-weight: 600;
   font-size: 1.05rem;
-  color: var(--text);
+  color: var(--fg);
   list-style: none;
   user-select: none;
   transition: color 0.2s ease;
@@ -44,7 +44,7 @@ const renderedAnswer = await renderMarkdown(item.answer);
 .faq-question::marker { content: none; }
 
 .faq-question:hover {
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 
 .faq-q-text {
@@ -62,7 +62,7 @@ details[open] .faq-icon {
 
 .faq-answer {
   padding: 0 20px 20px 20px;
-  color: var(--muted);
+  color: var(--fg-2);
   line-height: 1.7;
   font-size: 0.95rem;
 }
@@ -86,7 +86,7 @@ details[open] .faq-icon {
 }
 
 .faq-answer a {
-  color: var(--brand-teal);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }

@@ -156,9 +156,20 @@ const NAV_LINKS = [
       color 0.2s;
   }
   .site-nav .links a:hover,
+  .site-nav .links a:focus-visible,
   .site-nav .links a.active {
     border-color: var(--accent);
     color: var(--fg);
+  }
+  /* USMR Phase 5.5.16-pt79 — override the global `:focus-visible
+   * { outline: 2px solid var(--ring); border-radius: 8px }` for nav
+   * links. Canonical Hero.jsx + index.html uses the same border-bottom
+   * underline for hover / focus / active (no rectangular outline).
+   * Pre-fix the global rule painted a rounded teal rectangle around
+   * the Platform link after the user navigated to /platform and back,
+   * mismatching the canonical underline-only nav. */
+  .site-nav .links a:focus-visible {
+    outline: none;
   }
   .site-nav .right {
     margin-left: auto;
