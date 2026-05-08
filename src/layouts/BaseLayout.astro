@@ -26,7 +26,15 @@ const path = passthrough.path ?? '/';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <Seo {...passthrough} />
-    <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
+    {/* USMR Phase 5.5.16-pt107 — canonical brand colors:
+        - pinnedColor: canonical brand-teal-rgb 60/238/221 = #3ceedd
+          (Safari tints the pinned-tab mask-icon with this; canonical
+          accent is teal, not the prior sky blue #0EA5E9)
+        - themeColor: canonical neutral-dark, matches data-theme="dark"
+          --bg = oklch(0.14 0.008 260) ≈ #0a0d12 sRGB. Browsers paint
+          their UI chrome (Chrome address bar, Safari status bar) this
+          color when tab is active. */}
+    <SeoIcons pinnedColor="#3ceedd" themeColor="#0a0d12" />
     <script is:inline>
 (function(){
   // USMR site-navigation §"Theme Toggle with Pre-Paint Bootstrap":

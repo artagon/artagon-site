@@ -21,13 +21,30 @@ const {
 } = Astro.props;
 ---
 
+{/* USMR Phase 5.5.16-pt107 — addressing user feedback "Don't forget
+   icons for mobile safari etc". Expanded from a single
+   `<link rel="apple-touch-icon">` (no sizes attr) to canonical
+   Apple/Microsoft/Android icon set:
+     - Multi-size apple-touch-icons (152 / 180 with explicit sizes)
+       per Apple's recommendation for iPhone + iPad retina
+     - msapplication-TileImage (Windows pinned-tile bg image)
+     - theme-color w/ dark/light media queries (modern Safari +
+       Chrome respect this for browser UI tinting)
+     - Standard <link rel="icon"> sizes (16, 32, 192, 512) for
+       browsers that pick the closest match instead of defaulting
+       to favicon.ico */}
+
 <!-- Favicon and standard icons -->
-<link rel="icon" type="image/png" href="/icons/icon-32.png" sizes="32x32" />
 <link rel="icon" type="image/png" href="/icons/icon-16.png" sizes="16x16" />
+<link rel="icon" type="image/png" href="/icons/icon-32.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="/icons/icon-192.png" sizes="192x192" />
+<link rel="icon" type="image/png" href="/icons/icon-512.png" sizes="512x512" />
 <link rel="shortcut icon" href="/icons/favicon.ico" />
 
-<!-- Apple iOS -->
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<!-- Apple iOS — multi-size for iPhone (180) + iPad (152) retina -->
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-128.png" />
+<link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-180.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Artagon" />
@@ -38,9 +55,14 @@ const {
 <!-- PWA Manifest -->
 <link rel="manifest" href="/site.webmanifest" />
 
-<!-- Theme Colors -->
+<!-- Theme Colors — media-aware for dark/light browser UI tinting -->
+<meta name="theme-color" content={themeColor} media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content={themeColor} />
+
+<!-- Microsoft Tiles — TileColor + TileImage -->
 <meta name="msapplication-TileColor" content={themeColor} />
+<meta name="msapplication-TileImage" content="/icons/icon-256.png" />
 <meta name="msapplication-config" content="/browserconfig.xml" />
 
 <!-- Additional PWA Meta -->
