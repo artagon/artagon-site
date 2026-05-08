@@ -14,7 +14,7 @@
 - **Skip link**: Accessible hidden link that appears on keyboard focus to jump to main content
 - **Active link**: Current page highlighted in navigation with .active class
 - **Shim page**: Placeholder page using ShimPage component to prevent 404s during development
-- **Primary nav**: Platform, How it works, Developers, Search, Docs, GitHub
+- **Primary nav**: Platform, Bridge, Use cases, Standards, Roadmap, Blog (canonical 6-item list per `Header.astro` `NAV_LINKS`; pt87 replaced the pre-USMR 4-item list with the canonical `new-design/extracted/src/pages/index.html` 6-item set). The GitHub icon button is rendered separately in the right cluster.
 - **ShimPage**: Reusable component for creating placeholder pages with consistent structure
 
 ## Branch Change Summary
