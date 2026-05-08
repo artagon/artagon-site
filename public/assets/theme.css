@@ -190,7 +190,15 @@
 :root {
   --bg: oklch(0.14 0.008 260);
   --surface: #0f172a;
-  --muted: #94a3b8;
+  /* USMR Phase 5.5.16-pt169 — `--muted: #94a3b8` removed. Pre-pt169
+   * the legacy 5.1-era token had ZERO consumers anywhere in the
+   * codebase (only one mention, in a `Pre-canonical (5.1-era) used
+   * `var(--muted)` ...` comment that documented a removed pattern).
+   * The canonical `--fg-2` (which `--muted` was the legacy alias of)
+   * is what every consumer reads today. Removing the orphan keeps
+   * the unlayered :root vocabulary aligned with what's actually
+   * accessible to consumers — same dead-public-API discipline as
+   * pt163-pt168. */
   --accent: #7c5cff;
   /* USMR Phase 5.1p.13 — bumped from 1200px to match new-design
    * tokens.css:23. Adds 40px of horizontal breathing room sitewide. */
