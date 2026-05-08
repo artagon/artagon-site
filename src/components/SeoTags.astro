@@ -181,7 +181,16 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
   "datePublished":publishedTime,
   ...(modifiedTime ? { "dateModified": modifiedTime } : {}),
   "image":[ogImageAbsolute],
-  "author":{"@type":"Organization","name":author},
+  // USMR Phase 5.5.16-pt151 — emit author as Person when the page
+  // passes a real human name; fall back to Organization=Artagon
+  // (the publisher) when the author defaults to the brand name.
+  // Article rich-result rules (developers.google.com/search/docs/
+  // appearance/structured-data/article) prefer Person for authored
+  // editorial content + Organization for the publisher (which we
+  // always emit alongside).
+  "author": author === 'Artagon'
+    ? { "@type": "Organization", "name": author }
+    : { "@type": "Person", "name": author },
   "publisher":{"@type":"Organization","name":"Artagon","logo":{"@type":"ImageObject","url":`${SITE}/assets/logos/logo-square-512.png`}},
   "url":url,
   ...(tags.length ? { "keywords": tags.join(', ') } : {}),

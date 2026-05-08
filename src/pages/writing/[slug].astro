@@ -72,6 +72,15 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
   publishedTime={post.data.published.toISOString()}
   modifiedTime={post.data.updated?.toISOString()}
   tags={post.data.tags}
+  {/* USMR Phase 5.5.16-pt151 — pass resolved author name through to
+      Article JSON-LD. Pre-pt151 every post emitted
+      `"author": {"@type": "Organization", "name": "Artagon"}` because
+      authorName was used in the visible byline but never piped into
+      <Base>. The byline shows "Giedrius Trumpickas" while the
+      JSON-LD shipped "Artagon" — inconsistent for AT users with
+      structured-data preview tools, and incorrect for Google's
+      author-attribution rich-results contract. */}
+  author={authorName}
 >
   <Fragment slot="header"><Header /></Fragment>
 
