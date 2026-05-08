@@ -39,6 +39,13 @@ const REQUIRED_FORCED_COLORS_FILES = [
   // both consumed --accent without a forced-colors fallback.
   "src/components/StandardsWall.astro",
   "src/pages/faq/index.astro",
+  // USMR Phase 5.5.16-pt128 — closed the home page (the largest
+  // remaining surface). ~14 var(--accent) consumers across the hero
+  // meta strip, hero affiliations, hero latest-strip, writing strip,
+  // and the writing-strip CTAs. This entry closes the production
+  // surface ratchet started in pt125; remaining pt125-deferred
+  // files were dev-only or no-scoped-CSS.
+  "src/pages/index.astro",
 ] as const;
 
 describe("forced-colors mode coverage", () => {

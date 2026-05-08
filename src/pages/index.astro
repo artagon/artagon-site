@@ -914,4 +914,49 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     align-items: center;
     gap: 6px;
   }
+
+  /* USMR Phase 5.5.16-pt128 — forced-colors mode overrides per
+   * DESIGN.md §7. The home page hosts ~14 var(--accent) consumers
+   * across the hero meta strip, hero affiliations row, hero latest-
+   * strip, writing strip, and writing-strip CTAs. Under Windows
+   * High Contrast every OKLCH brand color collapses to flat —
+   * users lose hover/focus signals AND the cyan dot indicators that
+   * tell them which row is "live writing". Map all accent surfaces
+   * to system tokens:
+   *   - hover/link colors  → Highlight (the canonical hover/focus
+   *                          signal under forced-colors)
+   *   - dot indicators     → Highlight + box-shadow stripped
+   *                          (forced-colors blocks synthetic
+   *                          shadows; the flat dot is enough)
+   *   - focus outlines     → Highlight (browser default)
+   *   - hover background tints → Canvas (drop the color-mix() tint;
+   *                                forced-colors blocks color-mix)
+   *   - .accent-dim borders → Highlight (the dim variant has no
+   *                            system equivalent; canonical fallback) */
+  @media (forced-colors: active) {
+    .hero__meta-strip-link:hover,
+    .hero__affiliations-link:hover,
+    .hero__affiliations-link:focus-visible,
+    .writing-strip__more,
+    .hero__latest-strip-eyebrow,
+    .writing-strip__cta {
+      color: Highlight;
+    }
+    .hero__affiliations-link::before,
+    .hero__latest-strip-dot {
+      background: Highlight;
+      box-shadow: none;
+    }
+    .hero__affiliations-link:focus-visible,
+    .writing-strip__link:focus-visible {
+      outline-color: Highlight;
+    }
+    :global([data-writing-widget="in-hero"]) .hero__latest-strip:hover,
+    :global([data-writing-widget="in-hero"]) .hero__latest-strip:focus-visible,
+    .writing-strip__link:hover,
+    .writing-strip__link:focus-visible {
+      border-color: Highlight;
+      background: Canvas;
+    }
+  }
 </style>
