@@ -476,7 +476,7 @@ body {
  * (new-design global.css:229-231) attaches these at the element layer
  * so any page picking up theme.css inherits the type scale. */
 h1 {
-  font-family: var(--f-display, system-ui);
+  font-family: var(--f-display, var(--f-sans));
   font-size: var(--fs-h1);
   line-height: var(--lh-h1);
   /* Per-face tracking via [data-hero-font]; falls back to the global
@@ -492,7 +492,7 @@ h1 {
   margin: 0;
 }
 h2 {
-  font-family: var(--f-display, system-ui);
+  font-family: var(--f-display, var(--f-sans));
   font-size: var(--fs-h2);
   line-height: var(--lh-h2);
   letter-spacing: var(--tracking-h2);
@@ -500,7 +500,7 @@ h2 {
   margin: 0;
 }
 h3 {
-  font-family: var(--f-display, system-ui);
+  font-family: var(--f-display, var(--f-sans));
   font-size: var(--fs-h3);
   line-height: var(--lh-h3);
   letter-spacing: var(--tracking-h3);
@@ -585,11 +585,14 @@ a {
  * only — bare h1/h2 catch-all (theme.css h1/h2 rules) drives the
  * default weight per element. */
 .display {
-  font-family: var(--f-display, system-ui);
+  font-family: var(--f-display, var(--f-sans));
   letter-spacing: var(--display-tracking, var(--tracking-h1));
 }
+/* Canonical global.css:95 — `.serif { font-family: var(--f-serif);
+ * font-weight: 400 }`. The `Georgia` fallback was redundant —
+ * --f-serif chain already includes Georgia. */
 .serif {
-  font-family: var(--f-serif, Georgia);
+  font-family: var(--f-serif);
   font-weight: 400;
 }
 /* USMR Phase 5.1p.19 — removed the legacy element-`header` rule
