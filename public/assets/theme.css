@@ -866,11 +866,16 @@ nav a:hover {
  * `font-size: 20px; max-width: 60ch`. Previous clamp(1rem, ..., 1.25rem)
  * caused most viewports to render <20px (only hit canonical at the clamp
  * ceiling). Canonical is a flat 20px. */
+/* Canonical global.css:234 — `font-size: 20px; color: var(--fg-1);
+ * line-height: 1.5; max-width: 60ch`. Pre-fix used `var(--fg-2)` —
+ * the lede rendered ~10% dimmer than canonical, which made bold-
+ * emphasized claim phrases pop too aggressively against the body
+ * text. fg-1 is brighter and reads as the canonical editorial weight. */
 .lead {
-  font-size: var(--fs-lead);
-  line-height: var(--lh-lead, 1.5);
+  font-size: 20px;
+  line-height: 1.5;
   max-width: 60ch;
-  color: var(--fg-2, #cbd5e1);
+  color: var(--fg-1);
 }
 
 /* ===== UI UTILITIES ===== */
