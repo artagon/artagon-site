@@ -386,13 +386,22 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   .onramp {
     padding-block: var(--space-12);
   }
+  /* Canonical Cta.jsx:14-17 — `padding: 72px 64px`, `borderRadius:
+   * 16` (we had 16 ✓), gradient 135deg bg-1 → bg 80%. The fluid
+   * clamp padding undersized to 32 64 on small screens; canonical
+   * fixes 72/64 with a tablet break for narrower viewports. */
   .onramp__card {
     position: relative;
     border: 1px solid var(--line);
     border-radius: 16px;
-    padding: clamp(2rem, 4vw, 4.5rem) clamp(1.25rem, 3vw, 4rem);
+    padding: 72px 64px;
     background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg) 80%);
     overflow: hidden;
+  }
+  @media (max-width: 720px) {
+    .onramp__card {
+      padding: 56px 32px;
+    }
   }
   /* Canonical Cta.jsx:20 — strip top:16, left/right:20, fontSize:10,
    * color: fg-3, letterSpacing:0.12em. Pre-canonical used `var(--fs-
@@ -411,24 +420,34 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  /* Canonical Cta.jsx:23-28 — `gridTemplateColumns:'1.2fr 1fr'`. The
-   * 1.6fr was an off-canonical inflation that left too little room for
-   * the contact card on wide viewports. */
+  /* Canonical Cta.jsx:25 — `gridTemplateColumns:'1.2fr 1fr'`,
+   * `gap: 64`, `alignItems: center`, `marginTop: 18`. We had
+   * fluid gap clamp + 2rem (=32) margin-top; canonical fixes them. */
   .onramp__grid {
     display: grid;
-    gap: clamp(1.5rem, 3vw, 3rem);
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    margin-top: 2rem;
+    gap: 64px;
+    align-items: center;
+    margin-top: 18px;
   }
   @media (max-width: 768px) {
     .onramp__grid {
       grid-template-columns: 1fr;
     }
   }
+  /* Canonical Cta.jsx:27 — `fontSize: clamp(44px, 5vw, 76px)`,
+   * `marginBottom: 24`. The onRamp headline is BIGGER than a regular
+   * section h2 (default clamp(36, 4vw, 60)) — it's the editorial
+   * close, not a section break. Pre-fix used the default h2 scale,
+   * undersizing the closing claim. */
   .onramp__headline {
-    font-size: var(--fs-h2);
-    line-height: 1.05;
-    margin: 0 0 1.5rem;
+    font-family: var(--f-display);
+    font-size: clamp(44px, 5vw, 76px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0 0 24px;
   }
   /* Canonical Cta.jsx:136-137 — italic Fraunces emphasis on the
    * marker-split word ("next"). The visible italic was missing because
@@ -439,8 +458,11 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     font-style: italic;
     font-weight: 400;
   }
+  /* Canonical Cta.jsx:30 — uses `.lead` class with overrides
+   * `marginBottom: 32`, `maxWidth: 52ch`. Pre-fix margin 2rem (=32 ✓);
+   * canonicalized to fixed px. */
   .onramp__lede {
-    margin: 0 0 2rem;
+    margin: 0 0 32px;
     max-width: 52ch;
     color: var(--fg-2);
   }
