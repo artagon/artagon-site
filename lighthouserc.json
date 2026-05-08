@@ -6,11 +6,11 @@
       "staticDistDir": ".build/dist",
       "url": [
         "/",
-        "/platform/",
-        "/roadmap/",
-        "/vision/",
-        "/security/",
-        "/faq/"
+        "/platform",
+        "/roadmap",
+        "/vision",
+        "/security",
+        "/faq"
       ]
     },
     "assert": {
