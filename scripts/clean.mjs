@@ -3,13 +3,7 @@
 // Exit codes: 0 success, 64 EX_USAGE, 73 EX_CANTCREAT (lock held), 1 fs error.
 // See openspec/changes/standardize-build-artifacts/specs/build-config/spec.md.
 
-import {
-  existsSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  unlinkSync,
-} from "node:fs";
+import { existsSync, readFileSync, rmSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { argv, exit } from "node:process";
