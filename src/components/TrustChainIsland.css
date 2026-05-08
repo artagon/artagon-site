@@ -125,12 +125,15 @@
   box-shadow: 0 0 10px var(--bad);
 }
 
+/* Canonical Hero.jsx:280 — scenario row `gap: 8, marginBottom: 18`.
+ * Pre-fix gap 0.75rem (=12) was 4 px wider than canonical, breaking
+ * the tight scenario label / context pairing. */
 .trust-chain__scenario {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1.125rem;
+  gap: 8px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
@@ -149,13 +152,14 @@
   letter-spacing: 0.05em;
 }
 
+/* Canonical Hero.jsx:288 — chain `gap: 10`. */
 .trust-chain__stages {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 10px;
 }
 .trust-chain__stage-wrap {
   list-style: none;
@@ -391,10 +395,13 @@
   box-shadow: 0 0 14px var(--bad);
 }
 
+/* Canonical Hero.jsx:362 — stage-body sub div has marginTop: 2;
+ * we use flex gap: 2 to achieve the same vertical spacing between
+ * stage label and sub-text. */
 .trust-chain__stage-body {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 2px;
 }
 
 /* Canonical Hero.jsx:359 — stage-label `fontSize: 15`. */

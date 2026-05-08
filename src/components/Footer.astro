@@ -155,14 +155,18 @@ const cols = [
   gap: 16px;
 }
 
+/* Canonical ArtagonWordmark — gap 10 / weight 500 (BaseLayout.jsx:193,
+ * 195). Pre-fix used 0.6rem (≈9.6) gap and weight 600 — both off
+ * canonical. */
 .footer-wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 10px;
   color: var(--fg);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -0.01em;
 }
 
 .footer-wordmark:hover {
