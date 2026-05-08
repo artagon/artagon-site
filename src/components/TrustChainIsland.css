@@ -92,18 +92,25 @@
   cursor: pointer;
   transition: all 0.25s ease;
 }
+/* USMR Phase 5.5.16-pt94 — canonical Hero.jsx:261-264 scenario dot:
+ * `width: 9, height: 9, background: isThis ? (isDeny ? C_FAIL :
+ * C_PASS) : 'var(--fg-3)'`. Pre-fix shipped 0.5625rem rem-based size
+ * (resolves to 9 px ✓ but breaks the canonical fixed-px contract)
+ * AND `var(--fg-2)` at `opacity: 0.35` for the idle base, when
+ * canonical uses `var(--fg-3)` solid. The opacity-modulated fg-2
+ * rendered slightly brighter than canonical fg-3 — subtle but
+ * detectable in side-by-side comparison. */
 .trust-chain__scenario-dot::before {
   content: "";
   display: block;
-  width: 0.5625rem;
-  height: 0.5625rem;
+  width: 9px;
+  height: 9px;
   border-radius: 999px;
-  background: var(--fg-2);
-  opacity: 0.35;
+  background: var(--fg-3);
   transition: inherit;
 }
 .trust-chain__scenario-dot:hover::before {
-  opacity: 0.6;
+  background: var(--fg-2);
 }
 .trust-chain__scenario-dot:focus-visible {
   outline: 2px solid var(--accent);
