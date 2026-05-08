@@ -5,17 +5,44 @@ import Footer from '../../components/Footer.astro';
 ---
 <Base title="Search — Artagon" description="Search the site — Verified. Private. Attested.">
   <Fragment slot="header"><Header /></Fragment>
-  <main class="container">
-    <h1>Search</h1>
-    <div class="container" style="margin-top:10px">
+  {/* USMR Phase 5.5.16-pt119 — same canonical sizing pattern as
+      pt117/pt118 — bare <h1>Search</h1> would render at 102 px
+      hero size. Scoped to .display + clamp(40, 5vw, 64). */}
+  <main class="search-page">
+    <h1 class="search-page__title display">Search</h1>
+    <div class="search-page__box">
       <div id="docsearch"></div>
-      <div id="docsearch-fallback" class="card" style="margin-top:12px;display:none">
+      <div id="docsearch-fallback" class="card search-page__fallback">
         <strong>Site search not configured.</strong><br/>
         Add your DocSearch keys to <code>/docsearch.json</code> to enable instant search.
       </div>
     </div>
-    <section id="results" style="margin-top:20px"></section>
+    <section id="results" class="search-page__results"></section>
   </main>
+
+  <style>
+    .search-page {
+      max-width: var(--maxw, 1240px);
+      margin: clamp(48px, 8vw, 80px) auto 0;
+      padding-inline: clamp(24px, 4vw, 40px);
+      padding-bottom: clamp(48px, 8vw, 80px);
+    }
+    .search-page__title {
+      font-size: clamp(40px, 5vw, 64px);
+      line-height: 1.05;
+      margin: 0 0 16px;
+    }
+    .search-page__box {
+      margin-top: 10px;
+    }
+    .search-page__fallback {
+      margin-top: 12px;
+      display: none;
+    }
+    .search-page__results {
+      margin-top: 20px;
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@docsearch/js@3"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
   <script>
