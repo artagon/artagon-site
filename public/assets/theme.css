@@ -422,15 +422,21 @@ body {
   font-feature-settings:
     "ss01" on,
     "cv11" on;
-  color: var(--text, #e2e8f0);
+  /* USMR Phase 5.5.16-pt91 — canonical token chain only. pt86 deleted
+   * the `--text` legacy alias from theme blocks but this rule still
+   * referenced it via the `var(--text, #e2e8f0)` fallback, so the body
+   * text color was actually rendering as the hardcoded slate-200 hex
+   * for ~2 weeks (Playwright probe revealed this). Migrated to
+   * `var(--fg)` directly — the canonical font color resolves to
+   * oklch(0.96 0.005 85) instead of #e2e8f0 (≈ oklch 0.92), so body
+   * text is now ~4 % brighter and matches canonical. */
+  color: var(--fg);
   /* USMR Phase 5.5.9 — flattened to canonical body surface per
    * `new-design/extracted/src/styles/global.css:68-75` (`body { background:
-   * var(--bg); }`). The previous 3-stack of radial-gradient(violet) +
-   * radial-gradient(teal) + linear-gradient was a 5.1-era ambient
-   * decoration that painted top-left + top-right "blue auroras" on every
-   * page above the fold — the user pointed at these as the "blue areas"
-   * regression. Canonical is flat dark + the body::before grid overlay. */
-  background: var(--bg, #0b1220);
+   * var(--bg); }`). pt91 also dropped the #0b1220 hardcoded fallback
+   * — `--bg` now resolves canonical-neutral via the unlayered :root
+   * default OR the [data-theme="dark"] override (pt90). */
+  background: var(--bg);
 }
 
 /* USMR Phase 5.5.5 — global type scale rules. The `--fs-h1/h2/h3`,
@@ -1170,6 +1176,10 @@ a {
   height: 1px;
   background: var(--accent);
 }
+/* USMR Phase 5.5.16-pt91 — `.pill` (consumed by Tagline.astro on
+ * /docs and /console) had `var(--border, rgba(...))` and `var(--text,
+ * #cbd5e1)` fallbacks pointing to deleted legacy tokens. Both
+ * fallbacks fired in production. Migrated to canonical token chain. */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -1178,11 +1188,10 @@ a {
   line-height: 1;
   padding: 0 0.65rem;
   gap: 0.35rem;
-  border: 1px solid
-    color-mix(in srgb, var(--border, rgba(148, 163, 184, 0.22)) 60%, white 10%);
+  border: 1px solid color-mix(in srgb, var(--line) 60%, white 10%);
   border-radius: 999px;
   font-size: 0.8rem;
-  color: var(--text, #cbd5e1);
+  color: var(--fg);
 }
 .hero-art {
   position: relative;
