@@ -639,22 +639,25 @@ a {
 .hero {
   padding: 80px 0 120px;
 }
-/* USMR Phase 5.5.16-pt122 — bring the hero h1 fallback rule to
- * canonical (global.css:229 — `clamp(56, 7.2vw, 108)/0.94/-0.035em
- * /weight 400/var(--f-display)`). Pre-pt122 used clamp(32-64) which
- * was ~40 % below canonical at the ceiling. The rule was overridden
- * by the scoped `.hero h1.display` everywhere, so the size bug had
- * no visible effect, but the broken contract was a latent landmine
- * for any contributor who dropped the `.display` class without
- * realizing this rule was the fallback. (pt115 was the calc()
- * wrap fix; pt122 brings the actual size + weight + tracking +
- * line-height + family to canonical.) */
+/* USMR Phase 5.5.16-pt123 — bring the hero h1 fallback rule to
+ * canonical size (global.css:229 — clamp(56, 7.2vw, 108)) but DO
+ * NOT hardcode font-weight or letter-spacing here. Reason: the
+ * scoped `.hero h1.display` rule (specificity 0,2,1) intentionally
+ * does NOT set those two properties so the `.display` utility's
+ * token cascade (`letter-spacing: var(--display-tracking, ...)`,
+ * `font-weight: var(--display-weight, 400)`) wins. If `.hero h1`
+ * (specificity 0,1,1) hardcodes them, it BEATS the .display
+ * utility (0,1,0) and breaks the [data-hero-font] cascade — the
+ * tracking + weight no longer respond to fraunces / dmserif / mono
+ * variants. pt122 introduced this exact regression (broke the pt102
+ * letter-spacing token gate); pt123 reverts the hardcodes while
+ * keeping the canonical size + line-height + family, which are
+ * static across hero-font variants. (pt115 was the calc() wrap
+ * fix; pt122 corrected the size; pt123 corrects the cascade.) */
 .hero h1 {
   font-family: var(--f-display);
   font-size: clamp(56px, 7.2vw, 108px);
   line-height: 0.94;
-  letter-spacing: -0.035em;
-  font-weight: 400;
   margin: 0 0 16px;
 }
 /* USMR Phase 5.5.16-pt76 — removed orphan `.sub` rule (4 lines).

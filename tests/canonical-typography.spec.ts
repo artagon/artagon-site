@@ -28,25 +28,34 @@ test.describe("Canonical typography + rhythm gates", () => {
     );
   });
 
-  test(".blog-hero h1 font-weight is 500 (canonical post-detail medium)", async ({
+  test(".blog-hero h1 font-weight follows --display-weight cascade", async ({
     page,
   }) => {
-    // USMR Phase 5.5.16-pt99 corrected an earlier misread. Canonical
-    // `new-design/extracted/src/pages/blog.html:341` defines
+    // USMR Phase 5.5.16-pt99 originally pinned this to 500 because the
+    // BaseLayout default was `data-hero-font="grotesk"` at the time.
+    // Commit cfc35f4 (feat(usmr-phase-5): visual chrome polish — serif
+    // headline) flipped the default to "fraunces" without updating
+    // this gate; pt123 restored alignment.
+    //
+    // Canonical `new-design/extracted/src/pages/blog.html:341` defines
     //   .blog-hero h1 { font-weight: var(--display-weight, 500) }
-    // — the post-detail title falls back to 500. The home `h1.display`
-    // utility class falls back to 400 (different selector, different
-    // intent). Pre-pt31 we caught the home h1 rendering at 500 and
-    // forced 400 across the board; pre-pt99 the .blog-hero__title
-    // inherited the bare-h1 400 too. pt99 restored the canonical 500
-    // fallback to .blog-hero__title only.
+    // — the post-detail title TOKEN-CASCADES, with a 500 fallback if
+    // [data-hero-font] is undefined. Under fraunces it resolves to
+    // 400; under grotesk it resolves to 500. The contract we're
+    // gating is the var() cascade, NOT a hardcoded weight.
     await page.goto("/writing/welcome", { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts.ready);
-    const weight = await page.$eval(
-      "h1.blog-hero__title",
-      (el) => getComputedStyle(el).fontWeight,
-    );
-    expect(weight).toBe("500");
+    const probe = await page.$eval("h1.blog-hero__title", (el) => {
+      const cs = getComputedStyle(el);
+      const root = getComputedStyle(document.documentElement);
+      return {
+        weight: cs.fontWeight,
+        token: root.getPropertyValue("--display-weight").trim(),
+      };
+    });
+    // The h1 weight MUST equal the --display-weight token, OR the 500
+    // fallback if the token is undefined (no [data-hero-font] active).
+    expect(probe.weight).toBe(probe.token || "500");
   });
 
   test("home hero h1.display font-weight resolves canonical (--display-weight)", async ({
@@ -100,8 +109,12 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(result.fontSize).toBeLessThanOrEqual(64);
     // Hero-sized would be 102; FAQ should NEVER render that big.
     expect(result.fontSize).toBeLessThan(80);
-    // Canonical .display utility cascade → 500 weight under grotesk.
-    expect(result.weight).toBe("500");
+    // Canonical .display utility cascade — 500 under grotesk, 400
+    // under fraunces / dmserif / mono. pt99/pt100 originally pinned
+    // 500 because BaseLayout default was grotesk; commit cfc35f4
+    // flipped default to fraunces without updating; pt123 fixed.
+    expect(["400", "500"]).toContain(result.weight);
+    expect(result.weight).not.toBe("700");
   });
 
   test("hero-size guard — only home Hero h1 renders ≥ 80 px (pt120)", async ({
@@ -278,7 +291,10 @@ test.describe("Canonical typography + rhythm gates", () => {
         delta: Math.abs(expectedPx - actualPx),
       };
     });
-    // Allow 0.05 px tolerance for sub-pixel rounding.
+    // Allow 0.05 px tolerance for sub-pixel rounding. pt123 caught
+    // a regression here when the `.hero h1` fallback rule (theme.css
+    // line 657) hardcoded `letter-spacing: -0.035em`, blocking the
+    // .display utility's `var(--display-tracking, …)` cascade.
     expect(result.delta).toBeLessThan(0.05);
   });
 
