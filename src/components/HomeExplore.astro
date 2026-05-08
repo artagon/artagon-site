@@ -83,13 +83,27 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
     }
   }
 
+  /* Canonical .eyebrow — global.css:220-226. font 12 / fg-2 / 0.1em /
+   * margin-bottom 24 / inline-flex with leading 18 px accent dash via
+   * ::before. The pre-canonical home-explore__eyebrow used custom
+   * sizing (0.72rem / fg-3 / 0.12em / 8 px margin) without the dash. */
   .home-explore__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-family: var(--f-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
+    font-size: 12px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--fg-3);
-    margin: 0 0 0.5rem;
+    color: var(--fg-2);
+    margin: 0 0 24px;
+  }
+  .home-explore__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
   }
 
   .home-explore__title {
