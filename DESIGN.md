@@ -1245,6 +1245,12 @@ External links use `rel="noopener noreferrer"` (both, always) and `target="_blan
 - OG image: 1200×630, dark theme, eyebrow + headline only, Space Grotesk display
 - Canonical URL set on every page
 
+### 9.6 Form inputs (iOS auto-zoom contract)
+
+Every `<input>`, `<textarea>`, and `<select>` MUST render at `font-size: 16px` or larger on every viewport (including the smallest mobile breakpoint). iOS Safari auto-zooms the page when an input with `font-size < 16 CSS px` receives focus — this is a UX regression class on every iPhone 12+ device. Pre-pt124 the FAQ search input shipped 0.95rem (≈15.2) on the mobile breakpoint and triggered the zoom; pt124 pinned every breakpoint to 16. The contract is gated by [`tests/canonical-typography.spec.ts`](./tests/canonical-typography.spec.ts) (`/faq search input is >=16px on every viewport (iOS no-zoom; pt124)`).
+
+Component CSS authors: do not use `font-size: <rem>` inside `input` / `textarea` rules — pin to fixed-px 16 or larger so the contract is visually obvious in code review. Other text elements may use either px or rem; the rem→px discipline (pt19-22) applies to the island layer.
+
 ---
 
 ## 10 · Content model

@@ -183,9 +183,14 @@
   color: var(--fg);
 }
 
+/* USMR Phase 5.5.16-pt124 — canonical UseCases.jsx:119 panel scenario
+ * `<p>` is `fontSize: 16, lineHeight: 1.6, maxWidth: '64ch'`. The
+ * pre-fix 1rem (resolves to 16 at root 16) was correct visually but
+ * broke the rem→px fixed-px discipline pt19-22 established for the
+ * island layer; px is now consistent with every other UseCases rule. */
 .use-cases__panel-body {
   color: var(--fg-1);
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1.6;
   max-width: 64ch;
   margin: 0;

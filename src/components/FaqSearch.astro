@@ -46,7 +46,10 @@
 #faq-search {
   width: 100%;
   padding: 14px 48px 14px 48px;
-  font-size: 1rem;
+  /* USMR Phase 5.5.16-pt124 — rem→px (pt19-22). 1rem → 16; pinned
+   * fixed-px because iOS Safari zooms inputs sized <16 px on focus
+   * (a11y/UX regression class). Keep at exactly 16, never below. */
+  font-size: 16px;
   background: var(--card-bg);
   border: 2px solid var(--card-stroke);
   border-radius: 12px;
@@ -88,14 +91,19 @@
 
 .faq-results {
   margin-top: 12px;
-  font-size: 0.9rem;
+  /* USMR Phase 5.5.16-pt124 — rem→px (0.9rem ≈ 14.4 → 14). Meta-text
+   * scale; below 16 is fine for a non-input element. */
+  font-size: 14px;
   color: var(--fg-2);
 }
 
 @media (max-width: 768px) {
   #faq-search {
     padding: 12px 44px 12px 44px;
-    font-size: 0.95rem;
+    /* USMR Phase 5.5.16-pt124 — pre-fix shipped 0.95rem ≈ 15.2 px,
+     * which triggers iOS Safari auto-zoom on input focus. Pinned
+     * to 16 to prevent the zoom regression class. */
+    font-size: 16px;
   }
 }
 </style>

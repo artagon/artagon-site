@@ -655,4 +655,24 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(probe).not.toBeNull();
     expect(probe!.fontSize).toBe(20);
   });
+
+  test("/faq search input is >=16px on every viewport (iOS no-zoom; pt124)", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt124 — iOS Safari auto-zooms `<input>` /
+    // `<textarea>` elements on focus when their computed font-size
+    // is < 16 CSS px. Pre-pt124 the FaqSearch input shipped 0.95rem
+    // (≈15.2) at the mobile breakpoint, which triggered the zoom on
+    // every iPhone 12+ device. This gate asserts the contract at
+    // both desktop (1280) and mobile (390) viewports.
+    for (const w of [1280, 390]) {
+      await page.setViewportSize({ width: w, height: 800 });
+      await page.goto("/faq", { waitUntil: "domcontentloaded" });
+      await page.evaluate(() => document.fonts.ready);
+      const px = await page.$eval("#faq-search", (el) =>
+        parseFloat(getComputedStyle(el).fontSize),
+      );
+      expect(px, `#faq-search at ${w}px viewport`).toBeGreaterThanOrEqual(16);
+    }
+  });
 });

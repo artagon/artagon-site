@@ -33,7 +33,10 @@ const renderedAnswer = await renderMarkdown(item.answer);
   justify-content: space-between;
   gap: 16px;
   font-weight: 600;
-  font-size: 1.05rem;
+  /* USMR Phase 5.5.16-pt124 — rem→px discipline (pt19-22). The
+   * 1.05rem at root 16 resolves to 16.8 px; 17 px is the closest
+   * canonical fixed-px match. Applies to all FAQ question rows. */
+  font-size: 17px;
   color: var(--fg);
   list-style: none;
   user-select: none;
@@ -64,7 +67,10 @@ details[open] .faq-icon {
   padding: 0 20px 20px 20px;
   color: var(--fg-2);
   line-height: 1.7;
-  font-size: 0.95rem;
+  /* USMR Phase 5.5.16-pt124 — rem→px (pt19-22). 0.95rem ≈ 15.2; 15 px
+   * keeps the question/answer hierarchy (17 / 15) and aligns with the
+   * project's body-copy fixed-px range. */
+  font-size: 15px;
 }
 
 .faq-answer p {
@@ -98,12 +104,14 @@ details[open] .faq-icon {
 @media (max-width: 768px) {
   .faq-question {
     padding: 14px 16px;
-    font-size: 1rem;
+    /* USMR Phase 5.5.16-pt124 — rem→px (1rem → 16). */
+    font-size: 16px;
   }
 
   .faq-answer {
     padding: 0 16px 16px 16px;
-    font-size: 0.9rem;
+    /* USMR Phase 5.5.16-pt124 — rem→px (0.9rem ≈ 14.4 → 14). */
+    font-size: 14px;
   }
 }
 </style>
