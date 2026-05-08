@@ -346,14 +346,19 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     border: 1px solid var(--line);
     border-radius: 8px;
   }
+  /* Canonical post-trusted-identity.html:388-391 — `.pull .attribution
+   * { margin-top: 18; letter-spacing: 0.14em }`. Pre-fix margin-top
+   * 14 + tracking 0.08em — both undersized. The 0.14em tracking is
+   * the canonical "uppercase legal/byline" spacing used across mono
+   * eyebrows. */
   .post-body :global(.pull .attribution) {
     display: block;
-    margin-top: 14px;
+    margin-top: 18px;
     font-family: var(--f-mono);
     font-style: normal;
     font-size: 11px;
     color: var(--fg-3);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
   /* Canonical post-trusted-identity.html:394-398 — `margin: 32px 0
@@ -482,13 +487,16 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
   .post-body :global(.compare .col.before) {
     opacity: 0.75;
   }
+  /* Canonical post-trusted-identity.html:438 — `margin-bottom: 14`
+   * (we had 12). The 2 px shortfall compressed the gap between the
+   * BEFORE/AFTER label and the column body text. */
   .post-body :global(.compare .col .h) {
     font-family: var(--f-mono);
     font-size: 11px;
     color: var(--fg-3);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
   .post-body :global(.compare .col.after .h) {
     color: var(--accent);
