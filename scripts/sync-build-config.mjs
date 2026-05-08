@@ -228,6 +228,12 @@ exclude = [
   # name user-level skills installed outside the repo (e.g.
   # review-verification-protocol); not all of them ship locally.
   "^file://.*/\\\\.claude/skills/",
+  # W3C / upstream spec mirrors that are known-flaky from CI runners
+  # (connection-reset on GitHub-hosted infrastructure). The spec text
+  # is committed verbatim in openspec/.cache/design-md-spec.md and is
+  # not a live dependency; exclude the upstream domain rather than
+  # retrying indefinitely.
+  "^https?://(www\\\\.)?designtokens\\\\.org/",
 ]
 `;
 
