@@ -63,9 +63,13 @@
   font-style: italic;
 }
 
+/* Canonical Pillars.jsx:94 — uses `.lead` (font-size 20, color fg-1,
+ * line-height 1.5) with inline overrides `maxWidth: 46ch,
+ * justifySelf: end`. Our pillars__lede was 1.05rem (≈16.8) / 1.55,
+ * undersizing the section lede by 3.2 px against canonical. */
 .pillars__lede {
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-size: 20px;
+  line-height: 1.5;
   color: var(--fg-1);
   max-width: 46ch;
   justify-self: end;

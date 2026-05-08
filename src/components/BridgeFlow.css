@@ -59,9 +59,12 @@
   font-style: italic;
 }
 
+/* Canonical Bridge.jsx — uses .lead class (font-size 20, fg-1,
+ * line-height 1.5) with maxWidth 50ch override. Pre-fix scoped
+ * 1.05rem (≈16.8) overrode the .lead 20 px → 3.2 px undersize. */
 .bridge-flow__lede {
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-size: 20px;
+  line-height: 1.5;
   color: var(--fg-1);
   max-width: 50ch;
   margin: 0;

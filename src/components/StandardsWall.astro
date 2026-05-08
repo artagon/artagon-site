@@ -120,9 +120,11 @@ import { lookupGlossary } from '../data/glossary';
     font-style: italic;
   }
 
+  /* Canonical Standards.jsx — uses .lead 20 / fg-1 / 1.5. Pre-fix
+   * 1.05rem (≈16.8) was 3.2 px undersized. */
   .standards-wall__lede {
-    font-size: 1.05rem;
-    line-height: 1.55;
+    font-size: 20px;
+    line-height: 1.5;
     color: var(--fg-1);
     max-width: 48ch;
     justify-self: end;
