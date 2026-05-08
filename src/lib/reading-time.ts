@@ -6,8 +6,17 @@
  * on micro-posts.
  */
 
-/** Words-per-minute baseline for body-text reading. */
-export const READING_WPM = 220;
+/**
+ * Words-per-minute baseline for body-text reading.
+ *
+ * USMR Phase 5.5.16-pt168 — `export` removed. Pre-pt168 the const
+ * was exported but had ZERO consumers outside this module (no
+ * src/* import, no tests/* reference). Module-private now; if a
+ * caller ever needs to compute reading time at a non-default WPM,
+ * extend `readingMinutes` to accept an optional override rather
+ * than re-exporting the bare number.
+ */
+const READING_WPM = 220;
 
 /**
  * Estimate reading time in whole minutes from a body string.
