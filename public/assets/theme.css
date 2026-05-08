@@ -218,18 +218,17 @@
  * preserved for the 4 surfaces consuming the rgba(...) gradient
  * forms — those need the integer components, not a var() value. */
 
-/* USMR Phase 5.5.16-pt83 — pruned --bg-alt from all 3 theme blocks.
- * Zero consumers (every `var(--bg-alt)` site-wide migrated to
- * `var(--bg-1)` in the legacy-token sweeps pt78/pt79). */
+/* USMR Phase 5.5.16-pt86 — pruned --text, --muted, --border from
+ * all 3 theme blocks. Zero consumers (pt86 migrated theme.css's last
+ * 6 internal class rules to canonical --fg / --fg-2 / --line). The
+ * pt28 5.1h legacy-alias chain has now fully retired for these three
+ * tokens; --surface and --brand-teal are still aliased because they
+ * have internal consumers in theme.css gradient/teal-* token defs. */
 
 /* Midnight Teal (current default) */
 :root[data-theme="midnight"] {
   --bg: #0b1220;
   --surface: var(--bg-1);
-  --border: var(--line);
-
-  --text: var(--fg);
-  --muted: var(--fg-2);
 
   --brand-teal: var(--accent);
   --brand-teal-rgb: 60, 238, 221;
@@ -239,10 +238,6 @@
 :root[data-theme="twilight"] {
   --bg: #0e1026;
   --surface: var(--bg-1);
-  --border: var(--line);
-
-  --text: var(--fg);
-  --muted: var(--fg-2);
 
   --brand-teal: var(--accent);
   --brand-teal-rgb: 60, 238, 221;
@@ -252,10 +247,6 @@
 :root[data-theme="slate"] {
   --bg: #0a0e19;
   --surface: #101a2e;
-  --border: #20314e;
-
-  --text: #edf2f7;
-  --muted: #9bb1cc;
 
   --brand-teal: #2dd4bf;
   --brand-teal-rgb: 45, 212, 191;
@@ -733,7 +724,7 @@ a {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 18px;
 }
@@ -815,7 +806,7 @@ a {
 
 .ui-section-intro {
   font-size: 1.15rem;
-  color: var(--muted);
+  color: var(--fg-2);
   margin-bottom: var(--margin-content-block);
   line-height: 1.6;
 }
@@ -837,7 +828,7 @@ a {
   border: var(--border-teal-subtle);
   border-radius: var(--radius-card);
   padding: var(--padding-card);
-  color: var(--text);
+  color: var(--fg);
   transition: all 0.3s ease;
 }
 
@@ -929,7 +920,7 @@ a {
 }
 
 .ui-card--pillar p {
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
   margin: 0;
 }
@@ -942,7 +933,7 @@ a {
 }
 
 .ui-card--domain p {
-  color: var(--muted);
+  color: var(--fg-2);
   line-height: 1.6;
   margin: 0;
 }
@@ -961,7 +952,7 @@ a {
 
 .ui-card--component p,
 .ui-card--product p {
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
   margin: 0 0 1rem;
 }
@@ -1352,14 +1343,14 @@ header {
 .mission-intro {
   font-size: 1.15rem;
   line-height: 1.7;
-  color: var(--muted);
+  color: var(--fg-2);
   max-width: 900px;
   margin: 0 auto 2rem;
   text-align: center;
 }
 
 .mission-intro strong {
-  color: var(--text);
+  color: var(--fg);
   font-weight: 600;
 }
 
