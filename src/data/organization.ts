@@ -26,7 +26,7 @@ export const ORG: Organization = {
     { label: "Location", value: "Philadelphia, Pennsylvania" },
   ],
   contactFootnote:
-    "PGP key & security disclosure policy at artagon.com/.well-known",
+    "Security disclosure policy at artagon.com/security; .well-known/security.txt is the discovery endpoint.",
 };
 
 // Module-load runtime gate. Fires once at first import (Astro/Vite eagerly
