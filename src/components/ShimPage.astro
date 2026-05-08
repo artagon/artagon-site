@@ -14,14 +14,41 @@ const {
   altLinks=[]
 } = Astro.props;
 ---
-<section class="container" style="padding:40px 0">
+{/* USMR Phase 5.5.16-pt117 — ShimPage h1 was rendering at 102 px
+    (hero-sized) on /how /security /privacy /play /developers because
+    the bare <h1> picked up var(--fs-h1) = clamp(56, 7.2vw, 108).
+    Five placeholder pages don't need hero-sized headlines.
+    Canonicalized to a smaller display range matching .faq-hero h1
+    sizing (40-64). The .discrete description also moves to .lead
+    utility for canonical 20 px / fg-1 / 1.5. */}
+<section class="shim-page">
   <div class="card">
     <div class="eyebrow">Shim page</div>
-    <h1 style="margin:.2rem 0">{title}</h1>
-    <p class="discrete">{description}</p>
-    <div class="actions" style="margin-top:12px">
+    <h1 class="shim-page__title display">{title}</h1>
+    <p class="shim-page__lede lead">{description}</p>
+    <div class="actions">
       <a class="btn" href={ctaHref}>{ctaLabel}</a>
       {altLinks.map(l => <a class="btn" href={l.href}>{l.label}</a>)}
     </div>
   </div>
 </section>
+
+<style>
+  .shim-page {
+    padding: clamp(48px, 8vw, 80px) 0;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+  .shim-page__title {
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.05;
+    margin: 12px 0 16px;
+  }
+  .shim-page__lede {
+    margin-bottom: 24px;
+  }
+  .shim-page .actions {
+    margin-top: 0;
+  }
+</style>
