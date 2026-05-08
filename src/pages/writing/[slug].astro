@@ -174,16 +174,22 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     padding-block: 80px 56px;
     border-bottom: 1px solid var(--line-soft);
   }
+  /* Canonical .eyebrow per post-trusted-identity.html:243-249 — font
+   * 12 / fg-2 / tracking 0.1em / margin-bottom 24. We had 11 / fg-3 /
+   * 0.12em / 20 — slightly tighter and dimmer than canonical. The
+   * generic .eyebrow ::before accent dash is omitted on purpose for
+   * the blog-hero variant (the "← Blog" backlink IS the visual
+   * element; an extra dash before the arrow reads as clutter). */
   .blog-hero__eyebrow {
     display: flex;
     align-items: center;
     gap: 10px;
     font-family: var(--f-mono);
-    font-size: 11px;
-    color: var(--fg-3);
-    letter-spacing: 0.12em;
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin: 0 0 20px;
+    margin: 0 0 24px;
   }
   .blog-hero__back {
     color: var(--fg-3);
@@ -197,14 +203,19 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
   .blog-hero__sep {
     color: var(--fg-3);
   }
+  /* Canonical post-trusted-identity.html:338-344 — `clamp(40, 68)` /
+   * line-height 1.02 / margin-bottom 24. We had 72 / 1.05 / 18 — the
+   * larger ceiling broke 22ch wrap on widest viewports and the looser
+   * line-height + tighter margin made the headline feel cramped
+   * against the lede. */
   .blog-hero__title {
     font-family: var(--f-display);
-    font-size: clamp(40px, 5.4vw, 72px);
-    line-height: 1.05;
+    font-size: clamp(40px, 5.4vw, 68px);
+    line-height: 1.02;
     letter-spacing: var(--display-tracking, -0.025em);
     font-weight: var(--display-weight, 500);
     color: var(--fg);
-    margin: 0 0 18px;
+    margin: 0 0 24px;
     max-width: 22ch;
   }
   .blog-hero__sub {
@@ -216,14 +227,18 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     font-family: var(--f-emphasis, var(--f-serif));
     font-style: italic;
   }
+  /* Canonical post-trusted-identity.html:346-350 — gap 14, color fg-2.
+   * We had gap 10 / fg-3 — tighter spacing + dimmer color buried the
+   * byline against the dot separators. fg-2 is the editorial-meta
+   * color used across the site. */
   .blog-hero__byline {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 14px;
     font-family: var(--f-mono);
     font-size: 12px;
-    color: var(--fg-3);
+    color: var(--fg-2);
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
@@ -447,9 +462,11 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     }
   }
 
-  /* ----- Footer ribbon ----- */
+  /* Canonical post-trusted-identity.html:444-446 — `padding: 48px 0
+   * 48px`, symmetric. We had 32 top / 80 bottom which read as too-
+   * tight under the post body and over-padded above the footer. */
   .post-footer-section {
-    padding-block: 32px 80px;
+    padding-block: 48px;
     border-top: 1px solid var(--line-soft);
   }
   .post-footer__tags {
