@@ -150,6 +150,7 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
 <meta property="og:image" content={ogImageAbsolute} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={`${title} — Artagon`} />
 {type === 'article' && publishedTime && (
   <meta property="article:published_time" content={publishedTime} />
 )}
@@ -160,9 +161,12 @@ const articleLd = type === 'article' && publishedTime ? safeJsonLd({
   <meta property="article:tag" content={t} />
 ))}
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@artagon" />
+<meta name="twitter:creator" content="@artagon" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={metaDescription} />
 <meta name="twitter:image" content={ogImageAbsolute} />
+<meta name="twitter:image:alt" content={`${title} — Artagon`} />
 <script type="application/ld+json" set:html={orgLd}></script>
 <script type="application/ld+json" set:html={serviceLd}></script>
 <script type="application/ld+json" set:html={websiteLd}></script>

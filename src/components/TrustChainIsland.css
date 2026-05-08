@@ -412,7 +412,11 @@
   margin-top: 1.25rem;
   padding: 0.875rem 1.125rem;
   border-radius: 10px;
-  border: 1px solid var(--line);
+  /* USMR 5.5.13 — base border bumped from var(--line) to canonical
+   * var(--line-soft) per Hero.jsx:393. Pre-settle decision card sits
+   * a hair more muted, matching canonical's "the chain is composing"
+   * feel before the verdict commits. */
+  border: 1px solid var(--line-soft);
   background: var(--bg);
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.75rem;

@@ -51,6 +51,13 @@ const headlineLines = headline.includes(". ")
 // next</span><br/>generation of identity."). Even-index segments are
 // plain text; odd-index segments render as `<em class="serif">`.
 const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [];
+
+// USMR Phase 5.5.13 — Hero lede 3-clause emphasis. Splits on
+// `**bold**` so the three keystone words (proven / bound /
+// traceable) render in `<b class="hero__lede-emphasis">` per
+// canonical Hero.jsx:159-164. Even-index segments plain text;
+// odd-index segments are the bold keystones (var(--fg) at 500).
+const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 ---
 
 <Base title={title} description={description}>
@@ -114,7 +121,15 @@ const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [
             ))
           }
         </h1>
-        <p id="hero-sub" class="lead">{lede}</p>
+        <p id="hero-sub" class="lead">
+          {heroLedeSegments.map((segment, i) =>
+            i % 2 === 1 ? (
+              <b class="hero__lede-emphasis">{segment}</b>
+            ) : (
+              segment
+            )
+          )}
+        </p>
         {
           ctas.length > 0 && (
             <div class="actions">
@@ -303,6 +318,15 @@ const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [
   }
   .hero__meta-strip-link:hover {
     color: var(--accent);
+  }
+
+  /* USMR Phase 5.5.13 — Hero lede 3-clause keystones (canonical
+   * Hero.jsx:160 — color: var(--fg), font-weight: 500). The keystones
+   * (proven / bound / traceable) render as bold spans inside the
+   * `.lead` paragraph; the surrounding text uses the lead color. */
+  .hero__lede-emphasis {
+    color: var(--fg);
+    font-weight: 500;
   }
 
   .hero__affiliations {

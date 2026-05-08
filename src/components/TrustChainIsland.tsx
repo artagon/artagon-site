@@ -234,7 +234,10 @@ export default function TrustChainIsland() {
   const headLabel = hoveredStage
     ? hoveredStage.label
     : isEvaluating
-      ? "Decision · pending"
+      ? // USMR 5.5.13 — canonical Hero.jsx:409 reads "Final claim"
+        // while evaluating (forward-looking) instead of mine's earlier
+        // "Decision · pending" (commits-to-pending tone).
+        "Final claim"
       : `Decision · ${scenario.decision}`;
   const claimLine = hoveredStage
     ? hoveredOutcome === "fail"

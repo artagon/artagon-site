@@ -76,11 +76,17 @@ const faqSchema = {
 
   <Fragment slot="footer"><Footer /></Fragment>
 
-  <!-- JSON-LD Schema for FAQPage. Routed through `safeJsonLd` so the
-       inline emission shares the same hardened pipeline as SeoTags
-       (escapes `<`, `>`, `/`, U+2028, U+2029 against script-tag
-       breakouts and JS-lexer attacks). -->
-  <script type="application/ld+json" set:html={safeJsonLd(faqSchema)} />
+  {/* USMR 5.5.13 — FAQPage JSON-LD now lives in <head> via the
+       `json-ld` slot (BaseLayout.astro:64). Google parses ld+json
+       from anywhere, but Bing webmaster tools + some validators
+       prefer head; matches the canonical pattern used by SeoTags
+       for Article / Organization JSON-LD. Routed through
+       `safeJsonLd` for U+2028 / U+2029 / `</script>` escape. */}
+  <script
+    slot="json-ld"
+    type="application/ld+json"
+    set:html={safeJsonLd(faqSchema)}
+  />
 </Base>
 
 <style>
