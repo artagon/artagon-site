@@ -21,11 +21,16 @@
  * the same commit to reflect the implementation.
  */
 
+/* Canonical Hero.jsx:230-244 — `border: 1px solid var(--line)`,
+ * `borderRadius: 14`, `background: linear-gradient(180deg, var(--bg-1)
+ * 0%, var(--bg) 100%)`, `padding: 28`, `minHeight: 560`. Pre-fix
+ * fluid `padding: clamp(1.25rem, 2vw, 1.75rem)` (≈20-28) — undersized
+ * to 20 on narrow viewports. Canonical fixes 28. */
 .trust-chain {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
-  padding: clamp(1.25rem, 2vw, 1.75rem);
+  padding: 28px;
   /* USMR Phase 5.1p.18 — fixed minimum height per new-design
    * index.html:1025 keeps the card stable across scenario swaps;
    * without it the chain visibly pulses in height when SCENARIOS
@@ -42,14 +47,18 @@
     border-color 0.4s ease;
 }
 
+/* Canonical Hero.jsx:246 — head row `marginBottom: 20, paddingBottom:
+ * 14`, border-bottom var(--line-soft). Pre-fix gap 1rem (=16) +
+ * margin-bottom 1rem (=16) — both 4 px tighter than canonical, and
+ * border-bottom was var(--line) instead of softer var(--line-soft). */
 .trust-chain__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.875rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--line);
+  gap: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line-soft);
   font-family: var(--f-mono);
   font-size: var(--fs-micro);
   color: var(--fg-2);
