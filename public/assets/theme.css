@@ -562,9 +562,21 @@ a {
  * the [data-hero-font] matrix; left them gated to per-face overrides
  * only — bare h1/h2 catch-all (theme.css h1/h2 rules) drives the
  * default weight per element. */
+/* USMR Phase 5.5.16-pt100 — canonical `h1.display` (global.css:43)
+ * defines `font-weight: var(--display-weight, 400)`. With
+ * [data-hero-font="grotesk"] (default) the token resolves to 500;
+ * without the attr, fallback 400 fires. Pt42 removed font-weight
+ * from `.display` to fix a specificity bug, but the canonical token
+ * consumption was correct — pt42's removal silently dropped the
+ * per-hero-font weight cascade so home Hero h1 always rendered 400
+ * regardless of data-hero-font. Restoring the canonical token
+ * consumption: at default grotesk the home hero now reads at 500
+ * (canonical Space Grotesk medium); fraunces/dmserif/mono keep their
+ * 400 weight per their token blocks. */
 .display {
   font-family: var(--f-display, var(--f-sans));
   letter-spacing: var(--display-tracking, var(--tracking-h1));
+  font-weight: var(--display-weight, 400);
 }
 /* Canonical global.css:95 — `.serif { font-family: var(--f-serif);
  * font-weight: 400 }`. The `Georgia` fallback was redundant —

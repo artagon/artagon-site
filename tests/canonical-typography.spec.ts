@@ -49,19 +49,32 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(weight).toBe("500");
   });
 
-  test("home hero h1.display font-weight is 400 (canonical Space Grotesk regular)", async ({
+  test("home hero h1.display font-weight resolves canonical (--display-weight)", async ({
     page,
   }) => {
-    // USMR Phase 5.5.16-pt99 — verifies the home Hero h1 stays at 400
-    // (canonical `h1.display { font-weight: var(--display-weight, 400) }`).
-    // This is intentionally distinct from .blog-hero h1's 500 fallback.
+    // USMR Phase 5.5.16-pt100 — canonical `h1.display { font-weight:
+    // var(--display-weight, 400) }`. With default `[data-hero-font=
+    // "grotesk"]` (set by BaseLayout) `--display-weight` resolves to
+    // 500 — the canonical Space Grotesk medium. Pre-pt100 the .display
+    // utility had no font-weight rule (pt42 removed it), so home Hero
+    // h1 inherited the bare h1 = 400 rule and rendered as Space
+    // Grotesk regular regardless of [data-hero-font]. pt100 restored
+    // the canonical token consumption.
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts.ready);
-    const weight = await page.$eval(
-      ".hero h1.display",
-      (el) => getComputedStyle(el).fontWeight,
-    );
-    expect(weight).toBe("400");
+    const result = await page.$eval(".hero h1.display", (el) => {
+      const cs = getComputedStyle(el);
+      const root = getComputedStyle(document.documentElement);
+      return {
+        weight: cs.fontWeight,
+        token: root.getPropertyValue("--display-weight").trim(),
+      };
+    });
+    // The h1 weight MUST equal the --display-weight token value
+    // (canonical contract). Token defaults to 500 under grotesk; the
+    // assertion verifies the var() chain resolves end-to-end, not a
+    // hardcoded number.
+    expect(result.weight).toBe(result.token || "400");
   });
 
   test(".lead consumes canonical 20px / fg-1 / 1.5", async ({ page }) => {
