@@ -1,6 +1,12 @@
+/* USMR Phase 5.5.16-pt78 — vision.css migrated from 5.1-era legacy
+ * token names (--text, --muted, --brand-teal) to canonical (--fg,
+ * --fg-2, --accent) per the pt28 5.1h deprecation plan. The legacy
+ * tokens still resolve (aliased in theme.css) but the canonical
+ * names match every other component CSS file in the project. 22
+ * substitutions total. */
 .vision-doc {
   line-height: 1.7;
-  color: var(--text);
+  color: var(--fg);
 }
 .vision-doc .vision-container {
   max-width: 1000px;
@@ -18,13 +24,13 @@
 .vision-doc .hero-section h1 {
   font-size: clamp(2.5rem, 5vw, 3.5rem);
   font-weight: 700;
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.5rem;
   letter-spacing: -0.02em;
 }
 .vision-doc .hero-subtitle {
   font-size: clamp(1.2rem, 3vw, 1.5rem);
-  color: var(--muted);
+  color: var(--fg-2);
   margin: 0 0 2rem;
   font-weight: 300;
 }
@@ -35,7 +41,7 @@
 .vision-doc .mission-text {
   font-size: clamp(1.3rem, 2.5vw, 1.8rem);
   font-weight: 600;
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0;
   line-height: 1.4;
   text-transform: uppercase;
@@ -47,35 +53,35 @@
 .vision-doc .lead-text {
   font-size: 1.25rem;
   font-weight: 500;
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
   margin-bottom: 1rem;
 }
 .vision-doc .pillars-title {
   font-size: 1.8rem;
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 4rem 0 2rem;
   text-align: center;
   font-weight: 700;
 }
 .vision-doc .mission-breakdown h3 {
-  color: var(--brand-teal);
+  color: var(--accent);
   font-size: 1.6rem;
   margin: 0 0 1rem;
 }
 .vision-doc .mission-breakdown h4 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.75rem;
   font-size: 1.1rem;
 }
 .vision-doc .mission-intro {
-  color: var(--muted);
+  color: var(--fg-2);
   margin: 0 0 2rem;
   line-height: 1.7;
 }
 .vision-doc .mission-breakdown .ui-card p {
   margin: 0;
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
 }
 .vision-doc .principles-list {
@@ -89,22 +95,22 @@
   align-items: flex-start;
 }
 .vision-doc .principle-content h3 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.5rem;
   font-size: 1.2rem;
 }
 .vision-doc .principle-content p {
   margin: 0;
-  color: var(--muted);
+  color: var(--fg-2);
   line-height: 1.6;
 }
 .vision-doc .security-grid h3 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin-top: 0;
 }
 .vision-doc .security-grid p {
   margin-bottom: 0;
-  color: var(--text);
+  color: var(--fg);
 }
 .vision-doc .use-cases-detailed {
   display: grid;
@@ -119,10 +125,10 @@
 }
 .vision-doc .use-case-header h3 {
   margin: 0;
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 .vision-doc .use-case-content h4 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 1.25rem 0 0.5rem;
 }
 .vision-doc .use-case-flow ol {
@@ -140,7 +146,7 @@
   margin-top: 2rem;
 }
 .vision-doc .comparison-category h4 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.75rem;
 }
 .vision-doc .comparison-category ul {
@@ -165,15 +171,15 @@
 }
 .vision-doc .phase-header h3 {
   margin: 0;
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 .vision-doc .phase-timeline {
-  color: var(--muted);
+  color: var(--fg-2);
   font-size: 0.95rem;
 }
 .vision-doc .phase-description {
   margin: 0 0 1rem;
-  color: var(--text);
+  color: var(--fg);
 }
 .vision-doc .phase-deliverables ul {
   margin: 0 0 1rem;
@@ -196,11 +202,11 @@
 }
 .vision-doc .vision-2030 h3 {
   margin: 0 0 0.75rem;
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 .vision-doc .vision-2030 p {
   margin: 0;
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
 }
 .vision-doc .closing-statement {
