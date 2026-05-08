@@ -64,7 +64,28 @@ const tags: readonly string[] = articleProps?.tags ?? [];
 const SITE = (Astro.site ?? new URL('https://artagon.com')).toString().replace(/\/$/, '');
 const url = `${SITE}${path.startsWith('/') ? path : `/${path}`}`;
 const motto = taglines.tagline.full;
-const metaDescription = /Verified\W+Private\W+Attested/i.test(description) ? description : `${description.trim()} — ${motto}`;
+// USMR Phase 5.5.16-pt149 — three-way guard on the motto append:
+//   1) Skip if description already contains "Verified, Private,
+//      Attested" (legacy condition; intentional motto inline).
+//   2) Skip if description already mentions the motto's
+//      distinguishing phrase "Trusted Identity for Machines and
+//      Humans" (some pages — like home — paraphrase it).
+//   3) **NEW**: Skip if description is already long enough that
+//      appending the 76-char motto would push past Google's ~160
+//      char SERP truncation cutoff. pt144 brought every page
+//      description up to 150-180 chars; appending the motto pushed
+//      every rendered meta-description to 184-245 chars, with the
+//      motto invisibly truncated on every SERP. The 90-char floor
+//      below leaves room for the appended " — {76-char motto}" to
+//      land at ≤166 chars total.
+const trimmedDescription = description.trim();
+const skipMottoAppend =
+  /Verified\W+Private\W+Attested/i.test(trimmedDescription) ||
+  /Trusted Identity for Machines and Humans/i.test(trimmedDescription) ||
+  trimmedDescription.length >= 90;
+const metaDescription = skipMottoAppend
+  ? trimmedDescription
+  : `${trimmedDescription} — ${motto}`;
 const ogImageAbsolute = image.startsWith('http') ? image : `${SITE}${image.startsWith('/') ? image : `/${image}`}`;
 // USMR Phase 5.5.16-pt148 — pre-pt148 the og:image:alt unconditionally
 // appended ` — Artagon` to title, producing "Platform — Artagon —
