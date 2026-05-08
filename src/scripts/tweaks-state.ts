@@ -30,7 +30,15 @@ export interface Tweaks {
   showGrid: boolean;
 }
 
-export const STORAGE_KEY = "artagon.tweaks.v1";
+/** USMR Phase 5.5.16-pt88 — bumped "v1" → "v2" to invalidate stale
+ *  localStorage state from earlier dev sessions. Pre-pt88 users had
+ *  `artagon.tweaks.v1` with arbitrary saved state (often `accent:
+ *  "amber"` from QA testing). The pre-paint restore script in
+ *  Tweaks.astro applied that state, overriding the canonical
+ *  `data-accent="cyan"` default in BaseLayout. The key bump ensures
+ *  the canonical defaults apply on first load until the user
+ *  explicitly toggles via the Tweaks panel. */
+export const STORAGE_KEY = "artagon.tweaks.v2";
 
 /** OKLCH swatch values for accent buttons (visual reference only — runtime CSS via data-accent). */
 export const ACCENT_SWATCH: Record<Accent, string> = {

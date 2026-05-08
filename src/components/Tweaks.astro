@@ -15,7 +15,7 @@
  * The React runtime IS shipped to production. Other interactive surfaces
  * (`/play`, `/console`, `/search`) will use it; Tweaks pays the entry cost.
  *
- * State persists in localStorage under `artagon.tweaks.v1` and projects
+ * State persists in localStorage under `artagon.tweaks.v2` and projects
  * onto `data-accent`, `data-density`, `data-theme`, `data-hero-font` on
  * `<html>` plus `.no-grid` on `<body>` — the same contract upstream CSS
  * keys off.
@@ -41,7 +41,7 @@ const isDev = import.meta.env.DEV;
       <script is:inline>
         (function () {
           try {
-            const raw = localStorage.getItem("artagon.tweaks.v1");
+            const raw = localStorage.getItem("artagon.tweaks.v2");
             if (!raw) return;
             const t = JSON.parse(raw);
             const html = document.documentElement;
