@@ -394,16 +394,20 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg) 80%);
     overflow: hidden;
   }
+  /* Canonical Cta.jsx:20 — strip top:16, left/right:20, fontSize:10,
+   * color: fg-3, letterSpacing:0.12em. Pre-canonical used `var(--fs-
+   * micro)` (≈11) at fg-2; canonicalized to fixed 10/fg-3 to match
+   * the canonical decorative caption density. */
   .onramp__strip {
     position: absolute;
-    top: 1rem;
-    left: 1.25rem;
-    right: 1.25rem;
+    top: 16px;
+    left: 20px;
+    right: 20px;
     display: flex;
     justify-content: space-between;
     font-family: var(--f-mono);
-    font-size: var(--fs-micro);
-    color: var(--fg-2);
+    font-size: 10px;
+    color: var(--fg-3);
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
@@ -440,33 +444,44 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     max-width: 52ch;
     color: var(--fg-2);
   }
+  /* Canonical Cta.jsx:42-44 — `padding: 28`, `borderRadius: 12`,
+   * `fontSize: 13`. Was 1.75rem padding (=28 ✓) but font-size was
+   * `var(--fs-small)` (≈13.5) — canonical 13 fixed. */
   .onramp__contacts {
     border: 1px solid var(--line);
     border-radius: 12px;
-    padding: 1.75rem;
+    padding: 28px;
     background: var(--bg-1);
     font-family: var(--f-mono);
-    font-size: var(--fs-small);
+    font-size: 13px;
   }
   /* Canonical contact card colors — Cta.jsx:46,56,60-61. Title sits at
    * fg-3 (deep label), `dt` at fg-3, `dd` at fg-1 (mono value),
    * footnote at fg-3. Pre-canonical fg-2/fg/fg-2 made labels read as
    * primary text. */
+  /* Canonical Cta.jsx:46 — title fontSize 10 / 0.14em /
+   * margin-bottom 14. */
   .onramp__contacts-title {
-    font-size: var(--fs-micro);
+    font-size: 10px;
     color: var(--fg-3);
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    margin-bottom: 0.875rem;
+    margin-bottom: 14px;
   }
+  /* Canonical Cta.jsx:55 — rows are individually padded with 10px 0
+   * + border-bottom; gap is set on the contacts card not the rows
+   * grid. Replicate the canonical 100px label column rather than the
+   * fluid 0.6fr/1fr so the contact labels align at the same x across
+   * Enterprise/General/Security/Location regardless of card width. */
   .onramp__rows {
     margin: 0;
-    display: grid;
-    gap: 0.5rem;
   }
   .onramp__row {
     display: grid;
-    grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr);
+    grid-template-columns: 100px 1fr;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
     gap: 1rem;
   }
   .onramp__row dt {
@@ -477,10 +492,13 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     color: var(--fg-1);
     margin: 0;
   }
+  /* Canonical Cta.jsx:60 — footnote `marginTop: 14`, `fontSize: 11`,
+   * fg-3, `lineHeight: 1.5`. Pre-fix used 0.875rem (=14 ✓) and
+   * `var(--fs-micro)` (≈11 ✓) — canonicalized to fixed px. */
   .onramp__footnote {
-    margin: 0.875rem 0 0;
+    margin: 14px 0 0;
     color: var(--fg-3);
-    font-size: var(--fs-micro);
+    font-size: 11px;
     line-height: 1.5;
   }
 
