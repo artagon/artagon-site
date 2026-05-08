@@ -110,10 +110,28 @@ function safeDecode(seg: string): string {
     return seg;
   }
 }
+// USMR Phase 5.5.16-pt153 — for the LAST breadcrumb segment, use
+// the actual page title (stripped of the canonical " — Artagon"
+// suffix) instead of the title-cased URL slug. Pre-pt153
+// /writing/welcome shipped position 3 = "Welcome" — title-cased
+// from the slug — when the actual post title was "Trusted
+// identity for machines and humans". The title-case-from-slug
+// pattern works for static routes (/platform → "Platform") but
+// breaks for any route whose title doesn't match the slug, which
+// is every blog post (and would break for any future dynamic
+// route). The fix derives the leaf name from the page's real
+// title; intermediate segments still use slug-titlecasing because
+// SeoTags doesn't know intermediate-segment titles statically.
+const titleWithoutSuffix = title.replace(/\s—\sArtagon$/, "").trim();
+const slugTitleCase = (seg: string): string =>
+  safeDecode(seg).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 const breadcrumbItems = [
   { name: 'Home', item: `${SITE}/` },
   ...segments.map((seg, i) => ({
-    name: safeDecode(seg).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+    name:
+      i === segments.length - 1 && titleWithoutSuffix
+        ? titleWithoutSuffix
+        : slugTitleCase(seg),
     item: `${SITE}/${segments.slice(0, i + 1).map(encodeURIComponent).join('/')}`,
   })),
 ];
