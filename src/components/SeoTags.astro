@@ -145,7 +145,14 @@ const websiteLd = safeJsonLd({
   "url":`${SITE}/`,
   "potentialAction":{
     "@type":"SearchAction",
-    "target":{"@type":"EntryPoint","urlTemplate":`${SITE}/search/?q={search_term_string}`},
+    // USMR Phase 5.5.16-pt152 — drop the trailing slash on the
+    // SearchAction target. astro.config.ts sets `trailingSlash:
+    // "never"`, so /search/ redirects to /search at runtime.
+    // Putting the redirected form in JSON-LD makes Google follow
+    // an unnecessary 301 hop AND ships an inconsistent URL shape
+    // vs every other emitted URL in the same document (canonical,
+    // og:url, BreadcrumbList items — all use trailingSlash=never).
+    "target":{"@type":"EntryPoint","urlTemplate":`${SITE}/search?q={search_term_string}`},
     "query-input":"required name=search_term_string"
   }
 });
