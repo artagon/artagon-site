@@ -1247,7 +1247,7 @@ Every data surface (roadmap list, blog index, standards page) must render a desi
 
 ### 9.4 External links
 
-External links use `rel="noopener noreferrer"` (both, always) and `target="_blank"`. Standards chips and footer GitHub link comply; verify via automated lint.
+External links use `rel="noopener noreferrer"` (both, always) and `target="_blank"`. Standards chips and footer GitHub link comply; gated by [`tests/lint-external-link-rel.test.mts`](./tests/lint-external-link-rel.test.mts) (USMR pt132). The gate's per-line allow-list opt-out is `<!-- lint-external-link-rel: ok -->` — set on the same line as the `target="_blank"` attribute when an exception is deliberate. Without `noopener` the new tab can read `window.opener` (a documented XSS / phishing vector), so the contract is security-relevant, not just stylistic.
 
 ### 9.5 Opengraph & metadata
 
