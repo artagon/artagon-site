@@ -28,7 +28,12 @@ const {
 const classes = ['ui-section', classNameProp, className].filter(Boolean).join(' ');
 ---
 
-<section class={classes} {...rest}>
+{/* USMR Phase 5.5.16-pt140 — landmark labelling. Pass `aria-label`
+    derived from the required `title` prop so every <section> rendered
+    via SectionHeader is a real WCAG region landmark, not a generic
+    div. The {...rest} spread takes precedence if a consumer passes
+    an explicit aria-labelledby pointing at a different id (rare). */}
+<section class={classes} aria-label={title} {...rest}>
   <div class="ui-section-header">
     <h2>{title}</h2>
     {number && <div class="ui-section-number">{number}</div>}

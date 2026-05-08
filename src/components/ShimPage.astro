@@ -21,10 +21,14 @@ const {
     Canonicalized to a smaller display range matching .faq-hero h1
     sizing (40-64). The .discrete description also moves to .lead
     utility for canonical 20 px / fg-1 / 1.5. */}
-<section class="shim-page">
+{/* USMR Phase 5.5.16-pt140 — landmark labelling. ShimPage renders
+    on /how /security /privacy /play /developers (5 routes); each
+    needs a labeled <section> so AT announces the page-content
+    landmark by its h1. */}
+<section class="shim-page" aria-labelledby="shim-page-h">
   <div class="card">
     <div class="eyebrow">Shim page</div>
-    <h1 class="shim-page__title display">{title}</h1>
+    <h1 id="shim-page-h" class="shim-page__title display">{title}</h1>
     <p class="shim-page__lede lead">{description}</p>
     <div class="actions">
       <a class="btn" href={ctaHref}>{ctaLabel}</a>

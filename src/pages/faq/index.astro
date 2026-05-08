@@ -52,7 +52,10 @@ const faqSchema = {
     </div>
   </section>
 
-  <section class="section faq-content">
+  {/* USMR Phase 5.5.16-pt140 — landmark labelling. The faq-content
+      section has no heading inside it (the FAQ list renders inline);
+      use aria-label for a static name. */}
+  <section class="section faq-content" aria-label="FAQ content">
     <div class="container narrow">
       <FaqSearch />
 

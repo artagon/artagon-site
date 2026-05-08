@@ -20,7 +20,11 @@ import Footer from '../../components/Footer.astro';
         Add your DocSearch keys to <code>/docsearch.json</code> to enable instant search.
       </div>
     </div>
-    <section id="results" class="search-page__results"></section>
+    {/* USMR Phase 5.5.16-pt140 — landmark labelling + aria-live for
+        result-list updates. DocSearch populates results into this
+        container; AT users get a polite announcement when the list
+        changes. */}
+    <section id="results" class="search-page__results" aria-label="Search results" aria-live="polite"></section>
   </div>
 
   <style>
