@@ -356,12 +356,21 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  /* Canonical post-trusted-identity.html:394-398 — `margin: 32px 0
+   * 40px` (asymmetric — narrower above, wider below for the caption),
+   * `border: 1px solid var(--line)` (not the softer line-soft),
+   * `border-radius: 14`, `background: linear-gradient(180deg, bg-1 →
+   * bg)`. We had symmetric 36 / line-soft / 12 / flat bg-1 — the
+   * gradient + thicker border give the figure the canonical
+   * card-on-canvas weight that contains the boxed chain-row stack. */
   .post-body :global(.chain-fig) {
-    margin: 36px 0;
+    margin: 32px 0 40px;
     padding: 24px;
-    border: 1px solid var(--line-soft);
-    border-radius: 12px;
-    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
+    display: grid;
+    gap: 8px;
     max-width: none;
   }
   /* Canonical .chain-row — blog.html:401. 40 px first column (room for
@@ -369,6 +378,12 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
    * frame + var(--bg) backdrop. The pre-canonical 28 px first col +
    * border-top divider rendered as a list, not the boxed-row stage
    * card the canonical narrates. */
+  /* Canonical post-trusted-identity.html:400-407 — `border-radius:
+   * 10`, `font-size: 14`. Inter-row spacing comes from the `.chain-fig
+   * { display: grid; gap: 8px }` parent, NOT a per-row margin. Our
+   * 5.5.16-pt1 port used border-radius 8 + per-row margin-bottom 8;
+   * canonicalizing to 10 + grid-gap brings the boxed chain-rows
+   * exactly in line. */
   .post-body :global(.chain-row) {
     display: grid;
     grid-template-columns: 40px 1fr auto;
@@ -376,12 +391,9 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
     padding: 14px 16px;
     align-items: center;
     border: 1px solid var(--line-soft);
-    border-radius: 8px;
+    border-radius: 10px;
     background: var(--bg);
-    margin-bottom: 8px;
-  }
-  .post-body :global(.chain-row:last-child) {
-    margin-bottom: 0;
+    font-size: 14px;
   }
   .post-body :global(.chain-row .num) {
     font-family: var(--f-mono);
