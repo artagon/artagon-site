@@ -77,6 +77,27 @@ test.describe("Canonical typography + rhythm gates", () => {
     expect(result.weight).toBe(result.token || "400");
   });
 
+  test("/writing index h1.display also resolves canonical --display-weight", async ({
+    page,
+  }) => {
+    // USMR Phase 5.5.16-pt101 — verifies the pt100 .display utility
+    // fix cascades to the writing index page hero too. Without this
+    // gate, a future scoped-style refactor on /writing could
+    // re-introduce a hardcoded font-weight that bypasses the token
+    // chain (the failure mode that pt100 caught on home Hero).
+    await page.goto("/writing", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.fonts.ready);
+    const result = await page.$eval("h1.writing-hero__title", (el) => {
+      const cs = getComputedStyle(el);
+      const root = getComputedStyle(document.documentElement);
+      return {
+        weight: cs.fontWeight,
+        token: root.getPropertyValue("--display-weight").trim(),
+      };
+    });
+    expect(result.weight).toBe(result.token || "400");
+  });
+
   test(".lead consumes canonical 20px / fg-1 / 1.5", async ({ page }) => {
     // Home hero lede uses .lead class. Canonical font-size 20,
     // line-height 1.5, color var(--fg-1).
