@@ -240,7 +240,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
                     )
                   )}
                 </h2>
-                <p class="onramp__lede">{onRamp.lede}</p>
+                <p class="onramp__lede lead">{onRamp.lede}</p>
                 {onRamp.ctas.length > 0 && (
                   <div class="actions">
                     {onRamp.ctas.map((c) => {
@@ -534,10 +534,16 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
   /* Canonical Cta.jsx:30 — uses `.lead` class with overrides
    * `marginBottom: 32`, `maxWidth: 52ch`. Pre-fix margin 2rem (=32 ✓);
    * canonicalized to fixed px. */
+  /* USMR Phase 5.5.16-pt106 — canonical Cta.jsx onRamp lede uses
+   * `.lead` utility verbatim with inline overrides for marginBottom
+   * and maxWidth. Pre-pt106 our markup omitted the .lead class so
+   * the utility's 20 px / fg-1 / 1.5 line-height didn't apply (font
+   * inherited body 16 px and color was overridden to fg-2). Now the
+   * markup is `class="onramp__lede lead"` and the scoped rule only
+   * carries the inline-style overrides per canonical. */
   .onramp__lede {
     margin: 0 0 32px;
     max-width: 52ch;
-    color: var(--fg-2);
   }
   /* Canonical Cta.jsx:42-44 — `padding: 28`, `borderRadius: 12`,
    * `fontSize: 13`. Was 1.75rem padding (=28 ✓) but font-size was
