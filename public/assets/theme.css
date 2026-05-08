@@ -1304,17 +1304,6 @@ nav a:hover {
   align-items: center;
   justify-content: center;
 }
-.kpi {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 26px;
-}
-@media (max-width: 900px) {
-  .kpi {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 .twocol {
   display: grid;
   gap: 24px;
@@ -1332,26 +1321,19 @@ nav a:hover {
     grid-template-columns: 1fr;
   }
 }
-.code {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  background: #0a1222;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 12px;
-  padding: 18px;
-  overflow: auto;
-}
-footer {
-  border-top: 1px solid rgba(148, 163, 184, 0.12);
-  padding: 28px 0 60px;
-  color: #9fb1c8;
-}
-.badges {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
+/* USMR Phase 5.5.16-pt74 — removed orphan `.code` rule (hardcoded
+ * `#0a1222` bg + `rgba(148, 163, 184, 0.16)` border, zero consumers
+ * in src/) and the legacy bare `footer` selector (hardcoded
+ * `rgba(148, 163, 184, 0.12)` border + `#9fb1c8` color, zero visible
+ * effect — fully overridden by `.site-footer` in Footer.astro which
+ * sets border-top + color + padding via canonical tokens). 13 lines. */
+/* USMR Phase 5.5.16-pt74 — `.discrete` consumed by ShimPage,
+ * /console, /docs placeholder pages. Pre-fix shipped hardcoded
+ * `#8fa0b8` (a near-fg-2 grey); canonicalized to `var(--fg-2)` so
+ * the placeholder copy follows theme + accent overrides instead of
+ * pinning to a single dark-mode palette literal. */
 .discrete {
-  color: #8fa0b8;
+  color: var(--fg-2);
   font-size: 0.92rem;
 }
 /* USMR Phase 5.5.11 Task #35 — removed dead `.menu` / `.menu-btn`
