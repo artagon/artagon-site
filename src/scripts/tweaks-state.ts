@@ -8,7 +8,7 @@
  * shape verbatim (`new-design/extracted/src/layouts/BaseLayout.jsx`).
  * The `Theme` keyword set is `dark`/`light` to match upstream. NOTE: the
  * live `public/assets/theme.css` currently keys off
- * `:root[data-theme="midnight|twilight|slate"]` — those selectors are
+ * `:root[data-theme="midnight|twilight"]` — those selectors are
  * the pre-USMR theme system. Until USMR ports the upstream
  * `dark`/`light` token sheets, selecting "Theme: dark" in the dev panel
  * writes a `data-theme` value that the live CSS does not match, leaving

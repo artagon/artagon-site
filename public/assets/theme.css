@@ -280,14 +280,14 @@
   --brand-teal-rgb: 60, 238, 221;
 }
 
-/* Deep Slate Blue */
-:root[data-theme="slate"] {
-  --bg: #0a0e19;
-  --surface: #101a2e;
-
-  --brand-teal: #2dd4bf;
-  --brand-teal-rgb: 45, 212, 191;
-}
+/* USMR Phase 5.5.16-pt167 — `:root[data-theme="slate"]` block
+ * removed. ZERO controllers selected this value: not BaseLayout
+ * (default twilight), not __setTheme ALLOWED (twilight|midnight),
+ * not ThemePreviewPanel (twilight|midnight), not Tweaks state
+ * (dark|light), not Tweaks.astro inline (dark|light). Pure
+ * orphan CSS rule that never matched any DOM element. Plus the
+ * block carried 2 raw hex literals (#0a0e19, #101a2e) that the
+ * lint:tokens gate flagged via the surface-css scope. */
 
 /* ===== ARTAGON UI TOKENS ===== */
 :root {
