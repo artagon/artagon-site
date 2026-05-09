@@ -93,13 +93,13 @@ Tests Content Collections schema enforcement:
    - Uploads merged report artifact
 
 3. **visual-regression** - Visual regression suite (`VISUAL_REGRESSION=1`)
-   - Workflow invokes `tests/vision-page.spec.ts` + `tests/styling-snapshots.spec.ts` on 3 projects (chromium · webkit · Mobile Safari) per `playwright.yml:249,256`
+   - Workflow invokes `tests/vision-page.spec.ts` + `tests/styling-snapshots.spec.ts` on 3 projects (chromium · webkit · Mobile Safari) per `playwright.yml:254,256` (line 254 = `npx playwright test ... --project=chromium --project=webkit --project="Mobile Safari"`; line 256 = `VISUAL_REGRESSION: "1"` env)
    - The specs themselves currently skip non-chromium via `test.skip(testInfo.project.name !== "chromium", ...)` so net effect is chromium-only snapshot capture (the webkit / Mobile Safari Linux baselines do not exist yet — see AGENTS.md §Testing for the broader cross-engine guard via `tests/header.spec.ts` + `tests/home-axe.spec.ts`)
    - Uploads visual diffs on failure
    - On `workflow_dispatch`: regenerates baselines via `--update-snapshots` and auto-commits
 
 4. **accessibility** - Accessibility audit
-   - Runs `--grep "accessibility"` on 3 engines: chromium · webkit · Mobile Safari (per `playwright.yml:321`)
+   - Runs `--grep "accessibility"` on 3 engines: chromium · webkit · Mobile Safari (per `playwright.yml:326`)
    - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; per pt264 archaeology in AGENTS.md §Accessibility)
    - Uploads failures for review
 
