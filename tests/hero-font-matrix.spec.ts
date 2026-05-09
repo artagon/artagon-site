@@ -21,9 +21,12 @@ interface Variant {
   expectedTracking: string;
   expectedWeight: string;
   /**
-   * `--f-emphasis` resolution per Phase 5.2.5 + DESIGN.md §6.25:
-   * grotesk → serif (editorial contrast); the other 3 inherit so
-   * italic stays in-family.
+   * `--f-emphasis` resolution per Phase 5.2.5 + DESIGN.md §3.4
+   * "Hero display override" line 326 (the 4 × 2 emphasis-span audit
+   * matrix; pre-pt379 cite was incorrectly §6.25 which is the "404
+   * page" component entry — unrelated to font emphasis): grotesk →
+   * serif (editorial contrast); the other 3 inherit so italic stays
+   * in-family.
    */
   emphasisInheritsParent: boolean;
 }

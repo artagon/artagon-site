@@ -5,10 +5,13 @@
 // the Standard component logs a build-time warning on misses so a
 // gap is loud, not silent.
 //
-// External-link rule (DESIGN.md §4.4): every glossary URL opens in a
-// new tab with `rel="noopener noreferrer"`. The `external` flag below
-// is structural metadata in case a future mostly-internal entry
-// needs in-tab navigation; today every entry is external.
+// External-link rule (DESIGN.md §9.4 "External links" line 1258 — pre-
+// pt379 cite was incorrectly §4.4 which does not exist; §4 "Layout"
+// has no subsections): every glossary URL opens in a new tab with
+// `rel="noopener noreferrer"` (gated by `tests/lint-external-link-rel.test.mts`
+// per USMR pt132). The `external` flag below is structural metadata
+// in case a future mostly-internal entry needs in-tab navigation;
+// today every entry is external.
 
 export interface GlossaryEntry {
   /** Hover-tooltip body — the canonical name + one-line explainer. */
