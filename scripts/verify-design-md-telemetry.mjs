@@ -2,7 +2,9 @@
 /**
  * verify-design-md-telemetry.mjs
  *
- * Per `adopt-design-md-format` Phase 2.10:
+ * Per `adopt-design-md-format` Phase 2.10 (proposal archived
+ * 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+ * the live spec is `openspec/specs/design-system-format/spec.md`):
  *   `npm run lint:design` MUST make zero outbound network calls.
  *   Assert via `unshare -n` (Linux CI) or by running the lint inside a
  *   Docker container with `--network=none`.
