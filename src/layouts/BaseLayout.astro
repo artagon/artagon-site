@@ -113,9 +113,14 @@ window.__setTheme = function(t){
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', bg);
   } catch(e){}
-  // Sync any ThemeToggle buttons so their aria-pressed reflects the
-  // new state (e.g. when __setTheme is called from outside the toggle
-  // itself, like the dev ThemePreviewPanel).
+  // pt227 — defensive sync hook for `[data-theme-toggle]` buttons.
+  // The standalone `ThemeToggle` component was deleted as orphan
+  // in pt166 and the header lost its toggle in pt87, so this
+  // querySelectorAll currently returns 0 matches every call.
+  // Kept as defense-in-depth for any future component / external
+  // embed that opts into the `data-theme-toggle` contract — the
+  // ThemePreviewPanel.astro JSDoc already documents this hook as
+  // the canonical attachment point.
   var pressed = safe === 'midnight';
   document.querySelectorAll('[data-theme-toggle]').forEach(function(btn){
     btn.setAttribute('aria-pressed', String(pressed));
