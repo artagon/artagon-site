@@ -235,7 +235,7 @@ Six-level shadow ramp that replaces raw `rgba(0,0,0,*)` box-shadow literals thro
 
 Tokens: `` `--focus-ring-width` ``, `` `--focus-ring-offset` ``, `` `--focus-ring-color` ``, `` `--focus-ring-shadow` ``.
 
-Accessibility-critical focus-indicator tokens that compose into a double-ring `box-shadow` (inner ring = `--bg`, outer ring = `--brand-teal`) via the `--focus-ring-shadow` shorthand. Keeping them as CSS custom properties allows the ring to theme-switch automatically when `--bg` or `--brand-teal` changes. DESIGN.md has no `focus` namespace; these tokens are implementation-level CSS primitives for the interaction contract described in DESIGN.md §3.4 ("Focus visible, brand-teal ring").
+Accessibility-critical focus-indicator tokens that compose into a double-ring `box-shadow` (inner ring = `--bg`, outer ring = `--accent`; the legacy retained alias `--brand-teal` resolves to `--accent` per pt86) via the `--focus-ring-shadow` shorthand. Keeping them as CSS custom properties allows the ring to theme-switch automatically when `--bg` or `--accent` changes. DESIGN.md has no `focus` namespace; these tokens are implementation-level CSS primitives for the interaction contract described in DESIGN.md §11.9 "Focus indicators" (line 1362 — site-wide `:focus-visible` rule; pre-pt374 cite was incorrectly §3.4 "Hero display override" which describes the `[data-hero-font]` switch, not focus indicators).
 
 ### 6.16 Motion tokens
 
