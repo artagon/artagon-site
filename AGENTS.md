@@ -264,7 +264,7 @@ Single source-of-truth: `build.config.json` at repo root. Typed wrapper: `build.
 
 Scripts:
 
-- `npm run build` — runs `prebuild` (sync) → `astro build` → `postbuild` (SRI + CSP).
+- `npm run build` — runs `prebuild` (sync) → `astro build` → `postbuild` (10-step chain: verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness; canonical order in `package.json:scripts.postbuild`, gated by `tests/lint-readme-postbuild-chain-sync.test.mts`).
 - `npm run dev` — runs `predev` (sync) → `astro dev`.
 - `npm run sync:build-config` — regenerate generated configs.
 - `npm run clean` / `clean:cache` / `clean:reports` — lock-aware via `.build/.run.lock`.
