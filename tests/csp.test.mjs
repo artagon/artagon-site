@@ -13,7 +13,12 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildPolicy, extractScriptSrcHashes, sha } from "../scripts/csp.mjs";
+import {
+  buildPolicy,
+  extractScriptSrcHashes,
+  extractStyleSrcHashes,
+  sha,
+} from "../scripts/csp.mjs";
 
 test("sha computes deterministic base64 SHA-256", () => {
   const a = sha(Buffer.from("hello"));
@@ -81,4 +86,52 @@ test("buildPolicy preserves directive order across calls (stable for diff review
   const a = buildPolicy(new Set(["x"]));
   const b = buildPolicy(new Set(["x"]));
   assert.equal(a, b);
+});
+
+// pt432 — inline-style hash mode tests. Mirrors the script-src hash
+// pattern: every inline `<style>` block must contribute a SHA-256
+// to style-src, and `'unsafe-inline'` must never appear there.
+test("buildPolicy emits style-src with sha256 hashes when styleHashes provided", () => {
+  const styleHashes = new Set(["sty111", "sty222"]);
+  const policy = buildPolicy(new Set(), {}, styleHashes);
+  const m = /(?:^|;\s*)style-src\s+([^;]+)/.exec(policy);
+  assert.ok(m, "style-src present");
+  assert.match(m[1], /'self'/);
+  assert.match(m[1], /'sha256-sty111'/);
+  assert.match(m[1], /'sha256-sty222'/);
+  assert.doesNotMatch(m[1], /'unsafe-inline'/);
+});
+
+test("buildPolicy never emits 'unsafe-inline' in style-src — with or without hashes", () => {
+  // Empty hash set still must not fall back to 'unsafe-inline'.
+  const empty = buildPolicy(new Set(), {}, new Set());
+  const mEmpty = /(?:^|;\s*)style-src\s+([^;]+)/.exec(empty);
+  assert.doesNotMatch(mEmpty[1], /'unsafe-inline'/);
+  // With hashes also clean.
+  const hashed = buildPolicy(new Set(), {}, new Set(["xyz"]));
+  const mHashed = /(?:^|;\s*)style-src\s+([^;]+)/.exec(hashed);
+  assert.doesNotMatch(mHashed[1], /'unsafe-inline'/);
+});
+
+test("extractStyleSrcHashes round-trips buildPolicy output", () => {
+  const original = new Set(["sty111", "sty222", "sty333"]);
+  const policy = buildPolicy(new Set(), {}, original);
+  const extracted = extractStyleSrcHashes(policy);
+  assert.equal(extracted.size, 3);
+  assert.ok(extracted.has("sty111"));
+  assert.ok(extracted.has("sty222"));
+  assert.ok(extracted.has("sty333"));
+});
+
+test("extractStyleSrcHashes returns empty Set when no style-src directive", () => {
+  const result = extractStyleSrcHashes("default-src 'self'; img-src 'self'");
+  assert.equal(result.size, 0);
+});
+
+test("extractStyleSrcHashes ignores non-hash tokens like 'self' and URLs", () => {
+  const policy =
+    "style-src 'self' https://cdn.jsdelivr.net/npm/@docsearch/ 'sha256-abc'; img-src 'self'";
+  const result = extractStyleSrcHashes(policy);
+  assert.equal(result.size, 1);
+  assert.ok(result.has("abc"));
 });

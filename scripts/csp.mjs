@@ -20,12 +20,20 @@ async function walk(dir) {
   }
   return out;
 }
-function buildPolicy(hashes, extras = {}) {
+function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
   const sHashes = [...hashes].map((h) => `'sha256-${h}'`);
+  const stHashes = [...styleHashes].map((h) => `'sha256-${h}'`);
   const directives = {
     "default-src": ["'self'"],
     "img-src": ["'self'", "data:"],
-    "style-src": ["'self'", "'unsafe-inline'"],
+    // pt432 — `'unsafe-inline'` removed from style-src; every inline
+    // `<style>` block in built HTML is now SHA-256-hashed below
+    // (mirrors the script-src hash-mode pattern). Pre-pt432 a CSS-
+    // injection sink could exfil via `<style>{{user}}</style>` even
+    // though Astro auto-escapes — defense-in-depth removes the
+    // permission entirely. The 2026-05-09 security review (blackhat
+    // lens) flagged this as a Minor exfil channel.
+    "style-src": ["'self'", ...stHashes],
     // USMR Phase 2 (style-system §"CSP font-src is self-only"): self only,
     // no data: URIs and no third-party CDNs. The `self-host-woff2-fonts`
     // proposal (in flight per openspec/changes/) will finish the
@@ -73,6 +81,16 @@ async function processHtml(fp) {
     const code = $(el).html() || "";
     hashes.add(sha(Buffer.from(code)));
   }
+  // pt432 — same hash-mode pattern for inline <style> blocks. Mirrors
+  // the script handling above. A `<link rel="stylesheet" href="...">`
+  // is matched separately (no inline content) and is not hashed; only
+  // `<style>...</style>` content is hashed and added to style-src.
+  const inlineStyles = $("style").toArray();
+  const styleHashes = new Set();
+  for (const el of inlineStyles) {
+    const css = $(el).html() || "";
+    styleHashes.add(sha(Buffer.from(css)));
+  }
   const extras = {};
   const hasDoc =
     $('script[src*="docsearch"]').length || $('link[href*="docsearch"]').length;
@@ -93,7 +111,7 @@ async function processHtml(fp) {
       "https://*.algolianet.com",
     ];
   }
-  const policy = buildPolicy(hashes, extras);
+  const policy = buildPolicy(hashes, extras, styleHashes);
 
   // Orphan-hash detection (Phase 3.6): verify that the constructed script-src
   // covers every inline script and never contains 'unsafe-inline'.
@@ -112,6 +130,24 @@ async function processHtml(fp) {
     if (!scriptSrcValues.includes(`'sha256-${h}'`)) {
       throw new Error(
         `[CSP] ${rel}: inline script sha256-${h} not present in script-src — orphan hash`,
+      );
+    }
+  }
+
+  // pt432 — same orphan-hash detection for style-src.
+  const styleSrcMatch = policy.match(/style-src\s+([^;]+)/);
+  const styleSrcValues = styleSrcMatch
+    ? styleSrcMatch[1].trim().split(/\s+/)
+    : [];
+  if (styleSrcValues.includes("'unsafe-inline'")) {
+    throw new Error(
+      `[CSP] ${rel}: 'unsafe-inline' found in style-src — forbidden by pt432`,
+    );
+  }
+  for (const h of styleHashes) {
+    if (!styleSrcValues.includes(`'sha256-${h}'`)) {
+      throw new Error(
+        `[CSP] ${rel}: inline style sha256-${h} not present in style-src — orphan hash`,
       );
     }
   }
@@ -154,10 +190,36 @@ async function processHtml(fp) {
       `[CSP] post-write orphan inline-script hashes in ${path.relative(process.cwd(), fp)}: ${writtenOrphans.join(", ")}`,
     );
   }
-  return hashes.size;
+
+  // pt432 — same post-write self-audit for inline styles.
+  const writtenStyleHashes = new Set();
+  for (const el of $w("style").toArray()) {
+    writtenStyleHashes.add(sha(Buffer.from($w(el).html() || "")));
+  }
+  const writtenStyleSrc = extractStyleSrcHashes(writtenPolicy);
+  const writtenStyleOrphans = [...writtenStyleHashes].filter(
+    (h) => !writtenStyleSrc.has(h),
+  );
+  if (writtenStyleOrphans.length) {
+    throw new Error(
+      `[CSP] post-write orphan inline-style hashes in ${path.relative(process.cwd(), fp)}: ${writtenStyleOrphans.join(", ")}`,
+    );
+  }
+  return hashes.size + styleHashes.size;
+}
+
+function extractStyleSrcHashes(policy) {
+  const m = /(?:^|;\s*)style-src\s+([^;]+)/.exec(policy);
+  if (!m) return new Set();
+  const set = new Set();
+  for (const tok of m[1].trim().split(/\s+/)) {
+    const h = /^'sha256-([^']+)'$/.exec(tok);
+    if (h) set.add(h[1]);
+  }
+  return set;
 }
 // Export helpers for unit testing (tests/csp.test.mjs).
-export { buildPolicy, extractScriptSrcHashes, sha };
+export { buildPolicy, extractScriptSrcHashes, extractStyleSrcHashes, sha };
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 if (isMain) {
