@@ -456,7 +456,7 @@ text-transform: uppercase; margin-bottom: 24px;
 ::before { content: ""; width: 18px; height: 1px; background: var(--accent); }
 ```
 
-Total surfaces consuming this contract: 8 — global `.eyebrow` (theme.css), `.pillars__eyebrow`, `.bridge-flow__eyebrow`, `.use-cases__eyebrow`, `.standards-wall__eyebrow`, `.roadmap-timeline__eyebrow`, `.home-explore__eyebrow`, `.writing-hero__eyebrow`, `.not-found__eyebrow` (USMR 5.5.16-pt70 — 404 missed by the original pt15/pt16 sweep; shipped 11/fg-3/0.12em with no dash). The 18 px teal accent dash is the canonical signature element. Pre-fix all surfaces used `0.7-0.72rem / fg-3 / 0.12em / no dash` — read as plain mono caps labels instead of canonical section-eyebrow primitives.
+Total surfaces consuming this contract: 9 — global `.eyebrow` (theme.css), `.pillars__eyebrow`, `.bridge-flow__eyebrow`, `.use-cases__eyebrow`, `.standards-wall__eyebrow`, `.roadmap-timeline__eyebrow`, `.home-explore__eyebrow`, `.writing-hero__eyebrow`, `.not-found__eyebrow` (USMR 5.5.16-pt70 — 404 missed by the original pt15/pt16 sweep; shipped 11/fg-3/0.12em with no dash). The 18 px teal accent dash is the canonical signature element. Pre-fix all surfaces used `0.7-0.72rem / fg-3 / 0.12em / no dash` — read as plain mono caps labels instead of canonical section-eyebrow primitives.
 
 The blog-hero variant (`.blog-hero__eyebrow`) intentionally **omits** the dash because the "← Blog" backlink IS the visual element; an extra dash before the arrow reads as clutter.
 
