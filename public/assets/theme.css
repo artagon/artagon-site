@@ -1309,7 +1309,15 @@ a {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid var(--line-soft);
+  /* USMR pt426 — wrapper border removed. The inner `.trust-chain`
+   * already paints its own `1px solid var(--line)` (Hero.jsx:230
+   * canonical). Pre-pt426 the outer wrapper added a second
+   * `1px solid var(--line-soft)` border, creating two nested
+   * rounded boxes. On dark theme the outer was nearly invisible
+   * (line-soft on bg ≈ delta-L 0.08); on light theme it became
+   * clearly visible (line-soft 0.92 on bg-1 0.96). Wrapper now
+   * provides only layout positioning + overflow clipping for the
+   * inner card's box-shadow halo. */
   min-height: 260px;
   display: flex;
   align-items: center;
