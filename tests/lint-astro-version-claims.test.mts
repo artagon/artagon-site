@@ -46,6 +46,12 @@ const SURFACES = [
   "AGENTS.md",
   "docs/guides/new-design-conversion.md",
   "docs/decisions/0001-no-tailwind.md",
+  // pt213 — openspec/config.yaml also makes a present-tense
+  // version claim ("Project: ... Astro N static marketing ...")
+  // in its context block; it had drift from Astro 5 / Node 20+
+  // / Playwright 1.57 / mdx 4.3.13 to the actual installed
+  // versions until pt213.
+  "openspec/config.yaml",
 ];
 
 function readAstroMajor(): string {
@@ -71,15 +77,19 @@ describe("Astro version claim consistency vs package.json (pt212)", () => {
       const body = readFileSync(p, "utf8");
 
       // Match present-tense "Astro N static site", "is an Astro
-      // N", "Astro vN, build via", "is on Astro N". Excludes
-      // past-tense / parenthetical contexts ("under Astro 5",
-      // "Astro 5 changes frequently", "Astro 5 → 6 surface
-      // changes" — those describe the migration / context).
+      // N", "Astro vN, build via", "is on Astro N", and the
+      // openspec/config.yaml-style "- Astro N (output: ...)"
+      // bullet. Excludes past-tense / parenthetical contexts
+      // ("under Astro 5", "Astro 5 changes frequently", "Astro
+      // 5 → 6 surface changes" — those describe the migration
+      // / context).
       const presentTensePatterns = [
         /\bis an Astro (\d+)\b/g,
-        /\bAstro v?(\d+)\s+static site\b/gi,
+        /\bAstro v?(\d+)\s+static (?:site|marketing)\b/gi,
         /\bAstro v?(\d+),\s*build via/gi,
         /\bproject is on Astro (\d+)\b/g,
+        // openspec/config.yaml: `- Astro 6 (output: "static", ...)`
+        /^\s*-\s*Astro (\d+)\s*\(output:/gm,
       ];
 
       for (const re of presentTensePatterns) {

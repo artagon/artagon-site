@@ -1,15 +1,15 @@
 schema: spec-driven
 
 context: |
-  Project: artagon-site (artagon.com) — Astro 5 static marketing & docs shell for the Artagon identity platform.
+  Project: artagon-site (artagon.com) — Astro 6 static marketing & docs shell for the Artagon identity platform.
 
   Tech stack:
-  - Astro 5 (output: "static", trailingSlash: "never", site: https://artagon.com)
-  - Node 20+, npm
-  - Integrations: @astrojs/mdx 4.3.13, @astrojs/sitemap ^3.6
+  - Astro 6 (output: "static", trailingSlash: "never", site: https://artagon.com)
+  - Node 22+ (per .nvmrc 22.12 and package.json engines.node >=22.0.0)
+  - Integrations: @astrojs/mdx 5.0.4, @astrojs/react 5.0.4, @astrojs/sitemap 3.7.2, @astrojs/rss 4.0.18
   - Tooling: Prettier, Cheerio (SRI/CSP postbuild), Lighthouse CI, Lychee
   - Lint: ast-grep (sg) — primary linter, NO ESLint. Rules in rules/security/*.yml
-  - Tests: Playwright 1.57
+  - Tests: Playwright 1.59
   - Deploy: GitHub Pages via withastro/action; CNAME → artagon.com
   - Design contract: DESIGN.md (repo root) per @google/design.md format
     spec, alpha, pinned to upstream commit
