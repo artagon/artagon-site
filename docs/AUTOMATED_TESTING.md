@@ -52,11 +52,10 @@ Comprehensive testing for the refactored Vision page using Content Collections:
 
 **Responsive Tests:**
 
-- Mobile viewport (375x667)
-- Tablet viewport
-- Desktop viewport
-- Flexbox direction changes
-- Card stacking behavior
+- Mobile viewport (375×667) — verified at `tests/vision-page.spec.ts:117-119` via `page.setViewportSize({ width: 375, height: 667 })`
+- Card stacking behavior on mobile (lines 130, 135 — full-width domain cards under the mobile viewport)
+
+(The Phase-1-era list of "Tablet viewport / Desktop viewport / Flexbox direction changes" was forward-looking; only mobile + card-stacking actually ship in the spec today. The Tablet / Desktop projects in the broader Playwright matrix per `playwright.config.ts` `projects[]` (15 projects across 4 device classes) provide the cross-engine coverage; per-project explicit viewport assertions in this spec are not in scope.)
 
 #### **content-collections.spec.ts** - Schema Validation Tests
 
