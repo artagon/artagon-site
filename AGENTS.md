@@ -6,11 +6,12 @@ Project MCP servers are declared in **`.mcp.json`** (repo root). All models (Cla
 
 ### Active servers
 
-| Server     | Purpose                                                            | How to use                                                                                 |
-| ---------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| `context7` | Live documentation for Astro, MDN, Playwright, and other libraries | Prefix queries with `use context7` or call `resolve-library-id` + `get-docs`               |
-| `serena`   | LSP-backed semantic code navigation and symbol-aware edits         | Use for named symbols: components, functions, hooks, types, references, and symbol edits   |
-| `ast-grep` | Tree-sitter structural search and codemods                         | Use for syntactic patterns in Astro, HTML, TS/TSX, JS, CSS, YAML, JSON, Bash, Python, etc. |
+| Server       | Purpose                                                            | How to use                                                                                                                                                                                 |
+| ------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `context7`   | Live documentation for Astro, MDN, Playwright, and other libraries | Prefix queries with `use context7` or call `resolve-library-id` + `get-docs`                                                                                                               |
+| `serena`     | LSP-backed semantic code navigation and symbol-aware edits         | Use for named symbols: components, functions, hooks, types, references, and symbol edits                                                                                                   |
+| `ast-grep`   | Tree-sitter structural search and codemods                         | Use for syntactic patterns in Astro, HTML, TS/TSX, JS, CSS, YAML, JSON, Bash, Python, etc.                                                                                                 |
+| `playwright` | Browser automation for inspecting live pages, screenshots, and DOM | Use when verifying rendered output / interactive flows the test suite hasn't covered. Pinned to `@playwright/mcp@0.0.73` in `.mcp.json`; the project's Playwright test runner is separate. |
 
 ### context7 usage
 
