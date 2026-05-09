@@ -53,7 +53,7 @@ artagon-site/
 │   ├── project.md          # Project conventions
 │   ├── contributing.md     # Contribution guidelines
 │   └── AGENTS.md          # AI agent instructions
-├── public/                 # Static assets (copied as-is to dist/)
+├── public/                 # Static assets (copied as-is to .build/dist/)
 │   ├── .well-known/        # Well-known URIs
 │   ├── assets/             # Images, logos, OG images
 │   │   └── logos/          # Logo variants and documentation
@@ -199,7 +199,7 @@ timeout = 20
 
 **Postbuild Pipeline:**
 
-1. `astro build` - Compiles to `dist/`
+1. `astro build` - Compiles to `.build/dist/` (per `build.config.json` SSoT)
 2. `scripts/sri.mjs` - Injects SRI hashes and crossorigin attributes
 3. `scripts/csp.mjs` - Generates CSP meta tags with inline script hashes
 
@@ -345,7 +345,7 @@ Serves `.build/dist/` on `http://localhost:4321` to test production build.
 2. Setup Node.js 22
 3. npm install
 4. npm run build
-5. Upload dist/ artifact
+5. Upload `.build/dist/` artifact
 6. Deploy to GitHub Pages
 ```
 
@@ -500,7 +500,7 @@ Generates logo variants from source files.
 
 **File:** `scripts/sri.mjs`
 
-- Scans all HTML files in `dist/`
+- Scans all HTML files in `.build/dist/`
 - Computes SHA-256 hashes for local JS/CSS
 - Adds `integrity` and `crossorigin` attributes
 - Updates HTML in-place
@@ -583,7 +583,7 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 **Process:**
 
 1. Build site
-2. Create zip of `dist/`
+2. Create zip of `.build/dist/`
 3. Create GitHub release
 4. Attach `dist.zip` as release asset
 
