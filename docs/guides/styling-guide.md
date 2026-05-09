@@ -602,7 +602,9 @@ Page-specific styles use the page name as prefix and remain in page CSS file:
 
 /* ✅ GOOD */
 .my-element {
-  color: var(--brand-teal);
+  color: var(--accent); /* canonical alias; --brand-teal is a retained
+                          alias of --accent per pt86 / glossary.md but
+                          new component code should use --accent directly */
   padding: var(--padding-card);
   border-radius: var(--radius-card);
 }
@@ -646,7 +648,9 @@ For browser compatibility (Safari < 16.2, Firefox < 113):
 
   /* Modern override (only in supporting browsers) */
   --border-teal-subtle: 2px solid
-    color-mix(in srgb, var(--brand-teal) 20%, transparent);
+    color-mix(in srgb, var(--accent) 20%, transparent); /* canonical
+      alias; pre-pt86 was --brand-teal — retained as a back-compat alias
+      but new code should use --accent directly */
 }
 ```
 
