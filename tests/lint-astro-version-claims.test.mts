@@ -57,6 +57,10 @@ const SURFACES = [
   // match `.nvmrc` + `package.json` engines.node.
   "openspec/project.md",
   "openspec/contributing.md",
+  // pt219 — README.md tech-stack section makes present-tense
+  // Astro version + Node version claims (`Astro v6.2.1`,
+  // `Node.js 22+`) that must match package.json + .nvmrc.
+  "README.md",
 ];
 
 function readAstroMajor(): string {
@@ -104,6 +108,8 @@ describe("Astro + Node version claim consistency vs package.json (pt212/213/214)
         /\bproject is on Astro (\d+)\b/g,
         // openspec/config.yaml: `- Astro 6 (output: "static", ...)`
         /^\s*-\s*Astro (\d+)\s*\(output:/gm,
+        // README.md: `**[Astro](url)** v6.2.1 - Static site...`
+        /\[Astro\]\([^)]+\)\*\*\s+v?(\d+)\.\d+/g,
       ];
 
       for (const re of presentTensePatterns) {
@@ -145,7 +151,14 @@ describe("Astro + Node version claim consistency vs package.json (pt212/213/214)
       // because `\b` after `+` requires the next char to be a
       // word char (and `+` is typically followed by whitespace).
       // The `+` itself is the natural right delimiter.
-      const presentTensePatterns = [/\bNode (\d+)\+/g, /\bNode v(\d+)\+/g];
+      // Also matches `Node.js N+` (README.md form) — the `.js`
+      // suffix is in a non-capturing group. The `[*\s]+` between
+      // `Node[.js]` and the digit tolerates Markdown bold close
+      // (e.g. `**Node.js** 22+` in README's bullet lists).
+      const presentTensePatterns = [
+        /\bNode(?:\.js)?[*\s]+(\d+)\+/g,
+        /\bNode(?:\.js)?[*\s]+v(\d+)\+/g,
+      ];
 
       for (const re of presentTensePatterns) {
         for (const m of body.matchAll(re)) {

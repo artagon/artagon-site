@@ -90,7 +90,7 @@ artagon-site/
 │       ├── console/        # Console shell
 │       ├── search/         # Search interface
 │       └── ...
-├── astro.config.mjs        # Astro configuration
+├── astro.config.ts         # Astro configuration (TypeScript)
 ├── lighthouserc.json       # Lighthouse CI thresholds
 ├── lychee.toml             # Link checker configuration
 ├── package.json            # Dependencies and scripts
@@ -101,7 +101,7 @@ artagon-site/
 
 ### Core Framework
 
-- **[Astro](https://astro.build/)** v5.15.5 - Static site generator with zero JS by default
+- **[Astro](https://astro.build/)** v6.2.1 - Static site generator with zero JS by default (per `package.json` `"astro": "6.2.1"`)
 - **Static Output** - Pure HTML/CSS/JS, no server required
 - **File-based Routing** - Pages in `src/pages/` map to routes
 
@@ -113,7 +113,7 @@ artagon-site/
 
 ### Build Tools
 
-- **Node.js** 20+ (CI uses Node 20 and 22)
+- **Node.js** 22+ (per `.nvmrc` 22.12 and `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
 - **npm** - Package manager
 - **Prettier** 3.6.2 - Code formatting
 
