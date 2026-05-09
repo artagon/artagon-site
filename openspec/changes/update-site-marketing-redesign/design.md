@@ -31,7 +31,7 @@ The redesign is committed to under `new-design/extracted/`, including a 761-line
 Both this change and `refactor-styling-architecture` edit `public/assets/theme.css`. To prevent a three-way conflict and undefined token state:
 
 - **This change lands AFTER `refactor-styling-architecture` merges.** Enforced by `npm run verify:prerequisites` (built in Phase 0.5), which fails the build unless the prerequisite is archived OR its merge commit is an ancestor of `HEAD`. This is a CI gate, not just review hygiene.
-- **While both are open, CODEOWNERS pins** `public/assets/theme.css`, `src/components/ui/**`, `src/layouts/BaseLayout.astro`, `astro.config.mjs`, and `scripts/csp.mjs` to the same reviewer group.
+- **While both are open, CODEOWNERS pins** `public/assets/theme.css`, `src/components/ui/**`, `src/layouts/BaseLayout.astro`, `astro.config.ts` (renamed from `astro.config.mjs` mid-USMR; CODEOWNERS pin updated at `.github/CODEOWNERS:31`), and `scripts/csp.mjs` to the same reviewer group.
 - **`refactor-styling-architecture` ships raw-palette tokens first**; this change layers semantic aliases and `midnight` on top with the `Existing Token Preservation` requirement preventing accidental rebuild of `theme.css`.
 - **A `pre-redesign` git tag** (Phase 0.6) captures the post-merge state of `BaseLayout.astro`, `theme.css`, and `csp.mjs` after `refactor-styling-architecture` archives — used by the multi-phase rollback path.
 
