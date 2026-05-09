@@ -242,7 +242,7 @@ chromium-only visual-snapshot scope are documented in
 
 Run the suites locally to get current counts:
 
-- `npm run test:vitest -- --run` — vitest unit + lint suite
+- `npm run test:vitest` — vitest unit + lint suite (the script already includes `vitest run` per `package.json:53` so no extra `--run` flag is needed; same convention as `tests/README.md:14` per pt305 archaeology)
 - `npm run test:ci` — Playwright suite under the canonical project
   matrix (5 shards in CI)
 
