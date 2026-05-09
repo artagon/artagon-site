@@ -10,7 +10,9 @@ build.config.json.bak
 .claude/scheduled_tasks.lock
 
 # Build umbrella — all runtime artifacts (cache, reports, dist) live here.
-# See openspec/changes/standardize-build-artifacts.
+# See openspec/specs/build-config/spec.md (originally authored in the
+# archived openspec/changes/archive/2026-05-05-standardize-build-artifacts/
+# proposal — its build-config capability is now the live spec).
 .build/
 
 # Legacy cache locations not yet migrated to .build/ (Astro/MCP write here

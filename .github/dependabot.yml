@@ -1,7 +1,9 @@
 # Dependabot configuration — keeps GitHub Actions SHA pins fresh and
 # bumps npm devDeps on a weekly schedule. Required by
-# openspec/changes/standardize-build-artifacts (Sync Generator and Drift
-# Gate Requirement) so the SHA-pin enforcement gate has an upgrade path.
+# the standardize-build-artifacts spec (archived 2026-05-05 to
+# openspec/changes/archive/2026-05-05-standardize-build-artifacts/;
+# Sync Generator and Drift Gate Requirement) so the SHA-pin
+# enforcement gate has an upgrade path.
 version: 2
 updates:
   - package-ecosystem: github-actions

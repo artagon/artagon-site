@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Lock-aware clean helper for .build/. Argv: all|cache|reports.
 // Exit codes: 0 success, 64 EX_USAGE, 73 EX_CANTCREAT (lock held), 1 fs error.
-// See openspec/changes/standardize-build-artifacts/specs/build-config/spec.md.
+// See openspec/specs/build-config/spec.md (originally authored in the
+// archived openspec/changes/archive/2026-05-05-standardize-build-artifacts/
+// proposal — its `build-config` capability is now the live spec).
 
 import { existsSync, readFileSync, rmSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
