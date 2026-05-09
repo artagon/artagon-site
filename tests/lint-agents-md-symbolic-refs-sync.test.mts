@@ -148,4 +148,49 @@ describe("AGENTS.md Symbolic-references table vs disk (pt184)", () => {
     expect(inDocOnly.length).toBe(0);
     expect(onDiskOnly.length).toBe(0);
   });
+
+  // pt217 — openspec/project.md `Live capabilities:` line
+  // makes the same claim AGENTS.md's Symbolic-references row
+  // does, but in a different doc surface. The OpenSpec CLI
+  // consumes project.md as project-context ground truth, so
+  // a stale capabilities list there misleads agents the same
+  // way the AGENTS.md drift did (pre-pt184).
+  test("openspec/project.md `Live capabilities:` line matches openspec/specs/ on disk", () => {
+    const PROJECT_MD = AGENTS_MD.replace("AGENTS.md", "openspec/project.md");
+    expect(existsSync(PROJECT_MD), "openspec/project.md must exist").toBe(true);
+    const body = readFileSync(PROJECT_MD, "utf8");
+    const m = body.match(/^Live capabilities:\s*([^.]+)\./m);
+    if (!m) {
+      throw new Error(
+        "openspec/project.md must contain a `Live capabilities: ...` line under §`Capabilities (`openspec/specs/`)`",
+      );
+    }
+    const cited = new Set<string>();
+    for (const tok of m[1]!.matchAll(/`([a-z][a-z0-9-]+)`/g)) {
+      cited.add(tok[1]!);
+    }
+
+    const onDisk = listLiveSpecs();
+    const inDocOnly = [...cited].filter((n) => !onDisk.has(n)).sort();
+    const onDiskOnly = [...onDisk].filter((n) => !cited.has(n)).sort();
+
+    if (inDocOnly.length || onDiskOnly.length) {
+      const lines: string[] = [];
+      if (onDiskOnly.length) {
+        lines.push(
+          `Live specs on disk but missing from openspec/project.md: ${onDiskOnly.join(", ")}`,
+        );
+      }
+      if (inDocOnly.length) {
+        lines.push(
+          `Names in openspec/project.md with no openspec/specs/ directory: ${inDocOnly.join(", ")}`,
+        );
+      }
+      throw new Error(
+        `openspec/project.md \`Live capabilities:\` line drift:\n${lines.join("\n")}\nFix: keep the line 1:1 with directories under openspec/specs/ (and synchronize with the AGENTS.md Symbolic-references row).`,
+      );
+    }
+    expect(inDocOnly.length).toBe(0);
+    expect(onDiskOnly.length).toBe(0);
+  });
 });
