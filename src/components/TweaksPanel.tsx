@@ -204,12 +204,13 @@ export default function TweaksPanel() {
 
         {/* USMR Phase 5.5.16-pt108 — added Writing widget section to
             match canonical Tweaks panel (per user's reference
-            screenshot). Writes data-writing-widget on <html>; the
-            actual layout switching is task 5.8 (recorded follow-up
-            in tasks.md). The control surface ships now so the user
-            can see + select; the rendered layout still uses the
-            current 3-up grid until 5.8 wires the data-attribute
-            consumers. */}
+            screenshot). Writes `data-writing-widget` on <html>; the
+            layout-switching consumers shipped in pt109 (variant CSS
+            in `src/pages/index.astro` lines 735+ targets `:global(
+            [data-writing-widget="off"|"in-hero"|"A · strip"|"B ·
+            3-up"|"C · split"|"D · ticker"])` and toggles
+            visibility of `.writing-strip` / `.hero__latest-strip`).
+            6 variant buttons here; default is `B · 3-up`. */}
         <Field label="Writing widget">
           {WRITING_WIDGETS.map((w) => (
             <Opt
