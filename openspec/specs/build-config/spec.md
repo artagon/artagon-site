@@ -145,7 +145,7 @@ To avoid implicit ordering coupling between this change and `add-brand-assets-an
 - `npm run clean:cache` — removes only `.build/cache/`.
 - `npm run clean:reports` — removes only `.build/reports/`.
 
-Mid-run race protection (a `.build/.run.lock` sentinel file consulted by all three clean scripts and acquired by Playwright `globalSetup` / LHCI wrapper) is tracked under a follow-up change; the round-1 clean scripts described here perform an unconditional delete and rely on contributors not running `clean` while a test run is active. The lock-protocol clauses in earlier draft text are deferred until the runner-integration glue ships.
+Mid-run race protection via a `.build/.run.lock` sentinel file is now LIVE per `scripts/clean.mjs` (line 2 docstring: "Lock-aware clean helper for .build/"; line 17 declares `LOCK = join(BUILD, ".run.lock")`). The clean scripts now route through `scripts/clean.mjs <target>` which validates argv (exit 64 on bad input), reads the lock, refuses delete with exit 73 if held by a live PID on the same host, and auto-clears stale locks (dead PID OR mtime > 2 h OR foreign hostname). The pre-pt300 spec text said the lock-protocol "is tracked under a follow-up change" and described the round-1 scripts as unconditional-delete; both became stale when the lock-aware implementation shipped. The lock acquisition by Playwright `globalSetup` / LHCI wrapper is still evolving (some test runners acquire via `npm run` lifecycle, not yet via `globalSetup` hook), but the clean-side enforcement is fully in place.
 
 #### Scenario: clean nukes everything
 
