@@ -441,7 +441,13 @@ Serves `.build/dist/` on `http://localhost:4321` to test production build.
 
 ```yaml
 build job:
-  1. Checkout code (actions/checkout, SHA-pinned per pt? CODEOWNERS rule)
+  1. Checkout code (actions/checkout, SHA-pinned — initial pin landed in
+     security-audit commit `42d54ad` `chore(ci): SHA-pin all actions`;
+     ongoing version bumps land via Dependabot's `github-actions`
+     ecosystem entry in `.github/dependabot.yml`. Pre-pt386 cite was
+     "per pt? CODEOWNERS rule" — stale TODO placeholder; CODEOWNERS
+     doesn't enforce SHA-pinning, the security-audit + Dependabot pair
+     does.)
   2. Setup Node.js 22 (actions/setup-node)
   3. Install deps with `npm ci` (frozen lockfile — NOT `npm install`)
   4. `npm run build` (runs prebuild → astro build → postbuild chain)
