@@ -126,13 +126,15 @@ Project styling follows Astro scoped styles plus global semantic tokens:
 
 ## OpenSpec
 
-Always open `@/openspec/AGENTS.md` when a request:
+Always consult the OpenSpec workflow when a request:
 
 - Mentions planning, proposals, specs, changes, or implementation plans.
 - Introduces new capabilities, breaking changes, architecture shifts, or significant performance/security work.
 - Is ambiguous enough that the authoritative project spec should be checked before coding.
 
-Use `@/openspec/AGENTS.md` for change proposal workflow, spec format, project structure, and OpenSpec conventions.
+For the change-proposal workflow, run the appropriate `opsx:*` skill — `opsx:propose` to create a new change, `opsx:apply` to start implementing, `opsx:archive` to land it. The full skill set lives at `.agents/skills/` (`opsx:explore` / `:new` / `:propose` / `:ff` / `:continue` / `:apply` / `:verify` / `:sync` / `:archive` / `:bulk-archive` / `:onboard`).
+
+For project structure, capabilities, and merge ordering, read `openspec/project.md`. For general contribution conventions, read `openspec/contributing.md`. The pre-pt238 `@/openspec/AGENTS.md` workflow guide was retired when its content moved into the per-skill `opsx:*` scaffolds.
 
 <!-- OPENSPEC:END -->
 
