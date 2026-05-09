@@ -128,19 +128,28 @@ artagon-site/
 
 ### Astro Configuration
 
-**File:** `astro.config.mjs`
+**File:** `astro.config.ts`
 
-```javascript
+The config is the canonical TypeScript form (the legacy `astro.config.mjs`
+form was migrated to `.ts` in early USMR Phase 5.x; the `.ts` extension
+lets the config import the typed `BUILD` paths from `build.config.ts`).
+For the live source see [`astro.config.ts`](./astro.config.ts) directly —
+the snippet below is a representative excerpt:
+
+```typescript
+import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
+import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
+import { BUILD } from "./build.config.ts";
+
 export default defineConfig({
-  site: "https://artagon.com", // Canonical domain
-  output: "static", // Static site generation
-  trailingSlash: "never", // Clean URLs without trailing slashes
-  integrations: [
-    sitemap({
-      filter: (page) => !page.includes("/_drafts/"),
-      customPages: [],
-    }),
-  ],
+  site: "https://artagon.com", // canonical domain (matches CNAME)
+  output: "static",
+  trailingSlash: "never",
+  outDir: BUILD.dist,
+  cacheDir: BUILD.cache.astro,
+  integrations: [mdx(), react(), sitemap({ filter: /* noindex routes */ })],
 });
 ```
 
