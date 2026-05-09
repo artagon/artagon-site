@@ -3,7 +3,12 @@ language: html
 severity: warning
 message: "Raw color literal inside an Astro <style> block. Use a CSS custom property declared in DESIGN.md / public/assets/theme.css so the value flows through the token system and theme switching."
 note: |
-  USMR Phase 2 §"Token Categories" + adopt-design-md-format §6.3 forbid
+  USMR Phase 2 §"Token Categories" + the `design-system-format` capability
+  spec at `openspec/specs/design-system-format/spec.md` (originally authored
+  as `adopt-design-md-format` Phase 6.3, archived 2026-05-05 to
+  `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; pre-pt410
+  cited bare `adopt-design-md-format §6.3` without archive-path prefix —
+  sister to pt409 fix on no-untraceable-token.yml:6) forbid
   rgb()/rgba()/hsl()/hsla()/oklch()/oklab() literals inside component
   <style> blocks. The hex variant is covered by no-untraceable-token.yml;
   this rule covers the function-call color forms.
