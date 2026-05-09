@@ -48,7 +48,7 @@ The collection's content-layer cache key MUST include `entry.data.commit` (for r
 #### Scenario: Dual sources merge cleanly
 
 - **WHEN** `src/content/writing/local.mdx` (pre-pt414 cited as `src/content/pages/writing/local.mdx` — sister path-nesting drift to pt401/pt413) and `.cache/content-repo/posts/remote.mdx` both exist with distinct slugs
-- **THEN** `getCollection('pages/writing')` returns both entries, validated under the same schema.
+- **THEN** `getCollection('writing')` returns both entries, validated under the same schema (pre-pt415 cited as `getCollection('pages/writing')` — collection is named `writing` per `src/content.config.ts:128`; sister to pt414).
 
 #### Scenario: Duplicate id fails build
 

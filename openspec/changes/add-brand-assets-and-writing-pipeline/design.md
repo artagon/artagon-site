@@ -101,7 +101,7 @@ git -C .cache/content-repo fetch --depth 1 origin $WRITING_REMOTE_REF
 git -C .cache/content-repo checkout FETCH_HEAD
 ```
 
-Astro's content collection adds a glob loader pointing at `.cache/content-repo/posts/*.{md,mdx}` ALONGSIDE the existing local glob. Both are merged into the same `pages/writing` collection; Zod validates uniformly. The collection's loader `digest` includes `entry.data.commit` so path-stable / commit-changed posts invalidate cache correctly.
+Astro's content collection adds a glob loader pointing at `.cache/content-repo/posts/*.{md,mdx}` ALONGSIDE the existing local glob. Both are merged into the same `writing` collection (pre-pt415 cited as `pages/writing` — collection is named `writing` per `src/content.config.ts:128`); Zod validates uniformly. The collection's loader `digest` includes `entry.data.commit` so path-stable / commit-changed posts invalidate cache correctly.
 
 Tradeoff: Two source locations for one collection. Justified by the explicit `repo` frontmatter discriminating local from remote at render time (e.g., for the "Edit on GitHub" link).
 
@@ -122,7 +122,7 @@ The site repo's secret `CONTENT_DISPATCH_TOKEN` is a fine-grained PAT scoped to 
 
 ### 7. Schema additive, not breaking
 
-The redesign's `pages/writing` Zod schema requires `title`, `description`, `eyebrow`, `headline`, `lede`, `ctas[]`, `published`, `tags[]` and accepts optional `updated`, `cover`, `accent`, `repo`. This change extends the optional set with `path` (path within `repo`) and `commit?` (the SHA at which the post was authored). Both are derived automatically by `fetch-content.mjs` for remote posts; local posts can omit them.
+The redesign's `writing` collection Zod schema (pre-pt415 cited as `pages/writing` — collection is named `writing` per `src/content.config.ts:128`) requires `title`, `description`, `eyebrow`, `headline`, `lede`, `ctas[]`, `published`, `tags[]` and accepts optional `updated`, `cover`, `accent`, `repo`. This change extends the optional set with `path` (path within `repo`) and `commit?` (the SHA at which the post was authored). Both are derived automatically by `fetch-content.mjs` for remote posts; local posts can omit them.
 
 ### 8. MDX component allowlist enforced via custom remark plugin (Astro built-in does NOT enforce)
 
