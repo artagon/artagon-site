@@ -142,7 +142,7 @@ if (FLAG === "--write") {
   const docsPath = join(ROOT, "docs/design-md.md");
   if (!existsSync(docsPath)) {
     console.error(
-      `✗ docs/design-md.md not found — author the doc first (Phase 5.1) or use --print.`,
+      `✗ docs/design-md.md not found — restore the file (it was authored during Phase 5.1 of \`adopt-design-md-format\`; check git history) or use --print to dump the OKLCH↔hex table to stdout instead.`,
     );
     exit(1);
   }
