@@ -193,7 +193,7 @@ Four-level shadow ramp plus a brand-tinted accent glow. DESIGN.md §3.4 states t
 
 Tokens: `` `--spacing-section` ``, `` `--spacing-section-simple` ``, `` `--spacing-section-large` ``, `` `--spacing-hero-block` ``, `` `--spacing-hero-top` ``, `` `--spacing-hero-inline` ``, `` `--spacing-hero-bottom` ``, `` `--padding-card` ``, `` `--padding-card-compact` ``, `` `--padding-card-inline` ``, `` `--margin-section-header` ``, `` `--margin-content-block` ``, `` `--margin-subsection` ``.
 
-Page-rhythm spacing utilities (the 120px section rhythm from DESIGN.md §3.3, plus card-padding and section-header margins). The DESIGN.md `spacing` namespace declares the _atomic_ spacing scale (`xs`/`sm`/`md`/`lg`/`xl`/`2xl`); these tokens compose those atoms into named _page-level_ utilities. They are intentionally one layer up from the design contract — promoting them would let designers redefine "section padding" by editing CSS, which is the wrong abstraction layer for the contract.
+Page-rhythm spacing utilities (the 120px section rhythm from DESIGN.md §4 "Layout" line 346, plus card-padding and section-header margins; pre-pt375 cite was incorrectly §3.3 "Tracking rules" — that section is about typography tracking, not section rhythm). The DESIGN.md `spacing` namespace declares the _atomic_ spacing scale (`xs`/`sm`/`md`/`lg`/`xl`/`2xl`); these tokens compose those atoms into named _page-level_ utilities. They are intentionally one layer up from the design contract — promoting them would let designers redefine "section padding" by editing CSS, which is the wrong abstraction layer for the contract.
 
 ### 6.9 Gap tokens
 
@@ -253,7 +253,7 @@ Stacking-context ladder (0 → 9999) that prevents `z-index` wars between indepe
 
 Tokens: `` `--space-0` ``, `` `--space-px` ``, `` `--space-0-5` ``, `` `--space-1` ``, `` `--space-2` ``, `` `--space-3` ``, `` `--space-4` ``, `` `--space-5` ``, `` `--space-6` ``, `` `--space-8` ``, `` `--space-10` ``, `` `--space-12` ``, `` `--space-16` ``, `` `--space-20` ``, `` `--space-24` ``.
 
-4px-based atomic spacing scale (0 → 96 px, 15 steps) that underpins the 8-point grid documented in DESIGN.md §3.3. The DESIGN.md `spacing` namespace uses T-shirt sizes (`xs`–`2xl`); these tokens provide the full numeric ramp needed by the CSS cascade so components can construct compound values (e.g. `padding: var(--space-4) var(--space-6)`) without hardcoding pixel values. The two systems are complementary: `spacing.*` tokens name _canonical design steps_, while `--space-*` tokens name _every rung on the 4px ladder_; the overlap tokens are intentionally synonymous.
+4px-based atomic spacing scale (0 → 96 px, 15 steps) that underpins the 8-point grid documented in DESIGN.md §4 "Layout" lines 343-348 (pre-pt375 cite was incorrectly §3.3 "Tracking rules" — that section covers typography tracking, not the spacing grid). The DESIGN.md `spacing` namespace uses T-shirt sizes (`xs`–`2xl`); these tokens provide the full numeric ramp needed by the CSS cascade so components can construct compound values (e.g. `padding: var(--space-4) var(--space-6)`) without hardcoding pixel values. The two systems are complementary: `spacing.*` tokens name _canonical design steps_, while `--space-*` tokens name _every rung on the 4px ladder_; the overlap tokens are intentionally synonymous.
 
 ### 6.19 Cascade-layered radius additions
 
