@@ -169,7 +169,7 @@ The commit body lists which artifacts moved (task IDs · DESIGN.md sections · s
 - `check:oklch-hex-parity` — fails on >1 LSB drift between DESIGN.md frontmatter palette and the prose-cited OKLCH triples (precondition of `lint:design`).
 - `lint:tokens` — fails on raw color literals in `src/` and on undefined `var(--…)` references; walks `git ls-files` (post-commit).
 - `lint:design` — design.md format gate; runs as part of postbuild.
-- `lint:design-md-uniqueness` — guards against duplicate token names.
+- `lint:design-md-uniqueness` — guards against duplicate DESIGN.md files (must be exactly one at repo root; nested copies under `src/`, `new-design/`, etc. are forbidden because two design systems in flight defeat the precedence chain). Pre-pt383 the description here said "duplicate token names" — comment-as-code drift; the actual script (`scripts/verify-design-md-uniqueness.mjs`) checks file-path uniqueness, not token-name uniqueness.
 - `verify:design-prerequisites` — schema gate before lint runs.
 
 <!-- DESIGN-CONTRACT:END -->

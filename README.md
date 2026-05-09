@@ -656,8 +656,12 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs the followin
 9. `lint:design` — `design.md lint DESIGN.md` per
    `@google/design.md@0.1.1`.
 10. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
-    guards against duplicate token names in DESIGN.md
-    frontmatter.
+    guards against duplicate DESIGN.md FILES — exactly one at the
+    repo root, none under `src/`, `new-design/`, or any other
+    tracked path (two design systems in flight would defeat the
+    precedence chain). Pre-pt383 said "duplicate token names" —
+    comment-as-code drift; the script checks file-path uniqueness,
+    not token-name uniqueness.
 
 The chain is **lock-aware**: `clean.mjs` uses `.build/.run.lock`
 to coordinate cleanup across parallel runs (exit code 73 if the
