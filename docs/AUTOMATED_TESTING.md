@@ -395,7 +395,7 @@ test("should have no accessibility violations", async ({ page }) => {
 Tests run in parallel for speed:
 
 - **Local:** Unlimited workers (based on CPU cores)
-- **CI:** 3 shards (1/3, 2/3, 3/3)
+- **CI:** 5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22` (shards 1/5–5/5; pre-pt234 was 3 shards before the device-matrix expansion required tighter parallelization)
 
 ### Browser Optimization
 
