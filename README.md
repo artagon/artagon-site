@@ -745,9 +745,9 @@ Other build-related scripts not in the postbuild chain:
 
 #### Agents Check (`agents-check.yml`)
 
-**Trigger:** Push
+**Trigger:** `pull_request` (any branch) + `workflow_dispatch` (manual). Per `agents-check.yml` lines 2-4. Pre-pt391 the README said "Push" — that wasn't a live trigger; the workflow has never run on push.
 
-Validates AI agent configuration in `.agents/` directory.
+**Process:** Asserts 4 specific agent-config files exist (the workflow's only step is a `test -f` chain): `.agents/AGENT_MANIFEST.yaml`, `.agents/llm-config.json`, `.agents/policies/guardrails.md`, `.agents/context/vision-and-roadmap-full.md`. Pre-pt391 the README described it as "Validates AI agent configuration" — vague; the gate only file-exists-checks the 4 named paths, not the contents.
 
 #### Copilot Setup Steps (`copilot-setup-steps.yml`)
 
@@ -757,7 +757,7 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 
 #### Release (`release.yml`)
 
-**Trigger:** Push tag matching `v*.*.*`
+**Trigger:** Push of any tag matching `v*.*.*` OR `v*.*` OR `v*` (3 tag patterns per `release.yml` line 4 — `tags: ["v*.*.*", "v*.*", "v*"]`). Pre-pt391 the README listed only `v*.*.*`, undercounting the live tag-pattern set.
 
 **Process:**
 
