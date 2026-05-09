@@ -622,7 +622,9 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs the followin
    can land.
 2. `verify:design-prerequisites` — `scripts/verify-design-prerequisites.mjs`
    asserts `adopt-design-md-format` archive ordering before
-   design-md-format-dependent work can land.
+   `design-system-format`-dependent work can land (`adopt-design-md-format`
+   archived 2026-05-05; live capability spec is
+   `openspec/specs/design-system-format/spec.md`).
 3. `lint:tokens` — `scripts/lint-tokens.mjs` walks `git ls-files`
    for raw color literals outside DESIGN.md frontmatter; fails
    on hex/rgb/hsl/oklch literals not declared as tokens.
