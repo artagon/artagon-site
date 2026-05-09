@@ -161,18 +161,31 @@ test.describe("Header — mobile hamburger menu", () => {
   });
 });
 
-// USMR 5.5.16 — canonical NAV_LINKS (BaseLayout.jsx:203-208) is
-// exactly 4 entries: Platform / Use cases / Standards / Writing.
+// USMR 5.5.16-pt87 — canonical NAV_LINKS expanded from the
+// pre-pt87 4-item BaseLayout.jsx:203-208 list (Platform / Use cases
+// / Standards / Writing) to the 6-item index.html canonical
+// (Platform / Bridge / Use cases / Standards / Roadmap / Blog).
+// The label for the writing route is "Blog" per pt87 canonical
+// text — the data is `{ href: "/writing", label: "Blog" }` at
+// Header.astro:13-20.
 // GitHub is a 34×34 icon button in `.right`, NOT a `<li>` in the
-// link list. A regression that re-adds Bridge / Roadmap or drops
-// the icon button surfaces here.
+// link list — that decision is preserved across the 4→6 expansion.
+// A regression that drops the icon button OR mismatches the
+// canonical 6-item list surfaces here.
 test.describe("Header — canonical NAV_LINKS structure", () => {
-  test("link list contains exactly 4 canonical entries", async ({ page }) => {
+  test("link list contains exactly 6 canonical entries", async ({ page }) => {
     await page.goto("/");
     const labels = (
       await page.locator(".site-nav .links li > a").allTextContents()
     ).map((s) => s.trim());
-    expect(labels).toEqual(["Platform", "Use cases", "Standards", "Writing"]);
+    expect(labels).toEqual([
+      "Platform",
+      "Bridge",
+      "Use cases",
+      "Standards",
+      "Roadmap",
+      "Blog",
+    ]);
   });
 
   test("GitHub appears as a 34×34 icon button in .right, not in .links", async ({
