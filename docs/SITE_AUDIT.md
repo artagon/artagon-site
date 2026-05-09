@@ -8,9 +8,11 @@ marketing-redesign/tasks.md` row 5.5.16-loop).** This document
 > substantially since: `astro.config.mjs` migrated to
 > `astro.config.ts`, the slate theme was retired (pt167; only
 > twilight + midnight remain), the HeroChart component was removed,
-> page count grew from 15 to 23 routes, and the `Next Steps` items
-> below have largely shipped (Lighthouse CI lives at
-> `lighthouserc.json` per `openspec/specs/check-site-quality`;
+> page count grew from 15 to 22 routes (see `openspec/project.md`
+> Live routes line for the canonical list, locked by the
+> `tests/lint-project-md-routes-sync.test.mts` gate from pt216), and the
+> `Next Steps` items below have largely shipped (Lighthouse CI lives
+> at `lighthouserc.json` per `openspec/specs/check-site-quality`;
 > axe-core scans live at `tests/home-axe.spec.ts`; the `/search`
 > route is live; etc.). For current state see `openspec/project.md`,
 > `AGENTS.md`, and the live `openspec/specs/*` capabilities.
