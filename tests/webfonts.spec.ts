@@ -88,11 +88,26 @@ test.describe("webfont loading", () => {
         }),
     );
 
+    // pt447 — `h1.display` is the `data-hero-font`-controlled
+    // heading on the home page. The SSR default in
+    // `BaseLayout.astro:38` is `data-hero-font="fraunces"` (per the
+    // USMR marketing-redesign visual identity choice). Pre-pt447 this
+    // assertion expected `/Space Grotesk/` from the pre-USMR default;
+    // it conflicted directly with `tests/home.spec.ts:288-303` which
+    // explicitly asserts the fraunces stack on the same element.
+    // Match the documented Tweaks ACCENTS (cyan/blue/amber/lime) +
+    // HERO_FONTS (grotesk/fraunces/dmserif/mono): ANY of those four
+    // canonical display faces is acceptable here. The webfonts gate
+    // is about pipeline correctness (FontFaceSet flushing,
+    // cross-engine load behavior), not which font the marketing team
+    // picked as the default.
     const h1Family = await page.$eval(
       "h1.display",
       (el) => getComputedStyle(el).fontFamily,
     );
-    expect(h1Family).toMatch(/Space Grotesk/);
+    expect(h1Family).toMatch(
+      /Space Grotesk|Fraunces|DM Serif Display|JetBrains Mono/,
+    );
 
     const bodyFamily = await page.$eval(
       "body",
