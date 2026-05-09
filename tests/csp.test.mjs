@@ -135,3 +135,63 @@ test("extractStyleSrcHashes ignores non-hash tokens like 'self' and URLs", () =>
   assert.equal(result.size, 1);
   assert.ok(result.has("abc"));
 });
+
+// pt433 — defense-in-depth: `buildPolicy` itself must refuse to emit
+// forbidden CSP keywords even when a caller passes them via `extras`.
+// Today the DocSearch branch in `processHtml` is the only callsite
+// and `extras` is hardcoded-safe, but `buildPolicy` is exported for
+// testing and a future caller could regress. Helper-level filter
+// makes `'unsafe-inline'` / `'unsafe-eval'` etc. impossible to slip
+// through, regardless of caller intent.
+test("buildPolicy filters 'unsafe-inline' from extras (script-src)", () => {
+  const policy = buildPolicy(
+    new Set(["abc"]),
+    {
+      "script-src": ["'unsafe-inline'", "https://example.com"],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  assert.match(m[1], /https:\/\/example\.com/);
+  assert.match(m[1], /'sha256-abc'/);
+});
+
+test("buildPolicy filters 'unsafe-inline' from extras (style-src)", () => {
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "style-src": ["'unsafe-inline'", "https://cdn.example/"],
+    },
+    new Set(["sty"]),
+  );
+  const m = /(?:^|;\s*)style-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  assert.match(m[1], /https:\/\/cdn\.example\//);
+  assert.match(m[1], /'sha256-sty'/);
+});
+
+test("buildPolicy filters all forbidden CSP keywords from extras", () => {
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": [
+        "'unsafe-inline'",
+        "'unsafe-eval'",
+        "'unsafe-hashes'",
+        "'wasm-unsafe-eval'",
+        "https://safe.example",
+      ],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  assert.doesNotMatch(m[1], /'unsafe-eval'/);
+  assert.doesNotMatch(m[1], /'unsafe-hashes'/);
+  assert.doesNotMatch(m[1], /'wasm-unsafe-eval'/);
+  assert.match(m[1], /https:\/\/safe\.example/);
+});

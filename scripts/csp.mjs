@@ -54,8 +54,30 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
     "frame-ancestors": ["'none'"],
     "script-src": ["'self'", ...sHashes],
   };
+  // pt433 — defense-in-depth: filter forbidden CSP keywords out of
+  // every `extras` value before the merge. Pre-pt433 a future caller
+  // of `buildPolicy` (the function is exported for unit testing and
+  // could be re-imported by other scripts) could pass
+  // `extras["script-src"] = ["'unsafe-inline'"]` and the merge would
+  // silently include it. Today `processHtml` is the only callsite
+  // and `extras` is only populated by the hardcoded DocSearch branch
+  // (safe), but the runtime orphan-detection guard would still throw
+  // — making this a single-layer defense. Filtering here makes
+  // `buildPolicy` itself refuse the dangerous tokens regardless of
+  // what the caller passes, so a regression caused by adding a new
+  // `extras`-populator can't bypass the check by short-circuiting
+  // around `processHtml`. The 2026-05-09 pt432 verification (blackhat
+  // lens) flagged this as a defense-in-depth gap on the exported
+  // helper.
+  const FORBIDDEN_KEYWORDS = new Set([
+    "'unsafe-inline'",
+    "'unsafe-eval'",
+    "'unsafe-hashes'",
+    "'wasm-unsafe-eval'",
+  ]);
   for (const [k, v] of Object.entries(extras)) {
-    directives[k] = [...(directives[k] || []), ...v];
+    const filtered = v.filter((tok) => !FORBIDDEN_KEYWORDS.has(tok));
+    directives[k] = [...(directives[k] || []), ...filtered];
   }
   return Object.entries(directives)
     .map(([k, v]) => `${k} ${v.join(" ")}`)
