@@ -83,6 +83,21 @@ const HISTORICAL_ALLOW = new Set<string>([
   "openspec/AGENTS.md",
 ]);
 
+// pt442 — prefix-based allow-list for paths that LIVE OUTSIDE this
+// repo by design. Local dev machines often have these paths populated
+// (sibling working trees, user-level skills installed via tooling)
+// but CI checkouts don't. The gate's intent is in-repo citation
+// hygiene; out-of-repo references are documented separately:
+//   - `new-design/...` is the upstream mock tree referenced from
+//     AGENTS.md and PR notes; lives in a sibling working tree per
+//     `lychee.toml` (which already has `^file://.*/new-design/`
+//     in its exclude list for the same reason).
+//   - `.claude/skills/<name>` and `.claude/skills/<name>/...` are
+//     user-level skills installed outside the repo (e.g.
+//     review-verification-protocol); not all of them ship locally.
+//     Same `lychee.toml` already excludes `^file://.*/\.claude/skills/`.
+const HISTORICAL_ALLOW_PREFIXES = ["new-design/", ".claude/skills/"];
+
 function stripAtPrefix(s: string): string {
   return s.startsWith("@/") ? s.slice(2) : s;
 }
@@ -128,6 +143,8 @@ describe("AGENTS.md path citations vs disk (pt179)", () => {
       // Strip line-number suffix and the `@/` alias prefix (pt238).
       const cleaned = stripAtPrefix(raw.split(":")[0]!);
       if (HISTORICAL_ALLOW.has(cleaned)) continue;
+      if (HISTORICAL_ALLOW_PREFIXES.some((p) => cleaned.startsWith(p)))
+        continue;
       // Recursive globs (`tests/**/*.spec.ts`) document discovery
       // patterns (Playwright/vitest test-match contracts), not
       // literal files. The pattern itself is the load-bearing

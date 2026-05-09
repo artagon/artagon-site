@@ -107,6 +107,14 @@ describe("docs/guides/new-design-conversion.md path citations vs disk (pt201)", 
       "public/assets/roadmap.css",
     ]);
 
+    // pt442 — `new-design/` is the upstream mock tree this guide
+    // documents the conversion FROM. Citations to that tree are
+    // the doc's primary purpose; they live in a sibling working
+    // tree (per `lychee.toml` `^file://.*/new-design/` exclude)
+    // and are not part of this repo's source. Same rationale as
+    // lint-agents-md-path-citations.test.mts (pt442).
+    const HISTORICAL_ALLOW_PREFIXES = ["new-design/", ".claude/skills/"];
+
     const drifts: string[] = [];
     for (const m of stripped.matchAll(/`([^`]+)`/g)) {
       const raw = m[1]!.replace(/[,.;:)]+$/, "").trim();
@@ -117,6 +125,8 @@ describe("docs/guides/new-design-conversion.md path citations vs disk (pt201)", 
       if (raw.includes("**")) continue;
       const cleaned = raw.split(":")[0]!;
       if (ASPIRATIONAL.has(cleaned) || HISTORICAL.has(cleaned)) continue;
+      if (HISTORICAL_ALLOW_PREFIXES.some((p) => cleaned.startsWith(p)))
+        continue;
       if (/[*?\[]/.test(cleaned)) {
         if (!resolveWildcard(cleaned)) drifts.push(cleaned);
         continue;

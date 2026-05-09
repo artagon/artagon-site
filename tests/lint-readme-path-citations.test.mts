@@ -142,6 +142,12 @@ const HISTORICAL_ALLOW = new Set<string>([
   "astro.config.mjs",
 ]);
 
+// pt442 — see lint-agents-md-path-citations.test.mts for rationale.
+// `new-design/` (upstream mock tree) and `.claude/skills/` (user-level
+// skills) live outside this repo by design; CI checkouts don't have
+// them. Same prefixes already excluded in lychee.toml.
+const HISTORICAL_ALLOW_PREFIXES = ["new-design/", ".claude/skills/"];
+
 function looksLikePath(s: string): boolean {
   if (PATH_PREFIXES.some((p) => s.startsWith(p))) return true;
   if (ROOT_CONFIG_FILES.has(s)) return true;
@@ -188,6 +194,8 @@ describe("README.md path citations vs disk (pt180)", () => {
       if (raw.includes("**")) continue;
       const cleaned = raw.split(":")[0]!;
       if (HISTORICAL_ALLOW.has(cleaned)) continue;
+      if (HISTORICAL_ALLOW_PREFIXES.some((p) => cleaned.startsWith(p)))
+        continue;
       if (/[*?\[]/.test(cleaned)) {
         if (!resolveWildcard(cleaned)) drifts.push(cleaned);
         continue;
