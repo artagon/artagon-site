@@ -4,7 +4,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 // USMR Phase 5.5.6 — writing collection frontmatter invariants. The
-// Zod schema in `src/content.config.ts:104-122` gates structure at
+// Zod schema in `src/content.config.ts:128-152` (the `writing`
+// defineCollection block; extends pageBase with `published` /
+// `updated` / `cover` / `author` / `draft`) gates structure at
 // build time, but a typo in `published`, a missing `tags` array, or
 // a `draft: true` accidentally shipped will pass build and silently
 // remove the post from the index. These tests run at vitest time so
