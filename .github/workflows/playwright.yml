@@ -128,8 +128,13 @@ jobs:
         run: npm run test:node
 
       # Run vitest unit suites once on shard 1 only — same rationale as
-      # node:test. Covers tests/trust-chain-data.test.mts and
-      # tests/organization-data.test.mts as of USMR Phase 5.1d.
+      # node:test. Discovery is the vitest config glob
+      # `include: ["tests/**/*.test.mts"]` (see vitest.config.ts); the
+      # current set covers data-collection tests + the full lint-* gate
+      # family (path-citation, retired-token, source-comment-archive,
+      # postbuild-chain-sync, etc.). Run `find tests -name '*.test.mts'`
+      # for the live list — this comment is intentionally counter-free
+      # so it doesn't drift each time a new gate lands.
       - name: Run vitest suites (shard 1 only)
         if: matrix.shard == 1
         run: npm run test:vitest
