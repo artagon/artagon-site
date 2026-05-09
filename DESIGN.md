@@ -1014,7 +1014,7 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **A11y.** `aria-hidden="true"` on the SVG root — every consumer announces the brand via the adjacent `Artagon` wordmark text or via the link's `aria-label`. Forced-colors mode preserves the mark via `currentColor` cascade (resolves to `CanvasText` / `Highlight`). The contract is enforced project-wide by [`tests/lint-svg-aria.test.mts`](./tests/lint-svg-aria.test.mts) (USMR pt133): every `<svg>` in the codebase MUST be either decorative (`aria-hidden="true"`) or provide a name via `aria-label` / `aria-labelledby` / child `<title>`. Allow-list opt-out: `<!-- lint-svg-aria: ok -->`.
 
-**Status: shipped.** USMR Phase 5.5.4 — `src/components/ArtagonGlyph.astro` (consumed by `Header.astro:25` + `Footer.astro:84`).
+**Status: shipped.** USMR Phase 5.5.4 — `src/components/ArtagonGlyph.astro` (consumed by `Header.astro:34` + `Footer.astro:88`).
 
 ### 6.23 HomeExplore (Home / 6-card explore grid)
 
