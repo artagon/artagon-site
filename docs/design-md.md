@@ -187,7 +187,7 @@ Named multi-stop linear gradients used by the hero, surface, accent, inline-CTA,
 
 Tokens: `` `--shadow-sm` ``, `` `--shadow-md` ``, `` `--shadow-lg` ``, `` `--shadow-xl` ``, `` `--shadow-glow-teal` ``, `` `--shadow-glow-teal-fallback` ``.
 
-Four-level shadow ramp plus a brand-tinted accent glow. DESIGN.md §3.4 states the site's flat aesthetic restricts shadows to specific affordances (dropdowns, the Tweaks panel, accent glow on interactive elements); these tokens are how that policy is implemented. Shadows are not in the upstream `@google/design.md` schema, so they cannot be promoted to frontmatter without a schema extension.
+Four-level shadow ramp plus a brand-tinted accent glow. DESIGN.md §5 "Shapes" lines 384-387 state the site's flat aesthetic restricts shadows to specific affordances (dropdowns, the Tweaks panel, accent glow on interactive elements); these tokens are how that policy is implemented (pre-pt376 cite was incorrectly §3.4 "Hero display override" — that section describes the `[data-hero-font]` typography switch, not shadow policy). The same policy is restated in §7.3 "Visual and aesthetic" line 1138. Shadows are not in the upstream `@google/design.md` schema, so they cannot be promoted to frontmatter without a schema extension.
 
 ### 6.8 Section / hero spacing utilities
 
@@ -205,13 +205,13 @@ T-shirt-sized `gap` aliases used inside grid and flex layouts. They map onto the
 
 Tokens: `` `--radius` ``, `` `--radius-card` ``, `` `--radius-sm` ``, `` `--radius-tiny` ``, `` `--radius-lg` ``, `` `--radius-xl` ``, `` `--radius-full` ``.
 
-The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; the future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
+The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; the future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §5 "Shapes" line 382 (`Pill | 999px | Standards chips, glow-tag, dots`) and has no `rounded` equivalent (pre-pt376 cite was incorrectly §3.4 "Hero display override" — that section describes the `[data-hero-font]` typography switch, not shape tokens).
 
 ### 6.11 Layout chrome
 
 Tokens: `` `--nav-h` ``, `` `--ctl-h` ``, `` `--section-pad` ``, `` `--container-max` ``.
 
-Layout-chrome constants — sticky-header height, control-row height, section padding-block via `clamp()`, content max-width. These are layout primitives, not design tokens; DESIGN.md models the _aesthetic_ contract, not the layout grid (which lives in §3.3 prose: 8-point grid, 1240px max-width, 120px section rhythm). Codifying them as CSS custom properties is a CSS implementation detail.
+Layout-chrome constants — sticky-header height, control-row height, section padding-block via `clamp()`, content max-width. These are layout primitives, not design tokens; DESIGN.md models the _aesthetic_ contract, not the layout grid (which lives in §4 "Layout" prose: 8-point grid at line 345, `--maxw: 1240px` at line 350, 120px section rhythm at line 346 — pre-pt376 cite was incorrectly §3.3 "Tracking rules" which is typography). Codifying them as CSS custom properties is a CSS implementation detail.
 
 ### 6.12 Roadmap module-local tokens
 
@@ -241,7 +241,7 @@ Accessibility-critical focus-indicator tokens that compose into a double-ring `b
 
 Tokens: `` `--motion-duration-instant` ``, `` `--motion-duration-fast` ``, `` `--motion-duration-base` ``, `` `--motion-duration-slow` ``, `` `--motion-duration-slower` ``, `` `--motion-easing-standard` ``, `` `--motion-easing-emphasized` ``, `` `--motion-easing-decelerate` ``, `` `--motion-easing-accelerate` ``, `` `--motion-easing-linear` ``.
 
-Duration scale (0–480 ms, five steps) and named `cubic-bezier` easing curves aligned with the Material 3 motion vocabulary. The `--motion-easing-emphasized` curve (with overshoot) implements the "spring-like" entrance described in DESIGN.md §3.4. Centralising them as custom properties lets components reference a semantic name (`--motion-easing-standard`) instead of inlining bare timings, and allows global motion-preference overrides (`prefers-reduced-motion`) to be applied at the token level in one place. The upstream `@google/design.md` schema has no `motion` namespace, so these live on the allow-list.
+Duration scale (0–480 ms, five steps) and named `cubic-bezier` easing curves aligned with the Material 3 motion vocabulary. The `--motion-easing-emphasized` curve (with overshoot) sits one layer above the canonical `cubic-bezier(.2,.6,.2,1)` UI ease defined in DESIGN.md §8.1 "Timing" line 1162 — the project's UI vocabulary; "spring-like" is the local docs/design-md.md gloss for the overshoot variant and is not a DESIGN.md term (pre-pt376 cite was incorrectly DESIGN.md §3.4 "Hero display override" which describes the `[data-hero-font]` typography switch, not motion). Centralising them as custom properties lets components reference a semantic name (`--motion-easing-standard`) instead of inlining bare timings, and allows global motion-preference overrides (`prefers-reduced-motion`) to be applied at the token level in one place per DESIGN.md §8.2 motion-principles point 2 (lines 1170-1181). The upstream `@google/design.md` schema has no `motion` namespace, so these live on the allow-list.
 
 ### 6.17 Z-index scale
 
