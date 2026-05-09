@@ -20,10 +20,17 @@ If this PR doesn't merge cleanly, the conversion plan needs revision before any 
 
 **New-design HTML mocks load:**
 
-- `unpkg.com` React/Babel CDN at `new-design/extracted/src/pages/index.html:10` and `:429`
-- Google Fonts CDN
+- `unpkg.com` React/Babel CDN (3 `<script src=...>` tags at
+  `new-design/extracted/src/pages/index.html:429-431` —
+  React, react-dom, @babel/standalone)
+- Google Fonts CDN (preconnect pair near
+  `new-design/extracted/src/pages/index.html:9-10` plus the
+  stylesheet `<link>` immediately following)
 
-**Live CSP at `scripts/csp.mjs:23` allows ONLY:**
+**Live CSP** (in `scripts/csp.mjs`'s `buildPolicy()` — the
+`script-src` directive is constructed inside the `directives`
+object, current line offset varies as the function grows; the
+contract has not changed) **allows ONLY:**
 
 - `script-src 'self'` + page-specific hashes
 - No `unpkg.com`, no `cdn.jsdelivr.net`
