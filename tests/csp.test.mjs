@@ -195,3 +195,58 @@ test("buildPolicy filters all forbidden CSP keywords from extras", () => {
   assert.doesNotMatch(m[1], /'wasm-unsafe-eval'/);
   assert.match(m[1], /https:\/\/safe\.example/);
 });
+
+// pt434 — case-insensitive + whitespace-trimming filter. Browsers
+// parse CSP keywords case-insensitively per CSP3 §6.6.2.1, so the
+// filter must match the same semantics — otherwise an uppercase
+// `'UNSAFE-INLINE'` slips past the Set lookup and the browser still
+// honors it. Whitespace pad similarly defeats a strict Set match
+// even though the rendered directive remains unsafe.
+test("buildPolicy filters 'UNSAFE-INLINE' (uppercase) from extras", () => {
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": ["'UNSAFE-INLINE'", "'Unsafe-Eval'", "'unsafe-HASHES'"],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  // Filter is case-insensitive — none of the case-mangled forbidden
+  // keywords should appear in the rendered directive (using `i` flag
+  // on the regex confirms the renderer didn't pass any of them
+  // through verbatim).
+  assert.doesNotMatch(m[1], /'unsafe-inline'/i);
+  assert.doesNotMatch(m[1], /'unsafe-eval'/i);
+  assert.doesNotMatch(m[1], /'unsafe-hashes'/i);
+});
+
+test("buildPolicy filters whitespace-padded forbidden keywords from extras", () => {
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": ["  'unsafe-inline'  ", "'unsafe-eval'\t"],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  assert.doesNotMatch(m[1], /'unsafe-eval'/);
+});
+
+test("buildPolicy filter rejects non-string and falsy tokens safely", () => {
+  // Defensive: a buggy caller might pass null / undefined / numbers.
+  // The filter must not throw.
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": [null, undefined, 42, "'unsafe-inline'", "https://safe"],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  assert.match(m[1], /https:\/\/safe/);
+});

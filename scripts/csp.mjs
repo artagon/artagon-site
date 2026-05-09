@@ -75,8 +75,19 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
     "'unsafe-hashes'",
     "'wasm-unsafe-eval'",
   ]);
+  // pt434 — case-insensitive match. Browsers parse CSP keywords
+  // case-insensitively per CSP3 §6.6.2.1, so the filter must too —
+  // otherwise `extras["script-src"] = ["'UNSAFE-INLINE'"]` would slip
+  // past a case-sensitive Set lookup and the browser would still
+  // honor the directive. Strip whitespace defensively too: tokens
+  // are space-separated in the emitted directive, but a leading or
+  // trailing space on an `extras` value would break the Set lookup
+  // even though the rendered directive would still be unsafe (the
+  // browser tokenizer ignores the surrounding whitespace).
+  const isForbidden = (tok) =>
+    typeof tok === "string" && FORBIDDEN_KEYWORDS.has(tok.trim().toLowerCase());
   for (const [k, v] of Object.entries(extras)) {
-    const filtered = v.filter((tok) => !FORBIDDEN_KEYWORDS.has(tok));
+    const filtered = v.filter((tok) => !isForbidden(tok));
     directives[k] = [...(directives[k] || []), ...filtered];
   }
   return Object.entries(directives)
