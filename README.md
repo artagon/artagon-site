@@ -503,25 +503,85 @@ Generates logo variants from source files.
 
 - `public/assets/logos/README.md` - Logo usage guidelines and variant inventory
 
+#### Composite App Icons
+
+```bash
+./scripts/compose-app-icons.sh source.(svg|png) [out-dir]
+```
+
+Generates PWA, iOS (`AppIcon.appiconset`), and Android (`mipmap-*`) app icon sets from a single source image.
+
+#### Quick OG Image
+
+```bash
+./scripts/make-og-image.sh "Title text" [out.png]
+```
+
+Quick OG image renderer (1200×630, ImageMagick). Distinct from `make-og-from-template.sh` (full SVG-template + logo overlay path).
+
+#### Optimize SVG
+
+```bash
+./scripts/optimize-svg.sh input.svg [output.svg]
+```
+
+`svgo`-based SVG optimizer (multipass mode). Used before committing new logos / illustrations.
+
 ### Build Scripts
 
-#### SRI Injection
+The postbuild pipeline (per `package.json` `postbuild` script) runs the following steps in order after `astro build`:
 
-**File:** `scripts/sri.mjs`
+1. `verify:prerequisites` — `scripts/verify-prerequisites.mjs`
+   asserts the `refactor-styling-architecture` change is archived
+   (or its merge SHA is an ancestor of HEAD) before USMR work
+   can land.
+2. `verify:design-prerequisites` — `scripts/verify-design-prerequisites.mjs`
+   asserts `adopt-design-md-format` archive ordering before
+   design-md-format-dependent work can land.
+3. `lint:tokens` — `scripts/lint-tokens.mjs` walks `git ls-files`
+   for raw color literals outside DESIGN.md frontmatter; fails
+   on hex/rgb/hsl/oklch literals not declared as tokens.
+4. `verify-font-self-hosting` — `scripts/verify-font-self-hosting.mjs`
+   asserts no third-party font CDN refs leak into `.build/dist/`
+   (locks `font-src 'self'`).
+5. `sri.mjs` — Scans `.build/dist/*.html`, computes SHA-256 for
+   local JS/CSS, adds `integrity` + `crossorigin` attributes,
+   writes `.build/dist/sri-manifest.json`.
+6. `csp.mjs` — Extracts inline script SHA-256 hashes, builds
+   `script-src` directive, injects
+   `<meta http-equiv="Content-Security-Policy">` into every
+   `.build/dist/*.html`. Includes orphan-hash detection
+   (every emitted hash MUST be present in script-src).
+7. `lint:skip-link` — `scripts/lint-skip-link.mjs` asserts every
+   built page in `.build/dist/` has a skip-link as the first
+   focusable element with a valid `href="#<id>"` target.
+8. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
+   source for tagline strings via `src/content/taglines.json`.
+9. `lint:design` — `design.md lint DESIGN.md` per
+   `@google/design.md@0.1.1`.
+10. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
+    guards against duplicate token names in DESIGN.md
+    frontmatter.
 
-- Scans all HTML files in `.build/dist/`
-- Computes SHA-256 hashes for local JS/CSS
-- Adds `integrity` and `crossorigin` attributes
-- Updates HTML in-place
+The chain is **lock-aware**: `clean.mjs` uses `.build/.run.lock`
+to coordinate cleanup across parallel runs (exit code 73 if the
+lock is held by another process).
 
-#### CSP Injection
+Other build-related scripts not in the postbuild chain:
 
-**File:** `scripts/csp.mjs`
-
-- Extracts inline script content from all HTML files
-- Computes SHA-256 hashes
-- Builds CSP policy with script hashes
-- Injects `<meta http-equiv="Content-Security-Policy">` tag
+- `scripts/sync-build-config.mjs` — regenerates JSON/YAML/TOML
+  configs (`lighthouserc.json`, `lychee.toml`) from
+  `build.config.json` SSoT (run via `prebuild` before
+  `astro build`).
+- `scripts/lhci-serve.mjs` — Lighthouse CI local server with
+  `READY` signal (consumed by `lighthouserc.json`).
+- `scripts/check-design-drift.mjs` — design.md drift detection
+  (run by `design-md-drift.yml` weekly cron).
+- `scripts/check-oklch-hex-parity.mjs` + `scripts/oklch-to-hex.mjs`
+  — design.md OKLCH↔hex hybrid policy gates (precondition of
+  `lint:design`).
+- `scripts/verify-design-md-telemetry.mjs` — telemetry verification
+  for design.md adoption metrics.
 
 ## CI/CD Pipeline
 
