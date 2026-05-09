@@ -1,5 +1,7 @@
 // Snapshot tests for tests/fixtures/design-md/{good,bad}.md
-// Per `adopt-design-md-format` Phase 2.9.
+// Per `adopt-design-md-format` Phase 2.9 (proposal archived 2026-05-05
+// to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+// live spec is `openspec/specs/design-system-format/spec.md`).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
