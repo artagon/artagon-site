@@ -55,7 +55,7 @@ The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
 
 1. `refactor-styling-architecture` — archived `2026-05-04`.
 2. `adopt-design-md-format` — archived `2026-05-05`.
-3. `update-site-marketing-redesign` — in flight (Phase 2 foundations merged via PR #43; Phases 5.x marketing routes shipped via USMR pt-iter ralph loop, currently in Phase 5.5.16-pt224 deep-audit cleanup).
+3. `update-site-marketing-redesign` — in flight (Phase 2 foundations merged via PR #43; Phases 5.x marketing routes shipped via USMR pt-iter ralph loop; currently in late-stage `Phase 5.5.16-loop` post-saturation polish — the live pt-counter is in the `5.5.16-loop` row of `openspec/changes/update-site-marketing-redesign/tasks.md`).
 4. `add-brand-assets-and-writing-pipeline` — blocked on #3.
 5. `cleanup-new-design-extracted` — follow-up after #4.
 
