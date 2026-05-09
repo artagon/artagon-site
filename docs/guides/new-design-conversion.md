@@ -132,7 +132,7 @@ The new design ships as a React + HTML mock staging area. You are converting the
 | `new-design/extracted/src/styles/global.css` (307 lines) | Component styles                                                                                                                        | Per-class merge into `public/assets/theme.css`; preserve live classes by default.                                                                                                                                      |
 | `new-design/extracted/src/data/roadmap.ts`               | Typed roadmap data                                                                                                                      | Diff against existing `src/data/roadmap.ts` and merge the new shape. Don't overwrite.                                                                                                                                  |
 | `new-design/extracted/public/assets/`                    | Brand assets                                                                                                                            | Defer to `add-brand-assets-and-writing-pipeline` change for SVG generation.                                                                                                                                            |
-| `new-design/extracted/screenshots/`                      | 2 reference screenshots (`home-nav.png`, `platform.png`)                                                                                | Visual oracle for those 2 routes only. For the other 14 routes, render the new-design HTML mock in a browser as the visual oracle.                                                                                     |
+| `new-design/extracted/screenshots/`                      | 2 reference screenshots (`home-nav.png`, `platform.png`)                                                                                | Visual oracle for those 2 routes only. For other routes that have a corresponding `new-design/extracted/src/pages/<name>.html` mock, render the mock in a browser as the visual oracle.                                |
 | `new-design/extracted/openspec/`                         | DRAFT openspec changes — superseded by repo `openspec/`.                                                                                | Read only. Do NOT adopt. Live `openspec/` wins.                                                                                                                                                                        |
 
 ### Hook locations (from round-2 codex audit)
@@ -159,11 +159,24 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 - Astro 6 (per `package.json` `"astro": "6.2.1"`), build via `npm run build` (NOT bun — `package-lock.json` is canonical).
 - `@google/design.md@0.1.1` installed — use `npx design.md lint DESIGN.md` after any DESIGN.md edit.
 
-### CSS budgets (verified 2026-05-04)
+### CSS budgets
 
-- `public/assets/theme.css`: **28.8KB raw / 5.94KB gz** (28805 bytes raw / 5937 bytes gz). Budget ≤35KB raw / ≤7KB gz.
-- The pre-USMR `public/assets/roadmap.css` (4.27KB raw, loaded only on `/roadmap` via the `head` slot) was absorbed into `src/components/RoadmapTimeline.astro` scoped styles during the 5.7 redesign — per-route CSS budget tracking has shifted to component-scoped styles.
-- ANY component conversion that pushes per-page CSS over budget must REVERT or split.
+The pre-USMR snapshot (verified 2026-05-04) recorded
+`public/assets/theme.css` at **28.8KB raw / 5.94KB gz** with a budget
+of ≤35KB raw / ≤7KB gz. That snapshot is no longer the authoritative
+budget — the file grew with USMR Phase 5.x token additions (current
+size: run `wc -c public/assets/theme.css`), and the budget tracking
+model itself shifted from a single global stylesheet to per-route /
+per-component scoped styles. The pre-USMR `public/assets/roadmap.css`
+(4.27KB raw, loaded only on `/roadmap` via the `head` slot) was
+absorbed into `src/components/RoadmapTimeline.astro` scoped styles
+during the 5.7 redesign as part of that shift.
+
+No active gate enforces a global `theme.css` budget today. ANY
+component conversion that pushes per-page CSS visibly over the
+historic budget should still be flagged in review and either REVERTED
+or SPLIT — but the threshold is now contextual, not a fixed number
+in this guide.
 
 ### Live route map
 
