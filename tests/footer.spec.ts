@@ -143,9 +143,12 @@ test.describe("Footer (canonical 4×5 structure)", () => {
 
   // USMR 5.5.16 — ThemeToggle was removed from the footer brand col
   // (canonical Footer fn lines 284-288 has wordmark + positioning blurb
-  // ONLY). The toggle still lives in the header. A regression that
-  // re-injects it would surface as a visible control next to the
-  // wordmark.
+  // ONLY). The header lost its toggle in pt87 and the standalone
+  // ThemeToggle component was deleted as orphan in pt166; the
+  // dev-only Tweaks panel (TweaksPanel.tsx) is now the canonical
+  // theme-switcher surface. A regression that re-injects a theme
+  // control into the footer brand cell would surface as a visible
+  // control next to the wordmark.
   test("footer brand has no theme toggle control", async ({ page }) => {
     await page.goto("/");
     const brandToggles = page.locator(
