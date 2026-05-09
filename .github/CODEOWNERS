@@ -18,6 +18,14 @@
 /build.config.ts @artagon/owners @trumpyla
 /scripts/sync-build-config.mjs @artagon/owners @trumpyla
 /scripts/clean.mjs @artagon/owners @trumpyla
+# `/scripts/sanitize-trace.mjs` was specced in the archived
+# `standardize-build-artifacts` proposal but the script was never
+# authored. The CODEOWNERS rule below is forward-scaffolding — it
+# applies only if the script lands in a future iter. pt200 narrative
+# (tests/lint-build-artifacts-doc-paths.test.mts:14-18) documents
+# the spec-vs-implementation status. Removing the rule risks the
+# script being authored later without dual-review; keeping it is a
+# zero-cost defense.
 /scripts/sanitize-trace.mjs @artagon/owners @trumpyla
 /scripts/fixtures/lhci-assertions.json @artagon/owners @trumpyla
 /astro.config.ts @artagon/owners @trumpyla
