@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 /**
  * Header sticky-nav contract (USMR Phase 5.1l).
  *
- * Header.astro:73-78 ships a `position: sticky` nav with
+ * Header.astro:130-141 ships a `position: sticky` nav with
  * `backdrop-filter: blur(14px)` and `-webkit-backdrop-filter: blur(14px)`
  * over a `color-mix(in oklab, var(--bg) 72%, transparent)` background.
  * The chromium-only visual snapshot suite does NOT cover the actual
