@@ -147,7 +147,7 @@ Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustCha
 - **Risk: Glyph drift between TS and DESIGN.md.** Mitigation: `check:glyph-parity` snapshot diff.
 - **Risk: `/brand` perf hit on Lighthouse.** Mitigation: documented exception with relaxed threshold; route is `noindex`.
 - **Risk: Remote MDX uses disallowed components.** Mitigation: Astro MDX allowlist fails the build at parse time.
-- **Rollback ordering (matters):** Disable `WRITING_REMOTE_REPO` env in CI first (immediate fallback to local-only without a code revert). Then `.github/workflows/content-redeploy.yml`. Then `src/content/config.ts` augmentation. Then `/brand` route + generators + `brand-svgs.ts`. Per-step independent within this order.
+- **Rollback ordering (matters):** Disable `WRITING_REMOTE_REPO` env in CI first (immediate fallback to local-only without a code revert). Then `.github/workflows/content-redeploy.yml`. Then `src/content.config.ts` augmentation. Then `/brand` route + generators + `brand-svgs.ts`. Per-step independent within this order.
 
 ## Open Questions
 
