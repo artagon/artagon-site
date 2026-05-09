@@ -877,10 +877,25 @@ AI agents should:
 
 ## Additional Documentation
 
-- **`docs/SITE_AUDIT.md`** - Site structure and content audit
-- **`public/assets/logos/README.md`** - Logo file reference and variants
-- **`scripts/icons/README.md`** - Icon generation guide
-- **`scripts/icons/VERIFICATION.md`** - Icon verification checklist
+Living guides (current state authoritative):
+
+- **`docs/AUTOMATED_TESTING.md`** - Playwright + vitest + node:test runners, project matrix, gating contract; pre-Phase-1 sections retired in pt233/pt235 in favor of pointer-to-`tests/README.md`.
+- **`docs/CONTRIBUTING.md`** - OpenSpec workflow + spec/proposal/implementation cadence; complements the canonical `openspec/contributing.md`.
+- **`docs/build-artifacts.md`** - SSoT contract for `.build/{cache,reports,dist}/`, generated-file inventory, "add a tool" contributor checklist; governed by `openspec/specs/build-config/spec.md`.
+- **`docs/design-md.md`** - design.md authoring guide (token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook).
+- **`docs/decisions/0001-no-tailwind.md`** - Architecture-decision record on the no-Tailwind contract.
+- **`docs/guides/styling-guide.md`** - Component-vs-utility decision tree, theme-variable reference, post-archive distilled record from `refactor-styling-architecture`.
+- **`docs/guides/new-design-conversion.md`** - Conversion guide from `new-design/extracted/` mocks to live Astro routes; consumed by USMR Phase 5.x work.
+
+Asset / icon references:
+
+- **`public/assets/logos/README.md`** - Logo file reference and variants.
+- **`scripts/icons/README.md`** - Icon generation guide.
+- **`scripts/icons/VERIFICATION.md`** - Icon verification checklist.
+
+Historical snapshots (read-only):
+
+- **`docs/SITE_AUDIT.md`** - Phase-1-era audit dated 2026-05-04 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
 
 ## License
 
