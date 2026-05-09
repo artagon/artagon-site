@@ -6,6 +6,7 @@
   "assert": {
     "assertMatrix": [
       {
+        "$comment": "Aspirational: the `/brand` route ships via `openspec/changes/add-brand-assets-and-writing-pipeline` which is still in flight. The matcher targets nothing today (LHCI's `urls` list doesn't include `/brand`); when the brand-gallery proposal applies its tasks, /brand becomes a real route and this matrix entry activates with the spec-mandated thresholds. Until then the entry is forward-looking infrastructure.",
         "matchingUrlPattern": "/brand/?$",
         "assertions": {
           "categories:performance": ["error", { "minScore": 0.8 }],
