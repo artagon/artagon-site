@@ -63,14 +63,32 @@ if (platform === "linux" || FORCE_LINUX) {
       );
       exit(0);
     }
-    console.error(
-      `✗ lint failed in isolated network namespace (exit ${result.status})`,
-    );
-    console.error(`  stderr: ${result.stderr}`);
-    console.error(
-      "  This suggests the CLI made an outbound network call. Investigate.",
-    );
-    exit(1);
+    // Disambiguate `unshare` failing to create the namespace
+    // (CAP_SYS_ADMIN missing on the runner — unprivileged GitHub
+    // Actions Linux runners hit this) from the wrapped lint
+    // failing inside a successfully-isolated namespace. The first
+    // case is an environment limitation: fall through to Docker.
+    // The second case is a real telemetry leak: hard fail.
+    const unshareEnvLimitation =
+      result.stderr &&
+      /unshare:\s*unshare failed:\s*Operation not permitted/.test(
+        result.stderr,
+      );
+    if (unshareEnvLimitation) {
+      console.warn(
+        "⚠ `unshare -n` is not permitted on this runner (no CAP_SYS_ADMIN).",
+      );
+      console.warn("  Falling back to `docker --network=none` if available.");
+    } else {
+      console.error(
+        `✗ lint failed in isolated network namespace (exit ${result.status})`,
+      );
+      console.error(`  stderr: ${result.stderr}`);
+      console.error(
+        "  This suggests the CLI made an outbound network call. Investigate.",
+      );
+      exit(1);
+    }
   }
 }
 
