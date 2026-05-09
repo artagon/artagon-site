@@ -2,7 +2,10 @@
 # Branch protection on `main` requires `required_approving_review_count: 2`
 # AND `require_code_owner_reviews: true`.
 #
-# Team-handle policy (per `standardize-build-artifacts` spec):
+# Team-handle policy (per the build-config capability spec at
+# `openspec/specs/build-config/spec.md`; originally authored in the
+# archived `openspec/changes/archive/2026-05-05-standardize-build-artifacts/`
+# proposal):
 # Org has `commiters`, `owners`, `read-only-team`. No `security` or
 # `maintainers` slug. Fallback: pair `@artagon/owners` (admin team)
 # with named individual `@trumpyla` to enforce two-distinct-reviewer rule.
