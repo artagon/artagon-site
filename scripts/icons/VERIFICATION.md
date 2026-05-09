@@ -23,7 +23,7 @@ Use this checklist to verify that all icons are correctly integrated across diff
 - [ ] Favicon visible in browser tab
 - [ ] Manifest detected (DevTools → Application → Manifest)
 - [ ] All icon sizes listed in manifest
-- [ ] Theme color matches brand (#0B1220)
+- [ ] Theme color matches canonical neutral-dark `--bg` (#0a0d12; pre-pt107 was #0B1220 midnight)
 - [ ] "Install app" prompt available (if applicable)
 
 #### Firefox
