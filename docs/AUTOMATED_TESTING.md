@@ -109,10 +109,10 @@ Tests Content Collections schema enforcement:
 - Pull requests to `main`
 - Manual workflow dispatch
 
-**Artifacts Retention:**
+**Artifacts Retention** (per `.github/workflows/playwright.yml`):
 
-- Test reports: 30 days
-- Screenshots/failures: 7 days
+- Test reports (per-shard, merged HTML): 14 days (lines 146, 181)
+- Screenshots / failure traces / visual diffs / a11y failures: 7 days (lines 154, 280, 329)
 
 ### 4. NPM Scripts
 
@@ -137,7 +137,7 @@ Added to `package.json`:
 - Auto-start preview server before tests
 - Parallel execution (local: unlimited, CI: 1 worker)
 - Retries: 0 locally, 2 on CI
-- Browsers: Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
+- Projects: 15-device matrix (5 desktop · 5 mobile · 3 tablet · 2 large) per `playwright.config.ts` `projects[]` — see `AGENTS.md` §"Device matrix" for the canonical list
 - Reporters: HTML locally, GitHub on CI
 - Screenshots on failure
 - Traces on first retry
