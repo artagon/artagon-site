@@ -668,6 +668,16 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs the followin
     precedence chain). Pre-pt383 said "duplicate token names" —
     comment-as-code drift; the script checks file-path uniqueness,
     not token-name uniqueness.
+11. `verify:indexation` — `scripts/validate-indexation.mjs`
+    (USMR Phase 10.7 / pt418) runs three checks against the built
+    output: (A) meta-robots parity — every `.build/dist/*.html`
+    page MUST have `<meta name="robots" content="noindex, nofollow">`
+    iff its route is in `NOINDEX_ROUTES` (per `src/lib/indexation.ts`
+    SSoT, pt416); (B) sitemap `<lastmod>` parity vs MDX
+    `updated`/`published` frontmatter (vacuously satisfied today;
+    becomes load-bearing once Phase 10.1 wires the sitemap
+    `serialize` hook); (C) `public/_redirects` destinations are
+    same-origin (start with `/`, no `://`, no `//`).
 
 The chain is **lock-aware**: `clean.mjs` uses `.build/.run.lock`
 to coordinate cleanup across parallel runs (exit code 73 if the

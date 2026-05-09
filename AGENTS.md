@@ -265,7 +265,7 @@ Single source-of-truth: `build.config.json` at repo root. Typed wrapper: `build.
 
 Scripts:
 
-- `npm run build` — runs `prebuild` (sync) → `astro build` → `postbuild` (10-step chain: verify-prereqs → verify-design-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness; canonical order in `package.json:scripts.postbuild`, gated by `tests/lint-readme-postbuild-chain-sync.test.mts`).
+- `npm run build` — runs `prebuild` (sync) → `astro build` → `postbuild` (11-step chain: verify-prereqs → verify-design-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness → verify:indexation; canonical order in `package.json:scripts.postbuild`, gated by `tests/lint-readme-postbuild-chain-sync.test.mts`. Pre-pt418 was 10 steps; pt418 added `verify:indexation` (USMR Phase 10.7) at the tail to validate meta-robots / sitemap-lastmod / \_redirects parity against the `src/lib/indexation.ts` SSoT.).
 - `npm run dev` — runs `predev` (sync) → `astro dev`.
 - `npm run sync:build-config` — regenerate generated configs.
 - `npm run clean` / `clean:cache` / `clean:reports` — lock-aware via `.build/.run.lock`.
