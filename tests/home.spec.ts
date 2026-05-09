@@ -302,7 +302,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
     expect(heroFont.toLowerCase()).not.toMatch(/inter\s*tight/);
   });
 
-  test("primary CTA paints --accent solid (Header.astro:130)", async ({
+  test("primary CTA paints --accent solid (Header.astro:239)", async ({
     page,
   }) => {
     await page.goto("/");
@@ -318,7 +318,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
 });
 
 test.describe("Home (/) — pre-paint theme bootstrap (security gate)", () => {
-  // The inline bootstrap at BaseLayout.astro:24-55 carries an allow-list
+  // The inline bootstrap at BaseLayout.astro:38-68 carries an allow-list
   // ['twilight', 'midnight']; any other ?theme=… value MUST collapse to
   // the default and MUST NOT be persisted. Regressions here are
   // security-shaped (XSS via persisted localStorage that later inline
