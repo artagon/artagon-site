@@ -55,7 +55,7 @@ Cloudflare Pages provides headers, redirects, edge cache rules, free WAF, anycas
   - `docs/deploy.md` (NEW — cutover playbook)
 - **Affected dependencies**: `cloudflare/wrangler-action@<sha>` (new GitHub Action). No npm runtime deps. Optional: `wrangler` as a devDep for local preview.
 - **Affected secrets**: NEW `secrets.CLOUDFLARE_API_TOKEN` (Cloudflare API token scoped to the artagon Pages project). NEW `secrets.CLOUDFLARE_ACCOUNT_ID` (account ID; non-secret but conventionally stored).
-- **Affected workflows**: `deploy.yml` rewritten; new `deploy-cloudflare-pages-preview.yml`. Existing `playwright.yml`, `lighthouse.yml`, `link-check.yml`, `quick-checks.yml` (when added) unchanged.
+- **Affected workflows**: `deploy.yml` rewritten; new `deploy-cloudflare-pages-preview.yml`. Existing `playwright.yml`, `lighthouse.yml`, `link-check.yml` unchanged. (Earlier draft text referenced `quick-checks.yml (when added)` from a never-authored `modernize-unit-tests-with-vitest` change — vitest is already in use today via the existing `playwright.yml` test job's `test:node` + `test:vitest` umbrella, so no separate workflow is required; same phantom-change drift fixed in pt301.)
 - **Affected DNS**: `artagon.com` CNAME at registrar — cutover from GitHub Pages anycast to Cloudflare anycast.
 - **Affected specs**: NEW `openspec/specs/cloudflare-pages-deployment/spec.md`. MODIFIED `github-pages-deployment` (deprecated, scheduled for archive). MODIFIED `check-site-quality` (NEW headers verification gate).
 - **Sequencing**:
