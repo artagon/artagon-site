@@ -1,17 +1,23 @@
 id: no-set-html-directive
-# pt428 — Re-authored after the prior Gemini Pro security review
-# verified the original `kind: document` + `regex: "set:html"` rule
-# emitted ZERO findings against positive-case .astro files. ast-grep's
-# `kind: document` matches the document-root AST node and applies the
-# regex to that node's serialized text — but Astro's `<script>` text
-# content is treated as a special leaf by the html parser, so the
-# `set:html=` attribute string didn't propagate up. Switch to a
-# top-level `regex:` rule (no `kind:` filter) which scans the raw file
-# bytes — this is what the rule's intent is anyway, and matches the
-# stable scanning behavior of `lint:tokens` (raw-string lookups).
+# pt428 — RETAINED AS DOCUMENTATION ONLY. The 2026-05-09 security
+# review verified empirically that this rule fires on small synthetic
+# .astro files but FAILS silently on real `src/components/SeoTags.astro`
+# (297 lines, 5 set:html callsites, exit 0 no output). Root cause:
+# tree-sitter-html truncates `set:html=` to just `set` because `:` is
+# not a valid HTML attribute character — the AST `attribute` node only
+# spans 3 chars, and on larger files an upstream parse desync causes
+# the document-node regex to silently miss. ast-grep's `rule:` block
+# requires a `kind:` constraint, so a top-level regex-only rule won't
+# load. Tree-sitter-html cannot reliably parse Astro's namespaced
+# directive syntax; we accept the limitation and rely on the vitest
+# gate `tests/lint-set-html-safejsonld.test.mts` as the load-bearing
+# enforcement. That test walks `git ls-files '*.astro'` (same SoT as
+# `scripts/lint-tokens.mjs`) and asserts every set:html callsite
+# routes through `safeJsonLd()`, with comment-stripping + const-only
+# safe-vars + balanced-bracket statement scanning.
 language: html
 severity: error
-message: "set:html bypasses Astro's automatic XSS sanitization. Audit this usage — never pass user-controlled input. Route inline JSON-LD through `safeJsonLd` (src/lib/charset.ts)."
+message: "set:html bypasses Astro's automatic XSS sanitization. Audit this usage — never pass user-controlled input. Route inline JSON-LD through `safeJsonLd` (src/lib/charset.ts). The load-bearing gate is the vitest test, not this YAML rule."
 note: |
   Astro's set:html is equivalent to innerHTML: it renders raw, unsanitized HTML.
   Only use it with trusted, server-controlled strings.

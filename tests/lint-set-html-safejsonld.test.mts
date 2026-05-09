@@ -56,20 +56,84 @@ interface Violation {
   readonly reason: string;
 }
 
+/**
+ * Strip `//` line comments and `/* … *\/` block comments from JS/TS source.
+ * String / template-literal contents are preserved verbatim. Used to harden
+ * the safe-vars scan against adversarial false-negatives where a misleading
+ * commented-out `// const X = safeJsonLd(p)` would otherwise add `X` to
+ * `safeVars` (the comment-aware scanning gap flagged by the pt428 review).
+ */
+function stripComments(src: string): string {
+  let out = "";
+  let i = 0;
+  const n = src.length;
+  while (i < n) {
+    const ch = src[i];
+    const next = src[i + 1];
+    // Line comment
+    if (ch === "/" && next === "/") {
+      while (i < n && src[i] !== "\n") i++;
+      continue;
+    }
+    // Block comment — preserve interior newlines so line numbers
+    // computed against the stripped source stay aligned with the raw
+    // source.
+    if (ch === "/" && next === "*") {
+      i += 2;
+      while (i < n && !(src[i] === "*" && src[i + 1] === "/")) {
+        if (src[i] === "\n") out += "\n";
+        i++;
+      }
+      i += 2;
+      continue;
+    }
+    // String / template literal — copy verbatim, respect escapes
+    if (ch === '"' || ch === "'" || ch === "`") {
+      const quote = ch;
+      out += ch;
+      i++;
+      while (i < n) {
+        const c = src[i];
+        out += c;
+        i++;
+        if (c === "\\" && i < n) {
+          out += src[i];
+          i++;
+          continue;
+        }
+        if (c === quote) break;
+      }
+      continue;
+    }
+    out += ch;
+    i++;
+  }
+  return out;
+}
+
 function scanFile(rel: string): Violation[] {
   const fullPath = join(REPO_ROOT, rel);
-  const source = readFileSync(fullPath, "utf8");
+  const rawSource = readFileSync(fullPath, "utf8");
+  // Strip comments before declaration scan so a misleading commented-out
+  // `// const X = safeJsonLd(p)` cannot whitelist a same-named real
+  // declaration as `let X = userInput`. Set:html scan still uses the raw
+  // source so violation line numbers are unaffected.
+  const source = stripComments(rawSource);
   const violations: Violation[] = [];
 
   // Build the variable-assignment map. A variable `X` is considered
-  // "safe" if its declaration statement (`const X = ...;`) contains a
-  // `safeJsonLd(` call anywhere inside — covering direct assignments,
-  // conditional ternaries (`X = cond ? safeJsonLd(...) : null`), and
-  // chained expressions. Statement boundaries are tracked by walking
-  // forward from the `=` until balanced `()` / `[]` / `{}` AND a `;`
-  // or end-of-file. Works on Astro frontmatter and template scripts.
+  // "safe" if it is declared with `const` (immutable binding) AND its
+  // declaration statement contains a `safeJsonLd(` call anywhere inside
+  // — covering direct assignments, conditional ternaries (`X = cond ?
+  // safeJsonLd(...) : null`), and chained expressions. `let` / `var`
+  // are EXCLUDED because subsequent reassignment to unsafe input is
+  // invisible at the declaration site (the reassignment-blind tracking
+  // gap flagged by the pt428 review). Statement boundaries are tracked
+  // by walking forward from the `=` until balanced `()` / `[]` / `{}`
+  // AND a `;` or end-of-file. Works on Astro frontmatter and template
+  // scripts.
   const safeVars = new Set<string>();
-  const declRe = /(?:const|let|var)\s+([a-zA-Z_$][\w$]*)\s*=/g;
+  const declRe = /\bconst\s+([a-zA-Z_$][\w$]*)\s*=/g;
   for (const match of source.matchAll(declRe)) {
     const name = match[1];
     if (typeof name !== "string" || name.length === 0) continue;
