@@ -1,6 +1,6 @@
 # Build artifacts (`.build/` umbrella)
 
-> Status: Active. Implements `openspec/changes/standardize-build-artifacts`.
+> Status: Active. Implements `openspec/changes/archive/2026-05-05-standardize-build-artifacts/` (archived).
 
 ## Layout
 
@@ -123,7 +123,7 @@ GitHub Actions workflow uploads `.build/reports/...` artifacts with `retention-d
 The SSoT generator surface is dual-review-gated to close the workflow-injection vector — a single-reviewer rubber-stamp on `build.config.json` would otherwise bypass `.github/workflows/` review via the generator pathway. CODEOWNERS pairs `@artagon/owners` (admin team) with `@trumpyla` for:
 
 - `build.config.{json,ts}`, `tsconfig.json`, `package.json`
-- `scripts/sync-build-config.mjs`, `scripts/clean.mjs`, `scripts/sanitize-trace.mjs`
+- `scripts/sync-build-config.mjs`, `scripts/clean.mjs`
 - `scripts/fixtures/lhci-assertions.json`
 - `astro.config.ts`, `playwright.config.ts`, `lighthouserc.json`, `lychee.toml`
 - `.github/workflows/`, `.github/dependabot.yml`, `.github/CODEOWNERS`
@@ -155,6 +155,6 @@ The TS wrapper is a convenience for the Node ecosystem; the JSON file is the can
 
 ## Rollback
 
-Per-step independent in reverse phase order (see `openspec/changes/standardize-build-artifacts/design.md` § Risks & Rollback). The deploy-affecting step (`actions/upload-pages-artifact@v4 path: ./.build/dist`) reverts via single workflow YAML edit.
+Per-step independent in reverse phase order (see `openspec/changes/archive/2026-05-05-standardize-build-artifacts/design.md` § Risks & Rollback). The deploy-affecting step (`actions/upload-pages-artifact@v4 path: ./.build/dist`) reverts via single workflow YAML edit.
 
 If `astro.config.mjs` → `astro.config.ts` rename loses git blame post-squash-merge, document the squash exception or disable squash-merge on `main`.
