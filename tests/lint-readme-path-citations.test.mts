@@ -81,27 +81,37 @@ const PATH_PREFIXES = [
 //      validates this).
 //   2. The README must cite it (otherwise the entry is unused).
 const ROOT_CONFIG_FILES = new Set<string>([
+  // Build/config artifacts
   "astro.config.ts",
   "build.config.json",
   "build.config.ts",
   "package.json",
+  "package-lock.json",
   "tsconfig.json",
   "lighthouserc.json",
   "lychee.toml",
   "vitest.config.ts",
   "playwright.config.ts",
+  "skills-lock.json",
+  // Agent + project docs
   "AGENTS.md",
   "CLAUDE.md",
   "GEMINI.md",
   "COPILOT.md",
   "DESIGN.md",
   "README.md",
+  // Dotfiles + tooling state
   ".nvmrc",
-  ".prettierrc",
-  ".prettierignore",
   ".gitignore",
+  ".gitattributes",
   ".mcp.json",
   "sgconfig.yml",
+  // pt370 archaeology — the pre-pt370 list included `.prettierrc` and
+  // `.prettierignore` as defensive entries; this project uses Prettier's
+  // built-in defaults (no per-project config file at root). Both removed
+  // because they were phantom allow-list entries (never referenced from
+  // README, never existed on disk). If a future change adds explicit
+  // Prettier config, re-add the relevant entry here in the same diff.
 ]);
 
 // To detect drift on the OLD form of a renamed root file (e.g. pre-
