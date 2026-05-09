@@ -4,7 +4,7 @@ Thanks for helping improve the Artagon marketing site and docs shell. This guide
 
 ## Prerequisites
 
-- Node 20+ and npm (CI uses Node 20 and 22)
+- Node 22+ and npm (per `.nvmrc` 22.12 + `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
 - Git
 
 ## Quick Start

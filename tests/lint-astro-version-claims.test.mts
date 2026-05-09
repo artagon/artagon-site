@@ -52,6 +52,11 @@ const SURFACES = [
   // / Playwright 1.57 / mdx 4.3.13 to the actual installed
   // versions until pt213.
   "openspec/config.yaml",
+  // pt214 — openspec/project.md and openspec/contributing.md
+  // both make present-tense Node-version claims that must
+  // match `.nvmrc` + `package.json` engines.node.
+  "openspec/project.md",
+  "openspec/contributing.md",
 ];
 
 function readAstroMajor(): string {
@@ -64,7 +69,16 @@ function readAstroMajor(): string {
   return m[1]!;
 }
 
-describe("Astro version claim consistency vs package.json (pt212)", () => {
+function readNodeMajor(): string {
+  // `.nvmrc` is the canonical source for node major; engines.node
+  // is the install-time floor. Both should agree on major.
+  const nvmrc = readFileSync(join(ROOT, ".nvmrc"), "utf8").trim();
+  const m = nvmrc.match(/^v?(\d+)(?:\.\d+)*$/);
+  if (!m) throw new Error(`.nvmrc unrecognized: ${JSON.stringify(nvmrc)}`);
+  return m[1]!;
+}
+
+describe("Astro + Node version claim consistency vs package.json (pt212/213/214)", () => {
   test("every present-tense `Astro N` claim matches package.json's installed major", () => {
     expect(existsSync(PKG), "package.json must exist").toBe(true);
     const expectedMajor = readAstroMajor();
@@ -109,6 +123,47 @@ describe("Astro version claim consistency vs package.json (pt212)", () => {
             .map((d) => `  - ${d.file}: "${d.matched}" cites Astro ${d.cited}`)
             .join("\n") +
           `\n\nFix: update the prose to cite Astro ${expectedMajor} (per \`package.json\` \`"astro"\` field) — or, if the project intentionally bumps majors, update package.json + .nvmrc + this gate's expectation in the same diff.`,
+      );
+    }
+    expect(drifts.length).toBe(0);
+  });
+
+  test("every present-tense `Node N+` claim matches `.nvmrc` major", () => {
+    const expectedNode = readNodeMajor();
+
+    const drifts: { file: string; matched: string; cited: string }[] = [];
+
+    for (const rel of SURFACES) {
+      const p = join(ROOT, rel);
+      if (!existsSync(p)) continue;
+      const body = readFileSync(p, "utf8");
+
+      // Match present-tense "Node N+", "Node vN+". Excludes
+      // CI-narrative "(CI uses Node 20 and 22)" by requiring
+      // the `+` suffix or a context anchor like "and npm".
+      // No trailing `\b` — `+` is non-word, so `\b\+\b` fails
+      // because `\b` after `+` requires the next char to be a
+      // word char (and `+` is typically followed by whitespace).
+      // The `+` itself is the natural right delimiter.
+      const presentTensePatterns = [/\bNode (\d+)\+/g, /\bNode v(\d+)\+/g];
+
+      for (const re of presentTensePatterns) {
+        for (const m of body.matchAll(re)) {
+          const cited = m[1]!;
+          if (cited !== expectedNode) {
+            drifts.push({ file: rel, matched: m[0], cited });
+          }
+        }
+      }
+    }
+
+    if (drifts.length > 0) {
+      throw new Error(
+        `${drifts.length} present-tense Node version claim(s) drift from .nvmrc (Node ${expectedNode}):\n` +
+          drifts
+            .map((d) => `  - ${d.file}: "${d.matched}" cites Node ${d.cited}+`)
+            .join("\n") +
+          `\n\nFix: update the prose to cite Node ${expectedNode}+ — or, if the project intentionally bumps majors, update .nvmrc + package.json engines.node + CI workflows + this gate's expectation in the same diff.`,
       );
     }
     expect(drifts.length).toBe(0);
