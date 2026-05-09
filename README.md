@@ -245,7 +245,7 @@ the full ordered list — gated structurally by the pt267
 1. `prebuild` / `predev` run `npm run build:prebuild-chain` (regenerates the JSON/YAML/TOML configs that derive from `build.config.json`).
 2. `astro build` compiles pages, components, and assets to `.build/dist/`.
 3. `@astrojs/sitemap` emits `sitemap-index.xml` (filtered to indexable routes per `NOINDEX_ROUTES` allow-list).
-4. `postbuild` runs the 10-step chain (verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness — the canonical ordered list lives in the "Build Scripts" subsection below).
+4. `postbuild` runs the 10-step chain (verify-prereqs → verify-design-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness — the canonical ordered list lives in the "Build Scripts" subsection below).
 
 ## Development
 
