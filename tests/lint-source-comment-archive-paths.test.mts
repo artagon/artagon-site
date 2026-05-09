@@ -57,7 +57,15 @@ const ARCHIVE = join(CHANGES, "archive");
 // the gate fast and predictable. Add a directory here when a new
 // source-tree top level appears (e.g. `app/` if Astro adds an
 // app router).
-const SCAN_DIRS = ["src", "scripts", "tests", ".github"];
+//
+// USMR Phase 5.5.16-pt353 — `rules/` added to SCAN_DIRS. pt352
+// found `rules/security/no-untraceable-token.yml:26` citing
+// `openspec/changes/adopt-design-md-format/tasks.md` (pre-archive
+// path) for an archived proposal. Pre-pt353 the gate's SCAN_DIRS
+// = ["src", "scripts", "tests", ".github"] missed `rules/`
+// entirely; sg-rule .yml note-blocks could carry stale openspec
+// archive-paths without surfacing.
+const SCAN_DIRS = ["src", "scripts", "tests", ".github", "rules"];
 const SCAN_FILES_AT_ROOT = [".gitignore", "_config.yml"];
 
 const SCANNED_EXTENSIONS = new Set([
