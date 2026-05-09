@@ -113,7 +113,12 @@ if (dockerWhich.status === 0 || FORCE_DOCKER) {
       "/work",
       "node:22-alpine",
       "node",
-      "node_modules/@google/design.md/dist/cli.js",
+      // pt439-followup: package's actual entry is `dist/index.js`
+      // per package.json:bin (`design.md` → `./dist/index.js`).
+      // The pre-pt439 hardcoded `dist/cli.js` doesn't exist (the
+      // CLI doubles as the lib's main entry; argv routing happens
+      // inside index.js).
+      "node_modules/@google/design.md/dist/index.js",
       "lint",
       "DESIGN.md",
     ],
