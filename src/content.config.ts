@@ -31,10 +31,13 @@ const authorLink = z.object({
 
 /**
  * The canonical bridge story (USMR site-bridge-story §"Canonical Bridge
- * Sentence"). Only consumed on `/platform`; lint-bridge.mjs (Phase 5.x)
- * enforces single-source on the platform route and forbids verbatim
- * appearance elsewhere. `variants[]` is the allow-list of approved
- * paraphrases for use on other routes (e.g. the home hero).
+ * Sentence"). Schema reserved for the `bridge` frontmatter field on
+ * page MDX entries; populated by `platform.mdx` only. The earlier
+ * Phase-5.x plan to add `scripts/lint-bridge.mjs` enforcing single-
+ * source on `/platform` was deferred — `/platform` never wired
+ * `<Content />` (the route mounts `PillarsIsland` directly), so no
+ * route reads the bridge frontmatter today. `variants[]` remains the
+ * allow-list of approved paraphrases for any future consumer.
  */
 const bridgeStory = z.object({
   sentence: z.string().min(1),
@@ -96,9 +99,10 @@ const pageBase = z.object({
   /** Free-form taxonomy tags; reused by /standards and writing. */
   tags: z.array(z.string()).default([]),
   /**
-   * Optional bridge story — only `platform.mdx` populates this. lint-bridge
-   * (Phase 5.x) verifies the sentence appears exactly once on `/platform`
-   * and forbids verbatim repetition on other routes.
+   * Optional bridge story — only `platform.mdx` populates this. The
+   * planned Phase-5.x `scripts/lint-bridge.mjs` consumer was deferred
+   * (see `bridgeStory` schema docstring above for context); the field
+   * remains reserved for any future route that wires it up.
    */
   bridge: bridgeStory.optional(),
   /**

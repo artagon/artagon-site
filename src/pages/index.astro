@@ -8,10 +8,13 @@ import { AFFILIATIONS, HERO_SPECS } from "../data/affiliations";
 import { ORG } from "../data/organization";
 import HomeExplore from "../components/HomeExplore.astro";
 
-// USMR Phase 5.1a — hero now reads from src/content/pages/home.mdx so
-// content edits don't require .astro changes. The remaining sections
-// (pillar grid, mission, developers, FAQ, etc.) keep their existing
-// markup until Phase 5.x decomposes them into typed registries.
+// USMR Phase 5.1a + Phase 5.5.x — hero reads from
+// src/content/pages/home.mdx (frontmatter only), affiliations from
+// src/data/affiliations.ts, and organization details from
+// src/data/organization.ts. The earlier-Phase-5.x decomposition into
+// typed registries has shipped: pillars / faq / developers are
+// dedicated routes (/platform, /faq, /developers) that source
+// src/data/{pillars,faq,glossary,bridge,trust-chain}.ts respectively.
 const home = await getEntry("pages", "home");
 if (!home) throw new Error("home.mdx content entry not found");
 const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
