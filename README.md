@@ -428,17 +428,19 @@ Automatically adds cryptographic hashes to local JS/CSS resources:
 
 **Script:** `scripts/csp.mjs`
 
-Generates strict CSP as `<meta>` tag with:
+Generates strict CSP as `<meta>` tag with the 9 directives constructed by `buildPolicy()` in `scripts/csp.mjs`:
 
 - `default-src 'self'` - Only same-origin resources
-- `script-src 'self' 'sha256-...'` - Inline scripts hashed
+- `script-src 'self' 'sha256-...'` - Inline scripts hashed; orphan-hash detection in `csp.mjs` fails the build if any emitted hash is not present in the final `script-src` directive
 - `style-src 'self' 'unsafe-inline'` - Styles allowed (Astro scoped styles)
 - `img-src 'self' data:` - Images from same origin + data URIs
+- `font-src 'self'` - Fonts from same origin only (no third-party CDNs); the `verify-font-self-hosting.mjs` postbuild gate fails the build if any `dist/**/*.{html,css}` references `fonts.googleapis.com` or similar
+- `connect-src 'self'` - XHR / fetch / WebSocket targets locked to same origin
 - `object-src 'none'` - No plugins
 - `base-uri 'none'` - Prevent base tag injection
 - `frame-ancestors 'none'` - Prevent clickjacking
 
-All inline `<script>` tags are hashed and added to CSP automatically.
+All inline `<script>` tags are hashed and added to `script-src` automatically. DocSearch / Algolia origins are added as `extras` only when DocSearch is enabled.
 
 ### Performance Optimizations
 
