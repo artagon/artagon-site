@@ -64,7 +64,11 @@ artagon-site/
                             # (sitemap-index.xml is GENERATED to
                             #  .build/dist/ at build time, NOT
                             #  pre-existing in public/)
-├── scripts/                # Build, lint, verify, and asset scripts (~14 .mjs + 8 .sh)
+├── scripts/                # Build, lint, verify, and asset scripts
+                            # (run `ls scripts/*.mjs scripts/*.sh`
+                            #  for the current count — frozen counts
+                            #  pre-pt380 (~14 .mjs + 8 .sh) drifted
+                            #  as new scripts landed; SSoT is the dir)
 │   ├── csp.mjs             # Content Security Policy injection (postbuild)
 │   ├── sri.mjs             # Subresource Integrity injection (postbuild)
 │   ├── lhci-serve.mjs      # LHCI local server with ready signal
