@@ -7,7 +7,7 @@
 
 ## Context and problem
 
-`artagon-site` is an Astro 5 static site with a strict zero-runtime-JS contract, scoped Astro `<style>` blocks per component, OKLCH semantic-token cascade in `public/assets/theme.css`, and `ast-grep` enforcing `no-raw-color-literal`. Tailwind v4 is widely used for similar surfaces. Why not adopt it here?
+`artagon-site` is an Astro 6 static site (originally drafted under Astro 5; the project upgraded mid-USMR per `package.json` `"astro": "6.2.1"`) with a strict zero-runtime-JS contract, scoped Astro `<style>` blocks per component, OKLCH semantic-token cascade in `public/assets/theme.css`, and `ast-grep` enforcing `no-raw-color-literal`. Tailwind v4 is widely used for similar surfaces. Why not adopt it here?
 
 ## Decision
 

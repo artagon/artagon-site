@@ -156,7 +156,7 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 
 ### Build + tooling
 
-- Astro 5, build via `npm run build` (NOT bun — `package-lock.json` is canonical at 412KB).
+- Astro 6 (per `package.json` `"astro": "6.2.1"`), build via `npm run build` (NOT bun — `package-lock.json` is canonical).
 - `@google/design.md@0.1.1` installed — use `npx design.md lint DESIGN.md` after any DESIGN.md edit.
 
 ### CSS budgets (verified 2026-05-04)

@@ -24,7 +24,7 @@ get-docs: /withastro/astro   topic="content collections"
 get-docs: /microsoft/playwright   topic="locators"
 ```
 
-Use context7 whenever working with Astro APIs, MDX content, Playwright selectors, or any library where your training data may be stale (Astro 5 changes frequently).
+Use context7 whenever working with Astro APIs, MDX content, Playwright selectors, or any library where your training data may be stale (the project is on Astro 6 per `package.json`; Astro 5 → 6 surface changes are non-trivial and training data may not reflect them).
 
 ### Serena usage
 
