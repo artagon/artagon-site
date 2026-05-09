@@ -271,7 +271,7 @@ These ship as React islands because rebuilding state machines + form validation 
 2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/components/Tweaks.astro` (custom element via Astro `<script is:inline>`) or `src/scripts/tweaks-state.ts` (pure logic).
 3. **React island** — if the component has non-trivial state (e.g. carousel timing, multi-step form, focus-trap dialog), use a React island. Cost per island:
    - Add deps once: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (~120KB minified+gzipped for the React runtime, shared across all islands)
-   - Add `react()` to `astro.config.mjs` integrations
+   - Add `react()` to `astro.config.ts` integrations
    - Each island re-runs CSP/SRI hash regen at build time — verify `scripts/csp.mjs` and `scripts/sri.mjs` postbuild succeed
    - Use `client:visible` (lazy hydration, IntersectionObserver-based) BEFORE `client:load` (eager) unless the island is above the fold
    - Document the cost in the conversion commit message — bundle delta and CSP changes
