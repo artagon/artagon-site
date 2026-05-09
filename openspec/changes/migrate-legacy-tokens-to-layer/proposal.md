@@ -2,7 +2,7 @@
 
 ## Why
 
-USMR Phase 2 (`update-site-marketing-redesign`) added `@layer reset, tokens, utilities, components, overrides;` to `public/assets/theme.css` and declared all NEW token categories (motion, elevation, focus-ring, z-index, spacing scale, radius scale, fluid type scale, on-brand semantic aliases) inside `@layer tokens`. The pre-existing `:root` blocks (~150 token declarations powering the `twilight`/`midnight`/`slate` theme switch) were intentionally left UNLAYERED to satisfy the spec's "Existing Token Preservation" Requirement.
+USMR Phase 2 (`update-site-marketing-redesign`) added `@layer reset, tokens, utilities, components, overrides;` to `public/assets/theme.css` and declared all NEW token categories (motion, elevation, focus-ring, z-index, spacing scale, radius scale, fluid type scale, on-brand semantic aliases) inside `@layer tokens`. The pre-existing `:root` blocks (~150 token declarations powering the `dark`/`midnight`/`twilight` theme switch — the `slate` variant cited in earlier draft text was retired in USMR pt167 along with its `:root[data-theme="slate"]` block; live theme set today is the 3-pack at `theme.css:272-296`) were intentionally left UNLAYERED to satisfy the spec's "Existing Token Preservation" Requirement.
 
 The `style-system` capability spec carries a Requirement that reads:
 

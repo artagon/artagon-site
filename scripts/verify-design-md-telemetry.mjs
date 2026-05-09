@@ -2,7 +2,9 @@
 /**
  * verify-design-md-telemetry.mjs
  *
- * Per `adopt-design-md-format` Phase 2.10:
+ * Per `adopt-design-md-format` Phase 2.10 (proposal archived
+ * 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+ * the live spec is `openspec/specs/design-system-format/spec.md`):
  *   `npm run lint:design` MUST make zero outbound network calls.
  *   Assert via `unshare -n` (Linux CI) or by running the lint inside a
  *   Docker container with `--network=none`.
@@ -61,14 +63,56 @@ if (platform === "linux" || FORCE_LINUX) {
       );
       exit(0);
     }
-    console.error(
-      `✗ lint failed in isolated network namespace (exit ${result.status})`,
-    );
-    console.error(`  stderr: ${result.stderr}`);
-    console.error(
-      "  This suggests the CLI made an outbound network call. Investigate.",
-    );
-    exit(1);
+    // pt444 — surface spawn-level failures explicitly. `result.error`
+    // is set when spawn itself failed (ENOENT on the binary, EACCES,
+    // etc.); `result.signal` is set when the process was killed by a
+    // signal (`status` is `null` in that case). Pre-pt444 these hit
+    // the "lint failed in isolated namespace" branch and printed
+    // confusing `(exit null)` / `stderr: undefined`. Now both are
+    // disambiguated and exit 1 with actionable diagnostics.
+    if (result.error) {
+      console.error(
+        `✗ unshare spawn failed: ${result.error.code ?? "unknown"} ${result.error.message}`,
+      );
+      console.error(
+        "  Check that /usr/bin/unshare exists and has execute permission.",
+      );
+      exit(1);
+    }
+    if (result.signal) {
+      console.error(
+        `✗ unshare killed by signal ${result.signal} (status=${result.status})`,
+      );
+      console.error(`  stderr: ${result.stderr ?? "(empty)"}`);
+      console.error("  Process did not exit normally; treat as inconclusive.");
+      exit(1);
+    }
+    // Disambiguate `unshare` failing to create the namespace
+    // (CAP_SYS_ADMIN missing on the runner — unprivileged GitHub
+    // Actions Linux runners hit this) from the wrapped lint
+    // failing inside a successfully-isolated namespace. The first
+    // case is an environment limitation: fall through to Docker.
+    // The second case is a real telemetry leak: hard fail.
+    const unshareEnvLimitation =
+      result.stderr &&
+      /unshare:\s*unshare failed:\s*Operation not permitted/.test(
+        result.stderr,
+      );
+    if (unshareEnvLimitation) {
+      console.warn(
+        "⚠ `unshare -n` is not permitted on this runner (no CAP_SYS_ADMIN).",
+      );
+      console.warn("  Falling back to `docker --network=none` if available.");
+    } else {
+      console.error(
+        `✗ lint failed in isolated network namespace (exit ${result.status})`,
+      );
+      console.error(`  stderr: ${result.stderr ?? "(empty)"}`);
+      console.error(
+        "  This suggests the CLI made an outbound network call. Investigate.",
+      );
+      exit(1);
+    }
   }
 }
 
@@ -93,7 +137,12 @@ if (dockerWhich.status === 0 || FORCE_DOCKER) {
       "/work",
       "node:22-alpine",
       "node",
-      "node_modules/@google/design.md/dist/cli.js",
+      // pt439-followup: package's actual entry is `dist/index.js`
+      // per package.json:bin (`design.md` → `./dist/index.js`).
+      // The pre-pt439 hardcoded `dist/cli.js` doesn't exist (the
+      // CLI doubles as the lib's main entry; argv routing happens
+      // inside index.js).
+      "node_modules/@google/design.md/dist/index.js",
       "lint",
       "DESIGN.md",
     ],

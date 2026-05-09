@@ -1,217 +1,998 @@
 ---
+import { getCollection, getEntry } from "astro:content";
 import Base from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import Tagline from "../components/Tagline.astro";
-import MissionSection from "../components/MissionSection.astro";
-import HeroChart from "../components/HeroChart.astro";
-const page = {
-  title:
-    "Artagon — OIDC 2.1 Provider, GNAP Authorization Server & Verifiable Credentials",
-  description:
-    "The provable identity cloud: passkey sign-in, verifiable credentials, and attested clients—unified by a graph-native policy engine.",
-};
+import TrustChainIsland from "../components/TrustChainIsland";
+import { AFFILIATIONS, HERO_SPECS } from "../data/affiliations";
+import { ORG } from "../data/organization";
+import HomeExplore from "../components/HomeExplore.astro";
+
+// USMR Phase 5.1a + Phase 5.5.x — hero reads from
+// src/content/pages/home.mdx (frontmatter only), affiliations from
+// src/data/affiliations.ts, and organization details from
+// src/data/organization.ts. The earlier-Phase-5.x decomposition into
+// typed registries has shipped: pillars / faq / developers are
+// dedicated routes (/platform, /faq, /developers) that source
+// src/data/{pillars,faq,glossary,bridge,trust-chain}.ts respectively.
+const home = await getEntry("pages", "home");
+if (!home) throw new Error("home.mdx content entry not found");
+const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
+
+// USMR Phase 5.1f — latest writing strip. Top N non-draft posts by
+// published desc; render the strip only when there's at least one post.
+const latestPosts = (await getCollection("writing"))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
+  .slice(0, 3);
+
+const dateFmt = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+// USMR Phase 5.1j — eyebrow renders inside a .glow-tag pill. Splitting on
+// `&` lets the home.mdx string drive a serif-italic ampersand via the
+// `.glow-amp` primitive without authoring HTML in the MDX. Even-index
+// segments are plain text; odd-index slots get a single `<em>&</em>`.
+const eyebrowSegments = eyebrow.split(/\s*&\s*/);
+
+// USMR Phase 5.1j — headline stacks per the new-design mock. Splits the
+// frontmatter "Verified. Private. Attested." string on sentence
+// boundaries so each clause renders on its own visual line.
+const headlineLines = headline.includes(". ")
+  ? headline
+      .split(/\.\s+/)
+      .filter(Boolean)
+      .map((s) => (s.endsWith(".") ? s : `${s}.`))
+  : [headline];
+
+// USMR Phase 5.5.5 — onRamp.headline serif-italic emphasis. Splits on
+// `*marker*` so authors can wrap a single word in fraunces italic
+// (canonical Cta.jsx:27-29 — "Build with the <span class='serif italic'>
+// next</span><br/>generation of identity."). Even-index segments are
+// plain text; odd-index segments render as `<em class="serif">`.
+const onRampHeadlineSegments = onRamp ? onRamp.headline.split(/\*([^*]+)\*/) : [];
+
+// USMR Phase 5.5.13 — Hero lede 3-clause emphasis. Splits on
+// `**bold**` so the three keystone words (proven / bound /
+// traceable) render in `<b class="hero__lede-emphasis">` per
+// canonical Hero.jsx:159-164. Even-index segments plain text;
+// odd-index segments are the bold keystones (var(--fg) at 500).
+const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 ---
 
-<Base title={page.title} description={page.description}>
+<Base title={title} description={description} path="/">
   <Fragment slot="header"><Header /></Fragment>
 
-  <section class="hero container">
+  {/* USMR Phase 5.5.16-pt139 — aria-labelledby points at hero-h1 so
+      AT announces the section landmark by its heading. Same pattern
+      used by .home-explore / .pillars / .standards-wall / .roadmap
+      already. */}
+  <section class="hero container" aria-labelledby="hero-h1">
+    {/* USMR Phase 5.5.5 — meta-strip moved INSIDE the hero section per
+     * canonical Hero.jsx:124-141 (single `<div.wrap>` holds the strip
+     * + headline grid). Was previously its own `<div class="container">`
+     * above the section, which created a visible top-margin gap and
+     * decoupled the strip from the hero card. */}
+    <div class="hero__meta-strip">
+      <span class="hero__meta-strip-tag">v0.9 · Design Partner Preview</span>
+      <span class="hero__meta-strip-specs">
+        {
+          HERO_SPECS.map((spec, i) => (
+            <Fragment>
+              {i > 0 && <span class="hero__meta-strip-sep" aria-hidden="true">·</span>}
+              <a
+                href={spec.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={spec.title}
+                class="hero__meta-strip-link"
+              >
+                {spec.label}
+              </a>
+            </Fragment>
+          ))
+        }
+      </span>
+      <span class="hero__meta-strip-loc">US — Philadelphia, PA</span>
+    </div>
+
     <div class="twocol">
       <div>
-        <div class="mission-badge">TRUSTED IDENTITY FOR MACHINES AND HUMANS</div>
-        <h1 id="hero-h1">Verified, Private, Attested.</h1>
-        <p id="hero-sub" class="sub">
-          OIDC 2.1, GNAP, Passkey sign‑in, W3C Verifiable Credentials (SD‑JWT, BBS+), device attestation, and graph‑native authorization—unified in one platform. <strong>The provable identity cloud.</strong>
+        <span class="hero__eyebrow-tag glow-tag">
+          <span class="glow-dot" />
+          <span class="glow-text">
+            {
+              eyebrowSegments.map((seg, i) =>
+                i === 0 ? (
+                  <Fragment>{seg}</Fragment>
+                ) : (
+                  <Fragment>
+                    <em class="glow-amp">&amp;</em>
+                    {seg}
+                  </Fragment>
+                ),
+              )
+            }
+          </span>
+        </span>
+        <h1 id="hero-h1" class="display">
+          {
+            headlineLines.map((line, i) => (
+              <Fragment>
+                {i > 0 && <br />}
+                {line}
+              </Fragment>
+            ))
+          }
+        </h1>
+        <p id="hero-sub" class="lead">
+          {heroLedeSegments.map((segment, i) =>
+            i % 2 === 1 ? (
+              <b class="hero__lede-emphasis">{segment}</b>
+            ) : (
+              segment
+            )
+          )}
         </p>
-        <div style="margin-top:6px"><Tagline /></div>
-        <div class="actions">
-          <a class="btn" href="/docs">Read the Docs</a>
-          <a class="btn" href="/play">Try the Playground</a>
-          <a class="btn" href="https://github.com/artagon" rel="noopener"
-            >View on GitHub</a
-          >
-        </div>
-        <div class="badges" style="margin-top:14px">
-          <span class="pill">OIDC 2.1 + PAR/JAR/JARM/DPoP/mTLS</span>
-          <span class="pill">GNAP with PoP + continuation</span>
-          <span class="pill">SD-JWT & BBS+ VCs</span>
-          <span class="pill">Zanzibar graph + PDP</span>
+        {
+          ctas.length > 0 && (
+            <div class="actions">
+              {ctas.map((cta) => (
+                <a
+                  class={`btn ${cta.variant === "primary" ? "primary" : ""}`}
+                  href={cta.href}
+                  rel={cta.rel}
+                >
+                  {cta.label}
+                  {cta.variant === "primary" && (
+                    <span class="arr" aria-hidden="true">→</span>
+                  )}
+                </a>
+              ))}
+            </div>
+          )
+        }
+        {/* USMR Phase 5.5.16-pt110 — HeroLatestStrip per canonical
+            new-design/extracted/src/pages/index.html:1619 (HeroLatestStrip)
+            and :938 (mount inside Hero content column). Renders the
+            most-recent post as a 3-row mono caption inside the hero;
+            visible only when [data-writing-widget="in-hero"]. The
+            standalone .writing-strip section is hidden in that variant
+            (rule below). Closes task 5.8.in-hero. */}
+        {
+          latestPosts.length > 0 && (
+            <a
+              class="hero__latest-strip"
+              href={`/writing/${latestPosts[0].id}`}
+            >
+              <span class="hero__latest-strip-eyebrow">
+                <span class="hero__latest-strip-dot" aria-hidden="true" />
+                New
+              </span>
+              <span class="hero__latest-strip-title">
+                {latestPosts[0].data.headline}
+              </span>
+              <span class="hero__latest-strip-meta">
+                {dateFmt.format(latestPosts[0].data.published)}
+                {" · "}
+                Read{" "}
+                <span class="hero__latest-strip-arrow" aria-hidden="true">→</span>
+              </span>
+            </a>
+          )
+        }
+        <div class="hero__affiliations">
+          <div class="hero__affiliations-label">Implements & contributes to</div>
+          <div class="hero__affiliations-row">
+            {
+              AFFILIATIONS.map((aff) => (
+                <a
+                  href={aff.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={aff.title}
+                  class="hero__affiliations-link"
+                >
+                  {aff.label}
+                </a>
+              ))
+            }
+          </div>
         </div>
       </div>
       <div class="hero-art">
-        <HeroChart
-          data={[12,18,14,22,28,19,31,27,34]}
-          width={620}
-          height={360}
-          label="Verified claims & policy decisions trend"
-        />
+        <TrustChainIsland client:visible />
       </div>
     </div>
 
-    <div class="kpi" aria-label="Key performance indicators">
-      <div class="card">
-        <div class="eyebrow">Decision latency</div><h4>&lt; 10 ms p95</h4><div
-          class="discrete"
-        >
-          Policy + graph
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">Token issuance</div><h4>&lt; 120 ms p95</h4><div
-          class="discrete"
-        >
-          DPoP / mTLS bound
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">VC verification</div><h4>&lt; 150 ms p95</h4><div
-          class="discrete"
-        >
-          SD-JWT & BBS+
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">Availability</div><h4>99.95%</h4><div
-          class="discrete"
-        >
-          Multi-region
-        </div>
-      </div>
-    </div>
   </section>
 
-  <section id="platform" class="section">
-    <div class="container">
-      <div class="grid cols-3">
-        <div class="card">
-          <div class="eyebrow">Unified OP / AS</div><h3>OIDC 2.1 + GNAP</h3><p>
-            Hardened OAuth profiles (PAR · JAR/JARM · RAR · DPoP · mTLS), GNAP
-            PoP & continuation, client key rotation.
-          </p>
+  {
+    latestPosts.length > 0 && (
+      // USMR Phase 5.5.16-pt139 — landmark labelling for section.
+      <section class="writing-strip section" id="writing" aria-labelledby="writing-strip-h">
+        <div class="container">
+          <header class="writing-strip__head">
+            <div class="writing-strip__head-text">
+              <p class="eyebrow">Writing</p>
+              {/* Canonical index.html:1423 — serif-italic emphasis on
+                * "the team". USMR Phase 5.5.16-pt142 — switched from
+                * `<span class="serif" style="font-style: italic;">`
+                * to `<em class="serif">`. <em> is italic by default
+                * AND carries the emphasis semantics "the team" needs;
+                * dropping the inline style closes the only inline
+                * `style=` declaration in the page (CSP-friendly,
+                * style-budget-friendly). */}
+              <h2 id="writing-strip-h" class="writing-strip__title">
+                Field notes from
+                <em class="serif">the team</em>
+                building Artagon.
+              </h2>
+            </div>
+            <a class="writing-strip__more" href="/writing">All writing →</a>
+          </header>
+          <ul role="list" class="writing-strip__list">
+            {latestPosts.map((post) => (
+              <li class="writing-strip__item">
+                <a class="writing-strip__link" href={`/writing/${post.id}`}>
+                  <time
+                    class="writing-strip__date"
+                    datetime={post.data.published.toISOString()}
+                  >
+                    {dateFmt.format(post.data.published)}
+                  </time>
+                  <h3 class="writing-strip__post-title">{post.data.headline}</h3>
+                  <p class="writing-strip__lede">{post.data.lede}</p>
+                  {/* Canonical index.html:1505 — mono caption with
+                    * "Read →" split into label + aria-hidden arrow span
+                    * so the 6 px inline-flex gap applies between them.
+                    * Pre-fix had "Read →" as one text node, so the gap
+                    * didn't render. */}
+                  <span class="writing-strip__cta">Read <span aria-hidden="true">→</span></span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div class="card">
-          <div class="eyebrow">Verifiable Identity</div><h3>
-            Selective disclosure
-          </h3><p>
-            Issue SD‑JWT & BBS+ VCs, verify via OID4VCI/VP, unlinkable
-            presentations, revocation with StatusList2021 and Merkle proofs.
-          </p>
-        </div>
-        <div class="card">
-          <div class="eyebrow">Policy & Graph</div><h3>
-            Zanzibar‑style checks
-          </h3><p>
-            Relationship graph as fast path with PDP overlays (XACML · Cedar ·
-            OPA), obligations for redaction, masking, quotas, and consent.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
+    )
+  }
 
-  <section id="how" class="section">
-    <div class="container twocol">
-      <div>
-        <h2>How it works</h2>
-        <div class="card" aria-label="Flow">
-          <pre
-            class="code"><code>1. Authenticate with passkey (FIDO2/WebAuthn)
-2. Present minimal claims (OID4VP + SD‑JWT/BBS+)
-3. Graph check + policy overlay → DPoP/mTLS‑bound token</code></pre>
-        </div>
-      </div>
-      <div class="grid">
-        <div class="card">
-          <div class="eyebrow">Attestation</div><strong
-            >Android Play Integrity · Apple App Attest · WebAuthn</strong
-          ><br />Evidence-bound clients with rotation and per-device DPoP
-          binding.
-        </div>
-        <div class="card">
-          <div class="eyebrow">Proofing</div><strong
-            >NIST 800‑63 / eIDAS mapping</strong
-          ><br />Pluggable doc/biometric KYC → Proofing VC for onboarding &
-          step‑up.
-        </div>
-      </div>
-    </div>
-  </section>
+  <HomeExplore />
 
-  <MissionSection />
-
-  <section id="developers" class="section">
-    <div class="container twocol">
-      <div>
-        <h2>For developers</h2>
-        <p>
-          SDKs for Java · Rust · JS/TS · Go · Swift, GraphQL + REST APIs, and a
-          conformance harness. Spin up a sandbox tenant in minutes and test
-          OIDC, GNAP, and VC flows with real tokens.
-        </p>
-        <div class="actions">
-          <a class="btn" href="/docs">Browse APIs</a>
-          <a class="btn" href="/play">Open Playground</a>
-          <a class="btn" href="https://github.com/artagon" rel="noopener"
-            >GitHub</a
-          >
+  {
+    onRamp && (
+      // USMR Phase 5.5.16-pt139 — landmark labelling for section.
+      <section class="onramp section" id="get-started" aria-labelledby="onramp-h">
+        <div class="container">
+          <div class="onramp__card">
+            <div class="onramp__strip">
+              <span>{onRamp.programLabel}</span>
+              <span>{onRamp.statusLabel}</span>
+            </div>
+            <div class="onramp__grid">
+              <div class="onramp__lead">
+                <h2 id="onramp-h" class="onramp__headline">
+                  {onRampHeadlineSegments.map((segment, i) =>
+                    i % 2 === 1 ? (
+                      <em class="onramp__headline-emphasis serif">{segment}</em>
+                    ) : (
+                      segment
+                    )
+                  )}
+                </h2>
+                <p class="onramp__lede lead">{onRamp.lede}</p>
+                {onRamp.ctas.length > 0 && (
+                  <div class="actions">
+                    {onRamp.ctas.map((c) => {
+                      const isExternal = c.href.startsWith("http");
+                      return (
+                        <a
+                          class={`btn ${c.variant === "primary" ? "primary" : ""}`}
+                          href={c.href}
+                          rel={isExternal ? "noopener noreferrer" : c.rel}
+                          {...(isExternal ? { target: "_blank" } : {})}
+                        >
+                          {c.label}
+                          {c.variant === "primary" && (
+                            <span class="arr" aria-hidden="true">→</span>
+                          )}
+                          {isExternal && (
+                            <span class="sr-only"> (opens in new tab)</span>
+                          )}
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <aside class="onramp__contacts" aria-label={onRamp.contactsTitle}>
+                <div class="onramp__contacts-title">{onRamp.contactsTitle}</div>
+                <dl class="onramp__rows">
+                  {ORG.contacts.map((r) => (
+                    <div class="onramp__row">
+                      <dt>{r.label}</dt>
+                      <dd>{r.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {ORG.contactFootnote && (
+                  <p class="onramp__footnote">{ORG.contactFootnote}</p>
+                )}
+              </aside>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="card" aria-label="Quickstart">
-        <div class="eyebrow">Quickstart (OIDC + DPoP)</div>
-        <pre
-          class="code"><code>curl -X POST $TOKEN_ENDPOINT \
- -H "DPoP: &lt;jwt&gt;" -H "Content-Type: application/x-www-form-urlencoded" \
- -d "grant_type=authorization_code&amp;code=..."</code></pre>
-        <div class="discrete">
-          Use our SDKs to generate DPoP and handle key rotation automatically.
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="faq" class="section">
-    <div class="container">
-      <h2>Frequently asked questions</h2>
-      <details>
-        <summary>What is the Artagon Identity Platform?</summary><p>
-          Artagon combines an OIDC 2.1/OpenID Provider, a GNAP Authorization
-          Server, verifiable credentials, device/app attestation, and
-          Zanzibar‑style policy in one platform.
-        </p>
-      </details>
-      <details>
-        <summary>Does Artagon support OIDC 2.1 and GNAP?</summary><p>
-          Yes—OIDC 2.1 with hardened OAuth (PAR · JAR/JARM · RAR · DPoP · mTLS)
-          and GNAP with proof‑of‑possession and continuation handles.
-        </p>
-      </details>
-      <details>
-        <summary>Do you support passkeys and verifiable credentials?</summary><p
-        >
-          Yes—passkey/WebAuthn is primary auth, and we issue/verify SD‑JWT &
-          BBS+ VCs via OID4VCI/OID4VP.
-        </p>
-      </details>
-      <details>
-        <summary>How does authorization work?</summary><p>
-          A Zanzibar graph powers fast relationship checks while policies in
-          XACML, Cedar, or OPA apply fine‑grained controls and obligations.
-        </p>
-      </details>
-    </div>
-  </section>
-
-  <section class="section cta-section">
-    <div class="container" style="text-align:center">
-      <h2 style="margin-bottom:1.5rem">Ready to Get Started?</h2>
-      <p style="color:var(--muted);max-width:700px;margin:0 auto 2rem">
-        Start building with Artagon's unified identity platform. Deploy passkey authentication,
-        verifiable credentials, and graph-native authorization in minutes.
-      </p>
-      <a class="cta cta-large" href="/get-started">Get Started</a>
-    </div>
-  </section>
+      </section>
+    )
+  }
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>
+
+<style>
+  /* USMR Phase 5.1k — hero meta-strip (above hero) + affiliations
+   * ticker (below hero CTAs). Both render only on home `/`. */
+  /* Canonical Hero.jsx:127 — `display:'flex', justifyContent:
+   * 'space-between', alignItems: 'center', marginBottom: 56,
+   * fontFamily: var(--f-mono), fontSize: 12, color: var(--fg-2),
+   * letterSpacing: 0.04em`. NO gap, NO padding-block. The
+   * justify-content: space-between distributes the 3 spans evenly;
+   * a gap would only kick in when the row wraps. Pre-fix gap 1rem
+   * + padding-block 1rem were 5.1-era additions that pushed the
+   * meta strip ~16 px taller than canonical and added redundant
+   * inter-span spacing. */
+  .hero__meta-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 56px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.04em;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .hero__meta-strip-tag,
+  .hero__meta-strip-loc {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hero__meta-strip-loc {
+    color: var(--fg-3);
+  }
+  .hero__meta-strip-specs {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hero__meta-strip-sep {
+    color: var(--fg-3);
+  }
+  .hero__meta-strip-link {
+    color: var(--fg);
+    font-weight: 500;
+    border-bottom: 1px dotted var(--fg-3);
+    padding-bottom: 1px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .hero__meta-strip-link:hover {
+    color: var(--accent);
+  }
+
+  /* USMR Phase 5.5.13 — Hero lede 3-clause keystones (canonical
+   * Hero.jsx:160 — color: var(--fg), font-weight: 500). The keystones
+   * (proven / bound / traceable) render as bold spans inside the
+   * `.lead` paragraph; the surrounding text uses the lead color. */
+  .hero__lede-emphasis {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .hero__affiliations {
+    margin-top: 72px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .hero__affiliations-label {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  /* Canonical Hero.jsx:175 → StandardsRow → StandardChip
+   * (BaseLayout.jsx:147-181). Each affiliation renders as a PILL
+   * with leading cyan dot, NOT a dotted-underline link. Pre-fix
+   * 5.1k impl was text-style with `border-bottom: 1px dotted` —
+   * read as inline citations instead of canonical badge chips.
+   * Visible drift on every hero render. */
+  .hero__affiliations-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  /* USMR Phase 5.5.16-pt89 — canonical hero-affiliations are mono
+   * text + cyan dot prefix + underline (per the reference screenshot
+   * the user supplied). Pre-pt89 shipped pill-shaped chips (radius
+   * 999, padding 7×13, border + bg-1 background) — pt38 introduced
+   * the pill but the user-facing canonical reference is the simpler
+   * underlined-text variant. */
+  .hero__affiliations-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--fg-1);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    transition:
+      color 0.18s ease,
+      text-decoration-color 0.18s ease;
+  }
+  .hero__affiliations-link::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .hero__affiliations-link:hover,
+  .hero__affiliations-link:focus-visible {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+  .hero__affiliations-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* USMR Phase 5.1j — hero typography matches new-design global.css
+   * (h1 clamp 56-108px, line-height 0.94, letter-spacing -0.035em).
+   * Overrides the legacy .hero h1 rule in public/assets/theme.css. */
+  .hero__eyebrow-tag {
+    margin-bottom: 28px;
+  }
+  /* Canonical Hero.jsx:154 — `marginBottom: 32` after the h1, then
+   * Hero.jsx:159 — `marginBottom: 40, maxWidth: 58ch` on the .lead
+   * paragraph. Pre-fix .lead had no hero-scoped margin → the CTA
+   * cluster crashed up against the lede. Canonicalize + bump max-
+   * width to 58ch (slightly tighter than the global .lead 60ch). */
+  /* USMR Phase 5.5.16-pt100 — let the canonical .display utility's
+   * `font-weight: var(--display-weight, 400)` cascade through. Pre-pt100
+   * this scoped rule hardcoded 400, locking the home Hero h1 weight
+   * regardless of [data-hero-font].
+   *
+   * USMR Phase 5.5.16-pt103 — same fix for letter-spacing. Pre-pt103
+   * the rule hardcoded `-0.035em` (the grotesk-specific value),
+   * blocking the .display utility's `var(--display-tracking, ...)`
+   * cascade. Confirmed via Playwright probe: switching
+   * [data-hero-font="fraunces"] left tracking pinned at -0.035em
+   * even though --display-tracking resolves to -0.025em under fraunces.
+   * Removing the hardcode lets the canonical token chain rule. */
+  .hero h1.display {
+    font-size: clamp(56px, 7.2vw, 108px);
+    line-height: 0.94;
+    margin: 0 0 32px;
+    /* Canonical Hero.jsx h1 — `var(--f-display, var(--f-sans))`. */
+    font-family: var(--f-display, var(--f-sans));
+  }
+  .hero h1.display br + * {
+    display: inline;
+  }
+  .hero .lead {
+    margin: 0 0 40px;
+    max-width: 58ch;
+  }
+
+  /* .onramp inherits the canonical .section padding (`var(--section-
+   * pad)` clamp(80, 8vw, 120)). Pre-fix scoped `var(--space-12)` (=48)
+   * overrode the canonical 120 — undersized the section vertical
+   * padding by 72 px on wide viewports. Drop the override; let the
+   * .section catch-all drive. */
+  /* Canonical Cta.jsx:14-17 — `padding: 72px 64px`, `borderRadius:
+   * 16` (we had 16 ✓), gradient 135deg bg-1 → bg 80%. The fluid
+   * clamp padding undersized to 32 64 on small screens; canonical
+   * fixes 72/64 with a tablet break for narrower viewports. */
+  .onramp__card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 72px 64px;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg) 80%);
+    overflow: hidden;
+  }
+  @media (max-width: 720px) {
+    .onramp__card {
+      padding: 56px 32px;
+    }
+  }
+  /* Canonical Cta.jsx:20 — strip top:16, left/right:20, fontSize:10,
+   * color: fg-3, letterSpacing:0.12em. Pre-canonical used `var(--fs-
+   * micro)` (≈11) at fg-2; canonicalized to fixed 10/fg-3 to match
+   * the canonical decorative caption density. */
+  .onramp__strip {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--fg-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  /* Canonical Cta.jsx:25 — `gridTemplateColumns:'1.2fr 1fr'`,
+   * `gap: 64`, `alignItems: center`, `marginTop: 18`. We had
+   * fluid gap clamp + 2rem (=32) margin-top; canonical fixes them. */
+  .onramp__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 64px;
+    align-items: center;
+    margin-top: 18px;
+  }
+  @media (max-width: 768px) {
+    .onramp__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  /* Canonical Cta.jsx:27 — `fontSize: clamp(44px, 5vw, 76px)`,
+   * `marginBottom: 24`. The onRamp headline is BIGGER than a regular
+   * section h2 (default clamp(36, 4vw, 60)) — it's the editorial
+   * close, not a section break. Pre-fix used the default h2 scale,
+   * undersizing the closing claim. */
+  .onramp__headline {
+    font-family: var(--f-display);
+    font-size: clamp(44px, 5vw, 76px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0 0 24px;
+  }
+  /* Canonical Cta.jsx:136-137 — italic Fraunces emphasis on the
+   * marker-split word ("next"). The visible italic was missing because
+   * this rule was absent. `--f-emphasis` falls back to `--f-serif`
+   * (Fraunces) per the hero-font matrix. */
+  .onramp__headline-emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+    font-weight: 400;
+  }
+  /* Canonical Cta.jsx:30 — uses `.lead` class with overrides
+   * `marginBottom: 32`, `maxWidth: 52ch`. Pre-fix margin 2rem (=32 ✓);
+   * canonicalized to fixed px. */
+  /* USMR Phase 5.5.16-pt106 — canonical Cta.jsx onRamp lede uses
+   * `.lead` utility verbatim with inline overrides for marginBottom
+   * and maxWidth. Pre-pt106 our markup omitted the .lead class so
+   * the utility's 20 px / fg-1 / 1.5 line-height didn't apply (font
+   * inherited body 16 px and color was overridden to fg-2). Now the
+   * markup is `class="onramp__lede lead"` and the scoped rule only
+   * carries the inline-style overrides per canonical. */
+  .onramp__lede {
+    margin: 0 0 32px;
+    max-width: 52ch;
+  }
+  /* Canonical Cta.jsx:42-44 — `padding: 28`, `borderRadius: 12`,
+   * `fontSize: 13`. Was 1.75rem padding (=28 ✓) but font-size was
+   * `var(--fs-small)` (≈13.5) — canonical 13 fixed. */
+  .onramp__contacts {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px;
+    background: var(--bg-1);
+    font-family: var(--f-mono);
+    font-size: 13px;
+  }
+  /* Canonical contact card colors — Cta.jsx:46,56,60-61. Title sits at
+   * fg-3 (deep label), `dt` at fg-3, `dd` at fg-1 (mono value),
+   * footnote at fg-3. Pre-canonical fg-2/fg/fg-2 made labels read as
+   * primary text. */
+  /* Canonical Cta.jsx:46 — title fontSize 10 / 0.14em /
+   * margin-bottom 14. */
+  .onramp__contacts-title {
+    font-size: 10px;
+    color: var(--fg-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  /* Canonical Cta.jsx:55 — rows are individually padded with 10px 0
+   * + border-bottom; gap is set on the contacts card not the rows
+   * grid. Replicate the canonical 100px label column rather than the
+   * fluid 0.6fr/1fr so the contact labels align at the same x across
+   * Enterprise/General/Security/Location regardless of card width. */
+  .onramp__rows {
+    margin: 0;
+  }
+  .onramp__row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .onramp__row dt {
+    color: var(--fg-3);
+    margin: 0;
+  }
+  .onramp__row dd {
+    color: var(--fg-1);
+    margin: 0;
+  }
+  /* Canonical Cta.jsx:60 — footnote `marginTop: 14`, `fontSize: 11`,
+   * fg-3, `lineHeight: 1.5`. Pre-fix used 0.875rem (=14 ✓) and
+   * `var(--fs-micro)` (≈11 ✓) — canonicalized to fixed px. */
+  .onramp__footnote {
+    margin: 14px 0 0;
+    color: var(--fg-3);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  /* USMR Phase 5.1f — latest writing strip. `.writing-strip` element
+   * also has `.section` class — let the canonical .section padding
+   * (var(--section-pad) clamp(80, 8vw, 120)) drive vertical rhythm.
+   * Pre-fix scoped var(--space-12) (=48) was overriding canonical
+   * 120 by 72 px on wide viewports. */
+  /* Canonical .grid-writing-header (index.html:324) — `grid-template-
+   * columns: 1fr auto`, `gap: 32`, `align-items: end`, `margin-bottom:
+   * 56`. Pre-fix used flex with baseline alignment + var(--space-8)
+   * margin (typically 32). The grid+end-align + 56 px margin push the
+   * "All writing →" anchor into clean alignment with the h2's baseline
+   * regardless of how the headline wraps across breakpoints. */
+  .writing-strip__head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+    margin-bottom: 56px;
+  }
+  @media (max-width: 720px) {
+    .writing-strip__head {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+  /* Canonical writing-strip h2 inherits global h2 scale `clamp(36px,
+   * 4vw, 60px)` (theme.css h2 rule). Pre-fix scoped override was
+   * clamp(1.75rem, 3vw, 2.5rem) ≈ clamp(28, 3vw, 40) — undersized
+   * the section h2 by 20 px at the ceiling. The line-height stays
+   * 1.15 for the canonical writing-header tighter wrap (vs the
+   * global h2 1.02 used by other section h2s). */
+  .writing-strip__title {
+    font-size: clamp(36px, 4vw, 60px);
+    line-height: 1.15;
+    margin: 0;
+    max-width: 28ch;
+  }
+  /* Canonical "All writing →" anchor — mono accent caption.
+   * `0.875rem` = 14 at root 16; canonicalize to fixed px. */
+  .writing-strip__more {
+    font-family: var(--f-mono);
+    font-size: 14px;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .writing-strip__more:hover,
+  .writing-strip__more:focus-visible {
+    text-decoration: underline;
+  }
+  /* Canonical home writing 3-up — index.html:1487-1508 (grid-writing-3up).
+   * The pre-canonical layout consumed `--line` border / 0.15s transition
+   * / `--accent` hover / smaller title; the canonical card-on-canvas
+   * variant uses `--line-soft` (subtler frame), 0.22s transition (less
+   * snappy), `--accent-dim` hover (deeper teal), and a 22 px title that
+   * lines up with the explore-grid card title size. */
+  .writing-strip__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 900px) {
+    .writing-strip__list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 540px) {
+    .writing-strip__list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* USMR Phase 5.5.16-pt109 — writing-widget layout variants (task 5.8).
+   * Pt108 added the Tweaks panel control surface that writes
+   * `data-writing-widget` on <html>; pt109 hooks variant CSS on that
+   * attribute. The 4 canonical OPTION blocks from
+   * `new-design/extracted/explorations/writing-widget.jsx`:
+   *
+   *   B · 3-up   (default — already shipped at .writing-strip__list above)
+   *   off        → hide the strip
+   *   A · strip  → single full-bleed card (grid-template-columns: 1fr,
+   *                first card spans all rows so only it renders visibly)
+   *   D · ticker → mono-list, vertical, no card-on-canvas; lighter weight
+   *   C · split  → 1.5fr 1fr layout, featured first card visually wider
+   *
+   * `in-hero` shipped via pt110: the latest-post strip mounts INSIDE the
+   * Hero block as `.hero__latest-strip` (line ~155 above), and this rule
+   * pair (lines 740-746 below) hides the standalone `.writing-strip` +
+   * shows the in-hero card when `[data-writing-widget="in-hero"]`.
+   */
+  :global([data-writing-widget="off"]) .writing-strip {
+    display: none;
+  }
+  /* USMR Phase 5.5.16-pt110 — in-hero variant: hide the standalone
+   * writing-strip section AND show the .hero__latest-strip card. */
+  :global([data-writing-widget="in-hero"]) .writing-strip {
+    display: none;
+  }
+  .hero__latest-strip {
+    display: none;
+  }
+  :global([data-writing-widget="in-hero"]) .hero__latest-strip {
+    display: grid;
+    gap: 8px;
+    margin-top: 36px;
+    padding: 18px 22px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-1);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.22s ease,
+      background 0.22s ease;
+    max-width: 480px;
+  }
+  :global([data-writing-widget="in-hero"]) .hero__latest-strip:hover,
+  :global([data-writing-widget="in-hero"]) .hero__latest-strip:focus-visible {
+    border-color: var(--accent-dim);
+    background: color-mix(in oklab, var(--accent) 4%, var(--bg-1));
+  }
+  .hero__latest-strip-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .hero__latest-strip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+  .hero__latest-strip-title {
+    font-family: var(--f-display);
+    font-size: 16px;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .hero__latest-strip-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .hero__latest-strip-arrow {
+    color: var(--fg-1);
+    font-size: 14px;
+  }
+  :global([data-writing-widget="A · strip"]) .writing-strip__list {
+    grid-template-columns: 1fr;
+  }
+  :global([data-writing-widget="A · strip"]) .writing-strip__item:not(:first-child) {
+    display: none;
+  }
+  /* USMR Phase 5.5.16-pt113 — C · split mobile breakpoint. Without
+   * this, 540 px viewport rendered 3 columns squished into ~150 px
+   * each. The base @media (max-width: 540px) rule already collapses
+   * .writing-strip__list to 1fr, but the variant override (1.5fr 1fr
+   * 1fr) had higher specificity and won. Wrap the variant in the
+   * same media query to defer to single-column on narrow viewports. */
+  @media (min-width: 541px) {
+    :global([data-writing-widget="C · split"]) .writing-strip__list {
+      grid-template-columns: 1.5fr 1fr 1fr;
+    }
+  }
+  @media (max-width: 540px) {
+    :global([data-writing-widget="C · split"]) .writing-strip__list {
+      grid-template-columns: 1fr;
+    }
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__list {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__link {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 24px;
+    min-height: 0;
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line-soft);
+    border-radius: 0;
+    background: transparent;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__lede,
+  :global([data-writing-widget="D · ticker"]) .writing-strip__cta {
+    display: none;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__post-title {
+    font-size: 16px;
+    margin: 0;
+    flex: 1;
+  }
+  :global([data-writing-widget="D · ticker"]) .writing-strip__date {
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+
+  .writing-strip__link {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 280px;
+    padding: 28px 24px 24px;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+    background: var(--bg-1);
+    transition:
+      border-color 0.22s ease,
+      background 0.22s ease,
+      transform 0.22s ease;
+  }
+  .writing-strip__link:hover,
+  .writing-strip__link:focus-visible {
+    border-color: var(--accent-dim, var(--accent));
+    transform: translateY(-2px);
+  }
+  .writing-strip__link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .writing-strip__date {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+  /* USMR Phase 5.5.16-pt95 — class-name collision fix. Pre-pt95 BOTH
+   * the section h2 (`.writing-strip__head h2.writing-strip__title`)
+   * AND the post-card h3 used `class="writing-strip__title"`, so the
+   * 22 px rule below was winning on the section h2 too — the section
+   * heading rendered at 22 px instead of the canonical clamp(36, 4vw,
+   * 60) sized by the rule above. Renamed the post-card class to
+   * `.writing-strip__post-title` to disambiguate. */
+  .writing-strip__post-title {
+    font-family: var(--f-display);
+    font-size: 22px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    margin: 4px 0 0;
+    font-weight: 500;
+  }
+  /* Canonical excerpt — 13.5 px / fg-2 / 1.5 line-height (was inheriting
+   * body 1.55). The 3-line clamp survives. */
+  .writing-strip__lede {
+    color: var(--fg-2);
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* Canonical "Read →" CTA — mono 11 / accent / 0.1em / inline-flex
+   * with the trailing arrow as a separate span so it tracks the
+   * canonical 6 px gap between label and arrow. */
+  .writing-strip__cta {
+    margin-top: auto;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* USMR Phase 5.5.16-pt128 — forced-colors mode overrides per
+   * DESIGN.md §11.7 "Forced colors mode" line 1343 (pre-pt378 cite
+   * was incorrectly §7 "Do's and Don'ts" which doesn't mandate
+   * forced-colors). The home page hosts ~14 var(--accent) consumers
+   * across the hero meta strip, hero affiliations row, hero latest-
+   * strip, writing strip, and writing-strip CTAs. Under Windows
+   * High Contrast every OKLCH brand color collapses to flat —
+   * users lose hover/focus signals AND the cyan dot indicators that
+   * tell them which row is "live writing". Map all accent surfaces
+   * to system tokens:
+   *   - hover/link colors  → Highlight (the canonical hover/focus
+   *                          signal under forced-colors)
+   *   - dot indicators     → Highlight + box-shadow stripped
+   *                          (forced-colors blocks synthetic
+   *                          shadows; the flat dot is enough)
+   *   - focus outlines     → Highlight (browser default)
+   *   - hover background tints → Canvas (drop the color-mix() tint;
+   *                                forced-colors blocks color-mix)
+   *   - .accent-dim borders → Highlight (the dim variant has no
+   *                            system equivalent; canonical fallback) */
+  /* USMR Phase 5.5.16-pt130 — `prefers-reduced-motion` override per
+   * DESIGN.md §8.2 motion principles. `.writing-strip__link:hover`
+   * lifts the card 2 px via `transform: translateY(-2px)` — the
+   * translation counts as motion. Under reduced-motion, the color
+   * + border change still signal hover; only the lift is suppressed.
+   * The transition timing is also zeroed so any state change paints
+   * instantly rather than crossfading. */
+  @media (prefers-reduced-motion: reduce) {
+    .writing-strip__link {
+      transition: none;
+    }
+    .writing-strip__link:hover,
+    .writing-strip__link:focus-visible {
+      transform: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hero__meta-strip-link:hover,
+    .hero__affiliations-link:hover,
+    .hero__affiliations-link:focus-visible,
+    .writing-strip__more,
+    .hero__latest-strip-eyebrow,
+    .writing-strip__cta {
+      color: Highlight;
+    }
+    .hero__affiliations-link::before,
+    .hero__latest-strip-dot {
+      background: Highlight;
+      box-shadow: none;
+    }
+    .hero__affiliations-link:focus-visible,
+    .writing-strip__link:focus-visible {
+      outline-color: Highlight;
+    }
+    :global([data-writing-widget="in-hero"]) .hero__latest-strip:hover,
+    :global([data-writing-widget="in-hero"]) .hero__latest-strip:focus-visible,
+    .writing-strip__link:hover,
+    .writing-strip__link:focus-visible {
+      border-color: Highlight;
+      background: Canvas;
+    }
+  }
+</style>

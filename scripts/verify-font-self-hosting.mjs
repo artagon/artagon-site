@@ -188,9 +188,46 @@ function main() {
     exit(0);
   }
 
+  // pt445 — re-keyed the in-flight signal from "proposal directory
+  // exists" to "loader actually present in source". Pre-pt445 we
+  // checked `openspec/changes/self-host-woff2-fonts/` existence,
+  // which the multi-agent review flagged as fragile: during a
+  // partial archive (`git mv` of the proposal directory before the
+  // dist/ build is regenerated) the gate would hard-fail unrelated
+  // PRs even though the migration was still mid-flight. The actual
+  // invariant is "BaseLayout still loads Google Fonts" — once the
+  // loader is removed from `src/`, the dist/ scan should hard-fail
+  // any *new* CDN reference, but during the migration window it
+  // shouldn't.
+  //
+  // Source-of-truth is now `src/layouts/BaseLayout.astro` (and any
+  // other src/ file). When the loader is still in source, the gate
+  // warns; when it's been removed, the gate hard-fails. This
+  // self-resolves at the moment the migration commit lands without
+  // requiring the proposal directory to be archived first.
+  const baseLayoutPath = join(ROOT, "src", "layouts", "BaseLayout.astro");
+  let loaderStillInSource = false;
+  try {
+    const baseLayoutBody = readFileSync(baseLayoutPath, "utf8");
+    loaderStillInSource = /https?:\/\/fonts\.(?:googleapis|gstatic)\.com/i.test(
+      baseLayoutBody,
+    );
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error(
+        `✗ verify-font-self-hosting: cannot read ${baseLayoutPath}: ${err.code ?? "unknown"}`,
+      );
+      exit(2);
+    }
+    // BaseLayout missing entirely — repository structure has shifted
+    // and the migration may already be complete. Treat as
+    // loader-removed (hard-fail any remaining dist/ CDN refs).
+  }
+  const severity = loaderStillInSource ? "warn" : "error";
+  const sigil = loaderStillInSource ? "⚠" : "✗";
   for (const v of violations) {
     console.error(
-      `✗ ${v.path}:${v.line} — third-party font CDN reference: ${v.host}`,
+      `${sigil} ${v.path}:${v.line} — third-party font CDN reference: ${v.host}`,
     );
   }
   console.error(
@@ -199,6 +236,15 @@ function main() {
   console.error(
     `  CSP font-src is locked to 'self' (scripts/csp.mjs). Self-host WOFF2 under public/assets/fonts/ (USMR Phase 2 task 2.3) before adding any third-party @font-face / <link> reference.`,
   );
+  if (severity === "warn") {
+    console.error(
+      `\n⚠ Severity downgraded to warn — Google Fonts loader still present in ${relative(ROOT, baseLayoutPath)}.`,
+    );
+    console.error(
+      `  Hard-fail resumes once the loader is removed from src/ (the migration commit landing self-hosted woff2 will flip this).`,
+    );
+    exit(0);
+  }
   exit(1);
 }
 

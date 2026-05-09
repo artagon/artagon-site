@@ -7,14 +7,14 @@
 
 ## Context and problem
 
-`artagon-site` is an Astro 5 static site with a strict zero-runtime-JS contract, scoped Astro `<style>` blocks per component, OKLCH semantic-token cascade in `public/assets/theme.css`, and `ast-grep` enforcing `no-raw-color-literal`. Tailwind v4 is widely used for similar surfaces. Why not adopt it here?
+`artagon-site` is an Astro 6 static site (originally drafted under Astro 5; the project upgraded mid-USMR per `package.json` `"astro": "6.2.1"`) with a strict zero-runtime-JS contract, scoped Astro `<style>` blocks per component, OKLCH semantic-token cascade in `public/assets/theme.css`, and `ast-grep` enforcing `no-raw-color-literal`. Tailwind v4 is widely used for similar surfaces. Why not adopt it here?
 
 ## Decision
 
 artagon-site does NOT adopt Tailwind. Captured explicitly in two OpenSpec proposals:
 
 - `update-site-marketing-redesign` Out of Scope: "No Tailwind adoption. The `export --format tailwind` path is documented but not wired."
-- `adopt-design-md-format` Decision #9: "No Tailwind adoption. We don't ship Tailwind."
+- `adopt-design-md-format` Decision #9: "No Tailwind adoption. We don't ship Tailwind." (proposal archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; the live spec is `openspec/specs/design-system-format/spec.md`)
 
 ## Rationale
 
@@ -26,7 +26,7 @@ artagon-site does NOT adopt Tailwind. Captured explicitly in two OpenSpec propos
 
 ## Downstream-consumer DTCG → Tailwind path
 
-`@google/design.md` CLI ships `export --format tailwind` (per `adopt-design-md-format` proposal), which converts our DESIGN.md tokens to a Tailwind theme config. The script is wired in `package.json` (`export:dtcg`) but its output is not consumed by the site itself.
+`@google/design.md` CLI ships `export --format tailwind` (per the archived `adopt-design-md-format` proposal at `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; live spec at `openspec/specs/design-system-format/spec.md`), which converts our DESIGN.md tokens to a Tailwind theme config. The script is wired in `package.json` (`export:dtcg`) but its output is not consumed by the site itself.
 
 If a downstream surface (partner site, Storybook, internal admin tool) needs Artagon tokens in Tailwind form, the path is:
 

@@ -6,8 +6,21 @@
  * Include this in the <head> of your base layout.
  *
  * Props:
- * - pinnedColor: Safari pinned tab color (default: #0EA5E9)
- * - themeColor: Browser theme color (default: #0B1220)
+ * - pinnedColor: Safari pinned tab color (default: canonical brand
+ *   teal `#3ceedd` — sRGB of the OKLCH `--accent` token; this is the
+ *   color Safari tints the pinned-tab mask-icon with)
+ * - themeColor: Browser theme color (default: canonical
+ *   `[data-theme="dark"]` --bg = oklch(0.14 0.008 260) ≈ #0a0d12;
+ *   this is what Chrome / Safari paint their UI chrome — address
+ *   bar, status bar — with when the tab is active)
+ *
+ * USMR Phase 5.5.16-pt155 — defaults updated to canonical values.
+ * Pre-pt155 the defaults were `#0EA5E9` (legacy sky-blue accent
+ * from before the cyan/teal canonical) and `#0B1220` (legacy
+ * neutral-dark from before the OKLCH token migration). BaseLayout
+ * always passes explicit overrides so production output was
+ * already canonical (pt107 fix), but the defaults misled any
+ * future consumer importing this component without props.
  */
 
 interface Props {
@@ -16,18 +29,41 @@ interface Props {
 }
 
 const {
-  pinnedColor = '#0EA5E9',
-  themeColor = '#0B1220'
+  pinnedColor = '#3ceedd',
+  themeColor = '#0a0d12'
 } = Astro.props;
 ---
 
+{/* USMR Phase 5.5.16-pt107 — addressing user feedback "Don't forget
+   icons for mobile safari etc". Expanded from a single
+   `<link rel="apple-touch-icon">` (no sizes attr) to canonical
+   Apple/Microsoft/Android icon set:
+     - Multi-size apple-touch-icons (152 / 180 with explicit sizes)
+       per Apple's recommendation for iPhone + iPad retina
+     - msapplication-TileImage (Windows pinned-tile bg image)
+     - theme-color w/ dark/light media queries (modern Safari +
+       Chrome respect this for browser UI tinting)
+     - Standard <link rel="icon"> sizes (16, 32, 192, 512) for
+       browsers that pick the closest match instead of defaulting
+       to favicon.ico */}
+
 <!-- Favicon and standard icons -->
-<link rel="icon" type="image/png" href="/icons/icon-32.png" sizes="32x32" />
 <link rel="icon" type="image/png" href="/icons/icon-16.png" sizes="16x16" />
+<link rel="icon" type="image/png" href="/icons/icon-32.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="/icons/icon-192.png" sizes="192x192" />
+<link rel="icon" type="image/png" href="/icons/icon-512.png" sizes="512x512" />
 <link rel="shortcut icon" href="/icons/favicon.ico" />
 
-<!-- Apple iOS -->
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<!-- Apple iOS — canonical 180x180 covers iPhone retina + iPad
+     scaling. USMR Phase 5.5.16-pt161 — pre-pt161 added two
+     additional <link> tags with sizes="152x152" + sizes="167x167"
+     pointing at icon-128.png (128x128) + icon-180.png (180x180)
+     respectively — both `sizes` attrs misdeclared the actual file
+     dimensions, so iOS would scale the image AND log a console
+     warning. Modern iOS handles 180->152/167 scaling cleanly with
+     no quality loss; the canonical pattern is one apple-touch-icon
+     at 180. -->
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Artagon" />
@@ -38,9 +74,14 @@ const {
 <!-- PWA Manifest -->
 <link rel="manifest" href="/site.webmanifest" />
 
-<!-- Theme Colors -->
+<!-- Theme Colors — media-aware for dark/light browser UI tinting -->
+<meta name="theme-color" content={themeColor} media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content={themeColor} />
+
+<!-- Microsoft Tiles — TileColor + TileImage -->
 <meta name="msapplication-TileColor" content={themeColor} />
+<meta name="msapplication-TileImage" content="/icons/icon-256.png" />
 <meta name="msapplication-config" content="/browserconfig.xml" />
 
 <!-- Additional PWA Meta -->

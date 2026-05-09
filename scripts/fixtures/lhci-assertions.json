@@ -1,11 +1,12 @@
 {
   "$comment": "Lighthouse CI assertion fixture — second SSoT. Paths come from build.config.json; assertion shape comes from this fixture. Sync merges both.",
-  "$comment-urls": "Marketing routes that exist TODAY in .build/dist/. LHCI internal server (started via staticDistDir) substitutes its own host:port; URLs are path-only. The redesign change adds /use-cases/, /standards/, /writing/ — those land here when their /opsx:apply phases ship.",
-  "urls": ["/", "/platform/", "/roadmap/", "/vision/", "/security/", "/faq/"],
+  "$comment-urls": "Marketing routes that exist TODAY in .build/dist/. LHCI internal server (started via staticDistDir) substitutes its own host:port; URLs are path-only. Trailing slashes are dropped to match astro.config.ts `trailingSlash: \"never\"` — the deployed site canonicalizes /foo/ → /foo via 301, so LHCI must benchmark the canonical form. Future additions: /use-cases, /standards, /writing land here as their LHCI thresholds stabilize.",
+  "urls": ["/", "/platform", "/roadmap", "/vision", "/security", "/faq"],
   "$comment-assert": "LHCI rejects `preset` + `assertMatrix` simultaneously. The matrix is canonical; per-URL assertions inline below.",
   "assert": {
     "assertMatrix": [
       {
+        "$comment": "Aspirational: the `/brand` route ships via `openspec/changes/add-brand-assets-and-writing-pipeline` which is still in flight. The matcher targets nothing today (LHCI's `urls` list doesn't include `/brand`); when the brand-gallery proposal applies its tasks, /brand becomes a real route and this matrix entry activates with the spec-mandated thresholds. Until then the entry is forward-looking infrastructure.",
         "matchingUrlPattern": "/brand/?$",
         "assertions": {
           "categories:performance": ["error", { "minScore": 0.8 }],

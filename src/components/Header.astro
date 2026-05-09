@@ -1,26 +1,401 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
+import ArtagonGlyph from "./ArtagonGlyph.astro";
 const path = Astro.url.pathname;
-const active = (href: string) => path === href || path.startsWith(href + '/');
+const active = (href: string) => path === href || path.startsWith(href + "/");
+
+// USMR Phase 5.5.16-pt87 — canonical NAV_LINKS per
+// new-design/extracted/src/pages/index.html:560-567. SIX items, in
+// this exact order: Platform / Bridge / Use cases / Standards /
+// Roadmap / Blog. The pre-pt87 4-item list was based on BaseLayout.jsx
+// (a different canonical reference) but the user-facing canonical is
+// the 6-item index.html nav. /writing remains the route name; the
+// nav label is "Blog" per canonical text.
+const NAV_LINKS = [
+  { href: "/platform", label: "Platform" },
+  { href: "/bridge", label: "Bridge" },
+  { href: "/use-cases", label: "Use cases" },
+  { href: "/standards", label: "Standards" },
+  { href: "/roadmap", label: "Roadmap" },
+  { href: "/writing", label: "Blog" },
+] as const;
 ---
-<header>
+
+<header class="site-nav">
   <div class="container nav">
-    <a class="brand" href="/" aria-label="Artagon Home">
-      <img src="/icons/icon-64.png" alt="Artagon" width="32" height="32" style="display:block;" />
+    {/* USMR Phase 5.5.16-pt173 — aria-label="Artagon home" (lowercase
+        'h') matches Footer's brand link. Pre-pt173 Header used
+        "Artagon Home" (title-case) and Footer used "Artagon home"
+        (sentence-case) — same destination, different AT
+        announcement, inconsistent across the two surfaces a screen
+        reader user encounters on every page. Sentence-case is the
+        canonical project pattern (matches `aria-label="Toggle
+        navigation"` etc.). */}
+    <a class="brand site-nav__brand" href="/" aria-label="Artagon home">
+      <ArtagonGlyph class="site-nav__glyph" />
+      <span class="site-nav__wordmark">Artagon</span>
     </a>
-    <nav aria-label="Primary">
+    {/* USMR Phase 5.5.16-pt135 — `id="primary-nav"` matches the
+        nav-toggle's `aria-controls` reference. Pre-pt135 the toggle
+        pointed at a non-existent ID; ATs got "menu button, expanded"
+        with no destination element, which violates WCAG 1.3.1
+        (Info and Relationships) — programmatic relationships must be
+        determinable. */}
+    <nav id="primary-nav" aria-label="Primary">
       <ul class="links">
-        <li><a href="/platform" class={active('/platform') ? 'active' : ''} aria-current={active('/platform') ? 'page' : undefined}>Platform</a></li>
-        <li><a href="/vision" class={active('/vision') ? 'active' : ''} aria-current={active('/vision') ? 'page' : undefined}>Vision</a></li>
-        <li><a href="/roadmap" class={active('/roadmap') ? 'active' : ''} aria-current={active('/roadmap') ? 'page' : undefined}>Roadmap</a></li>
-        <li><a href="/faq" class={active('/faq') ? 'active' : ''} aria-current={active('/faq') ? 'page' : undefined}>FAQ</a></li>
-        <li><a href="/developers" class={active('/developers') ? 'active' : ''} aria-current={active('/developers') ? 'page' : undefined}>Developers</a></li>
-        <li><a href="/docs" class={active('/docs') ? 'active' : ''} aria-current={active('/docs') ? 'page' : undefined}>Docs</a></li>
-        <li><a href="https://github.com/artagon" rel="noopener noreferrer">GitHub</a></li>
+        {
+          NAV_LINKS.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class={active(link.href) ? "active" : ""}
+                aria-current={active(link.href) ? "page" : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
     <div class="right">
-      <ThemeToggle />
+      {/* Canonical GitHub icon button — 34×34, rounded 8 px, currentColor
+       * SVG mark, sits between the link list and the CTA pair per
+       * new-design BaseLayout.jsx:220-238. The textual "GitHub" entry
+       * was dropped from the link list because it duplicated this. */}
+      <a
+        class="site-nav__github"
+        href="https://github.com/artagon"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Artagon on GitHub"
+        aria-label="GitHub"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+          />
+        </svg>
+      </a>
+      {/* Canonical BaseLayout.jsx:239-240 routes both header CTAs to
+       * home-page anchors, NOT separate routes. /play is a noindex
+       * shim; /#playground jumps to the live HomeExplore section
+       * (5.5.6 anchor target). /get-started exists as a real page,
+       * but the canonical points at /#get-started for consistency
+       * — anchor jumps from /platform / /bridge / etc. land cleanly
+       * on the on-home onRamp card without a route reload. */}
+      <a class="btn nav-cta-ghost" href="/#playground">Playground</a>
+      <a class="btn primary nav-cta-primary" href="/#get-started"
+        >Request access</a
+      >
+      {/* USMR Phase 5.5.16-pt87 — ThemeToggle removed from header per
+         canonical new-design/extracted/src/pages/index.html nav. The
+         canonical site has no day/night toggle in the header. The
+         dev-only Tweaks panel still exposes theme switching for tooling,
+         but production users see neither. */}
     </div>
+    {/* USMR Phase 5.5.11 — mobile hamburger toggle. Hidden on desktop;
+      flex on touch viewports (<720px). Body.nav-open opens the
+      panels per the canonical index.html:402-421. */}
+    <button
+      type="button"
+      class="nav-toggle"
+      aria-label="Toggle navigation"
+      aria-expanded="false"
+      aria-controls="primary-nav"
+      data-nav-toggle
+    >
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+    </button>
   </div>
 </header>
+
+<script>
+  // USMR Phase 5.5.11 — bind the hamburger toggle. Toggles
+  // body.nav-open + the button's aria-expanded. Non-recurring;
+  // safe across HMR re-mounts since we attach via dataset key.
+  const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      const open = document.body.classList.toggle("nav-open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+</script>
+
+<style>
+  /* USMR Phase 5.1l — sticky nav with backdrop-filter, per
+   * new-design global.css lines 250-261. Tokens consumed via the
+   * public alias chain shipped in 5.1h. */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .site-nav .nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 64px;
+  }
+  /* Canonical .nav-links — global.css:258 — `margin-left: 24px`,
+   * `gap: 28`, `font-size: 14`. The 24 px margin-left adds canonical
+   * breathing room between the brand wordmark and the link list,
+   * separately from the .nav-row flex gap. Pre-fix the link list
+   * sat 24 px tighter against the brand than canonical. */
+  .site-nav .links {
+    display: flex;
+    gap: 28px;
+    margin: 0 0 0 24px;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    color: var(--fg-1);
+  }
+  .site-nav .links a {
+    /* USMR Phase 5.5.11 Task #31 — invisible hit-area padding gives
+     * each nav link a 44 px vertical target per WCAG 2.5.5. The
+     * visible underline still tracks the original 6 px baseline via
+     * `border-bottom`; the inflated padding extends only the hit
+     * area, not the visual marker. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid transparent;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  .site-nav .links a:hover,
+  .site-nav .links a:focus-visible,
+  .site-nav .links a.active {
+    border-color: var(--accent);
+    color: var(--fg);
+  }
+  /* USMR Phase 5.5.16-pt79 — override the global `:focus-visible
+   * { outline: 2px solid var(--ring); border-radius: 8px }` for nav
+   * links. Canonical Hero.jsx + index.html uses the same border-bottom
+   * underline for hover / focus / active (no rectangular outline).
+   * Pre-fix the global rule painted a rounded teal rectangle around
+   * the Platform link after the user navigated to /platform and back,
+   * mismatching the canonical underline-only nav. */
+  .site-nav .links a:focus-visible {
+    outline: none;
+  }
+  .site-nav .right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  /* Canonical GitHub icon button — new-design BaseLayout.jsx:220-238.
+   * 34×34 rounded square, currentColor svg, hover lifts border + text. */
+  .site-nav__github {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--fg-1);
+    transition:
+      color 0.18s,
+      border-color 0.18s,
+      background 0.18s;
+  }
+  .site-nav__github:hover,
+  .site-nav__github:focus-visible {
+    color: var(--fg);
+    border-color: var(--fg-3);
+  }
+  .site-nav__github:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .site-nav .right .btn {
+    /* Header CTAs are slightly more compact than the global .btn
+     * default (canonical BaseLayout.jsx:239-240 — `padding: 8px 14px,
+     * fontSize: 13`). The 5.1p.6 ::before-suppression block was
+     * removed in 5.5.16; the source `.btn::before "◆"` rule is
+     * gone. */
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  /* Force `.btn.primary` to render solid-filled per new-design
+   * global.css line 245. The legacy theme.css `.btn` rule paints a
+   * translucent-teal background with a faint border, which reads as
+   * a "ghost" button — wrong for the primary "Request access" CTA. */
+  .site-nav .right .btn.primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: transparent;
+  }
+  .site-nav .right .btn.primary:hover {
+    background: color-mix(in oklab, var(--accent) 90%, white);
+    color: var(--accent-ink);
+    border-color: transparent;
+    transform: translateY(-1px);
+  }
+
+  .site-nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .site-nav__wordmark {
+    /* Canonical (new-design index.html:550-554): font-family
+     * var(--f-sans), font-size 17, weight 500, tracking -0.01em.
+     * BaseLayout sets the global default --f-sans = Inter. */
+    font-family: var(--f-sans);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+    line-height: 1;
+  }
+  .site-nav__glyph {
+    display: block;
+    color: var(--fg);
+  }
+
+  /* USMR Phase 5.5.11 — canonical hamburger + open-state CSS per
+   * new-design/extracted/src/pages/index.html:387-421. Hidden by
+   * default; flex on viewports <720px. body.nav-open class is the
+   * open-state pivot; the script at the bottom of this component
+   * toggles it on click. WCAG 2.5.5 — button is exactly 44×44 CSS px. */
+  .nav-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-direction: column;
+    padding: 0;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: var(--fg-1);
+    transition:
+      transform 0.2s,
+      opacity 0.2s;
+  }
+  .nav-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 719px) {
+    .site-nav .nav {
+      gap: 16px;
+    }
+    .site-nav .links,
+    .site-nav .right {
+      display: none;
+    }
+    .nav-toggle {
+      display: flex;
+    }
+    /* Open-state — links panel slides in below sticky bar; CTAs
+     * dock to the bottom edge as a row.  Use :global(body.nav-open)
+     * because the body class is set by the inline <script> at the
+     * end of this component, outside Astro's scoped-style hash. */
+    :global(body.nav-open) .site-nav .links,
+    :global(body.nav-open) .site-nav .right {
+      display: flex !important;
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 64px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line-soft);
+      padding: 24px var(--gutter, 20px);
+      flex-direction: column;
+      gap: 4px;
+      z-index: 29;
+    }
+    :global(body.nav-open) .site-nav .right {
+      top: auto;
+      bottom: 0;
+      border-top: 1px solid var(--line-soft);
+      border-bottom: 0;
+      flex-direction: row;
+      justify-content: stretch;
+    }
+    /* Open-state link sizing — bigger tap targets per WCAG 2.5.5. */
+    :global(body.nav-open) .site-nav .links a {
+      font-size: 18px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    /* Hamburger animation — middle bar fades, top + bottom rotate
+     * into an X (canonical index.html:418-420). */
+    :global(body.nav-open) .nav-toggle span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+    :global(body.nav-open) .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+    :global(body.nav-open) .nav-toggle span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-toggle span {
+      transition: none;
+    }
+  }
+
+  /* USMR Phase 5.5.16-pt125 — forced-colors mode overrides per
+   * DESIGN.md §11.7 "Forced colors mode" line 1343 (pre-pt378 cite
+   * was incorrectly §7 "Do's and Don'ts" which doesn't mandate
+   * forced-colors). Header renders on every page so it MUST honor
+   * the OS high-contrast contract. The OKLCH --accent token has
+   * no semantic meaning under forced-colors (Windows High Contrast
+   * remaps every color to a system palette: Canvas / CanvasText /
+   * Highlight / LinkText / etc.). Map:
+   *   - hover/focus border + active link border → Highlight
+   *   - primary CTA background → ButtonText (accent ink contrast)
+   *   - focus outlines → Highlight (browser default 2px)
+   *   - body backgrounds → Canvas / ButtonFace
+   * Components: site-nav (active link), nav-toggle (focus), and the
+   * header CTAs (.btn / .btn.primary inherit from theme.css's
+   * forced-colors block; only header-scoped accent uses overridden
+   * here). */
+  @media (forced-colors: active) {
+    .site-nav .links a[aria-current="page"],
+    .site-nav .links a:hover {
+      border-color: Highlight;
+    }
+    .nav-toggle:focus-visible,
+    .site-nav a:focus-visible {
+      outline-color: Highlight;
+    }
+    .nav-toggle span {
+      background: CanvasText;
+    }
+  }
+</style>

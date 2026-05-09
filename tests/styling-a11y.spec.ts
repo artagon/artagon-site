@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 /**
  * Styling-architecture accessibility suite.
@@ -18,6 +18,37 @@ test.describe("Styling architecture - keyboard navigation + focus indicators", (
     );
     await page.goto("/vision");
     await page.waitForLoadState("networkidle");
+  });
+
+  // USMR 5.5.16-pt7 — skip-link visibility transition. The link is
+  // hidden at `left: -9999px` until focused; on focus it should snap
+  // to `position: fixed; left: 12px; top: 12px` and render visibly.
+  // A regression that drops the focus-visible rule (or breaks the
+  // canonical-token migration) would silently leave the skip-link
+  // at -9999px — keyboard users can land on it but never see it.
+  test("Skip-link snaps to visible position on focus", async ({ page }) => {
+    const skip = page.locator("a.skip-link").first();
+    const offscreen = await skip.evaluate((el) => ({
+      left: getComputedStyle(el).left,
+      position: getComputedStyle(el).position,
+    }));
+    expect(offscreen.position).toBe("absolute");
+    expect(parseFloat(offscreen.left)).toBeLessThan(0);
+
+    await page.keyboard.press("Tab");
+    const focused = await skip.evaluate((el) => ({
+      left: getComputedStyle(el).left,
+      top: getComputedStyle(el).top,
+      position: getComputedStyle(el).position,
+      bg: getComputedStyle(el).backgroundColor,
+    }));
+    expect(focused.position).toBe("fixed");
+    expect(focused.left).toBe("12px");
+    expect(focused.top).toBe("12px");
+    // Background must resolve to an opaque color (canonical --bg-1)
+    // not transparent. Webkit/chromium serialize as oklab() / rgb().
+    expect(focused.bg).not.toBe("rgba(0, 0, 0, 0)");
+    expect(focused.bg).not.toBe("transparent");
   });
 
   test("Tab cycles through interactive elements without dead-ends", async ({

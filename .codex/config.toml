@@ -1,0 +1,23 @@
+[mcp_servers.context7]
+args = [
+    "-y",
+    "@upstash/context7-mcp@2.2.4",
+]
+command = "npx"
+
+[mcp_servers.serena]
+command = "serena"
+args = [
+  "start-mcp-server",
+  "--context",
+  "codex",
+  "--project-from-cwd",
+]
+
+[mcp_servers.ast-grep]
+command = "ast-grep-mcp-server"
+args = []
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@0.0.73"]

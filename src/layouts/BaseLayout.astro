@@ -1,67 +1,156 @@
 ---
-import Seo from '../components/SeoTags.astro';
+import Seo, { type Props as SeoProps } from '../components/SeoTags.astro';
 import SeoIcons from '../components/SeoIcons.astro';
-import ThemePreview from '../components/ThemePreviewPanel.astro';
+import SkipLink from '../components/SkipLink.astro';
 import Tweaks from '../components/Tweaks.astro';
-const DEV = import.meta.env.DEV;
-export interface Props { title?: string; description?: string; path?: string; image?: string; robots?: string }
-const { title, description, path='/', image, robots } = Astro.props;
+import { isNoindexRoute } from '../lib/indexation';
+// Re-export `SeoProps` so BaseLayout's prop contract tracks SeoTags
+// at compile time (USMR Phase 5.1q post-review fix). Drift between
+// the two interfaces was flagged by the type-design lens — a future
+// `'profile'` addition to SeoTags' `type` union now propagates here
+// automatically without a hand-mirrored update.
+export type Props = SeoProps;
+const passthrough = Astro.props as SeoProps;
+const path = passthrough.path ?? '/';
+// USMR Phase 10.2 / pt417: auto-derive `robots` from the
+// NOINDEX_ROUTES SSoT at `src/lib/indexation.ts` (per pt416). When
+// the route is in NOINDEX_ROUTES AND the caller hasn't set an
+// explicit `robots` prop, default to `"noindex, nofollow"`. Caller's
+// explicit `robots` always wins (e.g. a route that wants
+// `"noindex, follow"` or `"index, nofollow"` can still set it).
+//
+// Pre-pt417 the 10 noindex routes each carried an explicit
+// `robots="noindex, nofollow"` on `<Base ...>` — that worked but
+// duplicated the SSoT. With this auto-derivation, those per-page
+// props become redundant and have been removed in the same commit;
+// the SSoT in `src/lib/indexation.ts` is the single load-bearing
+// list.
+const effectiveRobots =
+  passthrough.robots ?? (isNoindexRoute(path) ? 'noindex, nofollow' : undefined);
+const seoProps: SeoProps = { ...passthrough, robots: effectiveRobots };
 ---
 <!doctype html>
-<html lang="en" class="no-js" data-theme="midnight">
+<html
+  lang="en"
+  class="no-js"
+  data-theme="twilight"
+  data-accent="cyan"
+  data-hero-font="fraunces"
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Seo {title} {description} {path} {image} {robots} />
-    <SeoIcons pinnedColor="#0EA5E9" themeColor="#0B1220" />
+    <Seo {...seoProps} />
+    {/* USMR Phase 5.5.16-pt107 — canonical brand colors:
+        - pinnedColor: canonical brand-teal-rgb 60/238/221 = #3ceedd
+          (Safari tints the pinned-tab mask-icon with this; canonical
+          accent is teal, not the prior sky blue #0EA5E9)
+        - themeColor: canonical neutral-dark, matches data-theme="dark"
+          --bg = oklch(0.14 0.008 260) ≈ #0a0d12 sRGB. Browsers paint
+          their UI chrome (Chrome address bar, Safari status bar) this
+          color when tab is active. */}
+    <SeoIcons pinnedColor="#3ceedd" themeColor="#0a0d12" />
     <script is:inline>
 (function(){
-  var KEY='artagon.theme', DEF='midnight';
+  // USMR site-navigation §"Theme Toggle with Pre-Paint Bootstrap":
+  // allow-list ['twilight', 'midnight']; any other value falls back to
+  // 'twilight' (project default). data-theme is set via setAttribute
+  // only — no innerHTML / outerHTML / string-concatenated attribute
+  // construction.
+  var KEY='artagon.theme', DEF='twilight';
+  var ALLOWED = ['twilight', 'midnight'];
+  function apply(v){
+    var safe = ALLOWED.indexOf(v) === -1 ? DEF : v;
+    document.documentElement.setAttribute('data-theme', safe);
+    return safe;
+  }
   // Preview override via URL (?theme=twilight[&persist=1])
   try {
     var sp = new URLSearchParams(location.search);
     var override = sp.get('theme');
     if (override) {
-      document.documentElement.dataset.theme = override;
-      if (sp.get('persist') === '1') localStorage.setItem(KEY, override);
+      var applied = apply(override);
+      if (sp.get('persist') === '1') localStorage.setItem(KEY, applied);
       return;
     }
   } catch(e){}
   // Persisted choice
   try {
-    var saved = localStorage.getItem(KEY) || DEF;
-    document.documentElement.dataset.theme = saved;
+    apply(localStorage.getItem(KEY) || DEF);
   } catch(e) {
-    document.documentElement.dataset.theme = DEF;
+    apply(DEF);
   }
 })();
     </script>
+    {/* Webfont loading — canonical Artagon design loads 6 typefaces from
+     * Google Fonts: Inter Tight (--f-sans), Space Grotesk (--f-display
+     * default), JetBrains Mono (--f-mono), Fraunces (--f-serif & one
+     * --f-display variant), Instrument Serif (alt --f-serif), DM Serif
+     * Display (one --f-display variant for the hero-font matrix). The
+     * preconnect pair is required for Lighthouse "preconnect to required
+     * origins" — see new-design/extracted/src/pages/index.html. The
+     * site-wide `--f-*` tokens silently fell back to system-ui before
+     * this load was wired up; users saw San Francisco / Helvetica
+     * instead of the canonical type voice. The dedicated
+     * `self-host-woff2-fonts` OpenSpec change tracks the eventual
+     * self-hosted woff2 swap; the Google CDN gets us pixel parity in
+     * the meantime. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@400;500;600&display=swap"
+    />
     <link rel="stylesheet" href="/assets/theme.css" />
     <slot name="head" />
-    <script>document.documentElement.classList.remove('no-js');function toggleMenu(){const m=document.getElementById('menu');if(m){m.hidden=!m.hidden;}var b=document.getElementById('menu-btn');if(b){b.setAttribute('aria-expanded', String(!m.hidden));}}</script>
+    <slot name="json-ld" />
+    <slot name="indexation" />
+    <slot name="branding" />
+    <script>document.documentElement.classList.remove('no-js');</script>
+    <!-- USMR Phase 5.5.16-pt85 — removed dead toggleMenu() function.
+         It targeted `#menu-btn` and `#menu` IDs that don't exist in
+         the markup. Mobile menu is owned by Header.astro's
+         `[data-nav-toggle]` handler + `body.nav-open` pivot per
+         canonical index.html:387-421. -->
     <script is:inline>
 window.__setTheme = function(t){
-  var KEY='artagon.theme';
-  document.documentElement.dataset.theme = t;
-  try { localStorage.setItem(KEY, t); } catch(e){}
+  // Validate against the allow-list before applying. Anything outside
+  // the list collapses to the project default ('twilight'). Theme
+  // assignment is via setAttribute only, never innerHTML / outerHTML.
+  var KEY='artagon.theme', DEF='twilight';
+  var ALLOWED = ['twilight', 'midnight'];
+  var safe = ALLOWED.indexOf(t) === -1 ? DEF : t;
+  document.documentElement.setAttribute('data-theme', safe);
+  try { localStorage.setItem(KEY, safe); } catch(e){}
   // Sync browser UI with --bg
   try {
     var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0B1220';
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', bg);
   } catch(e){}
+  // pt227 — defensive sync hook for `[data-theme-toggle]` buttons.
+  // The standalone `ThemeToggle` component was deleted as orphan
+  // in pt166 and the header lost its toggle in pt87, so this
+  // querySelectorAll currently returns 0 matches every call.
+  // Kept as defense-in-depth for any future component / external
+  // embed that opts into the `data-theme-toggle` contract — the
+  // ThemePreviewPanel.astro JSDoc already documents this hook as
+  // the canonical attachment point.
+  var pressed = safe === 'midnight';
+  document.querySelectorAll('[data-theme-toggle]').forEach(function(btn){
+    btn.setAttribute('aria-pressed', String(pressed));
+  });
 };
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <SkipLink />
     <slot name="header" />
-    <main id="main">
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <slot name="footer" />
     <noscript>Your browser has JavaScript disabled. The site still works.</noscript>
-    {DEV && <ThemePreview />}
     <Tweaks />
   </body>
 </html>

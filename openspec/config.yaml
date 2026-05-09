@@ -1,15 +1,15 @@
 schema: spec-driven
 
 context: |
-  Project: artagon-site (artagon.com) — Astro 5 static marketing & docs shell for the Artagon identity platform.
+  Project: artagon-site (artagon.com) — Astro 6 static marketing & docs shell for the Artagon identity platform.
 
   Tech stack:
-  - Astro 5 (output: "static", trailingSlash: "never", site: https://artagon.com)
-  - Node 20+, npm
-  - Integrations: @astrojs/mdx 4.3.13, @astrojs/sitemap ^3.6
+  - Astro 6 (output: "static", trailingSlash: "never", site: https://artagon.com)
+  - Node 22+ (per .nvmrc 22.12 and package.json engines.node >=22.0.0)
+  - Integrations: @astrojs/mdx 5.0.4, @astrojs/react 5.0.4, @astrojs/sitemap 3.7.2, @astrojs/rss 4.0.18
   - Tooling: Prettier, Cheerio (SRI/CSP postbuild), Lighthouse CI, Lychee
   - Lint: ast-grep (sg) — primary linter, NO ESLint. Rules in rules/security/*.yml
-  - Tests: Playwright 1.57
+  - Tests: Playwright 1.59.1 (per `package.json` `@playwright/test`); 3-runner stack with vitest + node:test (disjoint globs per AGENTS.md §Testing)
   - Deploy: GitHub Pages via withastro/action; CNAME → artagon.com
   - Design contract: DESIGN.md (repo root) per @google/design.md format
     spec, alpha, pinned to upstream commit
@@ -18,12 +18,14 @@ context: |
     Spec cache mirrored at openspec/.cache/design-md-spec.md.
 
   Layout:
-  - src/pages/ — Astro routes
-  - src/content/pages/ — MDX content (vision.mdx etc.) via Astro Content Collections + Zod
-  - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts
+  - src/pages/ — Astro routes (USMR adds /use-cases, /standards, /writing/[slug], /writing/feed.xml)
+  - src/content/pages/ — MDX content (vision.mdx, platform.mdx, use-cases.mdx, roadmap.mdx, standards.mdx, home.mdx) via Astro Content Collections + Zod
+  - src/content/writing/ — long-form posts (USMR; rendered at /writing/[slug]). Pre-pt413 cited as src/content/pages/writing/ — same path-nesting drift as pt401 fix in USMR proposal.md:73; the writing collection is a SIBLING of pages/, not nested under it.
+  - src/content/authors/ — author entries referenced from writing frontmatter
+  - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts; USMR adds named slots: json-ld, indexation, branding
   - src/components/ui/ — Card, SectionHeader, FeatureList primitives
-  - public/assets/theme.css — global tokens (--brand-teal, --bg, --surface, gradient tokens) + ui-* utility classes
-  - scripts/sri.mjs + scripts/csp.mjs — postbuild security (SRI + CSP meta with inline-script hashes)
+  - public/assets/theme.css — global tokens + ui-* utility classes; USMR adds @layer reset, tokens, utilities, components, overrides + OKLCH palette + theme packs (twilight/midnight; pre-pt167 there was a third `slate` pack, retired in that iter)
+  - scripts/sri.mjs + scripts/csp.mjs + scripts/lint-tokens.mjs — postbuild security (SRI + CSP meta + token-literal lint). Build output is .build/dist/ per build.config.json.
   - openspec/ — spec-driven workflow (this directory)
 
   Conventions:
@@ -35,13 +37,39 @@ context: |
   - WCAG 2.2 AA is the floor; visible focus, no color-only signal, prefers-reduced-motion respected.
   - Lighthouse CI thresholds enforced; CLS budget < 0.1.
 
-  Active in-flight change:
-  - refactor-styling-architecture — extracts vision.css patterns into shared UI primitives + theme tokens.
-    Future changes that touch public/assets/theme.css MUST land AFTER this merges (CODEOWNERS sequencing).
+  Live capabilities (openspec/specs/):
+  - build-config, check-site-quality, configure-copilot-environment, design-system-format,
+    github-pages-deployment, manage-site-links, openspec-workflow, site-content, style-system
+
+  In-flight changes (openspec/changes/):
+  - update-site-marketing-redesign (USMR) — replaces marketing surface with new-design content;
+    introduces 7 NEW capabilities (site-navigation, site-standards-registry, site-bridge-story,
+    site-mobile-layout, site-structured-data, site-indexation, site-branding) and MODIFIES
+    site-content + style-system. Phase 2 foundations merged via PR #43; Phase 5.x marketing
+    routes shipped via the pt-iter ralph loop; currently in late-stage 5.5.16-loop polish.
+  - self-host-woff2-fonts — NEW capability font-self-hosting; MODIFIES style-system. Proposal
+    scaffolded via PR #44; sequencing-independent of USMR (can land in either order).
+  - migrate-deploy-to-cloudflare-pages — NEW capability cloudflare-pages-deployment;
+    MODIFIES github-pages-deployment + check-site-quality. Proposal scaffolded via PR #45;
+    sequencing-independent of USMR.
+  - add-brand-assets-and-writing-pipeline — blocked on USMR archive.
+  - migrate-legacy-tokens-to-layer — stub; reconciles style-system "All token definitions in tokens layer"
+    requirement against the ~150 grandfathered :root declarations. Depends on USMR archive.
+  - enhance-a11y-coverage — NEW WCAG 2.1 AA contracts (tap targets ≥ 44 px, focus rings,
+    color-contrast gates, axe-core CI gate flip from informational to mandatory).
+  - externalize-strings-and-add-i18n — NEW capability site-i18n + MODIFIED site-content
+    (per-locale string bundles routed through src/lib/charset.ts; authored as parallel-track
+    proposal during the USMR deep-audit ralph loop).
+
+  Merge order: refactor-styling-architecture (archived 2026-05-04) →
+  adopt-design-md-format (archived 2026-05-05) → update-site-marketing-redesign (in flight) →
+  add-brand-assets-and-writing-pipeline → cleanup-new-design-extracted (follow-up).
+  self-host-woff2-fonts and migrate-deploy-to-cloudflare-pages are sequencing-independent.
 
   Adjacent reference:
-  - new-design/extracted/ contains the canonical DESIGN.md (761 lines, OKLCH tokens, motion budgets,
-    component anatomy) plus a draft proposal/tasks/design for update-site-marketing-redesign.
+  - new-design/extracted/ — historical reference. The DESIGN.md authority is the repo-root DESIGN.md
+    (governed by design-system-format / archived adopt-design-md-format). Cleanup deferred to a
+    follow-up cleanup-new-design-extracted change.
 
 rules:
   proposal:

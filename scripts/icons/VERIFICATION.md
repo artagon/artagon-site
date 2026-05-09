@@ -23,7 +23,7 @@ Use this checklist to verify that all icons are correctly integrated across diff
 - [ ] Favicon visible in browser tab
 - [ ] Manifest detected (DevTools → Application → Manifest)
 - [ ] All icon sizes listed in manifest
-- [ ] Theme color matches brand (#0B1220)
+- [ ] Theme color matches canonical neutral-dark `--bg` (#0a0d12; pre-pt107 was #0B1220 midnight)
 - [ ] "Install app" prompt available (if applicable)
 
 #### Firefox
@@ -36,7 +36,7 @@ Use this checklist to verify that all icons are correctly integrated across diff
 
 - [ ] Favicon visible in browser tab
 - [ ] Pinned tab shows monochrome icon
-- [ ] Pinned tab color is #0EA5E9 (brand sky)
+- [ ] Pinned tab color is #3ceedd (canonical brand-teal; pre-pt107 was #0EA5E9 sky blue)
 - [ ] Reading mode icon displays correctly
 
 ### Mobile Browsers
@@ -75,8 +75,8 @@ Expected tags:
 - [x] `<link rel="shortcut icon" href="/icons/favicon.ico">`
 - [x] `<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">`
 - [x] `<link rel="manifest" href="/site.webmanifest">`
-- [x] `<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#0EA5E9">`
-- [x] `<meta name="theme-color" content="#0B1220">`
+- [x] `<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3ceedd">` (pt107 canonical brand-teal; pre-pt107 was `#0EA5E9` sky blue)
+- [x] `<meta name="theme-color" content="#0a0d12">` (canonical neutral-dark `--bg` per `BaseLayout.astro:34` archaeology; pre-pt107 draft was `#0B1220` midnight)
 
 ### File Accessibility
 
@@ -245,17 +245,19 @@ Before deploying:
 
 ## 📝 Regeneration
 
-To regenerate icons after logo changes:
+To regenerate icons after logo changes (post-USMR-pt72 — the
+`public/assets/artagon-logo/` submodule was removed; SVG_MARK is
+the primary source):
 
 ```bash
-# Update logo submodule (if using git submodule)
-cd public/assets/artagon-logo
-git pull origin main
-cd ../../..
-
-# Or update logo-mark.svg directly
-# Then regenerate icons
+# 1. Update public/assets/logo-mark.svg with the new mark.
+# 2. Regenerate icons (uses SVG_MARK by default since pt72):
 bash scripts/icons/make-icons.sh
+
+# Optional: if you have a local clone of the upstream artagon-logo
+# PNG submodule (not tracked in this repo for size reasons), you
+# can override the source via env vars:
+#   LOGO_DIR=/path/to/local/artagon-logo bash scripts/icons/make-icons.sh
 
 # Rebuild site
 npm run build

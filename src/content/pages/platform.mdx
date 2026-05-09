@@ -1,0 +1,29 @@
+---
+title: "Platform — Artagon"
+description: "Authentication, verifiable credentials, and authorization under one runtime, one protocol surface, one audit trail."
+eyebrow: "Platform"
+headline: "Three pillars, one coherent platform."
+lede: "Others force you to wire Okta to Trinsic to OPA. Artagon unifies authentication, verifiable credentials, and authorization under one runtime, one protocol surface, one audit trail."
+ctas:
+  - label: "Request design-partner access"
+    href: "/get-started"
+    variant: primary
+  - label: "Open the playground"
+    href: "/play"
+    variant: secondary
+tags:
+  - identity
+  - credentials
+  - authorization
+  - platform
+bridge:
+  sentence: "Verifiable Credentials don't require a rewrite. Artagon's OID4VP→OIDC bridge lets any existing OIDC app consume claims from a user's wallet — without ever knowing VCs were involved."
+  variants:
+    - "Bridge any existing OIDC app to a user's verifiable-credential wallet — no rewrite required."
+    - "Your legacy OIDC app, now cryptographically verified."
+    - "OID4VP→OIDC: drop wallet-issued claims into apps that only speak OIDC."
+---
+
+_Body intentionally empty._
+_Route `src/pages/platform/index.astro` mounts `PillarsIsland` directly and does not call `getEntry("pages", "platform")`._
+_The pre-Phase-5.2 placeholder for pillar + bridge delivery has shipped through canonical Astro component mounts._

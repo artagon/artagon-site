@@ -22,11 +22,12 @@ test("parse returns DEFAULTS for non-object input", () => {
 
 test("parse accepts a valid full Tweaks object", () => {
   const input = {
-    accent: "violet",
+    accent: "blue",
     density: "dense",
     theme: "light",
     heroFont: "fraunces",
     showGrid: false,
+    writingWidget: "A · strip",
   };
   assert.deepEqual(parse(input), input);
 });
@@ -38,6 +39,7 @@ test("parse falls back per-field for invalid values", () => {
     theme: "dark", // valid
     heroFont: 42, // wrong type
     showGrid: "yes", // wrong type
+    writingWidget: "Z · phantom", // invalid
   };
   assert.deepEqual(parse(input), {
     accent: DEFAULTS.accent,
@@ -45,6 +47,7 @@ test("parse falls back per-field for invalid values", () => {
     theme: "dark",
     heroFont: DEFAULTS.heroFont,
     showGrid: DEFAULTS.showGrid,
+    writingWidget: DEFAULTS.writingWidget,
   });
 });
 
@@ -63,7 +66,7 @@ test("parse rejects prototype pollution attempts", () => {
 });
 
 test("parse accepts every valid accent", () => {
-  for (const accent of ["cyan", "violet", "amber", "lime"]) {
+  for (const accent of ["cyan", "blue", "amber", "lime"]) {
     assert.equal(parse({ accent }).accent, accent);
   }
 });

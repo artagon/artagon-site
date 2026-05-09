@@ -10,7 +10,7 @@ Automated testing ensures code quality, prevents regressions, and validates that
 
 ### 1. Playwright Test Framework
 
-**Package:** `@playwright/test@1.57.0`
+**Package:** `@playwright/test@1.59.1` (per `package.json`)
 
 Playwright provides:
 
@@ -30,7 +30,7 @@ Comprehensive testing for the refactored Vision page using Content Collections:
 
 - Page title and meta tags validation
 - Hero section rendering
-- All 7 sections with numbered headers (01-07)
+- All 11 sections with numbered headers (01-11)
 - Three domain cards (High-Assurance, Decentralized, Authorization)
 - Three strategic pillars with numbers
 - Interactive hover effects
@@ -52,11 +52,10 @@ Comprehensive testing for the refactored Vision page using Content Collections:
 
 **Responsive Tests:**
 
-- Mobile viewport (375x667)
-- Tablet viewport
-- Desktop viewport
-- Flexbox direction changes
-- Card stacking behavior
+- Mobile viewport (375×667) — verified at `tests/vision-page.spec.ts:117-119` via `page.setViewportSize({ width: 375, height: 667 })`
+- Card stacking behavior on mobile (lines 130, 135 — full-width domain cards under the mobile viewport)
+
+(The Phase-1-era list of "Tablet viewport / Desktop viewport / Flexbox direction changes" was forward-looking; only mobile + card-stacking actually ship in the spec today. The Tablet / Desktop projects in the broader Playwright matrix per `playwright.config.ts` `projects[]` (15 projects across 4 device classes) provide the cross-engine coverage; per-project explicit viewport assertions in this spec are not in scope.)
 
 #### **content-collections.spec.ts** - Schema Validation Tests
 
@@ -81,24 +80,27 @@ Tests Content Collections schema enforcement:
 
 **Jobs:**
 
-1. **test** - Run all tests (3 shards for parallel execution)
-   - Installs dependencies
-   - Installs Playwright browsers
-   - Builds site
-   - Runs tests in parallel (1/3, 2/3, 3/3 shards)
-   - Uploads test reports and screenshots
+1. **test** - Run all tests (5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22`)
+   - Installs dependencies (`npm ci`, frozen lockfile)
+   - Installs Playwright browsers (chromium / firefox / webkit bundled in CI image; Edge + Chrome stable channels installed via `npx playwright install msedge` / `chrome`)
+   - Builds site (runs prebuild → astro build → 10-step postbuild)
+   - Runs tests in parallel (1/5, 2/5, 3/5, 4/5, 5/5 shards)
+   - Uploads per-shard test reports + screenshots on failure (14-day retention)
 
 2. **merge-reports** - Combines shard results
-   - Downloads all shard reports
+   - Downloads all 5 shard reports
    - Merges into single HTML report
    - Uploads merged report artifact
 
-3. **visual-regression** - Visual regression only
-   - Runs chromium-only visual tests
+3. **visual-regression** - Visual regression suite (`VISUAL_REGRESSION=1`)
+   - Workflow invokes `tests/vision-page.spec.ts` + `tests/styling-snapshots.spec.ts` on 3 projects (chromium · webkit · Mobile Safari) per `playwright.yml:254,256` (line 254 = `npx playwright test ... --project=chromium --project=webkit --project="Mobile Safari"`; line 256 = `VISUAL_REGRESSION: "1"` env)
+   - The specs themselves currently skip non-chromium via `test.skip(testInfo.project.name !== "chromium", ...)` so net effect is chromium-only snapshot capture (the webkit / Mobile Safari Linux baselines do not exist yet — see AGENTS.md §Testing for the broader cross-engine guard via `tests/header.spec.ts` + `tests/home-axe.spec.ts`)
    - Uploads visual diffs on failure
+   - On `workflow_dispatch`: regenerates baselines via `--update-snapshots` and auto-commits
 
-4. **accessibility** - Accessibility tests only
-   - Runs chromium-only a11y tests
+4. **accessibility** - Accessibility audit
+   - Runs `--grep "accessibility"` on 3 engines: chromium · webkit · Mobile Safari (per `playwright.yml:326`)
+   - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; per pt264 archaeology in AGENTS.md §Accessibility)
    - Uploads failures for review
 
 **Triggers:**
@@ -107,10 +109,10 @@ Tests Content Collections schema enforcement:
 - Pull requests to `main`
 - Manual workflow dispatch
 
-**Artifacts Retention:**
+**Artifacts Retention** (per `.github/workflows/playwright.yml`):
 
-- Test reports: 30 days
-- Screenshots/failures: 7 days
+- Test reports (per-shard, merged HTML): 14 days (lines 146, 181)
+- Screenshots / failure traces / visual diffs / a11y failures: 7 days (lines 154, 280, 329)
 
 ### 4. NPM Scripts
 
@@ -135,7 +137,7 @@ Added to `package.json`:
 - Auto-start preview server before tests
 - Parallel execution (local: unlimited, CI: 1 worker)
 - Retries: 0 locally, 2 on CI
-- Browsers: Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
+- Projects: 15-device matrix (5 desktop · 5 mobile · 3 tablet · 2 large) per `playwright.config.ts` `projects[]` — see `AGENTS.md` §"Device matrix" for the canonical list
 - Reporters: HTML locally, GitHub on CI
 - Screenshots on failure
 - Traces on first retry
@@ -218,24 +220,36 @@ Install [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?
 
 ## Test Coverage
 
+This section was originally a Phase-1-era snapshot (vision page only,
+22 total tests). The redesign + a11y-coverage work that landed across
+USMR Phase 5.x has expanded coverage substantially; the live tree in
+[`tests/README.md`](../tests/README.md) is the authoritative source.
+
 ### Pages Covered
 
-- ✅ `/vision/` - Full coverage (functional, visual, a11y, responsive)
-- 🔜 `/` - Homepage (to be added)
-- 🔜 `/platform/` - Platform page (to be added)
-- 🔜 `/roadmap/` - Roadmap page (to be added)
-- 🔜 `/faq/` - FAQ page (to be added)
+The full test suite now spans every live route (`/`, `/platform`,
+`/vision`, `/roadmap`, `/faq`, `/use-cases`, `/standards`,
+`/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`,
+`/status`, `/security`, `/privacy`, `/play`, `/bridge`, `/writing`,
+`/writing/[slug]`, `/writing/feed.xml`, `/404` per
+[`openspec/project.md`](../openspec/project.md)). Per-route Playwright
+specs live under `tests/`; structural / schema / token gates live in
+`tests/lint-*.test.mts` (vitest). Browser-engine breadth and the
+chromium-only visual-snapshot scope are documented in
+[`AGENTS.md`](../AGENTS.md) §Testing.
 
-### Test Types
+### Test Counts (authoritative)
 
-| Type              | Count  | Coverage                                     |
-| ----------------- | ------ | -------------------------------------------- |
-| Functional        | 12     | Vision page structure, content, interactions |
-| Visual Regression | 3      | Full page, hero, cards                       |
-| Accessibility     | 2      | Semantic HTML, heading hierarchy             |
-| Responsive        | 1      | Mobile viewport layout                       |
-| Schema Validation | 4      | Content Collections schema enforcement       |
-| **Total**         | **22** | **Vision page + Content Collections**        |
+Run the suites locally to get current counts:
+
+- `npm run test:vitest` — vitest unit + lint suite (the script already includes `vitest run` per `package.json:53` so no extra `--run` flag is needed; same convention as `tests/README.md:14` per pt305 archaeology)
+- `npm run test:ci` — Playwright suite under the canonical project
+  matrix (5 shards in CI)
+
+The Phase-1-era 22-test fixed table that previously appeared here was
+retired in pt233 because it drifted under every USMR-Phase increment;
+no static count survives the next iteration in the active redesign
+loop.
 
 ## Benefits
 
@@ -342,7 +356,7 @@ git commit -m "Update visual snapshots after design changes"
 
 ### Adding New Page Tests
 
-1. Create `tests/[page-name].spec.ts`
+1. Create `tests/<page-name>.spec.ts`
 2. Follow vision-page.spec.ts pattern
 3. Include functional, visual, and a11y tests
 4. Run `npm run test:update-snapshots` for initial baselines
@@ -380,7 +394,7 @@ test("should have no accessibility violations", async ({ page }) => {
 Tests run in parallel for speed:
 
 - **Local:** Unlimited workers (based on CPU cores)
-- **CI:** 3 shards (1/3, 2/3, 3/3)
+- **CI:** 5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22` (shards 1/5–5/5; pre-pt234 was 3 shards before the device-matrix expansion required tighter parallelization)
 
 ### Browser Optimization
 
@@ -439,37 +453,60 @@ Common causes:
 - Timing issues (use retries on CI)
 - Missing environment variables
 
-## Future Enhancements
+## Enhancements
 
-### Potential Additions
+The original Phase-1-era "Future Enhancements" list shipped several
+items that the doc was never re-narrated to reflect. Status as of
+pt297 (most items ✅ SHIPPED, some still partial):
 
-1. **Axe Accessibility Testing**
-   - Install `@axe-core/playwright`
-   - Add comprehensive a11y scans
+1. **Axe Accessibility Testing — ✅ SHIPPED**
+   - `@axe-core/playwright` installed.
+   - `tests/home-axe.spec.ts` runs WCAG 2.1 A + AA tags on
+     chromium · webkit · Mobile Safari — gate is MANDATORY
+     (flipped from opt-in in USMR Phase 5.1p.8 per pt264
+     archaeology in `AGENTS.md` §Accessibility).
 
-2. **Performance Testing**
-   - Add Lighthouse integration
-   - Test Core Web Vitals
-   - Monitor bundle sizes
+2. **Performance Testing — ✅ SHIPPED**
+   - Lighthouse CI configured at `lighthouserc.json` (generated from `build.config.json` + `scripts/fixtures/lhci-assertions.json` per `scripts/sync-build-config.mjs`).
+   - `scripts/lhci-serve.mjs` provides the LHCI local server with READY signal.
+   - `.github/workflows/lighthouse.yml` runs Lighthouse audits on push to `main` (per pt262 README CI/CD section).
+   - Thresholds: Performance ≥85% (warn), Accessibility ≥90% (error), Best Practices ≥90% (warn), SEO ≥90% (warn) per `scripts/fixtures/lhci-assertions.json`.
 
-3. **E2E User Flows**
-   - Test complete user journeys
-   - Form submissions
-   - Navigation flows
+3. **E2E User Flows — ✅ PARTIALLY SHIPPED**
+   - Header navigation: `tests/header.spec.ts` covers
+     desktop nav + mobile hamburger menu (touch + keyboard).
+   - Footer navigation: `tests/footer.spec.ts` covers 4×5
+     column structure + Legal placeholders + brand/glyph.
+   - Theme switching: `tests/canonical-typography.spec.ts`
+     covers cross-route consistency.
+   - Form-submission flows are out of scope today (the
+     marketing site has no live form submissions; the
+     `/get-started` design-partner page is a `mailto:` link).
 
-4. **API Testing**
-   - Test Content Collections API
-   - Validate data fetching
+4. **Content Collections Validation — ✅ SHIPPED**
+   - `tests/content-collections.spec.ts` validates the Zod
+     schema enforcement at build time (chromium-only because
+     it mutates `src/content/pages/*.mdx` and would race
+     across parallel browser projects per `tests/README.md`
+     gating notes).
+   - `tests/writing-collection.test.mts` (vitest) validates
+     writing post frontmatter + author references.
 
-5. **Cross-Device Testing**
-   - Add more mobile viewports
-   - Test touch interactions
-   - Test orientation changes
+5. **Cross-Device Testing — ✅ SHIPPED**
+   - 15-device matrix per `playwright.config.ts` `projects[]`
+     (5 desktop · 5 mobile · 3 tablet · 2 large) per pt276
+     `tests/README.md` device-matrix expansion.
+   - Touch interactions tested via `test.skip(({isMobile}) =>
+isMobile, ...)` patterns; the `enhance-a11y-coverage`
+     proposal (in flight) tracks the touch-affordance gap.
 
-6. **Visual Regression on All Pages**
-   - Extend to all site pages
-   - Automate baseline creation
-   - Track design system changes
+6. **Visual Regression on All Pages — ✅ PARTIALLY SHIPPED**
+   - `tests/styling-snapshots.spec.ts` covers the home (`/`)
+     and styling-architecture reference (`/vision`) on the
+     THEMES array (currently 2: twilight + midnight) × 3
+     breakpoints, chromium-only (per pt261 fix). The
+     `enhance-a11y-coverage` proposal Phase 4 broadens this
+     scope.
 
 ## Resources
 

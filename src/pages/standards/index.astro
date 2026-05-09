@@ -1,0 +1,27 @@
+---
+// USMR Phase 5.4 — /standards route. Mounts the canonical 3-column
+// wall composition ported from
+// new-design/extracted/src/components/Standards.jsx.
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import StandardsWall from '../../components/StandardsWall.astro';
+
+const entry = await getEntry('pages', 'standards');
+if (!entry) {
+  throw new Error(
+    "standards.mdx missing — Phase 5.4 expects src/content/pages/standards.mdx to exist."
+  );
+}
+const { title, description } = entry.data;
+---
+<Base title={title} description={description} path="/standards">
+  <Fragment slot="header"><Header /></Fragment>
+
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      wraps the slot in <main id="main-content"> already. */}
+  <StandardsWall />
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

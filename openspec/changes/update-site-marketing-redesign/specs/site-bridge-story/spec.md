@@ -21,7 +21,7 @@
 
 ### Requirement: Bridge Flow SVG
 
-`BridgeFlow.astro` SHALL render the bridge concept as an inline SVG with `role="img"`, accessible `<title>`, and `<desc>`. The diagram MUST NOT convey state by color alone; semantic markers (labels, shapes) MUST also distinguish the machine and human halves. The diagram MUST render correctly under `forced-colors: active`.
+`BridgeFlow.tsx` (React island; pre-pt404 cited as `BridgeFlow.astro` per the originally planned static component, but the canonical-fidelity audit shifted to a React island per USMR Phase 5.2.8 — verified `ls src/components/BridgeFlow.tsx ✓` / `BridgeFlow.astro` does not exist; the change's `proposal.md:75` already documents this with "(React island, NOT the originally planned `BridgeFlow.astro`)") SHALL render the bridge concept as an inline SVG with `role="img"`, accessible `<title>`, and `<desc>`. The diagram MUST NOT convey state by color alone; semantic markers (labels, shapes) MUST also distinguish the machine and human halves. The diagram MUST render correctly under `forced-colors: active`.
 
 #### Scenario: Screen reader announces flow
 

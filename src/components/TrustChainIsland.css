@@ -1,0 +1,551 @@
+/*
+ * USMR Phase 5.1d (stage 3 — react). Shared styles for the trust-chain
+ * artefact rendered by TrustChainIsland.tsx. Imported by the React
+ * component so vite/Astro bundles it alongside the JS island chunk.
+ *
+ * Token mapping aligned with the new-design implementation
+ * (new-design/extracted/src/pages/index.html line 1012 sets
+ *  `const C_PASS = 'var(--accent)'`):
+ *   pass / decision PERMIT → var(--accent)  (page accent — cyan
+ *                                             site-wide per Phase
+ *                                             5.1o, switchable via
+ *                                             `[data-accent]`)
+ *   fail / decision DENY   → var(--bad)     (semantic red, alias
+ *                                             of --nd-bad)
+ *
+ * 47f9898 originally aligned this file to var(--ok) per DESIGN.md
+ * §"Color tokens" line 226. That contract predates the new-design
+ * mock; the mock's chain visually keys off `--accent` so the
+ * eyebrow pill, stage outlines, and decision card share one accent
+ * — the cohesion `--ok` would break. DESIGN.md §6.5 is updated in
+ * the same commit to reflect the implementation.
+ */
+
+/* Canonical Hero.jsx:230-244 — `border: 1px solid var(--line)`,
+ * `borderRadius: 14`, `background: linear-gradient(180deg, var(--bg-1)
+ * 0%, var(--bg) 100%)`, `padding: 28`, `minHeight: 560`. Pre-fix
+ * fluid `padding: clamp(1.25rem, 2vw, 1.75rem)` (≈20-28) — undersized
+ * to 20 on narrow viewports. Canonical fixes 28. */
+.trust-chain {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
+  padding: 28px;
+  /* USMR Phase 5.1p.18 — fixed minimum height per new-design
+   * index.html:1025 keeps the card stable across scenario swaps;
+   * without it the chain visibly pulses in height when SCENARIOS
+   * with different counts of skip / pending stages render. */
+  min-height: 560px;
+  /* USMR Phase 5.5.11 Task #28 — box-shadow + border-color + transition
+   * are emitted as inline styles by TrustChainIsland.tsx (cardShellStyle)
+   * so they react to passedCount + finalShown + isDeny per canonical
+   * Hero.jsx:215-243. Static fallback below covers the brief SSR window
+   * before the React island hydrates. */
+  box-shadow: 0 0 80px -20px var(--accent);
+  transition:
+    box-shadow 0.6s ease,
+    border-color 0.4s ease;
+}
+
+/* Canonical Hero.jsx:246 — head row `marginBottom: 20, paddingBottom:
+ * 14`, border-bottom var(--line-soft). Pre-fix gap 1rem (=16) +
+ * margin-bottom 1rem (=16) — both 4 px tighter than canonical, and
+ * border-bottom was var(--line) instead of softer var(--line-soft). */
+.trust-chain__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--f-mono);
+  /* Canonical Hero.jsx:247 — head `fontSize: 11`. Was `var(--fs-micro)`
+   * (0.6875rem = 11 at root 16); fixed-px matches canonical. */
+  font-size: 11px;
+  color: var(--fg-2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.trust-chain__scenarios {
+  display: flex;
+  /* Negative gap absorbs the 44 × 44 hit area on each dot so the
+   * visible dot spacing matches the new-design mock (~5 px). */
+  gap: 0;
+}
+
+/* enhance-a11y-coverage Phase 2 — scenario-picker dots are 9 × 9 px
+ * visually (per new-design fidelity) but expose a 44 × 44 CSS-px
+ * tap target via padding to satisfy WCAG 2.5.5. The visible dot is
+ * rendered via `::before` so the button itself stays the focus
+ * target + ARIA announce point. */
+.trust-chain__scenario-dot {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all`. The
+   * dot button only animates the inner ::before (color via the
+   * .scenario-dot::before rule below), so no transition is needed
+   * on the button itself. Kept narrow for parity with the visible-
+   * dot transition timing. */
+  transition: background 0.25s ease;
+}
+/* USMR Phase 5.5.16-pt94 — canonical Hero.jsx:261-264 scenario dot:
+ * `width: 9, height: 9, background: isThis ? (isDeny ? C_FAIL :
+ * C_PASS) : 'var(--fg-3)'`. Pre-fix shipped 0.5625rem rem-based size
+ * (resolves to 9 px ✓ but breaks the canonical fixed-px contract)
+ * AND `var(--fg-2)` at `opacity: 0.35` for the idle base, when
+ * canonical uses `var(--fg-3)` solid. The opacity-modulated fg-2
+ * rendered slightly brighter than canonical fg-3 — subtle but
+ * detectable in side-by-side comparison. */
+.trust-chain__scenario-dot::before {
+  content: "";
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--fg-3);
+  transition: inherit;
+}
+.trust-chain__scenario-dot:hover::before {
+  background: var(--fg-2);
+}
+.trust-chain__scenario-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.trust-chain__scenario-dot.is-active::before {
+  opacity: 1;
+}
+
+.trust-chain__scenario-dot.is-active.is-permit::before {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.trust-chain__scenario-dot.is-active.is-deny::before {
+  background: var(--bad);
+  box-shadow: 0 0 10px var(--bad);
+}
+
+/* Canonical Hero.jsx:280 — scenario row `gap: 8, marginBottom: 18`.
+ * Pre-fix gap 0.75rem (=12) was 4 px wider than canonical, breaking
+ * the tight scenario label / context pairing. */
+.trust-chain__scenario {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+/* Canonical Hero.jsx:281 — scenario label `fontSize: 14`. */
+.trust-chain__scenario-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+/* Canonical Hero.jsx:282 — scenario context `fontSize: 10.5`. */
+.trust-chain__scenario-context {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--fg-2);
+  letter-spacing: 0.05em;
+}
+
+/* Canonical Hero.jsx:288 — chain `gap: 10`. */
+.trust-chain__stages {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.trust-chain__stage-wrap {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+/* USMR Phase 5.1p.7 — inter-stage connector line per new-design
+ * index.html:1164-1171. 1×10 px vertical bar bridges each stage row
+ * to the next via a pseudo-element on the wrapper. Hidden on the
+ * last stage. The connector tints accent-dim with a small glow so
+ * the chain reads as a continuous flow rather than 5 disconnected
+ * cards. Animation `chain-connector` matches new-design's transition
+ * timing (.35s ease) on accent shifts. */
+.trust-chain__stage-wrap:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  bottom: -10px;
+  width: 1px;
+  height: 10px;
+  /* USMR Phase 5.5.11 Task #32 — default to muted line-soft. Only
+   * the per-stage data-prev-pass="true" flag (set by TrustChainIsland
+   * when the upstream stage settled to pass) lights the connector
+   * accent-dim with a small glow. Mirrors canonical Hero.jsx:379-380. */
+  background: var(--line-soft);
+  box-shadow: none;
+  transition:
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+  pointer-events: none;
+}
+.trust-chain__stage-wrap[data-prev-pass="true"]:not(:last-child)::after {
+  background: var(--accent-dim);
+  box-shadow: 0 0 6px var(--accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-chain__stage-wrap:not(:last-child)::after {
+    transition: none;
+  }
+}
+/* Canonical Hero.jsx:319-323 — `gridTemplateColumns: '36px 1fr auto'`,
+ * `gap: 14`, `padding: '14px 16px'`, `borderRadius: 10`. Pre-fix
+ * used rem (2.25rem / 0.875rem / 0.875rem 1rem) which resolve to
+ * canonical at root 16; canonicalized to fixed px. */
+.trust-chain__stage {
+  /* Real <button> per 5.1p.1 — reset UA defaults so the rendered
+   * row is indistinguishable from the previous <li role="button">. */
+  appearance: none;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  /* Stage row layout. */
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: inherit;
+  cursor: pointer;
+  /* USMR Phase 5.5.16-pt120 — user feedback "when hovering with mouse
+   * on trust chain it vibrates". Pre-pt120 used `transition: all 0.45s`
+   * which animates EVERY property change including layout-affecting
+   * ones (padding, border-width, gap). When the mouse hover triggers
+   * a border-color change during the auto-cycle's stage transitions,
+   * `transition: all` competed and produced visible jitter. Restricted
+   * to the 3 properties that actually animate per canonical Hero.jsx:
+   * border-color, background, box-shadow. Layout properties now snap
+   * immediately. */
+  transition:
+    border-color 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* USMR Phase 5.5.11 Task #33 — mouse hover affordance per canonical
+ * Hero.jsx:298-300. On a row that's idle/pending (not pass / fail /
+ * skip — those have their own borders), bump the border to accent-dim
+ * so mouse users get feedback that the row is interactive. Press +
+ * focus-visible already have stronger visual states. */
+@media (hover: hover) {
+  .trust-chain__stage:not(.is-pass):not(.is-fail):not(.is-skip):hover {
+    border-color: var(--accent-dim);
+  }
+}
+
+.trust-chain__stage.is-pass {
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: color-mix(in oklab, var(--accent) 14%, var(--bg-1));
+  box-shadow:
+    0 0 18px -3px var(--accent),
+    inset 0 0 14px -4px var(--accent);
+}
+
+.trust-chain__stage.is-fail {
+  border-color: color-mix(in oklab, var(--bad) 60%, var(--line));
+  background: color-mix(in oklab, var(--bad) 10%, var(--bg-1));
+  box-shadow:
+    0 0 24px -4px var(--bad),
+    inset 0 0 18px -6px var(--bad);
+}
+
+.trust-chain__stage.is-skip {
+  opacity: 0.4;
+}
+
+/* USMR Phase 5.1d-idle — evaluating + pending stage states. The
+ * `chain-pulse` keyframe ships in public/assets/theme.css per 5.1q.5;
+ * it is consumed here for the active stage's number circle so the
+ * chain visibly "thinks" while the timer-driven progression is in
+ * flight. `is-pending` mutes stages that haven't been reached yet. */
+.trust-chain__stage.is-evaluating {
+  border-color: color-mix(in oklab, var(--accent) 30%, var(--line));
+  background: color-mix(in oklab, var(--accent) 6%, var(--bg-1));
+}
+.trust-chain__stage.is-evaluating .trust-chain__stage-num {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  animation: chain-pulse 1.2s ease-in-out infinite;
+}
+.trust-chain__stage.is-pending {
+  opacity: 0.55;
+}
+.trust-chain__stage.is-pending .trust-chain__stage-num {
+  color: var(--fg-3);
+  border-color: var(--line);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-chain__stage.is-evaluating .trust-chain__stage-num {
+    animation: none;
+  }
+}
+
+/* enhance-a11y-coverage Phase 5 — forced-colors mode mapping. System
+ * colors override any tinted accent / box-shadow chrome so the chain
+ * remains legible under Windows High Contrast and equivalent modes. */
+@media (forced-colors: active) {
+  .trust-chain {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .trust-chain__stage {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .trust-chain__stage.is-pass {
+    border-color: Highlight;
+  }
+  .trust-chain__stage.is-pass .trust-chain__stage-num {
+    border-color: Highlight;
+    color: Highlight;
+    background: Canvas;
+    box-shadow: none;
+  }
+  .trust-chain__stage.is-fail {
+    border-color: Mark;
+  }
+  .trust-chain__stage.is-fail .trust-chain__stage-num {
+    border-color: Mark;
+    color: Mark;
+    background: Canvas;
+    box-shadow: none;
+  }
+  .trust-chain__stage.is-evaluating .trust-chain__stage-num {
+    animation: none;
+    border-color: Highlight;
+  }
+  .trust-chain__decision {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .trust-chain__decision.is-permit {
+    border-color: Highlight;
+  }
+  .trust-chain__decision.is-deny {
+    border-color: Mark;
+  }
+  .trust-chain__scenario-dot:focus-visible {
+    outline-color: Highlight;
+  }
+  .chain-spinner {
+    border-top-color: Highlight;
+    animation: none;
+  }
+}
+
+/* enhance-a11y-coverage Phase 7 — explicit focus-visible on
+ * interactive trust-chain surfaces. Browser defaults can render
+ * invisible against tinted backgrounds; pin a 2 px accent outline
+ * + 2 px offset so keyboard users always see focus. */
+.trust-chain__stage:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.trust-chain__decision:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Pressed-state visual marker. Currently shares the is-pass
+ * box-shadow intensification — a future commit can split this if
+ * the design diverges. The contract is: pressed != settled. */
+.trust-chain__stage.is-pressed {
+  box-shadow:
+    0 0 22px -2px var(--accent),
+    inset 0 0 18px -3px var(--accent);
+}
+
+/* Canonical Hero.jsx:336 — `width: 28, height: 28` (rem 1.75 = 28
+ * at root 16). */
+.trust-chain__stage-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  font-family: var(--f-mono);
+  /* Canonical Hero.jsx:353 — node-circle index `fontSize: 10`. */
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--fg-2);
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all`
+   * (same vibration-on-hover risk class pt120 caught on .stage). */
+  transition:
+    border-color 0.35s ease,
+    background 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.trust-chain__stage.is-pass .trust-chain__stage-num {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 20%, transparent);
+  box-shadow: 0 0 14px var(--accent);
+}
+
+.trust-chain__stage.is-fail .trust-chain__stage-num {
+  border-color: var(--bad);
+  color: var(--bad);
+  background: color-mix(in oklab, var(--bad) 22%, transparent);
+  box-shadow: 0 0 14px var(--bad);
+}
+
+/* Canonical Hero.jsx:362 — stage-body sub div has marginTop: 2;
+ * we use flex gap: 2 to achieve the same vertical spacing between
+ * stage label and sub-text. */
+.trust-chain__stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Canonical Hero.jsx:359 — stage-label `fontSize: 15`. */
+.trust-chain__stage-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.trust-chain__stage.is-skip .trust-chain__stage-label {
+  color: var(--fg-2);
+}
+
+/* Canonical Hero.jsx:362,367 — stage-sub + stage-status both 11. */
+.trust-chain__stage-sub {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--fg-2);
+}
+
+.trust-chain__stage-status {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--fg-2);
+}
+
+.trust-chain__stage.is-pass .trust-chain__stage-status {
+  color: var(--accent);
+}
+
+.trust-chain__stage.is-fail .trust-chain__stage-status {
+  color: var(--bad);
+}
+
+/* Canonical Hero.jsx:391-393 — `marginTop: 20, padding: '14px 18px',
+ * borderRadius: 10`. */
+.trust-chain__decision {
+  margin-top: 20px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  /* USMR 5.5.13 — base border bumped from var(--line) to canonical
+   * var(--line-soft) per Hero.jsx:393. Pre-settle decision card sits
+   * a hair more muted, matching canonical's "the chain is composing"
+   * feel before the verdict commits. */
+  border: 1px solid var(--line-soft);
+  background: var(--bg);
+  font-family: var(--f-mono);
+  /* Canonical Hero.jsx:398-399 — decision-card `fontSize: 12,
+   * color: var(--fg-1)`. Pre-fix used `var(--fg)` (brighter); the
+   * fg-1 reads as canonical body weight against the bg-1 backdrop. */
+  font-size: 12px;
+  color: var(--fg-1);
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all`. The
+   * decision card transitions between is-pending / is-permit / is-deny
+   * states; only color-mix bg, border-color, and box-shadow animate
+   * per canonical. */
+  transition:
+    border-color 0.5s ease,
+    background 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+.trust-chain__decision.is-permit {
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: color-mix(in oklab, var(--accent) 8%, var(--bg));
+  box-shadow:
+    0 0 26px -4px var(--accent),
+    inset 0 0 22px -8px var(--accent);
+}
+
+.trust-chain__decision.is-deny {
+  border-color: color-mix(in oklab, var(--bad) 60%, var(--line));
+  background: color-mix(in oklab, var(--bad) 10%, var(--bg));
+  box-shadow:
+    0 0 20px -4px var(--bad),
+    inset 0 0 20px -8px var(--bad);
+}
+
+/* Canonical Hero.jsx:407 — decision-head eyebrow `fontSize: 10`. */
+/* Canonical Hero.jsx:407 — decision-head `marginBottom: 8`,
+ * `fontSize: 10`. */
+.trust-chain__decision-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.trust-chain__decision.is-permit .trust-chain__decision-pep {
+  color: var(--accent);
+}
+
+.trust-chain__decision.is-deny .trust-chain__decision-pep {
+  color: var(--bad);
+}
+
+.trust-chain__decision-claim {
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.trust-chain__decision.is-permit .trust-chain__decision-claim {
+  color: var(--accent);
+}
+
+.trust-chain__decision.is-deny .trust-chain__decision-claim {
+  color: var(--bad);
+}
+
+.trust-chain__decision-reason {
+  margin-top: 0.375rem;
+  color: var(--fg-2);
+}

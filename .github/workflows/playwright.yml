@@ -65,6 +65,13 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
     env:
       HOME: /root
+      # Enables tests/device-tour.spec.ts on every PR push. The spec
+      # captures one above-the-fold PNG per playwright project and
+      # attaches it via testInfo.attach() — no snapshot baseline,
+      # purely artifact-only evidence. Adds ~15s per shard; reviewers
+      # download the playwright-report-shard-* artifact zip to scan
+      # device parity at a glance. To regenerate: re-run the workflow.
+      DEVICE_TOUR: "1"
     permissions:
       contents: read
     strategy:
@@ -93,6 +100,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The base mcr.microsoft.com/playwright image ships chromium /
+      # firefox / webkit. Microsoft Edge (channel: msedge) and Google
+      # Chrome stable (channel: chrome) are NOT included — both
+      # playwright projects in playwright.config.ts target the OS-level
+      # browser binaries. Install them before running tests so the
+      # Edge/Chrome project shards don't fail with "Executable doesn't
+      # exist". Both `npx playwright install <channel>` invocations are
+      # idempotent and cached by the docker image's apt layer where
+      # possible.
+      - name: Install Microsoft Edge channel
+        run: npx playwright install msedge
+
+      - name: Install Google Chrome channel
+        run: npx playwright install chrome
+
       - name: Build site
         run: npm run build
 
@@ -104,6 +126,18 @@ jobs:
       - name: Run node:test suites (shard 1 only)
         if: matrix.shard == 1
         run: npm run test:node
+
+      # Run vitest unit suites once on shard 1 only — same rationale as
+      # node:test. Discovery is the vitest config glob
+      # `include: ["tests/**/*.test.mts"]` (see vitest.config.ts); the
+      # current set covers data-collection tests + the full lint-* gate
+      # family (path-citation, retired-token, source-comment-archive,
+      # postbuild-chain-sync, etc.). Run `find tests -name '*.test.mts'`
+      # for the live list — this comment is intentionally counter-free
+      # so it doesn't drift each time a new gate lands.
+      - name: Run vitest suites (shard 1 only)
+        if: matrix.shard == 1
+        run: npm run test:vitest
 
       - name: Run Playwright tests
         run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}
@@ -209,16 +243,22 @@ jobs:
       # on ubuntu runners). Local darwin runs produce `*-chromium-darwin.png`
       # which are NOT authoritative — committed baselines come from this
       # workflow's `workflow_dispatch` --update-snapshots run only.
+      # Cross-engine coverage: chromium catches the vast majority of
+      # regressions, but webkit's text-rendering / color-mix evaluation
+      # / focus-ring rendering all differ enough that a chromium-only
+      # baseline misses Safari-class bugs. Mobile Safari extends that to
+      # the touch + sub-1024 viewport surface. Adding them triples the
+      # baseline storage cost — accepted for the engine-parity coverage.
       - name: Run visual regression tests (compare-only)
         if: github.event_name != 'workflow_dispatch'
-        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --project=webkit --project="Mobile Safari"
         env:
           VISUAL_REGRESSION: "1"
         continue-on-error: true
 
       - name: Run visual regression tests (update snapshots)
         if: github.event_name == 'workflow_dispatch'
-        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --update-snapshots
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --project=webkit --project="Mobile Safari" --update-snapshots
         env:
           VISUAL_REGRESSION: "1"
 
@@ -276,8 +316,14 @@ jobs:
       - name: Build site
         run: npm run build
 
+      # Run accessibility-tagged tests on chromium + webkit + Mobile
+      # Safari. Most a11y regressions show up cross-engine identically
+      # (focus-ring CSS, ARIA attribute parsing), but webkit + Mobile
+      # Safari have historically diverged on focus-visible behaviour and
+      # touch-driven focus management — the engine-spread is the cheap
+      # belt-and-suspenders that catches a real subclass of bugs.
       - name: Run accessibility tests
-        run: npx playwright test --grep "accessibility" --project=chromium
+        run: npx playwright test --grep "accessibility" --project=chromium --project=webkit --project="Mobile Safari"
 
       - name: Upload a11y results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

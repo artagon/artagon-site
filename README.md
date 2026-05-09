@@ -52,32 +52,61 @@ artagon-site/
 │   ├── specs/              # Current capability specifications
 │   ├── project.md          # Project conventions
 │   ├── contributing.md     # Contribution guidelines
-│   └── AGENTS.md          # AI agent instructions
-├── public/                 # Static assets (copied as-is to dist/)
-│   ├── .well-known/        # Well-known URIs
-│   ├── assets/             # Images, logos, OG images
+│   └── config.yaml         # OpenSpec CLI project descriptor
+├── public/                 # Static assets (copied as-is to .build/dist/)
+│   ├── .well-known/        # Well-known URIs (security.txt, etc.)
+│   ├── assets/             # Images, logos, OG images, theme.css, fonts/
 │   │   └── logos/          # Logo variants and documentation
 │   ├── icons/              # Favicons and app icons
 │   ├── docsearch.json      # Algolia DocSearch config
 │   ├── robots.txt          # Search engine directives
-│   └── sitemap.xml         # Generated sitemap
-├── scripts/                # Build and asset generation scripts
-│   ├── csp.mjs             # Content Security Policy injection
+│   └── _redirects          # Cloudflare Pages redirect rules
+                            # (sitemap-index.xml is GENERATED to
+                            #  .build/dist/ at build time, NOT
+                            #  pre-existing in public/)
+├── scripts/                # Build, lint, verify, and asset scripts
+                            # (run `ls scripts/*.mjs scripts/*.sh`
+                            #  for the current count — frozen counts
+                            #  pre-pt380 (~14 .mjs + 8 .sh) drifted
+                            #  as new scripts landed; SSoT is the dir)
+│   ├── csp.mjs             # Content Security Policy injection (postbuild)
+│   ├── sri.mjs             # Subresource Integrity injection (postbuild)
 │   ├── lhci-serve.mjs      # LHCI local server with ready signal
-│   ├── sri.mjs             # Subresource Integrity injection
+│   ├── verify-prerequisites.mjs       # USMR Phase 0.5 archive-ordering gate
+│   ├── verify-design-prerequisites.mjs # adopt-design-md-format archive gate
+│   ├── verify-font-self-hosting.mjs   # font-src 'self' postbuild gate
+│   ├── lint-skip-link.mjs  # Skip-link first-tabbable postbuild gate
+│   ├── lint-taglines.mjs   # Single-source tagline gate
+│   ├── lint-tokens.mjs     # Raw color literal gate
+│   ├── sync-build-config.mjs # Generates lighthouserc.json + lychee.toml
 │   ├── make-og-from-template.sh  # OG image generation
 │   ├── make-favicon.sh     # Favicon generation
-│   └── icons/              # Icon generation utilities
+│   ├── icons/              # Icon generation utilities
+│   ├── lib/                # Internal helpers (e.g. openspec-archive.mjs)
+│   └── ...                 # Other helpers (oklch-to-hex, check-design-drift, etc.)
 ├── src/
 │   ├── components/         # Reusable Astro components
+│                           # (run `find src/components -maxdepth 2
+│                           #  -name '*.astro' -o -name '*.tsx' | wc -l`
+│                           #  for current count — pre-pt381 (~30) drifted
+│                           #  as the redesign added/retired surfaces;
+│                           #  SSoT is the dir tree)
 │   │   ├── Header.astro    # Main navigation
 │   │   ├── Footer.astro    # Site footer
 │   │   ├── SeoTags.astro   # SEO meta tags
 │   │   ├── FaqSearch.astro # FAQ search functionality
+│   │   ├── ui/             # UI primitives (Card, SectionHeader, FeatureList)
 │   │   └── ...
-│   ├── data/               # Structured data
-│   │   ├── faq.ts          # FAQ content with schema
-│   │   └── roadmap.ts      # Roadmap phases and timeline
+│   ├── data/               # Typed structured-data registries (~11 modules)
+│   │   ├── faq.ts          # FAQ entries
+│   │   ├── roadmap.ts      # Roadmap horizontal-timeline registry
+│   │   ├── pillars.ts      # Three-pillars taxonomy
+│   │   ├── standards.ts    # Standards / specs registry
+│   │   ├── glossary.ts     # Acronym/term glossary (consumed by Standard chips)
+│   │   └── ...             # Other registries (organization, affiliations, bridge, etc.)
+│   ├── lib/                # Pure helpers (charset, markdown, reading-time)
+│   ├── scripts/            # Browser-side TS (tweaks-state, etc.)
+│   ├── content/            # Astro Content Collections (pages/, writing/, taglines.json)
 │   ├── layouts/
 │   │   └── BaseLayout.astro  # Main layout template
 │   └── pages/              # File-based routing
@@ -90,7 +119,7 @@ artagon-site/
 │       ├── console/        # Console shell
 │       ├── search/         # Search interface
 │       └── ...
-├── astro.config.mjs        # Astro configuration
+├── astro.config.ts         # Astro configuration (TypeScript)
 ├── lighthouserc.json       # Lighthouse CI thresholds
 ├── lychee.toml             # Link checker configuration
 ├── package.json            # Dependencies and scripts
@@ -101,21 +130,26 @@ artagon-site/
 
 ### Core Framework
 
-- **[Astro](https://astro.build/)** v5.15.5 - Static site generator with zero JS by default
+- **[Astro](https://astro.build/)** v6.2.1 - Static site generator with zero JS by default (per `package.json` `"astro": "6.2.1"`)
 - **Static Output** - Pure HTML/CSS/JS, no server required
 - **File-based Routing** - Pages in `src/pages/` map to routes
 
 ### Integrations
 
-- **[@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/)** - Automatic sitemap.xml generation
-  - Filters out `/_drafts/` pages
+The four `@astrojs/*` integrations declared in `package.json` (versions accurate as of `package.json` lines 80-83):
+
+- **[@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/)** 5.0.4 - MDX content rendering for the 3 content collections defined in `src/content.config.ts`: `pages` (`src/content/pages/*.mdx` for marketing-route bodies), `writing` (`src/content/writing/*.mdx` for `/writing/[slug]` long-form posts), and `authors` (`src/content/authors/*.mdx` for author entries referenced from writing frontmatter). Pre-pt394 the README mentioned only `pages` + `/writing/[slug]`, omitting the `authors` collection.
+- **[@astrojs/react](https://docs.astro.build/en/guides/integrations-guide/react/)** 5.0.4 - React island runtime for interactive components. Live islands: `TrustChainIsland`, `TweaksPanel`, `PillarsIsland`, `BridgeFlow`, `UseCasesIsland` (run `ls src/components/*Island.tsx src/components/BridgeFlow.tsx src/components/TweaksPanel.tsx` for the current set — pre-pt393 the README listed only `TrustChainIsland` + `TweaksPanel`, undercounting the 5 actual islands by 60%; the 3 omitted islands all landed under USMR Phase 5.x). USMR Phase 5.x added the integration.
+- **[@astrojs/rss](https://docs.astro.build/en/guides/integrations-guide/rss/)** 4.0.18 - RSS 2.0 feed generation for `/writing/feed.xml` (auto-discovery wiring landed in pt197)
+- **[@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/)** 3.7.2 - Automatic `sitemap-index.xml` generation
+  - Filters out `/_drafts/` pages AND every route in the `NOINDEX_ROUTES` allow-list (`astro.config.ts` per pt146)
   - Canonical domain: `https://artagon.com`
 
 ### Build Tools
 
-- **Node.js** 20+ (CI uses Node 20 and 22)
+- **Node.js** 22+ (per `.nvmrc` 22.12 and `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
 - **npm** - Package manager
-- **Prettier** 3.6.2 - Code formatting
+- **Prettier** 3.8.3 - Code formatting (per `package.json` `"prettier": "3.8.3"`)
 
 ### Security & Performance
 
@@ -128,19 +162,28 @@ artagon-site/
 
 ### Astro Configuration
 
-**File:** `astro.config.mjs`
+**File:** `astro.config.ts`
 
-```javascript
+The config is the canonical TypeScript form (the legacy `astro.config.mjs`
+form was migrated to `.ts` in early USMR Phase 5.x; the `.ts` extension
+lets the config import the typed `BUILD` paths from `build.config.ts`).
+For the live source see [`astro.config.ts`](./astro.config.ts) directly —
+the snippet below is a representative excerpt:
+
+```typescript
+import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
+import mdx from "@astrojs/mdx";
+import react from "@astrojs/react";
+import { BUILD } from "./build.config.ts";
+
 export default defineConfig({
-  site: "https://artagon.com", // Canonical domain
-  output: "static", // Static site generation
-  trailingSlash: "never", // Clean URLs without trailing slashes
-  integrations: [
-    sitemap({
-      filter: (page) => !page.includes("/_drafts/"),
-      customPages: [],
-    }),
-  ],
+  site: "https://artagon.com", // canonical domain (matches CNAME)
+  output: "static",
+  trailingSlash: "never",
+  outDir: BUILD.dist,
+  cacheDir: BUILD.cache.astro,
+  integrations: [mdx(), react(), sitemap({ filter: /* noindex routes */ })],
 });
 ```
 
@@ -161,7 +204,7 @@ Local usage:
 
 ```bash
 npm run build
-npx -y @lhci/cli@0.14.x autorun --config=lighthouserc.json
+npx -y @lhci/cli@0.15.x autorun --config=lighthouserc.json
 ```
 
 The LHCI config starts `scripts/lhci-serve.mjs`, which prints `READY` once the
@@ -187,21 +230,31 @@ timeout = 20
 
 ### Package.json Scripts
 
+The `dev` and `build` scripts both run a `prebuild`/`predev` chain
+that regenerates `lighthouserc.json` + `lychee.toml` from
+`build.config.json` SSoT. The `build` script runs a 10-step
+`postbuild` chain (per the "Build Scripts" subsection below for
+the full ordered list — gated structurally by the pt267
+`lint-readme-postbuild-chain-sync` test).
+
 ```json
 {
   "dev": "astro dev", // Start dev server
-  "build": "astro build", // Build + run postbuild scripts
+  "predev": "npm run build:prebuild-chain", // Sync configs
+  "build": "astro build", // Static site build
+  "prebuild": "npm run build:prebuild-chain", // Sync configs
   "preview": "astro preview", // Preview production build
   "format": "prettier --write .", // Format all files
-  "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs"
+  "postbuild": "<10-step chain — see Build Scripts below>"
 }
 ```
 
-**Postbuild Pipeline:**
+**Build pipeline summary:**
 
-1. `astro build` - Compiles to `dist/`
-2. `scripts/sri.mjs` - Injects SRI hashes and crossorigin attributes
-3. `scripts/csp.mjs` - Generates CSP meta tags with inline script hashes
+1. `prebuild` / `predev` run `npm run build:prebuild-chain` (regenerates the JSON/YAML/TOML configs that derive from `build.config.json`).
+2. `astro build` compiles pages, components, and assets to `.build/dist/`.
+3. `@astrojs/sitemap` emits `sitemap-index.xml` (filtered to indexable routes per `NOINDEX_ROUTES` allow-list).
+4. `postbuild` runs the 10-step chain (verify-prereqs → verify-design-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness — the canonical ordered list lives in the "Build Scripts" subsection below).
 
 ## Development
 
@@ -217,12 +270,48 @@ npm run dev
 
 ### Environment Variables
 
-Create `.env` file for local configuration (gitignored):
+`npm run dev` and `npm run build` work with no env vars set —
+no `.env` file is required for the basic local dev loop. The
+following env vars OPT IN to optional behaviors that
+contributors may encounter:
 
 ```bash
-# Currently no environment variables required
-# Add as needed for local development
+# Visual-regression suite (gated locally; CI runs in dedicated job)
+VISUAL_REGRESSION=1
+
+# Lighthouse CI local-server overrides
+LHCI_PORT=8081                      # Port for scripts/lhci-serve.mjs
+LHCI_DIR=.build/dist                # Dist directory to serve
+LHCI_READY_INTERVAL_MS=250          # Poll interval for READY signal
+LHCI_READY_REQUEST_TIMEOUT_MS=2000  # Per-request timeout
+
+# CI-only (set automatically by GitHub Actions; do not set locally)
+GITHUB_TOKEN=...                    # gh API auth for spec-validate / pr-spec-compliance
+GITHUB_REPOSITORY=owner/repo        # Auto-set by Actions
+GITHUB_EVENT_PATH=/path/to/event    # Auto-set by Actions
+GITHUB_SHA=...                      # Footer build-sha (falls back to git rev-parse locally)
+
+# Test override (do not set unless writing tests against verify-prerequisites.mjs)
+VERIFY_PREREQ_ARCHIVE_SHA=<sha>
+
+# Hot-loop opt-out for the sync:build-config drift gate. Used by .husky/
+# pre-commit:14 to bypass per-commit; also recognized by
+# scripts/sync-build-config.mjs:37 to short-circuit the prebuild/predev
+# sync. Per the openspec/specs/build-config/spec.md `Pre-commit safety
+# net` Requirement, opt-out applies only when explicitly set per-commit.
+SKIP_BUILD_SYNC=1
+
+# pt264 archaeology — `AXE_AUDIT=1` was the pre-Phase-5.1p.8 opt-in
+# for the axe-core WCAG audit. The gate flipped to MANDATORY in
+# pt5.1p.8 after round-3 violations cleared; the env var no longer
+# gates anything (the test runs unconditionally on chromium /
+# webkit / Mobile Safari).
 ```
+
+If a `.env` file is created locally for any of the above, it is
+gitignored per `.gitignore`. The `GLOBAL_DOTENV=1` shell toggle
+(per the `~/.config/AGENTS.md` XDG contract) loads `~/.env` on
+startup; default off.
 
 ### Adding New Pages
 
@@ -257,43 +346,54 @@ All components are Astro components (`.astro` files) with:
 
 **Key Components:**
 
-- `Header.astro` - Main navigation with theme toggle
-- `Footer.astro` - Site footer with links
-- `SeoTags.astro` - Meta tags, Open Graph, JSON-LD schema
-- `FaqSearch.astro` - Client-side FAQ search
-- `RoadmapPhaseCard.astro` - Roadmap timeline cards
+- `Header.astro` - Main navigation (six-link `NAV_LINKS` per pt87 canonical: Platform · Bridge · Use cases · Standards · Roadmap · Blog). The original header theme toggle was removed in pt87 and the standalone `ThemeToggle.astro` was deleted as orphan in pt166; theme switching is now exercised via the dev-only `Tweaks` panel.
+- `Footer.astro` - Site footer (4-column flat grid: Platform / Developers / Company / Legal × 5 links each per pt5.5.3 canonical)
+- `SeoTags.astro` - Meta tags, Open Graph, Twitter Card, JSON-LD `Organization` + `WebSite` schema, robots prop, canonical URLs
+- `FaqSearch.astro` - Client-side FAQ search (renders inside `/faq` route alongside `FaqItem.astro` per-entry markup)
+- `RoadmapTimeline.astro` - Roadmap horizontal-timeline cards (consumes the `src/data/roadmap.ts` typed registry)
 
 ### Structured Data
 
 **Location:** `src/data/`
 
-TypeScript files exporting structured content:
+TypeScript files exporting structured content. Each module ships an explicit `export type` for the row shape and a `readonly` array constant. The shapes shown below are the live shapes — they may evolve, and the canonical source of truth is the `.ts` file itself.
 
-**`faq.ts`** - FAQ with JSON-LD schema:
+**`faq.ts`** - FAQ entries (consumed by `/faq` route + `FaqItem.astro` per-entry markup):
 
 ```typescript
-export const faqData = {
-  title: "Frequently Asked Questions",
-  items: [
-    {
-      question: "What is Artagon?",
-      answer: "...",
-    },
-  ],
+export type FaqItem = {
+  id: string;
+  category: string;
+  question: string;
+  answer: string; // Markdown rendered via the Astro Markdown pipeline
 };
-```
 
-**`roadmap.ts`** - Product roadmap phases:
+export const FAQ_CATEGORIES = [
+  "Platform Overview",
+  "Authentication & Identity",
+  // ...
+] as const;
 
-```typescript
-export const roadmapPhases = [
+export const FAQS: FaqItem[] = [
   {
-    phase: "Foundation",
-    quarter: "Q1 2024",
-    status: "in-progress",
-    items: [...],
+    id: "what-is-artagon",
+    category: "Platform Overview",
+    question: "...",
+    answer: "...",
   },
 ];
+```
+
+**`roadmap.ts`** - Product roadmap horizontal-timeline registry (consumed by `RoadmapTimeline.astro` at `/roadmap` per the pt5.7 5-tuple shape that replaced the earlier 5.1c stub):
+
+```typescript
+export type RoadmapStatus = "shipping" | "in-build" | "design" | "planned";
+
+export interface RoadmapPhase {
+  id: "v1" | "v2" | "v3" | "v4" | "v5"; // anchor id for /roadmap#v3 deep links
+  version: "V1" | "V2" | "V3" | "V4" | "V5"; // mono prefix in the card header
+  // ... time band, scope items, ...
+}
 ```
 
 ## Build & Deployment
@@ -306,11 +406,10 @@ npm run build
 
 **Build Process:**
 
-1. **Prebuild:** `npm run sync:build-config` regenerates `lighthouserc.json` and `lychee.toml` from `build.config.json`
-2. Astro compiles pages, components, and assets to `.build/dist/`
-3. Sitemap generated at `.build/dist/sitemap.xml`
-4. **Postbuild:** SRI script adds integrity hashes to `<script>` and `<link>` tags
-5. **Postbuild:** CSP script injects Content Security Policy meta tag
+1. **Prebuild:** `npm run sync:build-config` regenerates `lighthouserc.json` and `lychee.toml` from `build.config.json`.
+2. Astro compiles pages, components, and assets to `.build/dist/`.
+3. Sitemap generated at `.build/dist/sitemap-index.xml` (filtered to indexable routes per the `NOINDEX_ROUTES` allow-list in `astro.config.ts`).
+4. **Postbuild:** the 10-step chain runs (per `package.json` `postbuild` script — see "Build Scripts" subsection below for the full ordered list). Highlights: SRI hashes (`sri.mjs`), CSP meta-tag injection (`csp.mjs`), skip-link gate, taglines gate, design.md format gate, font-self-hosting gate, etc.
 
 **Output:** `.build/dist/` directory with static HTML/CSS/JS
 
@@ -341,12 +440,20 @@ Serves `.build/dist/` on `http://localhost:4321` to test production build.
 **Workflow:** `.github/workflows/deploy.yml`
 
 ```yaml
-1. Checkout code
-2. Setup Node.js 22
-3. npm install
-4. npm run build
-5. Upload dist/ artifact
-6. Deploy to GitHub Pages
+build job:
+  1. Checkout code (actions/checkout, SHA-pinned — initial pin landed in
+     security-audit commit `42d54ad` `chore(ci): SHA-pin all actions`;
+     ongoing version bumps land via Dependabot's `github-actions`
+     ecosystem entry in `.github/dependabot.yml`. Pre-pt386 cite was
+     "per pt? CODEOWNERS rule" — stale TODO placeholder; CODEOWNERS
+     doesn't enforce SHA-pinning, the security-audit + Dependabot pair
+     does.)
+  2. Setup Node.js 22 (actions/setup-node)
+  3. Install deps with `npm ci` (frozen lockfile — NOT `npm install`)
+  4. `npm run build` (runs prebuild → astro build → postbuild chain)
+  5. Upload `.build/dist/` Pages artifact
+
+deploy job: 6. Deploy to GitHub Pages (actions/deploy-pages)
 ```
 
 **Required Pages setting:** set **Source** to **GitHub Actions** so deployments run from `.github/workflows/deploy.yml` (branch-based Jekyll builds are not supported).
@@ -403,17 +510,19 @@ Automatically adds cryptographic hashes to local JS/CSS resources:
 
 **Script:** `scripts/csp.mjs`
 
-Generates strict CSP as `<meta>` tag with:
+Generates strict CSP as `<meta>` tag with the 9 directives constructed by `buildPolicy()` in `scripts/csp.mjs`:
 
 - `default-src 'self'` - Only same-origin resources
-- `script-src 'self' 'sha256-...'` - Inline scripts hashed
+- `script-src 'self' 'sha256-...'` - Inline scripts hashed; orphan-hash detection in `csp.mjs` fails the build if any emitted hash is not present in the final `script-src` directive
 - `style-src 'self' 'unsafe-inline'` - Styles allowed (Astro scoped styles)
 - `img-src 'self' data:` - Images from same origin + data URIs
+- `font-src 'self'` - Fonts from same origin only (no third-party CDNs); the `verify-font-self-hosting.mjs` postbuild gate fails the build if any `dist/**/*.{html,css}` references `fonts.googleapis.com` or similar
+- `connect-src 'self'` - XHR / fetch / WebSocket targets locked to same origin
 - `object-src 'none'` - No plugins
 - `base-uri 'none'` - Prevent base tag injection
 - `frame-ancestors 'none'` - Prevent clickjacking
 
-All inline `<script>` tags are hashed and added to CSP automatically.
+All inline `<script>` tags are hashed and added to `script-src` automatically. DocSearch / Algolia origins are added as `extras` only when DocSearch is enabled.
 
 ### Performance Optimizations
 
@@ -492,29 +601,112 @@ Generates logo variants from source files.
 
 **Documentation:**
 
-- `public/assets/logos/README.md` - Logo usage guidelines
-- `docs/LOGO_USAGE.md` - Detailed logo documentation
-- `docs/LOGO_CONVERSION_SUMMARY.md` - Conversion process
+- `public/assets/logos/README.md` - Logo usage guidelines and variant inventory
+
+#### Composite App Icons
+
+```bash
+./scripts/compose-app-icons.sh source.(svg|png) [out-dir]
+```
+
+Generates PWA, iOS (`AppIcon.appiconset`), and Android (`mipmap-*`) app icon sets from a single source image.
+
+#### Quick OG Image
+
+```bash
+./scripts/make-og-image.sh "Title text" [out.png]
+```
+
+Quick OG image renderer (1200×630, ImageMagick). Distinct from `make-og-from-template.sh` (full SVG-template + logo overlay path).
+
+#### Optimize SVG
+
+```bash
+./scripts/optimize-svg.sh input.svg [output.svg]
+```
+
+`svgo`-based SVG optimizer (multipass mode). Used before committing new logos / illustrations.
 
 ### Build Scripts
 
-#### SRI Injection
+The postbuild pipeline (per `package.json` `postbuild` script) runs the following steps in order after `astro build`:
 
-**File:** `scripts/sri.mjs`
+1. `verify:prerequisites` — `scripts/verify-prerequisites.mjs`
+   asserts the `refactor-styling-architecture` change is archived
+   (or its merge SHA is an ancestor of HEAD) before USMR work
+   can land.
+2. `verify:design-prerequisites` — `scripts/verify-design-prerequisites.mjs`
+   asserts `adopt-design-md-format` archive ordering before
+   `design-system-format`-dependent work can land (`adopt-design-md-format`
+   archived 2026-05-05; live capability spec is
+   `openspec/specs/design-system-format/spec.md`).
+3. `lint:tokens` — `scripts/lint-tokens.mjs` walks `git ls-files`
+   for raw color literals outside DESIGN.md frontmatter; fails
+   on hex/rgb/hsl/oklch literals not declared as tokens.
+4. `verify-font-self-hosting.mjs` — `scripts/verify-font-self-hosting.mjs`
+   asserts no third-party font CDN refs leak into `.build/dist/`
+   (locks `font-src 'self'`).
+5. `sri.mjs` — Scans `.build/dist/*.html`, computes SHA-256 for
+   local JS/CSS, adds `integrity` + `crossorigin` attributes,
+   writes `.build/dist/sri-manifest.json`.
+6. `csp.mjs` — Extracts inline script SHA-256 hashes, builds
+   `script-src` directive, injects
+   `<meta http-equiv="Content-Security-Policy">` into every
+   `.build/dist/*.html`. Includes orphan-hash detection
+   (every emitted hash MUST be present in script-src).
+7. `lint:skip-link` — `scripts/lint-skip-link.mjs` asserts every
+   built page in `.build/dist/` has a skip-link as the first
+   focusable element with a valid `href="#<id>"` target.
+8. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
+   source for tagline strings via `src/content/taglines.json`.
+9. `lint:design` — `design.md lint DESIGN.md` per
+   `@google/design.md@0.1.1`.
+10. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
+    guards against duplicate DESIGN.md FILES — exactly one at the
+    repo root, none under `src/`, `new-design/`, or any other
+    tracked path (two design systems in flight would defeat the
+    precedence chain). Pre-pt383 said "duplicate token names" —
+    comment-as-code drift; the script checks file-path uniqueness,
+    not token-name uniqueness.
+11. `verify:indexation` — `scripts/validate-indexation.mjs`
+    (USMR Phase 10.7 / pt418) runs three checks against the built
+    output: (A) meta-robots parity — every `.build/dist/*.html`
+    page MUST have `<meta name="robots" content="noindex, nofollow">`
+    iff its route is in `NOINDEX_ROUTES` (per `src/lib/indexation.ts`
+    SSoT, pt416); (B) sitemap `<lastmod>` parity vs MDX
+    `updated`/`published` frontmatter (vacuously satisfied today;
+    becomes load-bearing once Phase 10.1 wires the sitemap
+    `serialize` hook); (C) `public/_redirects` destinations are
+    same-origin (start with `/`, no `://`, no `//`).
 
-- Scans all HTML files in `dist/`
-- Computes SHA-256 hashes for local JS/CSS
-- Adds `integrity` and `crossorigin` attributes
-- Updates HTML in-place
+The chain is **lock-aware**: `clean.mjs` uses `.build/.run.lock`
+to coordinate cleanup across parallel runs (exit code 73 if the
+lock is held by another process).
 
-#### CSP Injection
+Other build-related scripts not in the postbuild chain:
 
-**File:** `scripts/csp.mjs`
-
-- Extracts inline script content from all HTML files
-- Computes SHA-256 hashes
-- Builds CSP policy with script hashes
-- Injects `<meta http-equiv="Content-Security-Policy">` tag
+- `scripts/sync-build-config.mjs` — regenerates JSON/YAML/TOML
+  configs (`lighthouserc.json`, `lychee.toml`) from
+  `build.config.json` SSoT (run via `prebuild` before
+  `astro build`).
+- `scripts/lhci-serve.mjs` — Lighthouse CI local server with
+  `READY` signal (consumed by `lighthouserc.json`).
+- `scripts/check-design-drift.mjs` — orphan-token detection. Every
+  CSS custom property declared in `public/assets/theme.css` MUST
+  resolve to a token in `DESIGN.md` YAML frontmatter, OR appear on
+  the documented allow-list in `docs/design-md.md` §6. Wired into
+  `.github/workflows/design-md-lint.yml` (runs on every push +
+  pull_request, NOT weekly). Pre-pt389 cite said "run by
+  `design-md-drift.yml` weekly cron" — that's a different workflow:
+  `design-md-drift.yml` runs `spec:cache` + upstream-spec drift
+  checks (regenerates `openspec/.cache/design-md-spec.md` from the
+  npm package and verifies upstream repo health), NOT orphan-token
+  detection.
+- `scripts/check-oklch-hex-parity.mjs` + `scripts/oklch-to-hex.mjs`
+  — design.md OKLCH↔hex hybrid policy gates (precondition of
+  `lint:design`).
+- `scripts/verify-design-md-telemetry.mjs` — telemetry verification
+  for design.md adoption metrics.
 
 ## CI/CD Pipeline
 
@@ -535,26 +727,21 @@ Generates logo variants from source files.
 
 #### Lighthouse CI (`lighthouse.yml`)
 
-**Trigger:** Push to `main`
+**Trigger:** `pull_request` (any branch) + push to `main` + `workflow_dispatch` (manual). Per `lighthouse.yml` lines 2-6 — pre-pt390 the README listed only "Push to `main`", which undercounted the live trigger set.
 
 **Process:**
 
 1. Build site
-2. Start HTTP server on port 8081
-3. Run Lighthouse audits (2 runs)
-4. Assert score thresholds
-5. Upload results to temporary storage
+2. Start HTTP server on port 8081 (via `scripts/lhci-serve.mjs`)
+3. Run Lighthouse audits
+4. Assert score thresholds against `lighthouserc.json` `assertMatrix`
+5. Upload results
 
-**Thresholds:**
-
-- Performance: ≥90% (warn)
-- Accessibility: ≥95% (error)
-- Best Practices: ≥90% (error)
-- SEO: ≥95% (error)
+**Thresholds:** declared in `lighthouserc.json` `assertMatrix` — TWO URL-pattern blocks today: one for `/brand` (performance 80% error, accessibility 95% error, best-practices 90% error, seo off), one default (`.*` — performance 85% warn, accessibility 90% error, best-practices 90% warn, seo 90% warn, plus LCP ≤ 4000 ms warn). Pre-pt390 the README listed a single threshold block (Performance ≥90% warn, Accessibility ≥95% error, etc.); none of those values matched the live `lighthouserc.json` shape. Live values shift over time as performance budgets evolve — read `lighthouserc.json` `assertMatrix` directly for the canonical contract; this section names the SSoT rather than freezing values that drift.
 
 #### Link Check (`link-check.yml`)
 
-**Trigger:** Scheduled (weekly) or manual
+**Trigger:** `pull_request` (any branch) + push to `main` + `workflow_dispatch` (manual). Per `link-check.yml` lines 2-4 — there is NO schedule/cron trigger. Pre-pt392 the README said "Scheduled (weekly) or manual" — phantom-trigger drift; the workflow has never had a cron and runs per-commit, not weekly.
 
 **Process:**
 
@@ -568,9 +755,9 @@ Generates logo variants from source files.
 
 #### Agents Check (`agents-check.yml`)
 
-**Trigger:** Push
+**Trigger:** `pull_request` (any branch) + `workflow_dispatch` (manual). Per `agents-check.yml` lines 2-4. Pre-pt391 the README said "Push" — that wasn't a live trigger; the workflow has never run on push.
 
-Validates AI agent configuration in `.agents/` directory.
+**Process:** Asserts 4 specific agent-config files exist (the workflow's only step is a `test -f` chain): `.agents/AGENT_MANIFEST.yaml`, `.agents/llm-config.json`, `.agents/policies/guardrails.md`, `.agents/context/vision-and-roadmap-full.md`. Pre-pt391 the README described it as "Validates AI agent configuration" — vague; the gate only file-exists-checks the 4 named paths, not the contents.
 
 #### Copilot Setup Steps (`copilot-setup-steps.yml`)
 
@@ -580,14 +767,50 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 
 #### Release (`release.yml`)
 
-**Trigger:** Push tag matching `v*.*.*`
+**Trigger:** Push of any tag matching `v*.*.*` OR `v*.*` OR `v*` (3 tag patterns per `release.yml` line 4 — `tags: ["v*.*.*", "v*.*", "v*"]`). Pre-pt391 the README listed only `v*.*.*`, undercounting the live tag-pattern set.
 
 **Process:**
 
 1. Build site
-2. Create zip of `dist/`
+2. Create zip of `.build/dist/`
 3. Create GitHub release
 4. Attach `dist.zip` as release asset
+
+#### Playwright Tests (`playwright.yml`)
+
+**Trigger:** Push to `main` or `feature/*`, pull request to `main`, manual dispatch
+
+**Process:** Runs the Playwright cross-engine test matrix (5 shards × all projects) plus dedicated visual-regression and accessibility jobs (chromium / webkit / Mobile Safari). Uploads per-shard reports as artifacts (14-day retention). See `AGENTS.md` §"Testing" for the full project matrix and shard-distribution contract.
+
+#### Design.md Lint (`design-md-lint.yml`)
+
+**Trigger:** Push to `main` or `feature/*`, pull request to `main`, manual dispatch
+
+**Process:** Runs the design.md linter (`design.md lint DESIGN.md` per `@google/design.md@0.1.1`) plus the project's ast-grep token-citation gates. Fails the build on token drift, retired-alias use, or design.md format violations.
+
+#### Design.md PR Diff (`design-md-pr-diff.yml`)
+
+**Trigger:** Pull request to `main` modifying `DESIGN.md`
+
+**Process:** Posts a PR-scoped comment showing the design.md diff (added/removed/changed tokens, components, color contracts) so reviewers can see visual-identity changes inline.
+
+#### Design.md Drift Monitor (`design-md-drift.yml`)
+
+**Trigger:** Weekly cron (Mondays 06:00 LA time) or manual dispatch
+
+**Process:** Refreshes `openspec/.cache/design-md-spec.md` from `npx @google/design.md spec --format markdown`. Catches upstream spec changes that would invalidate our pinned `@google/design.md@0.1.1` adoption.
+
+#### PR Spec Compliance (`pr-spec-compliance.yml`)
+
+**Trigger:** Pull request
+
+**Process:** Validates every PR references a parent spec issue (label `spec`) AND aligns implementation with the OpenSpec change's acceptance criteria. Tags scope-creep PRs with `needs-spec` / `scope-creep` labels per `.github/labels.yml`.
+
+#### Spec Review Reminder (`spec-review-reminder.yml`)
+
+**Trigger:** GitHub issue labeled `spec` or closed
+
+**Process:** Drives the OpenSpec review cadence — pings reviewers when a spec is opened, closes the loop when a spec is implemented or rejected.
 
 ## OpenSpec Workflow
 
@@ -640,7 +863,7 @@ openspec archive <change-id> --yes
 
 ### Documentation
 
-- **`openspec/AGENTS.md`** - Comprehensive OpenSpec guide for AI agents
+- **`AGENTS.md`** - Canonical project + OpenSpec agent guide (CLAUDE.md / GEMINI.md symlink to it)
 - **`openspec/project.md`** - Project context and conventions
 - **`openspec/contributing.md`** - Contribution guidelines with examples
 
@@ -735,15 +958,15 @@ See **[openspec/contributing.md](./openspec/contributing.md)** for:
 
 - **`.agents/policies/guardrails.md`** - Development guardrails and constraints
 - **`.agents/policies/release-checklist.md`** - Pre-release validation steps
-- **`AGENTS.md`** → **`openspec/AGENTS.md`** - Main OpenSpec agent instructions
-- **`CLAUDE.md`** - Symlink to AGENTS.md
-- **`GEMINI.md`** - Symlink to AGENTS.md
+- **`AGENTS.md`** - Main OpenSpec + project agent instructions (single source of truth at the repo root)
+- **`CLAUDE.md`** → **`AGENTS.md`** (symlink)
+- **`GEMINI.md`** → **`AGENTS.md`** (symlink)
 
 ### Agent Workflow
 
 AI agents should:
 
-1. Read `openspec/AGENTS.md` for OpenSpec workflow
+1. Read `AGENTS.md` for OpenSpec workflow + project conventions
 2. Read `openspec/project.md` for project context
 3. Read `openspec/contributing.md` for contribution guidelines
 4. Use OpenSpec commands to understand existing work
@@ -755,12 +978,25 @@ AI agents should:
 
 ## Additional Documentation
 
-- **`docs/SITE_AUDIT.md`** - Site structure and content audit
-- **`docs/LOGO_USAGE.md`** - Logo usage guidelines and variants
-- **`docs/LOGO_CONVERSION_SUMMARY.md`** - Logo conversion process
-- **`public/assets/logos/README.md`** - Logo file reference
-- **`scripts/icons/README.md`** - Icon generation guide
-- **`scripts/icons/VERIFICATION.md`** - Icon verification checklist
+Living guides (current state authoritative):
+
+- **`docs/AUTOMATED_TESTING.md`** - Playwright + vitest + node:test runners, project matrix, gating contract; pre-Phase-1 sections retired in pt233/pt235 in favor of pointer-to-`tests/README.md`.
+- **`docs/CONTRIBUTING.md`** - OpenSpec workflow + spec/proposal/implementation cadence; complements the canonical `openspec/contributing.md`.
+- **`docs/build-artifacts.md`** - SSoT contract for `.build/{cache,reports,dist}/`, generated-file inventory, "add a tool" contributor checklist; governed by `openspec/specs/build-config/spec.md`.
+- **`docs/design-md.md`** - design.md authoring guide (token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook).
+- **`docs/decisions/0001-no-tailwind.md`** - Architecture-decision record on the no-Tailwind contract.
+- **`docs/guides/styling-guide.md`** - Component-vs-utility decision tree, theme-variable reference, post-archive distilled record from `refactor-styling-architecture`.
+- **`docs/guides/new-design-conversion.md`** - Conversion guide from `new-design/extracted/` mocks to live Astro routes; consumed by USMR Phase 5.x work.
+
+Asset / icon references:
+
+- **`public/assets/logos/README.md`** - Logo file reference and variants.
+- **`scripts/icons/README.md`** - Icon generation guide.
+- **`scripts/icons/VERIFICATION.md`** - Icon verification checklist.
+
+Historical snapshots (read-only):
+
+- **`docs/SITE_AUDIT.md`** - Phase-1-era audit dated 2026-05-04 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
 
 ## License
 

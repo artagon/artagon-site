@@ -1,7 +1,9 @@
 # Dependabot configuration — keeps GitHub Actions SHA pins fresh and
 # bumps npm devDeps on a weekly schedule. Required by
-# openspec/changes/standardize-build-artifacts (Sync Generator and Drift
-# Gate Requirement) so the SHA-pin enforcement gate has an upgrade path.
+# the standardize-build-artifacts spec (archived 2026-05-05 to
+# openspec/changes/archive/2026-05-05-standardize-build-artifacts/;
+# Sync Generator and Drift Gate Requirement) so the SHA-pin
+# enforcement gate has an upgrade path.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -38,7 +40,16 @@ updates:
       prefix: "chore(deps)"
       include: scope
     ignore:
-      # Major bumps gated on manual review (Astro 5 → 6, Playwright 1.x → 2.x)
+      # Major bumps gated on manual review. Live versions today:
+      # `astro` = 6.2.1 (USMR Phase 5.x is on Astro 6; the 5 → 6
+      # migration shipped mid-USMR), `@playwright/test` = 1.59.1.
+      # Future Astro 6 → 7 / Playwright 1.x → 2.x bumps need a
+      # human reviewer per the build-config capability spec at
+      # openspec/specs/build-config/spec.md (originally authored
+      # in the archived openspec/changes/archive/2026-05-05-
+      # standardize-build-artifacts/ proposal — its `Sync
+      # Generator and Drift Gate` Requirement is the SSoT
+      # contract referenced here).
       - dependency-name: "astro"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@playwright/test"

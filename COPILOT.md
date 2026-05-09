@@ -1,15 +1,17 @@
 # Copilot Context
 
-This repository uses OpenSpec for spec-driven development. Start with the authoritative workflow in `openspec/AGENTS.md`.
+This repository uses OpenSpec for spec-driven development. Start with the authoritative workflow in the root `AGENTS.md` (CLAUDE.md and GEMINI.md symlink to it).
 
 Required references:
-- `openspec/AGENTS.md`
+
+- `AGENTS.md` (canonical project + OpenSpec agent guide)
 - `openspec/project.md`
 - `openspec/contributing.md`
 - `.github/copilot-instructions.md`
 - `.github/copilot-review-instructions.md`
 
 When reviewing or implementing a change:
+
 1. Run `openspec list` to identify the active change.
 2. Read `openspec/changes/<change-id>/proposal.md`, `tasks.md`, and the spec deltas under `openspec/changes/<change-id>/specs/`.
 3. Confirm the parent spec issue (label `spec`) and align implementation with acceptance criteria.

@@ -1,0 +1,264 @@
+---
+// USMR Phase 5.5 — /writing index. Refreshes the 5.1q-era stub to
+// match new-design/extracted/src/pages/blog.html (the canonical "Blog
+// · Field notes…" composition). The route remains canonically /writing
+// — the new /blog redirect (added in this phase) sends visitors here.
+//
+// Card layout is 140 px mono-stacked date column + flex content
+// (title + lede + meta strip). Hover tints with `color-mix(in oklab,
+// var(--accent) 4%, transparent)` matching the canonical .post-card
+// hover state.
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+interface PostMeta {
+  id: string;
+  data: {
+    headline: string;
+    lede: string;
+    published: Date;
+    tags: string[];
+    author?: string;
+  };
+  body: string | undefined;
+}
+
+const posts = (await getCollection('writing'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime()) as readonly PostMeta[];
+
+// Resolve authors lazily — a missing slug renders the post without a
+// byline rather than crashing the index. (Schema marks `author`
+// optional already, so bypassing the resolution is safe.)
+const authors = await getCollection('authors');
+const authorByName = new Map(authors.map((a) => [a.id, a.data.name]));
+
+// USMR Phase 5.5.11 Task #30 — readingMinutes hoisted to
+// `src/lib/reading-time.ts` so the index card + detail byline
+// share one implementation and cannot drift.
+import { readingMinutes } from '../../lib/reading-time.ts';
+
+interface DateParts {
+  year: string;
+  monthDay: string;
+  iso: string;
+}
+function dateParts(d: Date): DateParts {
+  const year = String(d.getFullYear());
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return { year, monthDay: `${month} · ${day}`, iso: d.toISOString() };
+}
+
+// "Strategy" / "Engineering" / "Launch" — first tag as the meta-line
+// eyebrow. Matches the canonical "Strategy · 4 min read · Author"
+// pattern from new-design blog.html lines 846/855/864.
+function primaryTag(tags: string[]): string {
+  return tags[0] ?? 'Field notes';
+}
+---
+<Base
+  title="Writing — Artagon"
+  description="Field notes, technical write-ups, and announcements from the team building the Artagon identity platform."
+  path="/writing"
+>
+  <Fragment slot="header"><Header /></Fragment>
+
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      provides <main id="main-content">. */}
+    <section class="writing-hero" aria-labelledby="writing-hero-heading">
+      <div class="writing-wrap">
+        <p class="writing-hero__eyebrow">Blog · Field notes from the Artagon team</p>
+        <h1 id="writing-hero-heading" class="writing-hero__title display">
+          Writing on <span class="writing-hero__emphasis">trust</span>, identity, and verifiable systems.
+        </h1>
+        <p class="writing-hero__lede">
+          Engineering notes, strategy, and field reports from the team building Artagon.
+        </p>
+      </div>
+    </section>
+
+    {posts.length === 0 ? (
+      <section class="writing-list" aria-label="Posts">
+        <div class="writing-wrap">
+          <p class="writing-list__empty">No posts yet — check back soon.</p>
+        </div>
+      </section>
+    ) : (
+      <section class="writing-list" aria-label="Posts">
+        <div class="writing-wrap">
+          {posts.map((post) => {
+            const parts = dateParts(post.data.published);
+            const minutes = readingMinutes(post.body);
+            const tag = primaryTag(post.data.tags);
+            const byline = post.data.author ? authorByName.get(post.data.author) : undefined;
+            return (
+              <a class="post-card" href={`/writing/${post.id}`}>
+                <time class="post-card__date" datetime={parts.iso}>
+                  <span class="post-card__date-year">{parts.year}</span>
+                  <span class="post-card__date-md">{parts.monthDay}</span>
+                </time>
+                <div class="post-card__body">
+                  <h2 class="post-card__title">{post.data.headline}</h2>
+                  <p class="post-card__excerpt">{post.data.lede}</p>
+                  <p class="post-card__meta">
+                    {tag} · {minutes} min read{byline ? ` · ${byline}` : ''}
+                  </p>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>
+
+<style>
+  .writing-wrap {
+    max-width: 920px;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .writing-hero {
+    /* USMR Phase 5.5.5 — canonical (new-design blog.html:823) uses
+     * `paddingTop: 72, paddingBottom: 8` flat. The earlier clamp
+     * inflated the bottom gap on wide viewports, breaking the visual
+     * tightness of the canonical hero → list stack. */
+    padding-block: clamp(56px, 7vw, 72px) 8px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  /* Canonical .eyebrow contract — global.css:220-226. font 12 / fg-2 /
+   * 0.1em / margin-bottom 24 / 18 px accent dash via ::before.
+   * Pre-fix the writing-hero used scoped 0.72rem / fg-3 / 0.12em /
+   * 1.25rem margin without the dash. */
+  .writing-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0 0 24px;
+  }
+  .writing-hero__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+  /* Canonical blog.html:828 — `margin: '16px 0 20px'`. The 16 top
+   * adds breathing room between eyebrow and h1 (eyebrow margin-bottom
+   * 24 + h1 margin-top 16 = 40 separation). Pre-fix 0 top margin
+   * had only 20 px (just the eyebrow's bottom margin). */
+  .writing-hero__title {
+    font-family: var(--f-display);
+    font-size: clamp(44px, 5.5vw, 84px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.02em);
+    color: var(--fg);
+    margin: 16px 0 20px;
+    max-width: 18ch;
+  }
+  .writing-hero__emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+  .writing-hero__lede {
+    color: var(--fg-2);
+    font-size: 18px;
+    line-height: 1.55;
+    max-width: 54ch;
+    margin: 0;
+  }
+
+  .writing-list {
+    padding-block: clamp(40px, 6vw, 56px) clamp(80px, 12vw, 120px);
+  }
+  .writing-list__empty {
+    color: var(--fg-2);
+    font-size: 17px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .post-card {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--line-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease;
+  }
+  .post-card:hover,
+  .post-card:focus-visible {
+    background: color-mix(in oklab, var(--accent) 4%, transparent);
+  }
+  .post-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 540px) {
+    .post-card {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+
+  .post-card__date {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--fg-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .post-card__date-year { display: block; }
+  .post-card__date-md { display: block; }
+
+  .post-card__title {
+    font-family: var(--f-display);
+    font-size: clamp(24px, 2.2vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    margin: 0 0 10px;
+    font-weight: 500;
+  }
+  .post-card__excerpt {
+    color: var(--fg-2);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0 0 14px;
+    max-width: 64ch;
+  }
+  .post-card__meta {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--fg-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  @media (forced-colors: active) {
+    .post-card:hover,
+    .post-card:focus-visible {
+      background: Canvas;
+      outline: 2px solid Highlight;
+    }
+  }
+</style>

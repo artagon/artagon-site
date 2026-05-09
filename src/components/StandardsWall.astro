@@ -1,0 +1,261 @@
+---
+// USMR Phase 5.4 — /standards 3-column wall + affiliation badges.
+// Ports new-design/extracted/src/components/Standards.jsx to a
+// token-only static Astro component. No interactivity needed —
+// the column grid is purely presentational.
+//
+// Each item's `name` is glossary-looked-up — matches become
+// hover-able canonical-URL links via the global `.standard-chip`
+// class (Phase 5.2.1 single-source rule). Misses render as plain
+// text; the build-time warning surfaces in dev.
+import { STANDARDS_GROUPS, STANDARDS_BADGES } from '../data/standards';
+import { lookupGlossary } from '../data/glossary';
+---
+<section class="standards-wall" aria-labelledby="standards-wall-heading" id="standards-wall">
+  <div class="standards-wall__head">
+    <div>
+      <p class="standards-wall__eyebrow">Standards & specs</p>
+      <h2 id="standards-wall-heading" class="standards-wall__title display">
+        We don't invent protocols.<br />
+        <span class="standards-wall__title-emphasis">We implement</span> them rigorously.
+      </h2>
+    </div>
+    <p class="standards-wall__lede lead">
+      Artagon contributes to IETF, OpenID Foundation, and W3C working groups.
+      Every feature maps to a published spec; every flow is conformance-testable.
+    </p>
+  </div>
+
+  <div class="standards-wall__columns">
+    {STANDARDS_GROUPS.map((group) => (
+      <div class="standards-col" id={`standards-col-${group.id}`}>
+        <h3 class="standards-col__head">{group.label}</h3>
+        <ul class="standards-col__list">
+          {group.items.map((item) => {
+            const def = lookupGlossary(item.name);
+            return (
+              <li class="standards-col__item">
+                <span class="standards-col__name">
+                  {def ? (
+                    <a
+                      href={def.href}
+                      target={def.external ? '_blank' : undefined}
+                      rel={def.external ? 'noopener noreferrer' : undefined}
+                      title={def.name}
+                      class="standard-chip"
+                    >{item.name}</a>
+                  ) : (
+                    item.name
+                  )}
+                </span>
+                <span class="standards-col__desc">{item.description}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </div>
+
+  <div class="standards-wall__badges" role="list" aria-label="Affiliations & memberships">
+    {STANDARDS_BADGES.map((badge) => (
+      <div class="standards-badge" role="listitem">
+        <p class="standards-badge__kind">{badge.kind}</p>
+        <p class="standards-badge__value">{badge.value}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .standards-wall {
+    padding-block: clamp(80px, 8vw, 120px);
+    background: var(--bg-1);
+    border-block: 1px solid var(--line-soft);
+  }
+
+  .standards-wall__head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 56px;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+  .standards-wall__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    margin: 0 0 24px;
+  }
+  .standards-wall__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .standards-wall__title {
+    font-family: var(--f-display);
+    /* USMR Phase 5.5.9 — canonical h2 scale per global.css:230. */
+    font-size: clamp(36px, 4vw, 60px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0;
+  }
+  .standards-wall__title-emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+
+  /* Canonical Standards.jsx — uses .lead 20 / fg-1 / 1.5. Pre-fix
+   * 1.05rem (≈16.8) was 3.2 px undersized. */
+  .standards-wall__lede {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--fg-1);
+    max-width: 48ch;
+    justify-self: end;
+    margin: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .standards-wall__head {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 40px;
+    }
+    .standards-wall__lede {
+      justify-self: start;
+    }
+  }
+
+  .standards-wall__columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  @media (max-width: 1024px) {
+    .standards-wall__columns {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  /* Canonical Standards.jsx:51 — col head `fontSize: 11`. */
+  .standards-col__head {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 10px;
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+
+  .standards-col__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Canonical Standards.jsx:61 — col item `fontSize: 12.5`. */
+  .standards-col__item {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--f-mono);
+    font-size: 12.5px;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .standards-col__name {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  /* Canonical Standards.jsx:65 — col desc `fontSize: 12`. */
+  .standards-col__desc {
+    color: var(--fg-2);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 540px) {
+    .standards-col__item {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+
+  .standards-wall__badges {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 64px;
+    padding-top: 40px;
+    border-top: 1px solid var(--line-soft);
+    flex-wrap: wrap;
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .standards-badge {
+    text-align: center;
+  }
+
+  /* Canonical Standards.jsx:81-82 — badge kind 10 / value 15. */
+  .standards-badge__kind {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--fg-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+
+  .standards-badge__value {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+    color: var(--fg);
+  }
+
+  /* USMR Phase 5.5.16-pt127 — forced-colors override per DESIGN.md
+   * §11.7 "Forced colors mode" line 1343 (pre-pt378 cite was
+   * incorrectly §7 "Do's and Don'ts" which doesn't mandate forced-
+   * colors). The eyebrow accent dash (18 × 1 px ::before line tinted with
+   * var(--accent)) collapses to a flat system color under Windows
+   * High Contrast — the canonical solution is to map it to Highlight
+   * so the section-break signal survives the OS palette remap. The
+   * rest of the StandardsWall composition (h2 fg, lede fg-1, badge
+   * borders + values) uses fg-* tokens that the system handles
+   * automatically. */
+  @media (forced-colors: active) {
+    .standards-wall__eyebrow::before {
+      background: Highlight;
+    }
+  }
+</style>

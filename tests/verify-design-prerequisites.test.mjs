@@ -1,5 +1,7 @@
 // Unit tests for scripts/verify-design-prerequisites.mjs
-// Per `adopt-design-md-format` Phase 0.6 acceptance:
+// Per `adopt-design-md-format` Phase 0.6 acceptance (proposal archived
+// 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+// live spec is `openspec/specs/design-system-format/spec.md`):
 //   (a) redesign in flight + tasks reference old paths → exit 1
 //   (b) redesign in flight + tasks updated → exit 0
 //   (c) redesign archived → exit 0 regardless of historical references

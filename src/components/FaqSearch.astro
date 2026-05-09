@@ -15,8 +15,19 @@
       aria-label="Search frequently asked questions"
       autocomplete="off"
     />
-    <button id="faq-clear" class="faq-clear-btn" aria-label="Clear search" style="display: none;">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    {/* USMR Phase 5.5.16-pt137 — explicit type="button" prevents the
+        default-submit behavior. <button> elements inside a <form>
+        default to type="submit"; while the parent is currently a
+        <div>, future authoring that wraps the search in a <form>
+        would silently submit the page on click. Locked here per the
+        project-wide explicit-type contract. */}
+    <button type="button" id="faq-clear" class="faq-clear-btn" aria-label="Clear search" style="display: none;">
+      <!-- USMR Phase 5.5.16-pt133 — aria-hidden + focusable=false on
+           the icon-only button's child SVG. The parent button carries
+           aria-label="Clear search" as the AT name; the inner SVG
+           must NOT also announce or it double-reads under screen
+           readers ("Clear search graphic close mark Clear search"). -->
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false">
         <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </button>
@@ -39,29 +50,32 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--muted);
+  color: var(--fg-2);
   pointer-events: none;
 }
 
 #faq-search {
   width: 100%;
   padding: 14px 48px 14px 48px;
-  font-size: 1rem;
+  /* USMR Phase 5.5.16-pt124 — rem→px (pt19-22). 1rem → 16; pinned
+   * fixed-px because iOS Safari zooms inputs sized <16 px on focus
+   * (a11y/UX regression class). Keep at exactly 16, never below. */
+  font-size: 16px;
   background: var(--card-bg);
   border: 2px solid var(--card-stroke);
   border-radius: 12px;
-  color: var(--text);
+  color: var(--fg);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #faq-search:focus {
   outline: none;
-  border-color: var(--brand-teal);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-teal) 15%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 #faq-search::placeholder {
-  color: var(--muted);
+  color: var(--fg-2);
 }
 
 .faq-clear-btn {
@@ -73,7 +87,7 @@
   border: none;
   padding: 8px;
   cursor: pointer;
-  color: var(--muted);
+  color: var(--fg-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,19 +97,45 @@
 
 .faq-clear-btn:hover {
   background: color-mix(in srgb, var(--card-stroke) 50%, transparent);
-  color: var(--text);
+  color: var(--fg);
 }
 
 .faq-results {
   margin-top: 12px;
-  font-size: 0.9rem;
-  color: var(--muted);
+  /* USMR Phase 5.5.16-pt124 — rem→px (0.9rem ≈ 14.4 → 14). Meta-text
+   * scale; below 16 is fine for a non-input element. */
+  font-size: 14px;
+  color: var(--fg-2);
 }
 
 @media (max-width: 768px) {
   #faq-search {
     padding: 12px 44px 12px 44px;
-    font-size: 0.95rem;
+    /* USMR Phase 5.5.16-pt124 — pre-fix shipped 0.95rem ≈ 15.2 px,
+     * which triggers iOS Safari auto-zoom on input focus. Pinned
+     * to 16 to prevent the zoom regression class. */
+    font-size: 16px;
+  }
+}
+
+/* USMR Phase 5.5.16-pt126 — forced-colors override per DESIGN.md
+ * §11.7 "Forced colors mode" line 1343 (pre-pt378 cite was
+ * incorrectly §7 "Do's and Don'ts" which doesn't mandate forced-
+ * colors). Under Windows High Contrast the focus-state border (var(--accent))
+ * + 3px box-shadow halo collapse to flat system colors and lose the
+ * "input-is-focused" signal entirely. Map:
+ *   - #faq-search:focus border + box-shadow → Highlight (system focus
+ *     color); box-shadow stripped because forced-colors blocks
+ *     synthetic shadows anyway and a 3px outline-style border on
+ *     Highlight is the canonical accessible focus chrome.
+ * Keeps all other input chrome (background, font-color) at the
+ * forced-colors defaults (Field / FieldText). */
+@media (forced-colors: active) {
+  #faq-search:focus {
+    border-color: Highlight;
+    box-shadow: none;
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
   }
 }
 </style>

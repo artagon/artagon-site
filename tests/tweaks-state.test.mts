@@ -50,7 +50,7 @@ describe("parseTweaks", () => {
   });
 
   it("preserves valid accent value", () => {
-    assert.equal(parse({ accent: "violet" }).accent, "violet");
+    assert.equal(parse({ accent: "blue" }).accent, "blue");
   });
 
   it("falls back accent to default when invalid", () => {
@@ -106,6 +106,7 @@ describe("parseTweaks", () => {
       theme: "light",
       heroFont: "fraunces",
       showGrid: false,
+      writingWidget: "C · split",
     };
     assert.deepEqual(parse(input), input);
   });
@@ -193,6 +194,7 @@ describe("DEFAULTS shape", () => {
     assert.ok(isTheme(DEFAULTS.theme));
     assert.ok(isHeroFont(DEFAULTS.heroFont));
     assert.equal(typeof DEFAULTS.showGrid, "boolean");
+    assert.equal(typeof DEFAULTS.writingWidget, "string");
   });
 });
 

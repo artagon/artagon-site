@@ -2,7 +2,7 @@
 
 ### Requirement: Primary Navigation
 
-`Nav.astro` SHALL render a sticky 64-px backdrop-blurred bar with the wordmark on the left, four text links (Platform, Use cases, Standards, Writing) in sentence case, and a right cluster containing a GitHub icon-button. The active route MUST be marked with `aria-current="page"`. The nav MUST NOT add a sixth top-level text link without removing one.
+`Header.astro` (pre-pt405 cited as `Nav.astro`; the planned `Nav.astro` was consolidated into `Header.astro` per proposal.md:75 — verified `ls src/components/Header.astro ✓` / `Nav.astro` does not exist) SHALL render a sticky 64-px backdrop-blurred bar with the wordmark on the left, four text links (Platform, Use cases, Standards, Writing) in sentence case, and a right cluster containing a GitHub icon-button. The active route MUST be marked with `aria-current="page"`. The nav MUST NOT add a sixth top-level text link without removing one.
 
 #### Scenario: Active route is marked
 

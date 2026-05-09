@@ -1,0 +1,194 @@
+name: "PR Spec Compliance"
+
+# USMR Phase 5.5.10 — file renamed from `spec-compliance.yml` to
+# `pr-spec-compliance.yml` to force GitHub Actions to re-register
+# the workflow. The previous registry entry had become stale (the
+# workflow appeared as the file path `.github/workflows/spec-
+# compliance.yml` instead of the `name:` field "Spec Compliance"
+# in `gh workflow list`, and every push to the PR branch triggered
+# a phantom `push`-event run with 0 jobs and conclusion=failure
+# despite the `on:` block listing only `pull_request`). Other
+# workflows on identical triggers received the correct
+# `pull_request: synchronize` events for the same commits — only
+# this workflow's registration was corrupted.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  spec-compliance:
+    # USMR Phase 5.5.10 — defensive guard against the phantom `push`-event
+    # runs GitHub Actions creates for PR branches even when this workflow
+    # only listens on `pull_request`. Without the if:, those runs land
+    # with conclusion=failure and 0 jobs (silent registration glitch on
+    # the .github/workflows/spec-compliance.yml registry — file-path
+    # appears as workflow `name` instead of "Spec Compliance" in
+    # `gh workflow list`). When the trigger really is `pull_request`,
+    # the job runs as before; phantom push runs skip → "skipped"
+    # conclusion, which counts as success for branch protection.
+    if: github.event_name == 'pull_request' && github.event.pull_request != null
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      SPEC_VALIDATION_PATH: ${{ runner.temp }}/spec-validation.json
+    steps:
+      # Checkout for local scripts
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+
+      # Node is required for the validation script
+      - name: Set up Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Validate spec reference
+        id: validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/validate-spec-reference.js --output "$SPEC_VALIDATION_PATH"
+
+      # Use GitHub Script for API interactions (labels, comments, enforcement)
+      - name: Comment and enforce spec compliance
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const core = require('@actions/core');
+
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              // Not triggered by a pull_request event; nothing to enforce.
+              return;
+            }
+
+            const validationPath = process.env.SPEC_VALIDATION_PATH;
+            if (!validationPath || !fs.existsSync(validationPath)) {
+              core.setFailed('Spec validation output not found.');
+              return;
+            }
+
+            const data = JSON.parse(fs.readFileSync(validationPath, 'utf8'));
+            const body = pr.body || '';
+
+            const typeMatchers = [
+              { label: 'spec', regex: /- \[[xX]\]\s*Spec\b/ },
+              { label: 'proposal', regex: /- \[[xX]\]\s*Proposal\b/ },
+              { label: 'implementation', regex: /- \[[xX]\]\s*Implementation\b/ },
+              { label: 'fix', regex: /- \[[xX]\]\s*Fix\b/ },
+            ];
+
+            let prType = null;
+            for (const matcher of typeMatchers) {
+              if (matcher.regex.test(body)) {
+                prType = matcher.label;
+                break;
+              }
+            }
+
+            if (!prType) {
+              const title = pr.title || '';
+              if (/^spec:/i.test(title)) prType = 'spec';
+              if (/^proposal:/i.test(title)) prType = 'proposal';
+              // OpenSpec proposal/change PRs use a feat(openspec): or chore(openspec): prefix
+              if (/\(openspec\)/i.test(title)) prType = 'proposal';
+            }
+
+            if (!prType) {
+              const existingLabels = (pr.labels || []).map((item) => item.name);
+              if (existingLabels.includes('spec')) prType = 'spec';
+              if (existingLabels.includes('proposal')) prType = 'proposal';
+              if (existingLabels.includes('implementation')) prType = 'implementation';
+            }
+
+            if (!prType) prType = 'implementation';
+
+            const labelsToAdd = new Set();
+            if (['spec', 'proposal', 'implementation'].includes(prType)) {
+              labelsToAdd.add(prType);
+            }
+
+            if (prType === 'implementation' && data.missingSpecReference) {
+              labelsToAdd.add('needs-spec');
+            }
+
+            if (labelsToAdd.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: Array.from(labelsToAdd),
+              });
+            }
+
+            if (!data.missingSpecReference) {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: 'needs-spec',
+                });
+              } catch (error) {
+                // Ignore if the label is not present.
+              }
+            }
+
+            const criteriaLines = (data.acceptanceCriteria || []).length
+              ? data.acceptanceCriteria.map((item) => `- [ ] ${item}`).join('\n')
+              : '- (No acceptance criteria parsed)';
+
+            const specReference = data.specIssue
+              ? `#${data.specIssue.number} ${data.specIssue.title}`
+              : 'Missing spec reference';
+
+            const errorSection = (data.errors || []).length
+              ? `\n\nErrors:\n${data.errors.map((err) => `- ${err}`).join('\n')}`
+              : '';
+
+            const summaryBody = [
+              '## Spec Compliance Summary',
+              '',
+              `- Spec reference: ${specReference}`,
+              `- Implementation PR: ${prType === 'implementation' ? 'Yes' : 'No'}`,
+              '',
+              '### Acceptance Criteria',
+              criteriaLines,
+              errorSection,
+            ].join('\n');
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              per_page: 100,
+            });
+
+            const existing = comments.data.find((comment) =>
+              comment.user && comment.user.type === 'Bot' && comment.body.includes('## Spec Compliance Summary')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: summaryBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: summaryBody,
+              });
+            }
+
+            if (prType === 'implementation' && data.missingSpecReference) {
+              core.setFailed('Implementation PRs must reference a spec issue.');
+            }

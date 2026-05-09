@@ -1,3 +1,21 @@
-# Netlify/GitHub Pages redirects
-# Redirect plural /faqs to singular /faq/
-/faqs  /faq/ 301!
+# Cloudflare Pages redirects (`migrate-deploy-to-cloudflare-pages`
+# spec: bare `301` is canonical; `301!` is Netlify-only).
+#
+# USMR Phase 5.5.16-pt157 — destinations match `trailingSlash:
+# "never"` from astro.config.ts. Pre-pt157 redirects pointed at
+# `/faq/` and `/writing/` (with trailing slashes) — but those URLs
+# themselves 301-redirect to the no-trailing-slash form, so legacy
+# inbound links followed a TWO-HOP redirect chain (e.g.
+# /faqs → /faq/ → /faq), wasting crawl budget AND adding
+# user-perceptible latency on cold-cache requests.
+/faqs    /faq                   301
+# /bridge → /platform#bridge redirect dropped in USMR Phase 5.2.8;
+# /bridge now resolves to a real page. The /platform <section id=
+# "bridge"> anchor from 5.1q.4 stays in place for legacy inbound
+# links that hit /platform#bridge directly.
+
+# Header nav surfaces the writing index as "Blog" — both URLs land on
+# the same canonical content. Added in USMR Phase 5.5.
+/blog          /writing              301
+/blog/         /writing              301
+/blog/*        /writing/:splat       301

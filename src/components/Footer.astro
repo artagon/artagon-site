@@ -1,21 +1,307 @@
 ---
-import Tagline from './Tagline.astro';
+import { execSync } from 'node:child_process';
+import pkg from '../../package.json';
+import ArtagonGlyph from './ArtagonGlyph.astro';
+import taglines from '../content/taglines.json';
+
+const { tagline } = taglines;
+const year = new Date().getFullYear();
+const version = pkg.version;
+// Prefer the CI-injected commit SHA so shallow clones don't fall back
+// to 'unknown'. `git rev-parse` covers the local-dev path.
+let gitSha = process.env.GITHUB_SHA?.slice(0, 7) ?? '';
+if (!gitSha) {
+  try {
+    gitSha = execSync('git rev-parse --short HEAD', { timeout: 3000 }).toString().trim().slice(0, 7);
+  } catch (e) {
+    // Non-fatal: version string falls back to 'unknown' if git is
+    // unavailable (e.g. tarball deploy with no .git).
+    process.stderr.write(`Footer: could not read git SHA — ${e.message}\n`);
+    gitSha = 'unknown';
+  }
+}
+const versionString = `v${version} — build ${gitSha}`;
+
+// USMR Phase 5.5.3 — footer columns rewritten to match the canonical
+// new-design Footer (index.html lines 605-660). Canonical structure:
+// Platform (5 pillar/route links) + Developers (5 dev resources) +
+// Company (5 corporate) + Legal (5 legal docs). Placeholder hrefs for
+// routes that don't yet exist in the Astro app (mailto / external /
+// existing FAQ-style pages where appropriate).
+const cols = [
+  {
+    label: 'Platform',
+    links: [
+      { href: '/platform',   text: 'Identity' },
+      { href: '/platform',   text: 'Credentials' },
+      { href: '/platform',   text: 'Authorization' },
+      { href: '/bridge',     text: 'Bridge' },
+      { href: '/use-cases',  text: 'Use cases' },
+    ],
+  },
+  {
+    // Canonical Developers col (BaseLayout.jsx:258-264): Docs / SDKs /
+    // CLI / GitHub / Standards. The 5.5.3 port renamed CLI → Playground;
+    // canonical fidelity restored here. CLI doesn't ship as a route
+    // yet — `'#'` placeholder per the same canonical pattern Legal
+    // uses for Terms / Trust center / DPA / Sub-processors.
+    label: 'Developers',
+    links: [
+      { href: '/docs',       text: 'Docs' },
+      { href: '/developers', text: 'SDKs' },
+      { href: '#',           text: 'CLI' },
+      { href: 'https://github.com/artagon', text: 'GitHub', external: true },
+      { href: '/standards',  text: 'Standards' },
+    ],
+  },
+  {
+    label: 'Company',
+    links: [
+      { href: '/vision',     text: 'About' },
+      { href: '/roadmap',    text: 'Roadmap' },
+      { href: '/writing',    text: 'Writing' },
+      { href: '/security',   text: 'Security' },
+      { href: '/get-started', text: 'Contact' },
+    ],
+  },
+  {
+    // Legal placeholders match canonical (`new-design/extracted/src/pages/index.html:628-633`)
+    // — only routes that exist resolve; the rest stay `'#'` until
+    // dedicated pages ship. Routing a misleading link (`Terms → /privacy`)
+    // would silently misdirect users — the silent-failure-hunter review
+    // (5.5.4) flagged that as a Major content-trust regression.
+    label: 'Legal',
+    links: [
+      { href: '/privacy',  text: 'Privacy' },
+      { href: '#',         text: 'Terms' },
+      { href: '#',         text: 'Trust center' },
+      { href: '#',         text: 'DPA' },
+      { href: '#',         text: 'Sub-processors' },
+    ],
+  },
+] as const;
 ---
 <footer role="contentinfo" class="site-footer">
-  <div class="container">
-    <nav aria-label="Footer">
-      <div class="badges" style="margin-bottom:10px">
-        <a class="pill" href="/privacy">Privacy by design</a>
-        <a class="pill" href="/security">Security</a>
-        <a class="pill" href="/status">Status</a>
-        <a class="pill" href="/security.txt">security.txt</a>
-      </div>
-    </nav>
-    <div>© <span id="y"></span> Artagon. All rights reserved.</div>
-    <div class="discrete">
-      <a href="/docs">Docs</a> • <a href="/faq">FAQ</a> • <a href="/status">Status</a> • <a href="/security.txt">Security.txt</a> • <a href="/security">Responsible Disclosure</a>
+  <nav class="footer-inner wrap" aria-label="Footer">
+    <div class="footer-brand">
+      <a href="/" class="footer-wordmark" aria-label="Artagon home">
+        <ArtagonGlyph class="footer-glyph" />
+        <span>Artagon</span>
+      </a>
+      <p class="footer-positioning">{tagline.positioning}</p>
     </div>
-    <div class="discrete" aria-label="Company motto"><Tagline variant="sentence" /></div>
+
+    {cols.map(col => (
+      <div class="footer-col">
+        <h3 class="footer-col-heading">{col.label}</h3>
+        <ul role="list">
+          {col.links.map(link => (
+            <li>
+              <a
+                href={link.href}
+                {...(('external' in link && link.external) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                {link.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </nav>
+
+  <div class="footer-meta wrap">
+    <span>© {year} Artagon, Inc. — Philadelphia, PA</span>
+    <span class="footer-stack">Built on Astro · All rights reserved</span>
+    <span class="footer-version">{versionString}</span>
   </div>
-  <script>document.getElementById('y').textContent=(new Date()).getFullYear()</script>
 </footer>
+
+<style>
+/* Canonical Footer (BaseLayout.jsx:281) — `padding: '64px 0 40px'`,
+ * font-size 14. Pre-fix used var(--space-12)=48 / var(--space-8)=32
+ * — undersized top by 16, undersized bottom by 8. */
+.site-footer {
+  border-top: 1px solid var(--line-soft);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  padding-top: 64px;
+  padding-bottom: 40px;
+  font-size: 14px;
+}
+
+/* Canonical flat 5-col grid — new-design BaseLayout.jsx:283
+ * (`gridTemplateColumns:'1.4fr repeat(4, 1fr)'`). The brand column is
+ * 1.4× as wide as each link column, all in one row. The pre-canonical
+ * 220px + nested 4-col arrangement created visual asymmetry on wide
+ * viewports. */
+/* Canonical BaseLayout.jsx:283 — `gridTemplateColumns: '1.4fr
+ * repeat(4, 1fr)', gap: 40, marginBottom: 56`. Pre-fix used
+ * var(--space-10) (=40) for gap and padding-bottom; canonicalized
+ * to fixed px. The marginBottom: 56 → padding-bottom + border-
+ * bottom + meta strip padding-top 24 ≈ 40+24+strip = 64; meta
+ * strip uses padding-top 24 (per BaseLayout.jsx:301). */
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Canonical ArtagonWordmark — gap 10 / weight 500 (BaseLayout.jsx:193,
+ * 195). Pre-fix used 0.6rem (≈9.6) gap and weight 600 — both off
+ * canonical. */
+.footer-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.footer-wordmark:hover {
+  color: var(--accent);
+}
+
+.footer-glyph {
+  display: block;
+  color: var(--fg);
+}
+.footer-wordmark:hover .footer-glyph {
+  color: var(--accent);
+}
+
+.footer-positioning {
+  /* Canonical Footer/jsx:286 — `fontSize:13, color: var(--fg-2),
+   * maxWidth:'28ch', lineHeight:1.55`. */
+  color: var(--fg-2);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 28ch;
+}
+
+.footer-col-heading {
+  /* USMR Phase 5.5.9 — match canonical (new-design index.html:618):
+   *   font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.14em;
+   *   color: var(--fg-3); text-transform: uppercase; margin-bottom: 16px;
+   * Pre-5.5.9 the bare-h3 rule from 5.5.5 cascaded `var(--f-display)` here
+   * (the local rule didn't set font-family), making "PLATFORM" render in
+   * Space Grotesk display while the column-heading mock is mono. */
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin: 0 0 16px;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  /* Override the global `nav ul { align-items: center }` rule that the
+   * header uses (Footer.astro wraps columns in <nav> for semantics, so
+   * the descendant selector cascades in). Stretch lets each <a> fill
+   * the column width with text-align: start (left). */
+  align-items: stretch;
+  gap: 10px;
+}
+
+.footer-col a {
+  /* Canonical compact-list density — Hero.jsx:293-296 sets
+   * `gap: 10`, `fontSize: 13.5`, `color: var(--fg-1)`. The visible
+   * row is ~25.5 px tall with 10 px gap → 35.5 px center-to-center,
+   * comfortably above WCAG 2.5.8 AA (24 × 24 minimum) under the
+   * dense-link-block spacing rule. We avoid the 44 px min-height
+   * pattern from 5.5.11 that visually centered each label inside a
+   * 44 px box and made the column read as 250 px of whitespace
+   * (canonical column reads as ~120 px). */
+  display: block;
+  padding-block: 2px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--fg-1);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-col a:hover {
+  color: var(--accent);
+}
+
+/* Canonical Footer meta strip (BaseLayout.jsx:301) — `display: flex;
+ * justifyContent: space-between; alignItems: center; paddingTop: 24,
+ * fontSize: 11, color fg-3, letterSpacing: 0.08em`. Pre-fix used
+ * `gap: var(--space-6)` which clustered the 3 spans on the left
+ * instead of canonical evenly-distributed copyright/stack/version
+ * line. */
+.footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-top: 24px;
+  color: var(--fg-3);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  flex-wrap: wrap;
+}
+
+.footer-stack,
+.footer-version {
+  font-family: var(--f-mono);
+}
+
+@media (max-width: 860px) {
+  .footer-inner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 540px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+}
+
+/* USMR Phase 5.5.16-pt125 — forced-colors overrides per DESIGN.md
+ * §7. Footer renders on every page; OS high-contrast mode (Windows
+ * High Contrast / forced-colors: active) remaps colors to the
+ * system palette, so OKLCH --accent loses meaning. Map link hover
+ * to Highlight (the standard hover affordance) and ensure the
+ * heading + meta colors fall through to CanvasText / GrayText. */
+@media (forced-colors: active) {
+  .footer-col a:hover,
+  .footer-col a:focus-visible {
+    color: Highlight;
+  }
+  .footer-col h3 {
+    color: CanvasText;
+  }
+  .footer-meta {
+    color: GrayText;
+  }
+}
+</style>

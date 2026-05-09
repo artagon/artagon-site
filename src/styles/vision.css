@@ -1,6 +1,12 @@
+/* USMR Phase 5.5.16-pt78 — vision.css migrated from 5.1-era legacy
+ * token names (--text, --muted, --brand-teal) to canonical (--fg,
+ * --fg-2, --accent) per the pt28 5.1h deprecation plan. The legacy
+ * tokens still resolve (aliased in theme.css) but the canonical
+ * names match every other component CSS file in the project. 22
+ * substitutions total. */
 .vision-doc {
   line-height: 1.7;
-  color: var(--text);
+  color: var(--fg);
 }
 .vision-doc .vision-container {
   max-width: 1000px;
@@ -15,27 +21,45 @@
   text-align: center;
   margin-bottom: var(--spacing-hero-bottom);
 }
+/* USMR Phase 5.5.16-pt134 — canonicalize vision.css hero typography.
+ * Pre-fix shipped:
+ *   - h1 weight 700 (hardcoded heavy) — canonical h1 cascades through
+ *     `--display-weight` token (fraunces 400, grotesk 500, etc.).
+ *     pt122 set the same fix on `.ui-section-header h2`.
+ *   - h1 clamp(40-56) in rem — pt129 converted bare `font-size: <rem>`
+ *     declarations but its scanner skipped `clamp(...rem, ...)`
+ *     ranges. Conversion: 2.5rem ≈ 40, 3.5rem ≈ 56.
+ *   - subtitle weight 300 (light) — non-canonical; the `Inter Tight`
+ *     family does not ship a 300 weight, so it fell back to 400
+ *     unpredictably (browser does the closest match). Pin to 400.
+ *   - subtitle clamp(19.2-24) in rem — same pt129-scanner-miss fix.
+ * Color (`--accent`) intentionally preserved — /vision is a doc page
+ * with its own brand-feel, not a marketing hero. */
 .vision-doc .hero-section h1 {
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
-  font-weight: 700;
-  color: var(--brand-teal);
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: var(--display-weight, 500);
+  color: var(--accent);
   margin: 0 0 0.5rem;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--display-tracking, -0.02em);
 }
 .vision-doc .hero-subtitle {
-  font-size: clamp(1.2rem, 3vw, 1.5rem);
-  color: var(--muted);
+  font-size: clamp(19px, 3vw, 24px);
+  color: var(--fg-2);
   margin: 0 0 2rem;
-  font-weight: 300;
+  font-weight: 400;
 }
 .vision-doc .mission-statement {
   max-width: 900px;
   margin: 2rem auto 0;
 }
 .vision-doc .mission-text {
-  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  /* USMR Phase 5.5.16-pt134 — clamp(1.3-1.8rem) → clamp(21-29 px).
+   * Same pt129-scanner-miss fix as the hero h1/subtitle. Weight 600
+   * preserved — this is the mission statement, intentionally heavier
+   * than body 400 to read as a proclamation. */
+  font-size: clamp(21px, 2.5vw, 29px);
   font-weight: 600;
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0;
   line-height: 1.4;
   text-transform: uppercase;
@@ -44,38 +68,51 @@
 .vision-doc .content-block {
   margin: var(--margin-content-block) 0;
 }
+/* USMR Phase 5.5.16-pt129 — vision.css rem→px discipline (pt19-22).
+ * pt78 already migrated the legacy color tokens; pt129 closes the
+ * remaining 7 rem font-sizes. 1.25rem at root 16 = 20 px, which
+ * matches the canonical .lead contract (global.css:234). */
 .vision-doc .lead-text {
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
   margin-bottom: 1rem;
 }
 .vision-doc .pillars-title {
-  font-size: 1.8rem;
-  color: var(--brand-teal);
+  /* USMR Phase 5.5.16-pt129 — 1.8rem ≈ 28.8 → 29 px (section
+   * heading; intentionally smaller than the canonical h2 36-60
+   * range because /vision is a content-doc, not a marketing page).
+   * USMR Phase 5.5.16-pt134 — weight 700 → token cascade
+   * (`var(--display-weight, 500)`) per the same fix pt122 applied to
+   * `.ui-section-header h2`. Hardcoded heavy weights block the
+   * [data-hero-font] cascade. */
+  font-size: 29px;
+  color: var(--accent);
   margin: 4rem 0 2rem;
   text-align: center;
-  font-weight: 700;
+  font-weight: var(--display-weight, 500);
 }
 .vision-doc .mission-breakdown h3 {
-  color: var(--brand-teal);
-  font-size: 1.6rem;
+  color: var(--accent);
+  /* USMR Phase 5.5.16-pt129 — 1.6rem ≈ 25.6 → 26 px. */
+  font-size: 26px;
   margin: 0 0 1rem;
 }
 .vision-doc .mission-breakdown h4 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.75rem;
-  font-size: 1.1rem;
+  /* USMR Phase 5.5.16-pt129 — 1.1rem ≈ 17.6 → 18 px. */
+  font-size: 18px;
 }
 .vision-doc .mission-intro {
-  color: var(--muted);
+  color: var(--fg-2);
   margin: 0 0 2rem;
   line-height: 1.7;
 }
 .vision-doc .mission-breakdown .ui-card p {
   margin: 0;
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
 }
 .vision-doc .principles-list {
@@ -89,22 +126,23 @@
   align-items: flex-start;
 }
 .vision-doc .principle-content h3 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.5rem;
-  font-size: 1.2rem;
+  /* USMR Phase 5.5.16-pt129 — 1.2rem ≈ 19.2 → 19 px. */
+  font-size: 19px;
 }
 .vision-doc .principle-content p {
   margin: 0;
-  color: var(--muted);
+  color: var(--fg-2);
   line-height: 1.6;
 }
 .vision-doc .security-grid h3 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin-top: 0;
 }
 .vision-doc .security-grid p {
   margin-bottom: 0;
-  color: var(--text);
+  color: var(--fg);
 }
 .vision-doc .use-cases-detailed {
   display: grid;
@@ -119,10 +157,10 @@
 }
 .vision-doc .use-case-header h3 {
   margin: 0;
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 .vision-doc .use-case-content h4 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 1.25rem 0 0.5rem;
 }
 .vision-doc .use-case-flow ol {
@@ -140,7 +178,7 @@
   margin-top: 2rem;
 }
 .vision-doc .comparison-category h4 {
-  color: var(--brand-teal);
+  color: var(--accent);
   margin: 0 0 0.75rem;
 }
 .vision-doc .comparison-category ul {
@@ -165,15 +203,16 @@
 }
 .vision-doc .phase-header h3 {
   margin: 0;
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 .vision-doc .phase-timeline {
-  color: var(--muted);
-  font-size: 0.95rem;
+  color: var(--fg-2);
+  /* USMR Phase 5.5.16-pt129 — 0.95rem ≈ 15.2 → 15 px (meta-text). */
+  font-size: 15px;
 }
 .vision-doc .phase-description {
   margin: 0 0 1rem;
-  color: var(--text);
+  color: var(--fg);
 }
 .vision-doc .phase-deliverables ul {
   margin: 0 0 1rem;
@@ -183,7 +222,8 @@
 }
 .vision-doc .phase-deliverables li::before {
   left: 0;
-  font-size: 1rem;
+  /* USMR Phase 5.5.16-pt129 — 1rem → 16 px (bullet-marker glyph). */
+  font-size: 16px;
 }
 .vision-doc .phase-kpi {
   margin: 0;
@@ -196,11 +236,11 @@
 }
 .vision-doc .vision-2030 h3 {
   margin: 0 0 0.75rem;
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 .vision-doc .vision-2030 p {
   margin: 0;
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
 }
 .vision-doc .closing-statement {

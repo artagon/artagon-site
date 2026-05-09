@@ -2,7 +2,7 @@
 
 ### Requirement: Single Source for Non-Indexable Routes
 
-The list of non-indexable routes MUST be defined exactly once in `src/lib/indexation.ts` as a `NOINDEX_ROUTES` constant (typed `as const` array of strings). The sitemap filter (`astro.config.mjs`), the `BaseLayout.astro` `indexable` prop default, the `public/robots.txt` generator, and `scripts/validate-indexation.mjs` MUST all import or reference this single source. Build MUST fail if any consumer hand-rolls a divergent list.
+The list of non-indexable routes MUST be defined exactly once in `src/lib/indexation.ts` as a `NOINDEX_ROUTES` constant (typed `as const` array of strings). The sitemap filter (`astro.config.ts`), the `BaseLayout.astro` `indexable` prop default, the `public/robots.txt` generator, and `scripts/validate-indexation.mjs` MUST all import or reference this single source. Build MUST fail if any consumer hand-rolls a divergent list.
 
 #### Scenario: All four consumers reference the same source
 
@@ -67,7 +67,7 @@ The routes `/console`, `/search`, `/play`, and `/404` MUST emit `<meta name="rob
 
 ### Requirement: Trailing-slash Policy
 
-`astro.config.mjs` MUST keep `trailingSlash: 'never'`. All canonical URLs in metadata, sitemap, and structured data MUST omit trailing slashes (except for the root `/`).
+`astro.config.ts` MUST keep `trailingSlash: 'never'`. All canonical URLs in metadata, sitemap, and structured data MUST omit trailing slashes (except for the root `/`).
 
 #### Scenario: Canonical omits trailing slash
 

@@ -2,20 +2,19 @@
 
 ## Theme System
 
-- **midnight**: Default Midnight Teal theme (current brand colors)
-- **twilight**: Twilight Indigo theme (dark blue with indigo accents)
-- **slate**: Deep Slate Blue theme (deep blue with slate tones)
-- **data-theme**: HTML attribute controlling active theme pack
-- **--brand-teal, --brand-violet, --brand-sky**: Primary brand color variables used across themes
-- **ThemeToggle**: Header component for switching themes
-- **ThemePreviewPanel**: Dev-only floating panel for quick theme testing
+- **dark**: Canonical default theme (the value the Tweaks panel writes via `data-theme="dark"`)
+- **light**: Light theme — near-white surface, dark text. Tweaks panel writes via `data-theme="light"`. Added in USMR pt423; pre-pt423 the panel wrote `light` but no matching CSS block existed so the page stayed dark.
+- **midnight**: Midnight Teal theme variant
+- **twilight**: Twilight Indigo theme variant
+- **data-theme**: HTML attribute controlling active theme pack (live values: `dark`, `light`, `midnight`, `twilight`; the 5.1-era `slate` variant was removed in USMR pt167)
+- **--brand-teal**: Retained alias of `--accent` (per `theme.css` pt86 — internal `--teal-*` token defs still consume it; component code should use `--accent` directly)
 
 ## Navigation System
 
 - **Skip link**: Accessible hidden link that appears on keyboard focus to jump to main content
 - **Active link**: Current page highlighted in navigation with .active class
 - **Shim page**: Placeholder page using ShimPage component to prevent 404s during development
-- **Primary nav**: Platform, How it works, Developers, Search, Docs, GitHub
+- **Primary nav**: Platform, Bridge, Use cases, Standards, Roadmap, Blog (canonical 6-item list per `Header.astro` `NAV_LINKS`; pt87 replaced the pre-USMR 4-item list with the canonical `new-design/extracted/src/pages/index.html` 6-item set). The GitHub icon button is rendered separately in the right cluster.
 - **ShimPage**: Reusable component for creating placeholder pages with consistent structure
 
 ## Branch Change Summary

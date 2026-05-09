@@ -2,7 +2,9 @@
 /**
  * oklch-to-hex.mjs
  *
- * Per `adopt-design-md-format` Phase 3.3:
+ * Per `adopt-design-md-format` Phase 3.3 (proposal archived
+ * 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+ * the live spec is `openspec/specs/design-system-format/spec.md`):
  *   Reads OKLCH triples cited in DESIGN.md prose, emits hex equivalents,
  *   regenerates the conversion table in docs/design-md.md.
  *
@@ -142,7 +144,7 @@ if (FLAG === "--write") {
   const docsPath = join(ROOT, "docs/design-md.md");
   if (!existsSync(docsPath)) {
     console.error(
-      `✗ docs/design-md.md not found — author the doc first (Phase 5.1) or use --print.`,
+      `✗ docs/design-md.md not found — restore the file (it was authored during Phase 5.1 of \`adopt-design-md-format\`; check git history) or use --print to dump the OKLCH↔hex table to stdout instead.`,
     );
     exit(1);
   }

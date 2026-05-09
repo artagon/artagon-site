@@ -1,13 +1,54 @@
 # style-system Specification
 
 ## Purpose
-TBD - created by archiving change fix-styling-refactor-gaps. Update Purpose after archive.
+
+This capability defines the contracts that govern the artagon-site
+visual system: theme-aware token fallbacks (so `color-mix()` usage
+preserves theme intent on browsers without support), the reusable UI
+component contract (`Card` / `SectionHeader` / `FeatureList` under
+`src/components/ui/` MUST accept both `class` and `className` and
+forward arbitrary HTML attributes to the root), and the solid /
+domain / pillar / component / product / vision card variant family.
+The capability was created by archiving the
+`fix-styling-refactor-gaps` change
+(`openspec/changes/archive/2026-01-02-fix-styling-refactor-gaps/`)
+and consolidates the styling-system contracts that the underlying
+`refactor-styling-architecture` change first introduced (archived
+2026-05-04). It will be MODIFIED by `update-site-marketing-redesign`
+(USMR Phase 2 OKLCH palette + cascade-layer additions, in flight)
+and by `self-host-woff2-fonts` (font-payload budget + WOFF2
+metric-overrides, in flight).
+
+**KNOWN SPEC DRIFT (pt397 archaeology — token canonicalization)**:
+The "Global Theme Consistency" Requirement Scenario below (line
+64-67) uses `--brand-teal` as the example primary-color variable
+("WHEN the `--brand-teal` variable is updated in `theme.css`,
+THEN all 'Hero' sections and 'Buttons' across the site reflect
+the change immediately"). That Scenario reflects the pre-USMR
+state when `--brand-teal` was the canonical primary-color
+token. Under USMR pt86 the token system canonicalized to
+`--accent` and `--brand-teal` was demoted to a retained ALIAS
+(`public/assets/theme.css:276,285` declare
+`--brand-teal: var(--accent)`); updating `--brand-teal` today
+would NOT propagate the change because nothing downstream
+consumes the alias directly — components consume `--accent`. The
+canonical update site is now `--accent`. The Scenario at line
+64-67 needs a follow-up amendment (separate OpenSpec proposal)
+to either point at `--accent` directly OR document the alias
+chain. Per OpenSpec discipline, pt397 is doc-scope (Purpose
+backfill) only and does NOT modify the Requirement / Scenario
+text — Requirements changes go through proposals, not direct
+edits. Same pattern as pt395 SearchAction Purpose backfill in
+manage-site-links/spec.md.
+
 ## Requirements
+
 ### Requirement: Theme-Aware Fallback Tokens
 
 Theme token fallbacks for `color-mix` usage MUST be defined per theme or derived from theme variables so theme changes preserve intended hues when fallbacks are used.
 
 #### Scenario: Theme uses fallback tokens
+
 - **WHEN** the site is rendered in a browser without `color-mix` support and `data-theme="twilight"` is active
 - **THEN** gradient and border fallbacks use twilight theme colors rather than midnight defaults.
 
@@ -16,6 +57,7 @@ Theme token fallbacks for `color-mix` usage MUST be defined per theme or derived
 Card, SectionHeader, and FeatureList components MUST accept both `class` and `className`, merge them, and forward remaining HTML attributes to the root element.
 
 #### Scenario: SectionHeader forwards standard attributes
+
 - **WHEN** a developer renders `<SectionHeader id="architectural-principles" data-testid="section">`
 - **THEN** the root element includes the `id` and `data-testid` attributes alongside the component classes.
 
@@ -24,6 +66,7 @@ Card, SectionHeader, and FeatureList components MUST accept both `class` and `cl
 The Card component MUST support `variant="solid"`, applying the `.ui-card--solid` utility to match the solid card styling.
 
 #### Scenario: Card renders solid styling
+
 - **WHEN** a developer renders `<Card variant="solid">`
 - **THEN** the root element includes the `.ui-card--solid` class.
 
@@ -32,6 +75,7 @@ The Card component MUST support `variant="solid"`, applying the `.ui-card--solid
 Common UI patterns (Cards, Section Headers, Feature Lists) MUST be implemented as reusable Astro components or global CSS classes, rather than duplicated in page-scoped styles.
 
 #### Scenario: Developer adds a new page
+
 - **WHEN** a developer creates a new page with a "Card" layout
 - **THEN** they can import the `Card` component or use the `.ui-card` utility without copying CSS.
 
@@ -40,6 +84,7 @@ Common UI patterns (Cards, Section Headers, Feature Lists) MUST be implemented a
 Visual attributes like gradients, spacing, and typography hierarchies MUST be defined in the global theme variables or CSS, not hardcoded in page styles.
 
 #### Scenario: Changing Primary Color
+
 - **WHEN** the `--brand-teal` variable is updated in `theme.css`
 - **THEN** all "Hero" sections and "Buttons" across the site reflect the change immediately.
 
@@ -141,4 +186,3 @@ Every `--color-*`, typography, spacing, and rounded token defined in `public/ass
 
 - **WHEN** a contributor adds a token to the allow-list without a rationale paragraph
 - **THEN** `check:design-drift` rejects the allow-list entry and exits non-zero, naming the missing rationale.
-

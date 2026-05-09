@@ -1,0 +1,32 @@
+---
+// USMR Phase 5.5.1 — /bridge route. Mounts the BridgeFlow island
+// directly per the canonical new-design/extracted/src/pages/bridge.html
+// (line 768: `<App><Bridge/></App>` — no separate page hero). The
+// island ports Bridge.jsx's internal hero ("The bridge strategy" +
+// "Your legacy OIDC app, now cryptographically verified."), so any
+// page-level hero here would duplicate that header.
+//
+// 5.2.8 originally shipped a `bridge-intro` section above the island
+// — dropped in 5.5.1 after canonical-fidelity review flagged the
+// duplicate hero.
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import BridgeFlow from '../../components/BridgeFlow.tsx';
+---
+<Base
+  title="Bridge — Artagon"
+  description="The OID4VP→OIDC bridge: legacy OIDC apps consume verifiable credentials from a user's wallet without a rewrite."
+  path="/bridge"
+>
+  <Fragment slot="header"><Header /></Fragment>
+
+  {/* USMR Phase 5.5.16-pt138 — slot directly into BaseLayout's
+      `<main id="main-content">` rather than wrapping in another
+      `<main id="main">`. Pre-pt138 produced nested <main> elements
+      at runtime (BaseLayout's wraps the slot in <main>), which is
+      invalid HTML AND a duplicate WCAG landmark. */}
+  <BridgeFlow client:visible />
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

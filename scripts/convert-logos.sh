@@ -2,7 +2,18 @@
 set -euo pipefail
 
 # Artagon Logo Conversion Script
-# Converts high-res logos from artagon-logo submodule to web-optimized formats
+# Converts high-res logos from the upstream artagon-logo PNG submodule to
+# web-optimized formats under public/assets/logos/.
+#
+# USMR Phase 5.5.16-pt72 removed the public/assets/artagon-logo/ submodule
+# from this repo (the generated PNGs in public/assets/logos/ are the
+# committed deliverables). To re-run this script, clone the upstream
+# artagon-logo PNG repo locally and set LOGO_DIR to point at it:
+#
+#   LOGO_DIR=/path/to/artagon-logo bash scripts/convert-logos.sh
+#
+# Without that env var, the script fails fast at the SRC_FULL check below
+# with a clear "❌ Source logo not found" message.
 
 LOGO_DIR=${LOGO_DIR:-public/assets/artagon-logo}
 SRC_FULL=${SRC_FULL:-$LOGO_DIR/artagon_D1A.png}

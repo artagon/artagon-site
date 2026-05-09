@@ -3,7 +3,8 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * Styling-architecture visual reference suite.
  *
- * Captures /vision rendered across 3 themes × 3 breakpoints. These snapshots
+ * Captures /vision rendered across the THEMES array (currently 2 — twilight
+ * + midnight; pre-pt167 was 3 with slate) × 3 breakpoints. These snapshots
  * are NOT a refactor diff — the styling refactor already shipped, and no
  * pre-refactor baseline exists. This suite is a forward baseline: future
  * styling changes diff against these images. When intentional redesigns
@@ -29,7 +30,13 @@ const BREAKPOINTS = [
   { name: "mobile", width: 375, height: 812 },
 ] as const;
 
-const THEMES = ["midnight", "twilight", "slate"] as const;
+// USMR Phase 5.5.16-pt207 — `slate` removed from THEMES array.
+// The slate theme variant was retired in pt167 (theme.css no
+// longer ships a `:root[data-theme="slate"]` block — see pt188's
+// glossary sync gate for the wider drift fix). Iterating slate
+// here generated 15 orphan baseline PNGs that fall through to
+// the unstyled default cascade.
+const THEMES = ["midnight", "twilight"] as const;
 
 async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
   await page.evaluate((t) => {
@@ -37,7 +44,84 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
   }, theme);
 }
 
-test.describe("Styling architecture - 3 themes × 3 breakpoints reference", () => {
+test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      !runVisualRegression,
+      "Visual regression runs only when VISUAL_REGRESSION=1.",
+    );
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Snapshots are captured in chromium only to keep the baseline set bounded.",
+    );
+  });
+
+  for (const theme of THEMES) {
+    for (const bp of BREAKPOINTS) {
+      test(`hero — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        await page.waitForTimeout(200);
+        // Hero (above-the-fold) — covers USMR Phase 5.1a content.
+        await expect(page).toHaveScreenshot(
+          `home-hero-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+
+      test(`onramp — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        // Scroll the on-ramp section into view, then snapshot the viewport.
+        // Covers USMR Phase 5.1b content (design-partner card + contacts).
+        await page.locator("#get-started").scrollIntoViewIfNeeded();
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(
+          `home-onramp-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+
+      test(`pillars — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        // Scroll the #platform pillar grid into view. Covers USMR
+        // Phase 5.1c content (3-card pillar overview sourced from
+        // src/data/pillars.ts).
+        await page.locator("#platform").scrollIntoViewIfNeeded();
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(
+          `home-pillars-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+
+      test(`writing-strip — ${theme} @ ${bp.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        // Scroll the latest-writing strip into view. Covers USMR
+        // Phase 5.1f content (3-up grid sourced from the writing
+        // collection).
+        await page.locator("#writing").scrollIntoViewIfNeeded();
+        await page.waitForTimeout(200);
+        await expect(page).toHaveScreenshot(
+          `home-writing-strip-${theme}-${bp.name}.png`,
+          { fullPage: false, animations: "disabled" },
+        );
+      });
+    }
+  }
+});
+
+test.describe("Styling architecture - THEMES × 3 breakpoints reference", () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(
       !runVisualRegression,

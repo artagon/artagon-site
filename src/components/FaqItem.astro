@@ -33,8 +33,11 @@ const renderedAnswer = await renderMarkdown(item.answer);
   justify-content: space-between;
   gap: 16px;
   font-weight: 600;
-  font-size: 1.05rem;
-  color: var(--text);
+  /* USMR Phase 5.5.16-pt124 — rem→px discipline (pt19-22). The
+   * 1.05rem at root 16 resolves to 16.8 px; 17 px is the closest
+   * canonical fixed-px match. Applies to all FAQ question rows. */
+  font-size: 17px;
+  color: var(--fg);
   list-style: none;
   user-select: none;
   transition: color 0.2s ease;
@@ -44,7 +47,7 @@ const renderedAnswer = await renderMarkdown(item.answer);
 .faq-question::marker { content: none; }
 
 .faq-question:hover {
-  color: var(--brand-teal);
+  color: var(--accent);
 }
 
 .faq-q-text {
@@ -62,9 +65,12 @@ details[open] .faq-icon {
 
 .faq-answer {
   padding: 0 20px 20px 20px;
-  color: var(--muted);
+  color: var(--fg-2);
   line-height: 1.7;
-  font-size: 0.95rem;
+  /* USMR Phase 5.5.16-pt124 — rem→px (pt19-22). 0.95rem ≈ 15.2; 15 px
+   * keeps the question/answer hierarchy (17 / 15) and aligns with the
+   * project's body-copy fixed-px range. */
+  font-size: 15px;
 }
 
 .faq-answer p {
@@ -86,24 +92,68 @@ details[open] .faq-icon {
 }
 
 .faq-answer a {
-  color: var(--brand-teal);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .faq-answer a:hover {
-  color: var(--brand-sky);
+  color: var(--accent);
 }
 
 @media (max-width: 768px) {
   .faq-question {
     padding: 14px 16px;
-    font-size: 1rem;
+    /* USMR Phase 5.5.16-pt124 — rem→px (1rem → 16). */
+    font-size: 16px;
   }
 
   .faq-answer {
     padding: 0 16px 16px 16px;
-    font-size: 0.9rem;
+    /* USMR Phase 5.5.16-pt124 — rem→px (0.9rem ≈ 14.4 → 14). */
+    font-size: 14px;
+  }
+}
+
+/* USMR Phase 5.5.16-pt130 — `prefers-reduced-motion` override per
+ * DESIGN.md §8.2 motion principles. The chevron icon rotates 180°
+ * when the <details> opens (`details[open] .faq-icon { transform:
+ * rotate(180deg) }`). Rotation counts as motion under reduced-motion.
+ * Disabling the transition makes the rotation instant — the icon
+ * still flips to indicate state, just without the 0.3 s sweep. The
+ * .faq-question color transition is also zeroed to keep state
+ * changes paint-synchronous. */
+@media (prefers-reduced-motion: reduce) {
+  .faq-question,
+  .faq-icon {
+    transition: none;
+  }
+}
+
+/* USMR Phase 5.5.16-pt126 — forced-colors mode overrides per
+ * DESIGN.md §11.7 "Forced colors mode" line 1343 (pre-pt378 cite
+ * was incorrectly §7 "Do's and Don'ts" which covers writing voice
+ * and visual aesthetic, not forced-colors palette remapping). The
+ * OS palette remap (Windows High Contrast)
+ * collapses var(--accent) into a flat system color, so the FAQ
+ * question hover affordance + the in-answer link colors lose
+ * their signal. Map:
+ *   - .faq-question:hover (q-text fg flips to accent)  → Highlight
+ *   - .faq-answer a (the in-prose link color)          → LinkText
+ *   - .faq-answer a:hover                              → Highlight
+ * The default `<a>` underline + 2px text-underline-offset survive
+ * the palette remap because they're system-defaults under
+ * forced-colors. */
+@media (forced-colors: active) {
+  .faq-question:hover {
+    color: Highlight;
+  }
+  .faq-answer a {
+    color: LinkText;
+  }
+  .faq-answer a:hover,
+  .faq-answer a:focus-visible {
+    color: Highlight;
   }
 }
 </style>

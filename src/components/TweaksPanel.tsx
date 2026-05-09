@@ -12,7 +12,7 @@
  * trigger button.
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import {
   ACCENT_SWATCH,
   ACCENTS,
@@ -21,6 +21,7 @@ import {
   HERO_FONTS,
   STORAGE_KEY,
   THEMES,
+  WRITING_WIDGETS,
   parse,
   type Tweaks,
 } from "../scripts/tweaks-state.ts";
@@ -62,6 +63,12 @@ function applyToDom(t: Tweaks): void {
   html.setAttribute("data-density", t.density);
   html.setAttribute("data-theme", t.theme);
   html.setAttribute("data-hero-font", t.heroFont);
+  // pt108 + pt109 — writingWidget projected to data-writing-widget
+  // on <html>; pt109 wired the per-variant rendering via :global()
+  // selectors in src/pages/index.astro:740+ that toggle visibility
+  // of `.writing-strip` and `.hero__latest-strip`. Setting the
+  // attribute here drives the live layout (no longer no-op).
+  html.setAttribute("data-writing-widget", t.writingWidget);
   document.body.classList.toggle("no-grid", !t.showGrid);
 }
 
@@ -196,6 +203,27 @@ export default function TweaksPanel() {
           </Opt>
         </Field>
 
+        {/* USMR Phase 5.5.16-pt108 — added Writing widget section to
+            match canonical Tweaks panel (per user's reference
+            screenshot). Writes `data-writing-widget` on <html>; the
+            layout-switching consumers shipped in pt109 (variant CSS
+            in `src/pages/index.astro` lines 735+ targets `:global(
+            [data-writing-widget="off"|"in-hero"|"A · strip"|"B ·
+            3-up"|"C · split"|"D · ticker"])` and toggles
+            visibility of `.writing-strip` / `.hero__latest-strip`).
+            6 variant buttons here; default is `B · 3-up`. */}
+        <Field label="Writing widget">
+          {WRITING_WIDGETS.map((w) => (
+            <Opt
+              key={w}
+              active={tweaks.writingWidget === w}
+              onClick={() => setTweak("writingWidget", w)}
+            >
+              {w}
+            </Opt>
+          ))}
+        </Field>
+
         <footer className="tweaks-footer">
           Dev only. Changes persist in localStorage.
         </footer>
@@ -224,13 +252,27 @@ function Opt({
   onClick: () => void;
   children: ReactNode;
 }) {
+  // USMR Phase 5.5.16-pt422 — blur the button after a pointer click so
+  // Safari's `:focus-visible` heuristic doesn't leave a violet outline
+  // on the previously-clicked button (Safari applies `:focus-visible`
+  // on pointer clicks more aggressively than Chrome/Firefox; combined
+  // with the global `button:focus-visible { outline: 2px solid
+  // var(--accent) }` in theme.css, the residual outline on a
+  // not-active button looks like a stuck selection — the bug the
+  // user reported as "selection stays"). Keyboard users still get
+  // visible focus because Tab/Arrow nav re-applies `:focus-visible`
+  // before they release the key.
+  function handleClick(e: MouseEvent<HTMLButtonElement>) {
+    onClick();
+    e.currentTarget.blur();
+  }
   return (
     <button
       type="button"
       role="radio"
       aria-checked={active}
       className={active ? "tweaks-opt is-active" : "tweaks-opt"}
-      onClick={onClick}
+      onClick={handleClick}
     >
       {children}
     </button>

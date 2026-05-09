@@ -1,0 +1,39 @@
+---
+// USMR Phase 5.2.1 — Standard / glossary chip. Ports the new-design
+// `<T>` component (new-design/extracted/src/pages/index.html:513-533)
+// from inline-style React JSX to a token-only Astro static component.
+// Looks up the term in src/data/glossary.ts and renders a hover-able
+// dotted-underline link. Build-time warning on a missing term so
+// gaps are loud.
+//
+// Styles live in `public/assets/theme.css` under `.standard-chip`
+// so the React `PillarsIsland` can render the same markup with the
+// same hover behavior (5.2.4 requirement).
+//
+// Usage:
+//   <Standard term="OIDC 2.1" />
+//   <Standard term="DPoP">DPoP</Standard>  {/* override slot text */}
+import { lookupGlossary } from '../data/glossary';
+
+export interface Props {
+  term: string;
+}
+
+const { term } = Astro.props;
+const def = lookupGlossary(term);
+
+if (!def && import.meta.env.DEV) {
+  console.warn(`[Standard] glossary miss: "${term}"`);
+}
+---
+{def ? (
+  <a
+    href={def.href}
+    target={def.external ? '_blank' : undefined}
+    rel={def.external ? 'noopener noreferrer' : undefined}
+    title={def.name}
+    class="standard-chip"
+  ><slot>{term}</slot></a>
+) : (
+  <span class="standard-chip standard-chip--missing"><slot>{term}</slot></span>
+)}

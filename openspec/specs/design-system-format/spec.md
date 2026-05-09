@@ -2,7 +2,31 @@
 
 ## Purpose
 
-TBD - created by archiving change adopt-design-md-format. Update Purpose after archive.
+This capability defines the contracts that govern the
+artagon-site's adoption of the `@google/design.md` design-system
+format spec as the canonical visual identity contract. The
+repository MUST contain exactly one `DESIGN.md` at the root
+(uniqueness gate); its frontmatter MUST declare an upstream
+`version:` field pinned by commit SHA in `openspec/config.yaml`;
+upgrades require a separate OpenSpec change
+(`bump-design-md-to-<version>`); the lint pipeline
+(`design.md lint DESIGN.md` per `@google/design.md@0.1.1`) +
+ast-grep token-citation gates + `lint:design-md-uniqueness`
+postbuild step + the OKLCH↔hex hybrid policy
+(`scripts/check-oklch-hex-parity.mjs` + `scripts/oklch-to-hex.mjs`)
+operationalize the contract at build time.
+
+The capability was created by archiving the
+`adopt-design-md-format` change
+(`openspec/changes/archive/2026-05-05-adopt-design-md-format/`)
+on 2026-05-05. The pinned upstream is captured at
+`.agents/adopt-design-md-format/pins.json` (commit SHA
+`97b4df92901b9353fbc71cfe1b51dad1ece01708`, npm version
+`0.1.1`). The weekly `design-md-drift.yml` workflow refreshes
+`openspec/.cache/design-md-spec.md` from
+`npx @google/design.md spec --format markdown` to detect
+upstream changes that would require a `bump-design-md-to-<v>`
+proposal.
 
 ## Requirements
 

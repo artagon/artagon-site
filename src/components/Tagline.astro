@@ -1,5 +1,11 @@
 ---
+import taglines from '../content/taglines.json';
 const { variant = 'inline', class: cls = '' } = Astro.props;
-const text = variant === 'full' ? 'Trusted Identity for Machines and Humans - Verified, Private, Attested' : (variant === 'sentence' ? 'Verified, Private, Attested.' : (variant === 'abbr' ? 'V • P • A' : 'Verified • Private • Attested'));
+const { tagline } = taglines;
+const text =
+  variant === 'full'     ? tagline.full :
+  variant === 'sentence' ? tagline.short :
+  variant === 'abbr'     ? tagline.abbr :
+                           tagline.inline;
 ---
 <span class={`pill ${cls}`} aria-label="Company motto">{text}</span>

@@ -49,13 +49,13 @@ BRAND_BG="#000000" MASK_BG="#111111" bash scripts/icons/make-icons.sh
 
 ### Available Variables
 
-- `LOGO_DIR` - Logo submodule directory (default: `public/assets/artagon-logo`)
-- `SVG_MARK` - SVG logo mark file (default: `public/assets/logo-mark.svg`)
-- `SRC` - Fallback PNG source (default: `$LOGO_DIR/artagon_D1A.png`)
+- `SVG_MARK` - **Primary source.** SVG logo mark file (default: `public/assets/logo-mark.svg` — currently shipped). The script uses this first if it exists; LOGO_DIR / SRC are PNG fallbacks for environments that have the upstream artagon-logo PNG submodule.
+- `LOGO_DIR` - Optional. Logo PNG-submodule directory (legacy default: `public/assets/artagon-logo`, **removed in USMR pt72** — set this explicitly only if you have a local clone of the upstream PNG submodule).
+- `SRC` - Optional. Fallback PNG source (default: `$LOGO_DIR/artagon_D1A.png` — only used when LOGO_DIR resolves).
 - `OUT` - Output directory (default: `public/icons`)
 - `BRAND_BG` - Brand background color (default: `#0B1220`)
 - `MASK_BG` - Maskable icon background (default: `#0B1220`)
-- `PINNED_COLOR` - Safari pinned tab color (default: `#0EA5E9`)
+- `PINNED_COLOR` - Safari pinned tab color (default: `#0EA5E9` — note: pt107 caught that the canonical brand-teal pinned-tab color is `#3ceedd` (`oklch(0.86 0.14 185)`), not the pre-pt107 sky blue `#0EA5E9`; the canonical value lives at `src/layouts/BaseLayout.astro:37` `<SeoIcons pinnedColor="#3ceedd" />`. The variable is set in `scripts/icons/make-icons.sh:14` but is not currently consumed by the script — the Safari pinned-tab SVG is emitted via heredoc with hardcoded `currentColor`. Override at script invocation if you regenerate icons; the runtime canonical color is sourced from `BaseLayout.astro` regardless.)
 
 ## Requirements
 
@@ -139,7 +139,7 @@ Add to your `<head>`:
 <link rel="icon" type="image/png" href="/icons/icon-16.png" sizes="16x16" />
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />
-<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#0EA5E9" />
+<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3ceedd" />
 <link rel="shortcut icon" href="/icons/favicon.ico" />
 ```
 

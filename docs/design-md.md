@@ -21,7 +21,7 @@ This phrasing is canonical and used verbatim in `README.md`, `AGENTS.md`, and `o
 
 ### Origin: promotion from `new-design/extracted/DESIGN.md`
 
-The repo-root `DESIGN.md` was promoted from `new-design/extracted/DESIGN.md` on 2026-05-04 per the `adopt-design-md-format` openspec change. The earlier copy at `new-design/extracted/DESIGN.md` is retained for diff history but is no longer authoritative — the root `DESIGN.md` supersedes it. Edits MUST go to the root file. The `new-design/extracted/` directory (including the historical `DESIGN.md` copy) is gitignored on `main` and slated for deletion by the `cleanup-new-design-extracted` follow-up change once `update-site-marketing-redesign` and `add-brand-assets-and-writing-pipeline` archive.
+The repo-root `DESIGN.md` was promoted from `new-design/extracted/DESIGN.md` on 2026-05-04 per the `adopt-design-md-format` openspec change (proposal archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; the live capability spec is `openspec/specs/design-system-format/spec.md`). The earlier copy at `new-design/extracted/DESIGN.md` is retained for diff history but is no longer authoritative — the root `DESIGN.md` supersedes it. Edits MUST go to the root file. The `new-design/extracted/` directory (including the historical `DESIGN.md` copy) is gitignored on `main` and slated for deletion by the `cleanup-new-design-extracted` follow-up change once `update-site-marketing-redesign` and `add-brand-assets-and-writing-pipeline` archive.
 
 ---
 
@@ -119,7 +119,7 @@ manually — run the script instead.
 
 As of the pinned version (`0.1.1`), the published npm `package.json` for `@google/design.md` does **not** carry a `"license": "Apache-2.0"` field. This means automated license-checker tools (e.g., `license-checker`, `licensee`) may report the package as having an unknown license.
 
-The LICENSE file in the upstream git repository (`15e431c225cf463f87a61f4e2a76dfb09e2bf849`) confirms the Apache-2.0 license. Filing an upstream issue requesting the field was deferred (Phase 0.5 of `adopt-design-md-format`) because agents cannot file issues on external organization repositories. The upstream LICENSE-file SHA above serves as the verified reference until the upstream fix lands.
+The LICENSE file in the upstream git repository (`15e431c225cf463f87a61f4e2a76dfb09e2bf849`) confirms the Apache-2.0 license. Filing an upstream issue requesting the field was deferred (Phase 0.5 of `adopt-design-md-format` — proposal archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; the live spec is `openspec/specs/design-system-format/spec.md`) because agents cannot file issues on external organization repositories. The upstream LICENSE-file SHA above serves as the verified reference until the upstream fix lands.
 
 ### Integrity verification
 
@@ -181,19 +181,19 @@ Compound `border` shorthand presets — `Npx solid var(--teal-N)` — that exist
 
 Tokens: `` `--gradient-hero` ``, `` `--gradient-hero-fallback` ``, `` `--gradient-surface` ``, `` `--gradient-surface-fallback` ``, `` `--gradient-accent` ``, `` `--gradient-accent-fallback` ``, `` `--gradient-inline` ``, `` `--gradient-inline-fallback` ``, `` `--gradient-vision-2030` ``, `` `--gradient-vision-2030-fallback` ``.
 
-Named multi-stop linear gradients used by the hero, surface, accent, inline-CTA, and vision-2030 sections. Each pairs a `color-mix`-based primary with a `rgba()`-based fallback. DESIGN.md `colors` is single-stop only; gradients are component-level visual primitives that the upstream schema does not model. Per DESIGN.md §1.2 ("Editorial, not SaaS"), gradients are _minimised_, but the few we ship live here.
+Named multi-stop linear gradients used by the hero, surface, accent, inline-CTA, and vision-2030 sections. Each pairs a `color-mix`-based primary with a `rgba()`-based fallback. DESIGN.md `colors` is single-stop only; gradients are component-level visual primitives that the upstream schema does not model. Per DESIGN.md §1.1.2 "Editorial, not SaaS" (line 117), gradients are _minimised_, but the few we ship live here (pre-pt377 cite was incorrectly §1.2 "Voice & tone" — that section is about copy voice, not visual minimalism).
 
 ### 6.7 Shadow scale
 
 Tokens: `` `--shadow-sm` ``, `` `--shadow-md` ``, `` `--shadow-lg` ``, `` `--shadow-xl` ``, `` `--shadow-glow-teal` ``, `` `--shadow-glow-teal-fallback` ``.
 
-Four-level shadow ramp plus a brand-tinted accent glow. DESIGN.md §3.4 states the site's flat aesthetic restricts shadows to specific affordances (dropdowns, the Tweaks panel, accent glow on interactive elements); these tokens are how that policy is implemented. Shadows are not in the upstream `@google/design.md` schema, so they cannot be promoted to frontmatter without a schema extension.
+Four-level shadow ramp plus a brand-tinted accent glow. DESIGN.md §5 "Shapes" lines 384-387 state the site's flat aesthetic restricts shadows to specific affordances (dropdowns, the Tweaks panel, accent glow on interactive elements); these tokens are how that policy is implemented (pre-pt376 cite was incorrectly §3.4 "Hero display override" — that section describes the `[data-hero-font]` typography switch, not shadow policy). The same policy is restated in §7.3 "Visual and aesthetic" line 1138. Shadows are not in the upstream `@google/design.md` schema, so they cannot be promoted to frontmatter without a schema extension.
 
 ### 6.8 Section / hero spacing utilities
 
 Tokens: `` `--spacing-section` ``, `` `--spacing-section-simple` ``, `` `--spacing-section-large` ``, `` `--spacing-hero-block` ``, `` `--spacing-hero-top` ``, `` `--spacing-hero-inline` ``, `` `--spacing-hero-bottom` ``, `` `--padding-card` ``, `` `--padding-card-compact` ``, `` `--padding-card-inline` ``, `` `--margin-section-header` ``, `` `--margin-content-block` ``, `` `--margin-subsection` ``.
 
-Page-rhythm spacing utilities (the 120px section rhythm from DESIGN.md §3.3, plus card-padding and section-header margins). The DESIGN.md `spacing` namespace declares the _atomic_ spacing scale (`xs`/`sm`/`md`/`lg`/`xl`/`2xl`); these tokens compose those atoms into named _page-level_ utilities. They are intentionally one layer up from the design contract — promoting them would let designers redefine "section padding" by editing CSS, which is the wrong abstraction layer for the contract.
+Page-rhythm spacing utilities (the 120px section rhythm from DESIGN.md §4 "Layout" line 346, plus card-padding and section-header margins; pre-pt375 cite was incorrectly §3.3 "Tracking rules" — that section is about typography tracking, not section rhythm). The DESIGN.md `spacing` namespace declares the _atomic_ spacing scale (`xs`/`sm`/`md`/`lg`/`xl`/`2xl`); these tokens compose those atoms into named _page-level_ utilities. They are intentionally one layer up from the design contract — promoting them would let designers redefine "section padding" by editing CSS, which is the wrong abstraction layer for the contract.
 
 ### 6.9 Gap tokens
 
@@ -205,13 +205,13 @@ T-shirt-sized `gap` aliases used inside grid and flex layouts. They map onto the
 
 Tokens: `` `--radius` ``, `` `--radius-card` ``, `` `--radius-sm` ``, `` `--radius-tiny` ``, `` `--radius-lg` ``, `` `--radius-xl` ``, `` `--radius-full` ``.
 
-The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; the future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §3.4 and has no `rounded` equivalent.
+The DESIGN.md `rounded` namespace declares four canonical radii (`sm` = 4px, `md` = 8px, `lg` = 12px, `xl` = 16px). The CSS tokens here are the legacy alias spelling — `--radius-sm` (8px) precedes the DESIGN.md scale and disagrees with it (DESIGN.md `rounded.sm` = 4px). They are kept on the allow-list rather than retired now to avoid a flag-day rename across every Astro component; the future `migrate-legacy-tokens-to-layer` OpenSpec change (not yet filed) will reconcile in a single sweep that maps `--radius-sm` → `--rounded-md`, `--radius-tiny` → `--rounded-sm`, etc. `--radius-full` (999px) is the pill-radius from DESIGN.md §5 "Shapes" line 382 (`Pill | 999px | Standards chips, glow-tag, dots`) and has no `rounded` equivalent (pre-pt376 cite was incorrectly §3.4 "Hero display override" — that section describes the `[data-hero-font]` typography switch, not shape tokens).
 
 ### 6.11 Layout chrome
 
 Tokens: `` `--nav-h` ``, `` `--ctl-h` ``, `` `--section-pad` ``, `` `--container-max` ``.
 
-Layout-chrome constants — sticky-header height, control-row height, section padding-block via `clamp()`, content max-width. These are layout primitives, not design tokens; DESIGN.md models the _aesthetic_ contract, not the layout grid (which lives in §3.3 prose: 8-point grid, 1240px max-width, 120px section rhythm). Codifying them as CSS custom properties is a CSS implementation detail.
+Layout-chrome constants — sticky-header height, control-row height, section padding-block via `clamp()`, content max-width. These are layout primitives, not design tokens; DESIGN.md models the _aesthetic_ contract, not the layout grid (which lives in §4 "Layout" prose: 8-point grid at line 345, `--maxw: 1240px` at line 350, 120px section rhythm at line 346 — pre-pt376 cite was incorrectly §3.3 "Tracking rules" which is typography). Codifying them as CSS custom properties is a CSS implementation detail.
 
 ### 6.12 Roadmap module-local tokens
 
@@ -235,13 +235,13 @@ Six-level shadow ramp that replaces raw `rgba(0,0,0,*)` box-shadow literals thro
 
 Tokens: `` `--focus-ring-width` ``, `` `--focus-ring-offset` ``, `` `--focus-ring-color` ``, `` `--focus-ring-shadow` ``.
 
-Accessibility-critical focus-indicator tokens that compose into a double-ring `box-shadow` (inner ring = `--bg`, outer ring = `--brand-teal`) via the `--focus-ring-shadow` shorthand. Keeping them as CSS custom properties allows the ring to theme-switch automatically when `--bg` or `--brand-teal` changes. DESIGN.md has no `focus` namespace; these tokens are implementation-level CSS primitives for the interaction contract described in DESIGN.md §3.4 ("Focus visible, brand-teal ring").
+Accessibility-critical focus-indicator tokens that compose into a double-ring `box-shadow` (inner ring = `--bg`, outer ring = `--accent`; the legacy retained alias `--brand-teal` resolves to `--accent` per pt86) via the `--focus-ring-shadow` shorthand. Keeping them as CSS custom properties allows the ring to theme-switch automatically when `--bg` or `--accent` changes. DESIGN.md has no `focus` namespace; these tokens are implementation-level CSS primitives for the interaction contract described in DESIGN.md §11.9 "Focus indicators" (line 1362 — site-wide `:focus-visible` rule; pre-pt374 cite was incorrectly §3.4 "Hero display override" which describes the `[data-hero-font]` switch, not focus indicators).
 
 ### 6.16 Motion tokens
 
 Tokens: `` `--motion-duration-instant` ``, `` `--motion-duration-fast` ``, `` `--motion-duration-base` ``, `` `--motion-duration-slow` ``, `` `--motion-duration-slower` ``, `` `--motion-easing-standard` ``, `` `--motion-easing-emphasized` ``, `` `--motion-easing-decelerate` ``, `` `--motion-easing-accelerate` ``, `` `--motion-easing-linear` ``.
 
-Duration scale (0–480 ms, five steps) and named `cubic-bezier` easing curves aligned with the Material 3 motion vocabulary. The `--motion-easing-emphasized` curve (with overshoot) implements the "spring-like" entrance described in DESIGN.md §3.4. Centralising them as custom properties lets components reference a semantic name (`--motion-easing-standard`) instead of inlining bare timings, and allows global motion-preference overrides (`prefers-reduced-motion`) to be applied at the token level in one place. The upstream `@google/design.md` schema has no `motion` namespace, so these live on the allow-list.
+Duration scale (0–480 ms, five steps) and named `cubic-bezier` easing curves aligned with the Material 3 motion vocabulary. The `--motion-easing-emphasized` curve (with overshoot) sits one layer above the canonical `cubic-bezier(.2,.6,.2,1)` UI ease defined in DESIGN.md §8.1 "Timing" line 1162 — the project's UI vocabulary; "spring-like" is the local docs/design-md.md gloss for the overshoot variant and is not a DESIGN.md term (pre-pt376 cite was incorrectly DESIGN.md §3.4 "Hero display override" which describes the `[data-hero-font]` typography switch, not motion). Centralising them as custom properties lets components reference a semantic name (`--motion-easing-standard`) instead of inlining bare timings, and allows global motion-preference overrides (`prefers-reduced-motion`) to be applied at the token level in one place per DESIGN.md §8.2 motion-principles point 2 (lines 1170-1181). The upstream `@google/design.md` schema has no `motion` namespace, so these live on the allow-list.
 
 ### 6.17 Z-index scale
 
@@ -253,7 +253,7 @@ Stacking-context ladder (0 → 9999) that prevents `z-index` wars between indepe
 
 Tokens: `` `--space-0` ``, `` `--space-px` ``, `` `--space-0-5` ``, `` `--space-1` ``, `` `--space-2` ``, `` `--space-3` ``, `` `--space-4` ``, `` `--space-5` ``, `` `--space-6` ``, `` `--space-8` ``, `` `--space-10` ``, `` `--space-12` ``, `` `--space-16` ``, `` `--space-20` ``, `` `--space-24` ``.
 
-4px-based atomic spacing scale (0 → 96 px, 15 steps) that underpins the 8-point grid documented in DESIGN.md §3.3. The DESIGN.md `spacing` namespace uses T-shirt sizes (`xs`–`2xl`); these tokens provide the full numeric ramp needed by the CSS cascade so components can construct compound values (e.g. `padding: var(--space-4) var(--space-6)`) without hardcoding pixel values. The two systems are complementary: `spacing.*` tokens name _canonical design steps_, while `--space-*` tokens name _every rung on the 4px ladder_; the overlap tokens are intentionally synonymous.
+4px-based atomic spacing scale (0 → 96 px, 15 steps) that underpins the 8-point grid documented in DESIGN.md §4 "Layout" lines 343-348 (pre-pt375 cite was incorrectly §3.3 "Tracking rules" — that section covers typography tracking, not the spacing grid). The DESIGN.md `spacing` namespace uses T-shirt sizes (`xs`–`2xl`); these tokens provide the full numeric ramp needed by the CSS cascade so components can construct compound values (e.g. `padding: var(--space-4) var(--space-6)`) without hardcoding pixel values. The two systems are complementary: `spacing.*` tokens name _canonical design steps_, while `--space-*` tokens name _every rung on the 4px ladder_; the overlap tokens are intentionally synonymous.
 
 ### 6.19 Cascade-layered radius additions
 
@@ -272,6 +272,36 @@ Phase 2.6 fluid type scale. `--fs-*` tokens use `clamp()` to interpolate between
 Tokens: `` `--ink-on-brand` ``, `` `--chip-bg-neutral` ``.
 
 Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklab, var(--nd-fg-2) 12%, transparent)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
+
+### 6.22 Glow component-private accent
+
+Tokens: `` `--g-accent` ``.
+
+Component-private alias declared inside each `.glow-tag` / `.glow-dot` / `.glow-text` / `.glow-amp` rule (USMR Phase 5.1i — glow component CSS port from `new-design/extracted/src/styles/global.css` lines 115-210). The `--g-` prefix marks it as glow-module-local; it defaults to `var(--accent)` and exists so consumers can override per-instance (e.g., `.glow-tag.is-warning { --g-accent: var(--warn); }` for an alert-tone pill) without rewriting any of the four `@keyframes` rules that reference it. It is structurally analogous to §6.12 (`--rm-` roadmap-module-local tokens): a deliberate scoped indirection over an already-documented palette token, not a new colour decision, and intentionally absent from the DESIGN.md frontmatter to avoid polluting the global token namespace with a single-component concern.
+
+### 6.23 Card surface aliases
+
+Tokens: `` `--card-bg` ``, `` `--card-stroke` ``.
+
+USMR Phase 5.1p.9 component-surface aliases over `var(--bg-1)` and `var(--line)`. Introduced because the FAQ markup (`src/components/FaqItem.astro`, `src/components/FaqSearch.astro`, `src/pages/faq/index.astro`) consumes `--card-bg` / `--card-stroke` directly without fallbacks; absent the aliases, those surfaces rendered transparent with `currentColor` borders during the new-design migration. Same pattern as §6.21 (`--ink-on-brand` / `--chip-bg-neutral`): deliberate semantic indirections over already-documented palette tokens, not new colour decisions. They will retire when the FAQ surface promotes to an explicit `card` component in DESIGN.md frontmatter.
+
+### 6.24 Hero-font and display-class primitives
+
+Tokens: `` `--f-display` ``, `` `--f-sans` ``, `` `--f-serif` ``, `` `--f-mono` ``, `` `--f-emphasis` ``, `` `--display-tracking` ``, `` `--display-weight` ``.
+
+USMR Phase 5.1p.11–5.1p.12 font-stack + display-class primitives ported from `new-design/extracted/src/styles/tokens.css`. The `--f-*` tokens are the four canonical font-family stacks (Inter Tight sans · JetBrains Mono · Fraunces serif · Space Grotesk display). `--f-emphasis` is the companion italic-span face: with `[data-hero-font="grotesk"]` it swaps to `var(--f-serif)` so italic reads editorially against the geometric display face; with the other three hero-font variants it `inherit`s so italic stays in the same face. `--display-tracking` and `--display-weight` are per-hero-face typographic primitives that switch with `[data-hero-font="grotesk|fraunces|dmserif|mono"]` attribute scope on `<html>`, allowing per-page hero-face overrides without recompiling. The DESIGN.md `typography` namespace models a single `fontFamily` per role (display / body / etc.) and has no slot for the attribute-driven runtime switching mechanism or the paired `tracking` / `weight` / `emphasis-face` adjustments that depend on the active face. Promoting these would require schema extensions upstream. Until then they live here as the single source of truth for hero typography in the codebase, structurally analogous to §6.20 (fluid type scale) which already documents `--tracking-*` per type role for the same upstream-schema-gap reason.
+
+### 6.25 Italic-emphasis face token
+
+Token: `` `--f-emphasis` ``.
+
+USMR Phase 5.2.5 italic-span face token, paired with the `[data-hero-font]` switch (§6.24). Resolves to `var(--f-serif)` under `[data-hero-font="grotesk"]` for editorial contrast (sans hero + serif italic span) and to `inherit` under `[data-hero-font="fraunces|dmserif|mono"]` so the italic span stays in-family — eliminates the "mono + serif italic" font-clash bug that an unconditional `var(--f-serif)` would otherwise produce. Documented in DESIGN.md §3.4 as the 4 × 2 emphasis-span audit matrix; consumed by `<PillarsIsland>` (`pillars__title-emphasis`, `pillars__tagline`) and any future hero `<em>` span. Lives here for the same reason as §6.24's `--display-tracking` / `--display-weight`: the upstream `typography` schema models a single `fontFamily` per role and has no slot for an attribute-driven emphasis-face that depends on the active hero face. Promoting upstream would require schema extension. Resolves the failure mode flagged in resolved Open question 5 of the /platform redesign hand-off.
+
+### 6.26 Density-variant gutter token
+
+Token: `` `--gutter` ``.
+
+USMR Phase 5.5.6 layout-density token, paired with the `[data-density]` attribute on `<body>`. Defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Mirrors the canonical `new-design/extracted/src/styles/{tokens.css:24-25,global.css:64-65}` shape exactly. Consumed by `.wrap` (DESIGN.md §4) for horizontal page padding; the canonical Tweaks panel surface (out-of-scope per project decision) toggles the attribute at runtime. Lives here on the allow-list rather than in DESIGN.md frontmatter because the upstream `tokens.spacing` namespace models a single base step (4 px / 8 px / etc.) and has no slot for an attribute-driven layout-padding variant. Promoting would require schema extension; same precedent as §6.24/§6.25. Companion test gate: `tests/contrast-tokens.test.mts` is unaffected (gutter is a layout token, not a contrast surface).
 
 ## 7 · Accepted `lint:design` warnings
 

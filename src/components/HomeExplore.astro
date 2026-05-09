@@ -1,0 +1,278 @@
+---
+// USMR Phase 5.5.2 — Home "Explore" grid. Token-only port of
+// new-design/extracted/src/components/HomeExplore.jsx — a 6-card grid
+// that gives visitors entry points into each subpage. The canonical
+// composition is 4 cards (Platform / Bridge / Use cases / Standards)
+// across 4 columns, then 2 wide cards (Roadmap / GitHub) across 2
+// columns. Static — no React island.
+//
+// Phase 5.5.7 extracted the inline data into `src/data/home-explore.ts`
+// so the tuple shape can be invariant-tested at vitest time.
+import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
+---
+<section class="home-explore" id="playground" aria-labelledby="home-explore-h">
+  <div class="home-explore__head">
+    <div>
+      <p class="home-explore__eyebrow">Explore</p>
+      <h2 id="home-explore-h" class="home-explore__title display">
+        One platform.<br /><span class="home-explore__emphasis">Six</span> things to dive into.
+      </h2>
+    </div>
+    <p class="home-explore__lede">
+      Pick your entry point. Each page goes deep on one slice of the platform — protocols, flows, real-world scenarios, or the eighteen-month plan.
+    </p>
+  </div>
+
+  <div class="home-explore__grid home-explore__grid--primary">
+    {PRIMARY.map((card) => (
+      <a
+        class="home-explore__card"
+        href={card.href}
+        {...(isExternal(card.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      >
+        <div class="home-explore__card-row">
+          <span class="home-explore__idx">{card.idx}</span>
+          {isExternal(card.href) && <span class="home-explore__external">↗ external</span>}
+        </div>
+        <span class="home-explore__card-title">{card.title}</span>
+        <span class="home-explore__card-desc">{card.desc}</span>
+        <span class="home-explore__go">Open <span aria-hidden="true">→</span></span>
+      </a>
+    ))}
+  </div>
+
+  <div class="home-explore__grid home-explore__grid--secondary">
+    {SECONDARY.map((card) => (
+      <a
+        class="home-explore__card home-explore__card--wide"
+        href={card.href}
+        {...(isExternal(card.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      >
+        <div class="home-explore__card-row">
+          <span class="home-explore__idx">{card.idx}</span>
+          {isExternal(card.href) && <span class="home-explore__external">↗ external</span>}
+        </div>
+        <span class="home-explore__card-title">{card.title}</span>
+        <span class="home-explore__card-desc">{card.desc}</span>
+        <span class="home-explore__go">Open <span aria-hidden="true">→</span></span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  /* Canonical .section padding — `padding: 120 0` (per global.css:215;
+   * we use clamp(80, 8vw, 120) for mobile-floor compat). Pre-fix used
+   * clamp(64, 8vw, 120) — 16 px short on the mobile floor, matching
+   * the iter 27 .section clamp fix. */
+  .home-explore {
+    padding-block: clamp(80px, 8vw, 120px);
+    max-width: var(--maxw, 1240px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .home-explore__head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 56px;
+  }
+
+  @media (max-width: 720px) {
+    .home-explore__head {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  /* Canonical .eyebrow — global.css:220-226. font 12 / fg-2 / 0.1em /
+   * margin-bottom 24 / inline-flex with leading 18 px accent dash via
+   * ::before. The pre-canonical home-explore__eyebrow used custom
+   * sizing (0.72rem / fg-3 / 0.12em / 8 px margin) without the dash. */
+  .home-explore__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--f-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    margin: 0 0 24px;
+  }
+  .home-explore__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .home-explore__title {
+    font-family: var(--f-display);
+    /* USMR Phase 5.5.9 — canonical h2 scale per global.css:230. */
+    font-size: clamp(36px, 4vw, 60px);
+    line-height: 1.02;
+    letter-spacing: var(--display-tracking, -0.025em);
+    font-weight: var(--display-weight, 500);
+    color: var(--fg);
+    margin: 0;
+  }
+
+  .home-explore__emphasis {
+    font-family: var(--f-emphasis, var(--f-serif));
+    font-style: italic;
+  }
+
+  /* Canonical index.html:1346 — uses .lead 20 / fg-1 / 1.5 with
+   * `maxWidth: 50ch, justifySelf: end` overrides. Pre-fix scoped
+   * 17 / fg-2 / 1.55 — undersized + dimmer than canonical. */
+  .home-explore__lede {
+    color: var(--fg-1);
+    font-size: 20px;
+    line-height: 1.5;
+    max-width: 50ch;
+    justify-self: end;
+    margin: 0;
+  }
+
+  @media (max-width: 720px) {
+    .home-explore__lede {
+      justify-self: stretch;
+    }
+  }
+
+  .home-explore__grid {
+    display: grid;
+    gap: 20px;
+  }
+  .home-explore__grid--primary {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .home-explore__grid--secondary {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 1024px) {
+    .home-explore__grid--primary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 540px) {
+    .home-explore__grid--primary,
+    .home-explore__grid--secondary {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .home-explore__card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 28px 24px 24px;
+    min-height: 220px;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    background: var(--bg-1);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color 0.22s,
+      background 0.22s,
+      transform 0.22s;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-explore__card--wide {
+    min-height: 180px;
+  }
+  .home-explore__card:hover,
+  .home-explore__card:focus-visible {
+    border-color: var(--accent-dim, var(--accent));
+    background: color-mix(in oklab, var(--accent) 4%, var(--bg-1));
+    transform: translateY(-2px);
+  }
+  .home-explore__card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .home-explore__card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .home-explore__idx {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    color: var(--fg-3);
+    letter-spacing: 0.14em;
+  }
+
+  .home-explore__external {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    color: var(--fg-3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .home-explore__card-title {
+    font-family: var(--f-display);
+    font-size: 26px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .home-explore__card-desc {
+    font-size: 13.5px;
+    color: var(--fg-2);
+    line-height: 1.5;
+  }
+
+  .home-explore__go {
+    margin-top: auto;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @media (forced-colors: active) {
+    .home-explore__card:hover,
+    .home-explore__card:focus-visible {
+      background: Canvas;
+      border-color: Highlight;
+    }
+    .home-explore__go {
+      color: Highlight;
+    }
+  }
+
+  /* USMR Phase 5.5.16-pt130 — `prefers-reduced-motion` override per
+   * DESIGN.md §8.2 motion principles. The card hover lifts the
+   * surface 2 px via `transform: translateY(-2px)` — translation
+   * counts as motion under reduced-motion. The color + border
+   * change remain (those are state signals, not motion). Mirrors
+   * the WCAG 2.3.3 contract: non-essential motion is opt-out for
+   * users who set `prefers-reduced-motion: reduce`. */
+  @media (prefers-reduced-motion: reduce) {
+    .home-explore__card {
+      transition: none;
+    }
+    .home-explore__card:hover,
+    .home-explore__card:focus-visible {
+      transform: none;
+    }
+  }
+</style>

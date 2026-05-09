@@ -10,7 +10,7 @@ body:
     attributes:
       value: |
         Use this form to define a specification (what to build). Proposals live in PRs or discussions.
-        See `openspec/AGENTS.md` for workflow rules.
+        See the root `AGENTS.md` (CLAUDE.md / GEMINI.md symlink to it) for workflow rules.
 
   # Summary
   - type: textarea

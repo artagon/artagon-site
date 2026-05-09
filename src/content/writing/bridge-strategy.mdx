@@ -1,0 +1,48 @@
+---
+title: "Adopting verifiable credentials without rewriting your app"
+description: "The OID4VP→OIDC bridge: adopt verifiable credentials without rewriting your OIDC app."
+eyebrow: "Strategy"
+headline: "Adopt verifiable credentials without rewriting your OIDC app"
+lede: "Every verifiable-credentials pitch ends at the same cliff. The primitives are elegant, the cryptography is sound, the regulatory timelines are real — and then somebody has to tell the engineering org that their five-hundred-app portfolio needs to be refactored. That's where adoption dies."
+published: 2026-04-21
+author: "trumpyla"
+tags:
+  - Strategy
+  - Verifiable credentials
+  - OIDC
+  - Migration
+---
+
+We've watched this play out for a decade. The technology is never the blocker. The blocker is asking the application team — who did nothing wrong, who has a roadmap full of product commitments — to rewrite login for a capability their customers haven't asked for yet.
+
+So Artagon doesn't ask.
+
+## § 01 — Meet apps where they live
+
+The vast majority of enterprise apps speak one identity protocol: OIDC. They redirect to an identity provider, receive an `id_token`, read claims out of it, and move on. It's the lingua franca and it's going to remain the lingua franca for a long time. Fighting that is a losing strategy.
+
+Instead, we put the verifiability _behind_ the OIDC façade. Artagon is a fully compliant OIDC 2.1 provider to the application. Underneath, it does something the app never sees: it asks the user's wallet for a verifiable credential, verifies it cryptographically, and _bridges_ the verified facts into the `id_token` the app was already expecting.
+
+**Before:** App redirects to IdP. IdP returns `id_token`. App trusts the IdP's assertions about email, tenant, role. If the IdP was wrong, the app is wrong.
+
+**With the bridge:** App redirects to Artagon. Artagon asks the wallet for a VC via OID4VP. Artagon verifies the signature, checks revocation, maps the claims, and mints a standard `id_token`. The app gets the same shape of token it always did — with claims it can now trust without trusting a database.
+
+## § 02 — The Trojan horse
+
+We call this the Trojan horse because it inverts the adoption problem. In the usual telling, verifiable credentials reach the app only after every layer beneath them has been updated — the wallet, the issuer, the verifier, the trust registry. In the bridge model, the app receives verified claims on day one, without changing a line of code. The transformation happens above the app, not inside it.
+
+> The transformation happens above the app, not inside it. You don't have to rewrite your applications to make them verifiable — you move the verification one layer up.
+
+That shift buys something priceless: _time_. Time for wallet ecosystems to mature. Time for issuers to certify. Time for your own teams to learn the primitives at their own pace. Meanwhile, the security posture of every downstream app improves the moment the bridge goes live.
+
+## § 03 — What the app sees
+
+Concretely, nothing changes. The app sees a standard OIDC discovery document, a standard authorization code flow, a standard `id_token` with standard claims — `sub`, `email`, `email_verified`, `iss`, and whatever custom claims your org maps in. The difference is invisible: `email_verified: true` used to mean "we sent them a link once"; now it means "this email is cryptographically attested by a credential we just verified."
+
+For the application, this is the dream migration path — the one where the security properties improve while the integration surface holds still.
+
+## § 04 — When you're ready for more
+
+The bridge is a starting point, not a terminus. Once your team is comfortable, you can graduate to richer flows: requesting specific credential types, consuming presentation claims directly, even issuing credentials of your own through Artagon's OID4VCI endpoints. Some design partners make that jump in months. Others are still happily living behind the bridge two years in. Both are valid.
+
+The point was never to force anyone up the ladder. It was to get verified facts flowing into systems that needed them — with the minimum possible disruption to the teams maintaining those systems. That's the adoption strategy we believe in, and it's why we built the bridge before we built anything else.

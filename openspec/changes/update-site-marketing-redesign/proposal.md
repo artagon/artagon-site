@@ -31,8 +31,8 @@ The current `artagon-site` communicates the product at a surface level but under
 
 **Out of Scope (declared explicitly with rationale):**
 
-- **Internationalization** — no `hreflang`, no `/en/` prefix, no locale-switching UI. Rationale: i18n requires content duplication, routing changes, and a translation pipeline not in scope here. Follow-up change: `add-i18n-foundations`. The plan does add `<html lang="en">` and logical CSS properties (`padding-inline`, `margin-block`) so RTL is not blocked later.
-- **`/vision` styling** — owned by the in-flight `refactor-styling-architecture` change; this change consumes the outputs.
+- **Internationalization** — no `hreflang`, no `/en/` prefix, no locale-switching UI. Rationale: i18n requires content duplication, routing changes, and a translation pipeline not in scope here. Follow-up change: `externalize-strings-and-add-i18n` (scaffolded via pt302; earlier draft text named the follow-up `add-i18n-foundations` — that name was never authored, the live proposal at `openspec/changes/externalize-strings-and-add-i18n/` superseded it). The plan does add `<html lang="en">` and logical CSS properties (`padding-inline`, `margin-block`) so RTL is not blocked later.
+- **`/vision` styling** — owned by the `refactor-styling-architecture` change (was in-flight at proposal-authoring time; archived 2026-05-04 to `openspec/changes/archive/2026-05-04-refactor-styling-architecture/`); this change consumes the outputs.
 - **Non-marketing routes** (`/faq`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/404`) — UNCHANGED. Exception: `/console`, `/search`, `/play`, `/404` get `noindex` meta via `site-indexation`.
 - **Docs-shell internal nav** and DocSearch config.
 - **Backend / console-app UI.**
@@ -43,7 +43,7 @@ The current `artagon-site` communicates the product at a surface level but under
 
 ## Risks and Rollback
 
-- **Risk: Merge conflict with `refactor-styling-architecture`.** Both changes edit `public/assets/theme.css`. **Mitigation:** This change lands AFTER `refactor-styling-architecture` merges, AND `npm run verify:prerequisites` (Phase 0.x) fails the build unless `openspec/changes/refactor-styling-architecture/` is archived OR its merge commit is an ancestor of `HEAD`. CODEOWNERS pin on `theme.css`, `src/components/ui/**`, and `astro.config.mjs` enforces sequential review while both are open. The script gate, not just review hygiene, blocks accidental merge order. See `design.md` Decision #1.
+- **Risk: Merge conflict with `refactor-styling-architecture`.** Both changes edit `public/assets/theme.css`. **Mitigation:** This change lands AFTER `refactor-styling-architecture` merges, AND `npm run verify:prerequisites` (Phase 0.x) fails the build unless `openspec/changes/refactor-styling-architecture/` is archived OR its merge commit is an ancestor of `HEAD`. CODEOWNERS pin on `theme.css`, `src/components/ui/**`, and `astro.config.ts` (pre-USMR-Phase-5.x this was `astro.config.mjs`; renamed to `.ts` so the config can import typed `BUILD` paths from `build.config.ts`) enforces sequential review while both are open. The script gate, not just review hygiene, blocks accidental merge order. See `design.md` Decision #1.
 - **Risk: CLS from fluid type + `font-display: swap`.** Display headlines using `clamp()` can reflow tens of pixels on font swap. **Mitigation:** `@font-face` per self-hosted family MUST emit `size-adjust`, `ascent-override`, `descent-override`, `line-gap-override` derived from fallback-font metrics; `scripts/derive-font-metrics.mjs` automates measurement; `scripts/verify-font-metrics.mjs` gates CI. See `design.md` Decision #10.
 - **Risk: Token rename affects out-of-scope routes (`/faq`, etc.).** **Mitigation:** Additive first — raw `--color-*` palette and semantic aliases added alongside existing variables; routes migrate via `<html data-theme>` switch, page by page.
 - **Risk: Self-hosted fonts add bundle size.** **Mitigation:** WOFF2 only; `unicode-range` subsetting (Latin + Latin-Ext); variable fonts where available (Inter Tight, JetBrains Mono); preload only the LCP-critical display face (Space Grotesk per DESIGN.md, pinned by Playwright assertion); per-route total payload ≤ 180 KB and per-family ≤ 60 KB enforced by `scripts/measure-font-payload.mjs`. **Note:** the existing `lighthouserc.json` only collects `/` at `warn` severity, so Lighthouse alone does NOT enforce font budgets — `measure-font-payload.mjs` is the load-bearing gate.
@@ -70,9 +70,9 @@ The current `artagon-site` communicates the product at a surface level but under
   - `site-branding` — **New Capability** (favicons, theme-color per theme, OG image pipeline).
 
 - **Affected Code (non-exhaustive):**
-  - `src/content/config.ts`, `src/content/pages/*.mdx`, `src/content/pages/writing/*.mdx`, `src/content/authors/*.mdx`, `src/content/taglines.json`
+  - `src/content.config.ts` (Astro 6 layout — file at `src/content.config.ts` not nested under `src/content/config.ts` which was the Astro 5 path), `src/content/pages/*.mdx`, `src/content/writing/*.mdx` (pre-pt401 listed as `src/content/pages/writing/*.mdx` — path drift; the writing collection is a sibling of `pages/`, not nested under it; verified via `ls src/content/`), `src/content/authors/*.mdx`, `src/content/taglines.json`
   - `src/data/standards.ts` (new), `src/data/brand-colors.ts` (new)
-  - `src/components/Nav.astro`, `Footer.astro`, `SkipLink.astro`, `BridgeFlow.astro`, `StandardChip.astro`, `StandardsRow.astro`, `TwoCol.astro`, `JsonLd.astro`, `ThemeToggle.astro`, `TrustChain.astro`, `TrustChainTooltip.astro` (new/updated)
+  - `src/components/Header.astro` (replaces planned `Nav.astro`), `Footer.astro`, `SkipLink.astro`, `BridgeFlow.tsx` + `BridgeFlow.css` (React island, NOT the originally planned `BridgeFlow.astro`), `Standard.astro` (replaces planned `StandardChip.astro`), `StandardsWall.astro` (rolls in the planned `StandardsRow.astro` content), `TrustChainIsland.tsx` + `TrustChainIsland.css` (React island, NOT the originally planned `TrustChain.astro`), `PillarsIsland.tsx` + `PillarsIsland.css`, `UseCasesIsland.tsx` + `UseCasesIsland.css`, `RoadmapTimeline.astro`, `HomeExplore.astro`, `ArtagonGlyph.astro`, `ThemePreviewPanel.astro`, `Tweaks.astro`, `TweaksPanel.tsx` (new/updated). Out-of-scope drops vs original list: `Nav.astro` (consolidated into `Header.astro`), `JsonLd.astro` (replaced by inline `set:html={safeJsonLd(…)}` per `src/lib/charset.ts`), `TwoCol.astro` (deleted; layouts moved to scoped Astro `<style>` per component), `ThemeToggle.astro` (deleted in pt166 as orphan; theme switching exercised via `TweaksPanel.tsx`), `TrustChainTooltip.astro` (Planned for the §6.13 explain-layer follow-up; NOT in this change).
   - `src/layouts/BaseLayout.astro` (metadata emission)
   - `src/pages/` routes added: `/use-cases`, `/standards`, `/writing/index.astro`, `/writing/[slug].astro`, `/writing/feed.xml.ts`; `/bridge.astro` removed
   - `public/assets/theme.css` (cascade layers + tokens), `public/assets/fonts/*` (WOFF2 + `LICENSE.txt`), `public/robots.txt`, `public/_redirects`, `public/favicon.svg`, `public/icon-192.png`, `public/icon-512.png`, `public/apple-touch-icon.png`
@@ -80,7 +80,7 @@ The current `artagon-site` communicates the product at a surface level but under
   - `src/lib/indexation.ts` (new) — `NOINDEX_ROUTES` single source consumed by sitemap filter, BaseLayout, robots.txt, validator.
   - `rules/security/*.yaml` — additions where the rule fits ast-grep (e.g. inline-wordmark ban, raw-hex literal in `.css`).
   - `package.json` build pipeline (lint + gen scripts wired into `postbuild`).
-  - `astro.config.mjs` (`@astrojs/sitemap` excludes).
+  - `astro.config.ts` (renamed from `astro.config.mjs` mid-USMR for typed `BUILD` import; `@astrojs/sitemap` excludes).
   - `openspec/project.md` and `openspec/config.yaml` (route list and capability inventory).
 
 - **Affected Docs:**

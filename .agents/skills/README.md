@@ -8,7 +8,7 @@ Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.
 | ----------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [agent-dx-cli-scale](agent-dx-cli-scale/SKILL.md)           | Score CLI/npm scripts on agent-friendliness (0–21 scale, ≥18 required) | `package.json` scripts, any script in `scripts/`                       |
 | [design-md](design-md/SKILL.md)                             | Synthesize semantic design systems into `DESIGN.md`                    | DESIGN.md authoring, design-token reconciliation                       |
-| [ink](ink/SKILL.md)                                         | Ink terminal renderer for JSON specs                                   | N/A — terminal UI; site is web. Skip.                                  |
+| `ink` (NOT installed)                                       | Ink terminal renderer for JSON specs                                   | N/A — terminal UI; site is web. Deliberately skipped.                  |
 | [tdd](tdd/SKILL.md)                                         | Red-Green-Refactor for TS/Node                                         | All component conversions, all `src/lib/*.ts` and `src/data/*.ts` work |
 | [typed-service-contracts](typed-service-contracts/SKILL.md) | Spec & Handler pattern with `Result<T, E>`                             | `src/data/*.ts`, `src/lib/*.ts`, any data parsing/validation           |
 
@@ -31,14 +31,16 @@ When working on this project:
 - `npx design.md export DESIGN.md --format tailwind` — export to Tailwind config
 - `npx design.md spec` — print the format specification
 
-Already wired in `package.json:46`: `"lint:design": "npm run check:oklch-hex-parity && design.md lint DESIGN.md"`.
+Already wired in `package.json:58`: `"lint:design": "npm run check:oklch-hex-parity && design.md lint DESIGN.md"`.
 
 ## Refresh skills
 
 Pull latest from upstream:
 
 ```bash
-for s in agent-dx-cli-scale ink tdd typed-service-contracts; do
+# `ink` is intentionally NOT in this loop — it is the terminal-renderer
+# skill and the site target is web (skipped per the table above).
+for s in agent-dx-cli-scale tdd typed-service-contracts; do
   curl -sf "https://raw.githubusercontent.com/google-labs-code/design.md/main/.agents/skills/$s/SKILL.md" -o ".agents/skills/$s/SKILL.md"
 done
 ```

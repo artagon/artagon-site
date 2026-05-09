@@ -24,96 +24,117 @@
      * during the redesign cutover. Components migrating to the new design
      * system reference --nd-* directly.
      */
-    --nd-bg: oklch(0.14 0.008 260);
+    /* USMR Phase 5.5.16-pt83 — removed --nd-bg (zero consumers).
+     * --bg is aliased from the unlayered :root :root --bg, not from
+     * --nd-bg. Only --nd-bg-1 / --nd-bg-2 are consumed. */
     --nd-bg-1: oklch(0.17 0.008 260);
     --nd-bg-2: oklch(0.2 0.008 260);
     --nd-line: oklch(0.28 0.008 260);
     --nd-line-soft: oklch(0.22 0.008 260);
     --nd-fg: oklch(0.96 0.005 85);
     --nd-fg-1: oklch(0.82 0.008 85);
-    --nd-fg-2: oklch(0.62 0.008 85);
-    --nd-fg-3: oklch(0.45 0.008 85);
+    /* USMR Phase 5.1p.8 — bumped from oklch(0.62 …) and oklch(0.45 …)
+     * to clear 9 WCAG 1.4.3 contrast violations surfaced by axe.
+     * Original triples failed `--fg-3` on `--bg` (2.56:1 vs 4.5:1
+     * required) and `--fg-2` on `--bg-2` (4.33:1). New lightness
+     * targets pass at the project's standard 11-12 px copy size. */
+    --nd-fg-2: oklch(0.72 0.008 85);
+    --nd-fg-3: oklch(0.62 0.008 85);
     --nd-accent: oklch(0.86 0.14 185);
     --nd-accent-dim: oklch(0.5 0.1 185);
     --nd-accent-ink: oklch(0.18 0.04 185);
     --nd-ok: oklch(0.8 0.15 155);
     --nd-warn: oklch(0.82 0.14 65);
     --nd-bad: oklch(0.66 0.18 25);
+    /* Public semantic aliases over the --nd-* staging set. Components
+     * reference these (var(--bad), etc.) so the staging definitions
+     * can evolve without touching every consumer. The --nd-* set is
+     * the new-design vocabulary verbatim; the public aliases drop the
+     * `--nd-` prefix per DESIGN.md §"Color tokens".
+     *
+     * USMR Phase 5.1h migrates legacy vocab (--text / --muted / --border
+     * / --brand-teal / --bg-alt) onto these aliases. Old aliases stay
+     * as deprecation shims for one release, dropped in a follow-up. */
+    --bad: var(--nd-bad);
+    --ok: var(--nd-ok);
+    --warn: var(--nd-warn);
+    --fg: var(--nd-fg);
+    --fg-1: var(--nd-fg-1);
+    --fg-2: var(--nd-fg-2);
+    --fg-3: var(--nd-fg-3);
+    --accent: var(--nd-accent);
+    --accent-dim: var(--nd-accent-dim);
+    --accent-ink: var(--nd-accent-ink);
+    --bg-1: var(--nd-bg-1);
+    --bg-2: var(--nd-bg-2);
+    --line: var(--nd-line);
+    --line-soft: var(--nd-line-soft);
 
-    /* ----- Motion ----- */
-    --motion-duration-instant: 0ms;
-    --motion-duration-fast: 120ms;
-    --motion-duration-base: 180ms;
-    --motion-duration-slow: 300ms;
-    --motion-duration-slower: 480ms;
+    /* USMR Phase 5.1p.9 — card surface aliases. The FAQ markup
+     * (`src/components/FaqItem.astro`, `FaqSearch.astro`,
+     * `src/pages/faq/index.astro`) consumes `--card-bg` /
+     * `--card-stroke` without fallbacks; without these aliases
+     * the surface rendered transparent + currentColor border. */
+    --card-bg: var(--bg-1);
+    --card-stroke: var(--line);
 
-    --motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
-    --motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1.2);
-    --motion-easing-decelerate: cubic-bezier(0, 0, 0, 1);
-    --motion-easing-accelerate: cubic-bezier(0.3, 0, 1, 1);
-    --motion-easing-linear: linear;
+    /* Font-family tokens per new-design tokens.css. --f-display is the
+     * hero/headline face; switchable per page via [data-hero-font]. */
+    --f-sans: "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --f-serif: "Fraunces", "Instrument Serif", Georgia, serif;
+    --f-display: "Space Grotesk", "Inter Tight", sans-serif;
 
-    /* ----- Elevation (drop shadows; existing --shadow-* preserved unlayered) ----- */
-    --elevation-0: none;
-    --elevation-1: 0 1px 2px rgba(2, 8, 23, 0.2);
-    --elevation-2: 0 2px 6px rgba(2, 8, 23, 0.25);
-    --elevation-3: 0 6px 16px rgba(2, 8, 23, 0.3);
-    --elevation-4: 0 12px 32px rgba(2, 8, 23, 0.35);
+    /* USMR Phase 5.5.16-pt81 — removed unused token clusters:
+     *   --motion-duration-{instant,fast,base,slow,slower} (5 defs)
+     *   --motion-easing-{standard,emphasized,decelerate,accelerate,linear} (5 defs)
+     *   --elevation-{0,1,2,3,4} (5 defs; --elevation-5 retained for Tweaks.astro)
+     * 15 token defs removed total. Each had ZERO consumers in src/ or
+     * public/. The motion + elevation systems were authored as a
+     * design-system specification but never wired into components —
+     * components use scoped transition / box-shadow values directly.
+     * Keeping unused token defs misleads contributors into believing
+     * the system is operational. */
     --elevation-5: 0 24px 48px rgba(2, 8, 23, 0.4);
 
-    /* ----- Focus ring -----
-     * --brand-teal and --bg are unlayered per-theme; BaseLayout always
-     * sets data-theme on <html>, so they always resolve. No `var(--x, ...)`
-     * fallback here — fallbacks would be unreachable dead code that
-     * misleads readers into thinking the ring is theme-aware in the
-     * layered context.
-     */
-    --focus-ring-width: 2px;
-    --focus-ring-offset: 2px;
-    --focus-ring-color: var(--brand-teal);
-    --focus-ring-shadow:
-      0 0 0 var(--focus-ring-offset) var(--bg),
-      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width))
-        var(--focus-ring-color);
+    /* USMR Phase 5.5.16-pt81 — removed dead `--focus-ring-*` cluster
+     * (--focus-ring-width / --focus-ring-offset / --focus-ring-color /
+     * --focus-ring-shadow). Designed for the pre-pt80 `--ring`-based
+     * focus system but had ZERO consumers anywhere in src/ or public/ —
+     * the global `:focus-visible` rule writes `outline: 2px solid
+     * var(--accent)` directly. Removing closes a documentation /
+     * implementation gap that misled readers into thinking focus rings
+     * are theme-aware. ~14 lines incl. comment. */
 
-    /* ----- z-index scale ----- */
-    --z-base: 0;
-    --z-raised: 10;
-    --z-dropdown: 1000;
-    --z-sticky: 1100;
-    --z-overlay: 1200;
-    --z-modal: 1300;
-    --z-popover: 1400;
-    --z-toast: 1500;
-    --z-tooltip: 1600;
-    --z-debug: 9999;
+    /* USMR Phase 5.5.16-pt81 — removed unused `--z-*` cluster
+     * (--z-base, --z-raised, --z-dropdown, --z-sticky, --z-overlay,
+     * --z-modal, --z-popover, --z-toast, --z-tooltip, --z-debug). 10
+     * token defs, ZERO consumers. Components use raw `z-index: <n>` at
+     * call site. The scale was authored as design-system spec but no
+     * component wired it; Tweaks.astro is the only sticky overlay and
+     * uses `z-index: 9999` directly. */
 
-    /* ----- Spacing scale (4px base; legacy --spacing-* / --gap-* preserved) ----- */
-    --space-0: 0;
-    --space-px: 1px;
-    --space-0-5: 0.125rem; /*  2px */
-    --space-1: 0.25rem; /*  4px */
+    /* USMR Phase 5.5.16-pt82 — spacing scale pruned to active set.
+     * Pre-fix shipped 15 --space-{0,0-5,1,2,3,4,5,6,8,10,12,16,20,24,px}
+     * defs; only 5 had consumers: --space-2 (1), --space-6 (1),
+     * --space-8 (2), --space-10 (1), --space-12 (2). 10 dead defs
+     * removed. Components mostly use raw px/rem at call site (per the
+     * canonical fixed-px contract); the surviving --space-* tokens are
+     * the few legacy consumers that haven't migrated yet. */
     --space-2: 0.5rem; /*  8px */
-    --space-3: 0.75rem; /* 12px */
-    --space-4: 1rem; /* 16px */
-    --space-5: 1.25rem; /* 20px */
     --space-6: 1.5rem; /* 24px */
-    --space-8: 2rem; /* 32px */
-    --space-10: 2.5rem; /* 40px */
-    --space-12: 3rem; /* 48px */
-    --space-16: 4rem; /* 64px */
-    --space-20: 5rem; /* 80px */
-    --space-24: 6rem; /* 96px */
+    /* USMR Phase 5.5.16-pt170 — `--space-8` / `--space-10` /
+     * `--space-12` removed. ZERO real consumers; only "Pre-fix
+     * used `var(--space-N)` ..." mentions in comments documenting
+     * prior cleanup. The pt82 sweep had pruned --space-{0,0-5,1,3,
+     * 4,5,16,20,24,px} (10 dead defs); pt170 finishes the job by
+     * removing the remaining 3 unused ones. Surviving --space-2
+     * (1 consumer) + --space-6 (2 consumers) are alive. */
 
-    /* ----- Radius scale (DISJOINT from legacy unlayered --radius-{card,sm,
-     *  lg,tiny,xl,full}; these new names don't overlap, so cascade-layer
-     *  ordering is irrelevant. If a future change adds an unlayered
-     *  --radius-md, it WILL win against this layered version — that is
-     *  expected per the spec's "Existing Token Preservation" rule.
-     */
-    --radius-none: 0;
-    --radius-xs: 4px;
-    --radius-md: 10px;
+    /* USMR Phase 5.5.16-pt82 — radius scale pruned. Pre-fix shipped
+     * --radius-{none,xs,md} (3 defs); ZERO consumers. Components use
+     * raw `border-radius: <n>` at call site per the canonical fixed-px
+     * contract. */
 
     /* ----- Fluid type scale (DESIGN.md §3.2; floors at 360px viewport,
      *       ceilings at 1440px+ viewport) -----
@@ -123,27 +144,27 @@
      *   - at 360px viewport: 7.2vw = 25.92px → clamped UP to 56px (floor) ✓
      *   - at 1440px viewport: 7.2vw = 103.68px (≤ 108px ceiling) ✓
      *   - at ≥ 1500px viewport: clamped DOWN to 108px (ceiling) ✓
-     */
+     *
+     * pt82 — pruned --fs-{body,lead}, --lh-{body,lead,micro,small},
+     * --tracking-mono-caps (7 defs, ZERO consumers). Surviving --fs-*
+     * + --lh-* + --tracking-* are consumed by the bare-h1/h2/h3 rules
+     * at line 478+. Components use scoped clamp / px directly. */
     --fs-h1: clamp(3.5rem, 7.2vw, 6.75rem); /* 56 → 108 */
     --fs-h2: clamp(2.25rem, 4vw, 3.75rem); /* 36 → 60 */
     --fs-h3: 1.375rem; /* 22 */
-    --fs-lead: 1.25rem; /* 20 */
-    --fs-body: 1rem; /* 16 */
-    --fs-small: 0.84375rem; /* 13.5 */
-    --fs-micro: 0.6875rem; /* 11 (mono caps) */
+    /* USMR Phase 5.5.16-pt170 — `--fs-small` (13.5px) + `--fs-micro`
+     * (11px) removed. Both tokens had ZERO real consumers across
+     * src/ + public/ — only mentioned in `Pre-fix used `var(--fs-N)`...`
+     * comments documenting prior cleanup that already migrated to
+     * fixed-px. Same orphan-token discipline as pt169. */
 
     --lh-h1: 0.94;
     --lh-h2: 1.02;
     --lh-h3: 1.2;
-    --lh-lead: 1.5;
-    --lh-body: 1.55;
-    --lh-small: 1.5;
-    --lh-micro: 1.4;
 
     --tracking-h1: -0.035em;
     --tracking-h2: -0.025em;
     --tracking-h3: -0.02em;
-    --tracking-mono-caps: 0.14em;
 
     /* ----- Semantic role aliases (USMR Phase 2) -----
      * These are aliases over upstream new-design tokens, not new color
@@ -152,7 +173,8 @@
      * layer (--nd-accent-ink). DESIGN.md frontmatter doesn't need new
      * entries; the underlying palette tokens are already documented.
      */
-    --ink-on-brand: var(--nd-accent-ink); /* matches accent-ink #001714 */
+    /* USMR Phase 5.5.16-pt82 — removed --ink-on-brand (zero consumers).
+     * Components use var(--accent-ink) directly. */
     --chip-bg-neutral: color-mix(
       in oklab,
       var(--nd-fg-2) 12%,
@@ -161,74 +183,155 @@
   }
 }
 
+/* USMR Phase 5.5.16-pt82 — pre-USMR :root pruned. Removed --ink, --primary,
+ * --shadow (zero consumers); --surface and --muted are still defined here
+ * for the legacy alias chain (theme blocks override --surface = var(--bg-1)
+ * etc., this :root layer provides a fallback for unthemed contexts).
+ *
+ * USMR Phase 5.5.16-pt90 — also canonicalized the unlayered :root --bg
+ * fallback from `#0a0f1e` (RGB 10/15/30, visibly blue) to canonical
+ * `oklch(0.14 0.008 260)` (chroma 0.008, near-neutral). Without this,
+ * any data-theme value that doesn't match a [data-theme="..."] block
+ * would render against a blue navy bg instead of the canonical neutral
+ * dark — exactly the regression that pt87 missed. */
 :root {
-  --ink: #0b1220;
-  --bg: #0a0f1e;
+  --bg: oklch(0.14 0.008 260);
   --surface: #0f172a;
-  --muted: #94a3b8;
-  --primary: #22e3c5;
+  /* USMR Phase 5.5.16-pt169 — `--muted: #94a3b8` removed. Pre-pt169
+   * the legacy 5.1-era token had ZERO consumers anywhere in the
+   * codebase (only one mention, in a `Pre-canonical (5.1-era) used
+   * `var(--muted)` ...` comment that documented a removed pattern).
+   * The canonical `--fg-2` (which `--muted` was the legacy alias of)
+   * is what every consumer reads today. Removing the orphan keeps
+   * the unlayered :root vocabulary aligned with what's actually
+   * accessible to consumers — same dead-public-API discipline as
+   * pt163-pt168. */
   --accent: #7c5cff;
-  --ring: rgba(34, 227, 197, 0.45);
-  --maxw: 1200px;
+  /* USMR Phase 5.1p.13 — bumped from 1200px to match new-design
+   * tokens.css:23. Adds 40px of horizontal breathing room sitewide. */
+  --maxw: 1240px;
+  /* USMR Phase 5.5.6 — `--gutter` token + `[data-density]` overrides
+   * per canonical tokens.css:24-25 + global.css:64-65. DESIGN.md §3.3
+   * documents the density attribute but the token was previously inert
+   * (no override blocks meant `<body data-density="dense">` did nothing). */
+  --gutter: 32px;
   --radius: 14px;
-  --shadow: 0 10px 30px rgba(2, 8, 23, 0.35);
 }
 
-/* ========= THEME PACKS ========= */
+/* USMR Phase 5.5.6 — density-variant overrides. Toggled via
+ * `[data-density]` on `<html>` (Tweaks panel writes here). Default is
+ * `comfortable` (32px gutter, default radius/section-pad); `dense`
+ * tightens horizontal + vertical rhythm; `roomy` opens both. Scales
+ * three coupled tokens so the toggle is visibly different (pre-pt424
+ * only `--gutter` changed — too subtle to notice on most viewports). */
+:root[data-density="dense"] {
+  --gutter: 20px;
+  --radius: 10px;
+  --section-pad: clamp(56px, 6vw, 88px);
+}
+:root[data-density="roomy"] {
+  --gutter: 44px;
+  --radius: 18px;
+  --section-pad: clamp(96px, 10vw, 160px);
+}
 
-/* Midnight Teal (current default) */
+/* ========= THEME PACKS =========
+ * USMR 5.5.16-pt28 — legacy tokens (--text / --muted / --border /
+ * --brand-teal / --bg-alt / --surface) now alias to canonical
+ * (--fg / --fg-2 / --line / --accent / --bg / --bg-1) per the 5.1h
+ * deprecation plan. Pre-fix the legacy values were independent
+ * hardcoded hex (e.g. midnight --text #e2e8f0 ≈ oklch 0.92, whereas
+ * canonical --fg = oklch 0.96 — the body text rendered ~4% darker
+ * than canonical across the site). The brand-teal-rgb tuple is
+ * preserved for the 4 surfaces consuming the rgba(...) gradient
+ * forms — those need the integer components, not a var() value. */
+
+/* USMR Phase 5.5.16-pt86 — pruned --text, --muted, --border from
+ * all 3 theme blocks. Zero consumers (pt86 migrated theme.css's last
+ * 6 internal class rules to canonical --fg / --fg-2 / --line). The
+ * pt28 5.1h legacy-alias chain has now fully retired for these three
+ * tokens; --surface and --brand-teal are still aliased because they
+ * have internal consumers in theme.css gradient/teal-* token defs. */
+
+/* USMR Phase 5.5.16-pt87 — addressing user feedback ("still blue").
+ * Pre-fix `--bg: #0b1220` (midnight, RGB 11/18/32) and `#0e1026`
+ * (twilight, RGB 14/16/38) had a visible blue tint at every scale —
+ * the page bg read as "dark navy" rather than "neutral dark". The
+ * canonical `new-design/extracted/src/styles/tokens.css` defines
+ * `--bg: oklch(0.14 0.008 260)` — chroma 0.008 is almost no color
+ * (near-neutral), with hue 260 only barely registering as cool. Both
+ * themes now consume the canonical neutral-dark; the midnight /
+ * twilight distinction now lives in --bg-1 / accent / surface tints
+ * rather than the page bg itself. */
+
+/* USMR Phase 5.5.16-pt90 — Tweaks panel writes `data-theme="dark"`
+ * (per its dark/light switcher) but pre-pt90 there was no
+ * `[data-theme="dark"]` block in CSS — `--bg` fell through to the
+ * unlayered :root default `#0a0f1e` (the OG blue navy). pt87's
+ * canonical neutral-dark fix only landed on `[data-theme="midnight"]`
+ * and `[data-theme="twilight"]`, neither of which the Tweaks panel
+ * actually writes. The "dark" block is the one that matches the
+ * Tweaks `Theme: dark/light` vocabulary AND the canonical reference
+ * defaults. */
+
+/* Dark (canonical default — Tweaks panel writes data-theme="dark") */
+:root[data-theme="dark"] {
+  --bg: oklch(0.14 0.008 260);
+  --surface: var(--bg-1);
+
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
+}
+
+/* USMR Phase 5.5.16 — Light theme. Tweaks panel writes
+ * `data-theme="light"`. Pre-fix there was no matching CSS block, so
+ * selecting "Theme: light" left the page in dark mode. The palette
+ * inverts the dark foundation tokens (`--bg-*`, `--fg-*`, `--line*`)
+ * to near-white / near-black with cool-neutral hue 260 to match the
+ * dark side. Accent tokens cascade unchanged from the
+ * `[data-accent="…"]` block above. */
+:root[data-theme="light"] {
+  --bg: oklch(0.98 0.005 260);
+  --bg-1: oklch(0.96 0.005 260);
+  --bg-2: oklch(0.92 0.008 260);
+  --fg: oklch(0.2 0.012 260);
+  --fg-1: oklch(0.34 0.01 260);
+  --fg-2: oklch(0.52 0.008 260);
+  --fg-3: oklch(0.68 0.006 260);
+  --line: oklch(0.85 0.008 260);
+  --line-soft: oklch(0.92 0.006 260);
+  --surface: var(--bg-1);
+
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
+}
+
+/* Midnight Teal */
 :root[data-theme="midnight"] {
-  --bg: #0b1220;
-  --bg-alt: #0a0f1e;
-  --surface: #0f172a;
-  --border: #1e293b;
+  --bg: oklch(0.14 0.008 260);
+  --surface: var(--bg-1);
 
-  --text: #e2e8f0;
-  --muted: #94a3b8;
-
-  --brand-teal: #22e3c5; /* Verified */
-  --brand-teal-rgb: 34, 227, 197;
-  --brand-violet: #7c5cff; /* Attested */
-  --brand-sky: #38bdf8; /* Helpful actions/links */
-
-  --ring: rgba(34, 227, 197, 0.45);
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
 }
 
 /* Twilight Indigo */
 :root[data-theme="twilight"] {
-  --bg: #0e1026;
-  --bg-alt: #101530;
-  --surface: #131a3a;
-  --border: #1e2a4a;
+  --bg: oklch(0.14 0.008 260);
+  --surface: var(--bg-1);
 
-  --text: #e5eaf3;
-  --muted: #a9b4cc;
-
-  --brand-teal: #22d3ee;
-  --brand-teal-rgb: 34, 211, 238;
-  --brand-violet: #a78bfa;
-  --brand-sky: #6ea8fe;
-
-  --ring: rgba(110, 168, 254, 0.45);
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
 }
 
-/* Deep Slate Blue */
-:root[data-theme="slate"] {
-  --bg: #0a0e19;
-  --bg-alt: #0e1526;
-  --surface: #101a2e;
-  --border: #20314e;
-
-  --text: #edf2f7;
-  --muted: #9bb1cc;
-
-  --brand-teal: #2dd4bf;
-  --brand-teal-rgb: 45, 212, 191;
-  --brand-violet: #5b8aff;
-  --brand-sky: #5b8aff;
-
-  --ring: rgba(91, 138, 255, 0.45);
-}
+/* USMR Phase 5.5.16-pt167 — `:root[data-theme="slate"]` block
+ * removed. ZERO controllers selected this value: not BaseLayout
+ * (default twilight), not __setTheme ALLOWED (twilight|midnight),
+ * not ThemePreviewPanel (twilight|midnight), not Tweaks state
+ * (dark|light), not Tweaks.astro inline (dark|light). Pure
+ * orphan CSS rule that never matched any DOM element. Plus the
+ * block carried 2 raw hex literals (#0a0e19, #101a2e) that the
+ * lint:tokens gate flagged via the surface-css scope. */
 
 /* ===== ARTAGON UI TOKENS ===== */
 :root {
@@ -288,81 +391,56 @@
     transparent
   );
 
-  /* Color opacity */
-  --teal-5-fallback: rgba(var(--brand-teal-rgb), 0.05);
-  --teal-5: color-mix(in srgb, var(--brand-teal) 5%, transparent);
-  --teal-8-fallback: rgba(var(--brand-teal-rgb), 0.08);
-  --teal-8: color-mix(in srgb, var(--brand-teal) 8%, transparent);
+  /* Color opacity — pt83 pruned --teal-{5,8,12,30,40} + their
+   * fallbacks (10 defs, ZERO consumers). Surviving --teal-{10,15,20}
+   * are consumed by --border-teal-{faint,subtle*}. */
   --teal-10-fallback: rgba(var(--brand-teal-rgb), 0.1);
   --teal-10: color-mix(in srgb, var(--brand-teal) 10%, transparent);
-  --teal-12-fallback: rgba(var(--brand-teal-rgb), 0.12);
-  --teal-12: color-mix(in srgb, var(--brand-teal) 12%, transparent);
-  --teal-15-fallback: rgba(var(--brand-teal-rgb), 0.15);
-  --teal-15: color-mix(in srgb, var(--brand-teal) 15%, transparent);
   --teal-20-fallback: rgba(var(--brand-teal-rgb), 0.2);
   --teal-20: color-mix(in srgb, var(--brand-teal) 20%, transparent);
-  --teal-30-fallback: rgba(var(--brand-teal-rgb), 0.3);
-  --teal-30: color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  --teal-40-fallback: rgba(var(--brand-teal-rgb), 0.4);
-  --teal-40: color-mix(in srgb, var(--brand-teal) 40%, transparent);
 
-  --surface-teal-5-fallback: rgba(var(--brand-teal-rgb), 0.05);
-  --surface-teal-5: color-mix(in srgb, var(--brand-teal) 5%, var(--surface));
-  --surface-teal-8-fallback: rgba(var(--brand-teal-rgb), 0.08);
-  --surface-teal-8: color-mix(in srgb, var(--brand-teal) 8%, var(--surface));
-  --surface-teal-10-fallback: rgba(var(--brand-teal-rgb), 0.1);
-  --surface-teal-10: color-mix(in srgb, var(--brand-teal) 10%, var(--surface));
+  /* pt83 pruned --surface-teal-{5,8,10} + their fallbacks (6 defs,
+   * ZERO consumers). --surface-teal-15 is consumed by vision.css's
+   * .closing-statement / .vision-2030 backdrop. */
   --surface-teal-15-fallback: rgba(var(--brand-teal-rgb), 0.15);
   --surface-teal-15: color-mix(in srgb, var(--brand-teal) 15%, var(--surface));
 
-  /* Borders */
+  /* Borders — pt83 pruned --border-teal-{solid-thick,table,
+   * table-fallback} (3 defs, ZERO consumers). */
   --border-teal-solid: 2px solid var(--brand-teal);
-  --border-teal-solid-thick: 4px solid var(--brand-teal);
   --border-teal-subtle-fallback: 2px solid var(--teal-20-fallback);
   --border-teal-subtle: 2px solid var(--teal-20);
   --border-teal-subtle-thin-fallback: 1px solid var(--teal-20-fallback);
   --border-teal-subtle-thin: 1px solid var(--teal-20);
   --border-teal-faint-fallback: 1px solid var(--teal-10-fallback);
   --border-teal-faint: 1px solid var(--teal-10);
-  --border-teal-table-fallback: 1px solid var(--teal-15-fallback);
-  --border-teal-table: 1px solid var(--teal-15);
   --border-left-accent: 4px solid var(--brand-teal);
 
-  /* Spacing */
+  /* Spacing — pt82 pruned --spacing-{section-large,hero-top,hero-inline},
+   * --padding-card-inline, --gap-{small,tiny}, --margin-subsection (7
+   * defs, ZERO consumers). */
   --spacing-section: 5rem;
   --spacing-section-simple: 4rem;
-  --spacing-section-large: 6rem;
   --spacing-hero-block: 80px 20px 60px;
-  --spacing-hero-top: 80px;
-  --spacing-hero-inline: 20px;
   --spacing-hero-bottom: 60px;
   --padding-card: 2rem;
   --padding-card-compact: 1.5rem;
-  --padding-card-inline: 1.5rem 2rem;
   --gap-large: 2rem;
   --gap-medium: 1.5rem;
-  --gap-small: 1rem;
-  --gap-tiny: 0.5rem;
   --margin-section-header: 2.5rem;
   --margin-content-block: 2rem;
-  --margin-subsection: 3rem;
 
-  /* Radius */
+  /* Radius — pt82 pruned --radius-tiny (zero consumers). */
   --radius-card: 12px;
   --radius-lg: 14px;
   --radius-sm: 8px;
-  --radius-tiny: 6px;
   --radius-xl: 16px;
   --radius-full: 999px;
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Shadows — pt82 pruned --shadow-{sm,xl,glow-teal,glow-teal-fallback}
+   * (4 defs, ZERO consumers). */
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
-  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.2);
-  --shadow-glow-teal-fallback: 0 4px 16px rgba(var(--brand-teal-rgb), 0.2);
-  --shadow-glow-teal: 0 4px 16px
-    color-mix(in srgb, var(--brand-teal) 20%, transparent);
 }
 
 * {
@@ -374,245 +452,387 @@ body {
 }
 body {
   margin: 0;
-  font:
-    16px/1.6 system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    Inter,
-    Arial;
-  color: var(--text, #e2e8f0);
-  background:
-    radial-gradient(
-      1200px 580px at 20% -10%,
-      color-mix(in oklab, var(--brand-violet, #7c5cff) 25%, transparent),
-      transparent 60%
-    ),
-    radial-gradient(
-      1000px 520px at 80% -10%,
-      color-mix(in oklab, var(--brand-teal, #22e3c5) 18%, transparent),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      var(--bg-alt, #0a0f1e) 0%,
-      var(--bg, #0b1220) 60%,
-      var(--bg, #0b1220) 100%
-    );
-  background-color: var(--bg, #0b1220); /* fallback */
+  /* Canonical body type — `var(--f-sans)` resolves to "Inter Tight"
+   * via the webfont link in BaseLayout.astro. The previous `font:`
+   * shorthand pinned a `system-ui, -apple-system, …` chain that
+   * IGNORED the `--f-sans` token entirely, so users saw San Francisco
+   * even after webfonts loaded. Splitting into individual properties
+   * lets `--f-sans` take effect and per-component overrides cascade
+   * cleanly. */
+  font-family: var(--f-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  /* USMR Phase 5.5.5 — Inter Tight stylistic-set ligatures. */
+  font-feature-settings:
+    "ss01" on,
+    "cv11" on;
+  /* USMR Phase 5.5.16-pt91 — canonical token chain only. pt86 deleted
+   * the `--text` legacy alias from theme blocks but this rule still
+   * referenced it via the `var(--text, #e2e8f0)` fallback, so the body
+   * text color was actually rendering as the hardcoded slate-200 hex
+   * for ~2 weeks (Playwright probe revealed this). Migrated to
+   * `var(--fg)` directly — the canonical font color resolves to
+   * oklch(0.96 0.005 85) instead of #e2e8f0 (≈ oklch 0.92), so body
+   * text is now ~4 % brighter and matches canonical. */
+  color: var(--fg);
+  /* USMR Phase 5.5.9 — flattened to canonical body surface per
+   * `new-design/extracted/src/styles/global.css:68-75` (`body { background:
+   * var(--bg); }`). pt91 also dropped the #0b1220 hardcoded fallback
+   * — `--bg` now resolves canonical-neutral via the unlayered :root
+   * default OR the [data-theme="dark"] override (pt90). */
+  background: var(--bg);
 }
+
+/* USMR Phase 5.5.5 — global type scale rules. The `--fs-h1/h2/h3`,
+ * `--lh-*`, and `--tracking-*` tokens at line 170-188 were defined but
+ * never applied to bare `<h1>` / `<h2>` / `<h3>` — every non-hero
+ * page rendered at the browser default ~32px. Canonical
+ * (new-design global.css:229-231) attaches these at the element layer
+ * so any page picking up theme.css inherits the type scale. */
+h1 {
+  font-family: var(--f-display, var(--f-sans));
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  /* Per-face tracking via [data-hero-font]; falls back to the global
+   * --tracking-h1 token when no hero-font variant is active. Fixes the
+   * 5.5.5-introduced bug where `<h1>` ignored the per-face tracking
+   * documented in DESIGN.md §3.4. */
+  letter-spacing: var(--display-tracking, var(--tracking-h1));
+  /* Canonical global.css:229 — h1 `font-weight: 400` (regular).
+   * Pre-fix used 500 (medium), which read as semibold on Space
+   * Grotesk display. The lighter regular weight is canonical;
+   * h2-h4 inherit 500 from the catch-all rule (global.css:228). */
+  font-weight: 400;
+  margin: 0;
+}
+h2 {
+  font-family: var(--f-display, var(--f-sans));
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  letter-spacing: var(--tracking-h2);
+  font-weight: 500;
+  margin: 0;
+}
+h3 {
+  font-family: var(--f-display, var(--f-sans));
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  letter-spacing: var(--tracking-h3);
+  font-weight: 500;
+  margin: 0;
+}
+
+/* USMR Phase 5.1m — body backdrop grid (88x88 px lines, radial-mask
+ * fade-out from 50%/20% center). Ports new-design global.css lines
+ * 79-91. Sits behind page content via z-index: 0; main content rises
+ * above it. Disabled per-route via `body.no-grid` for surfaces that
+ * ship their own visual (e.g. /play). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 88px 88px;
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(
+    ellipse at 50% 20%,
+    black 30%,
+    transparent 80%
+  );
+  mask-image: radial-gradient(ellipse at 50% 20%, black 30%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+body.no-grid::before {
+  display: none;
+}
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* USMR Phase 5.5.16-pt92 — bare anchor color migrated from
+ * var(--brand-sky, var(--primary, #22e3c5)) to var(--accent).
+ * Pre-fix the chain pointed at two pt81-deleted tokens (--brand-sky
+ * via pt84, --primary via pt82), so the literal #22e3c5 hex fallback
+ * was firing for every unscoped <a> on the site. The hex was
+ * coincidentally close to canonical accent cyan but the token chain
+ * was bypassed entirely — accent toggles via [data-accent] in the
+ * Tweaks panel had no effect on body links. */
 a {
-  color: var(--brand-sky, var(--primary, #22e3c5));
+  color: var(--accent);
 }
+/* Canonical only has `.wrap`. The 5.1-era `.container` was kept as
+ * an alias since multiple Astro pages still author against it.
+ * Aliasing the padding to `var(--gutter)` makes density toggles
+ * (`[data-density="dense" | "comfortable" | "roomy"]`) flow through
+ * `.container` consumers too. */
 .container {
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding: 0 20px;
+  padding: 0 var(--gutter, 20px);
 }
-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(10, 15, 30, 0.55);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-  backdrop-filter: saturate(150%) blur(10px);
+/* USMR Phase 5.5.5 — canonical alias. new-design global.css:212 names
+ * the constrained content column `.wrap` (`max-width: var(--maxw);
+ * margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1`).
+ * Some ported components author against `.wrap` directly; alias both
+ * names so either marker works. */
+.wrap {
+  /* Canonical .wrap — new-design global.css:212. Padding consumes the
+   * density-aware `--gutter` token (32 default, 20 dense, 44 roomy)
+   * shipped in 5.5.6, NOT a hard 20 px. */
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding: 0 var(--gutter, 20px);
+  position: relative;
+  z-index: 1;
 }
+
+/* USMR Phase 5.5.5 — display + serif + lead utilities. Canonical
+ * (new-design global.css:43-47, :95, :234) defines these at root scope
+ * so every consumer of `<h1 class="display">`, `<span class="serif">`,
+ * and `<p class="lead">` renders identically across pages. They were
+ * previously scoped only inside `src/pages/index.astro`. */
+/* Canonical global.css:43-47 — `.display` is just `font-family: var(--f-
+ * display)`. Pre-fix overrode font-weight to 500, which BEAT the
+ * canonical h1-specific weight 400 (because .display has higher
+ * specificity than bare h1). H1 consumers of .display (404, index,
+ * writing index, post detail) all rendered at 500 instead of 400.
+ * The display-tracking + display-weight tokens are still useful for
+ * the [data-hero-font] matrix; left them gated to per-face overrides
+ * only — bare h1/h2 catch-all (theme.css h1/h2 rules) drives the
+ * default weight per element. */
+/* USMR Phase 5.5.16-pt100 — canonical `h1.display` (global.css:43)
+ * defines `font-weight: var(--display-weight, 400)`. With
+ * [data-hero-font="grotesk"] (default) the token resolves to 500;
+ * without the attr, fallback 400 fires. Pt42 removed font-weight
+ * from `.display` to fix a specificity bug, but the canonical token
+ * consumption was correct — pt42's removal silently dropped the
+ * per-hero-font weight cascade so home Hero h1 always rendered 400
+ * regardless of data-hero-font. Restoring the canonical token
+ * consumption: at default grotesk the home hero now reads at 500
+ * (canonical Space Grotesk medium); fraunces/dmserif/mono keep their
+ * 400 weight per their token blocks. */
+.display {
+  font-family: var(--f-display, var(--f-sans));
+  letter-spacing: var(--display-tracking, var(--tracking-h1));
+  font-weight: var(--display-weight, 400);
+}
+/* Canonical global.css:95 — `.serif { font-family: var(--f-serif);
+ * font-weight: 400 }`. The `Georgia` fallback was redundant —
+ * --f-serif chain already includes Georgia. */
+.serif {
+  font-family: var(--f-serif);
+  font-weight: 400;
+}
+/* USMR Phase 5.1p.19 — removed the legacy element-`header` rule
+ * (`position: sticky; background: rgba(10,15,30,.55); backdrop-filter
+ * blur(10px); border-bottom: rgba(148,163,184,.12)`). It collided
+ * with the `.site-nav` rule in `Header.astro` (5.1l) — same
+ * specificity, source-order decided. The `.site-nav` rule consumes
+ * the new-design tokens (`color-mix(in oklab, var(--bg) 72%, transparent)`
+ * + `var(--line-soft)` border + `blur(14px)`) and is the
+ * authoritative nav style. The remaining `header { min-height:
+ * var(--nav-h) }` block at line 1271 is structural sizing only —
+ * kept so the nav row reserves vertical space consistently. */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #f8fafc;
-  text-decoration: none;
-}
-nav ul {
-  display: flex;
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  align-items: center;
-}
-nav a {
-  color: #e2e8f0;
-  padding: 0.45rem 0.6rem;
-  border-radius: 10px;
-}
-nav a:hover {
-  background: rgba(148, 163, 184, 0.12);
-}
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  line-height: 1;
-  padding: 0 0.9rem;
-  border-radius: 10px;
-  border: 0;
-  background: linear-gradient(
-    135deg,
-    var(--brand-teal, var(--primary, #22e3c5)),
-    var(--brand-sky, #38bdf8)
-  );
-  color: #041016;
-  font-weight: 700;
-  font-size: 0.875rem;
-  box-shadow:
-    0 4px 16px color-mix(in srgb, var(--brand-teal) 40%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-.cta::before {
-  content: "→";
-  margin-right: 0.4rem;
-  font-size: 1.1em;
-  transition: transform 0.3s ease;
-}
-
-.cta::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.cta:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 6px 24px color-mix(in srgb, var(--brand-teal) 50%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.cta:hover::before {
-  transform: translateX(3px);
-}
-
-.cta:hover::after {
-  left: 100%;
-}
-
-.cta-large {
-  height: 48px;
-  font-size: 1.1rem;
-  padding: 0 2rem;
-}
-
-.cta-section {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--brand-teal) 5%, var(--bg)),
-    color-mix(in srgb, var(--brand-violet) 5%, var(--bg))
-  );
-  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-}
+/* USMR Phase 5.5.16-pt76 — removed pre-USMR `.brand` / `nav ul` /
+ * `nav a` / `nav a:hover` rules (~22 lines). Each carried hardcoded
+ * colors (`#f8fafc`, `#e2e8f0`, `rgba(148,163,184,0.12)`) and was
+ * fully overridden by Header.astro's scoped `.site-nav__brand`,
+ * `.site-nav .links`, `.site-nav .links a`, `.site-nav .links a:hover`
+ * and Footer.astro's `.footer-col a`. The pre-pt76 lint:tokens
+ * allowlist of theme.css had been silently passing these violations;
+ * pt76 extended the linter to scan theme.css with a token-aware filter
+ * that flags raw colors outside CSS custom-property (`--*:`)
+ * declarations. */
+/* USMR Phase 5.5.16-pt75 — removed pre-USMR `.cta` / `.cta::before`
+ * / `.cta::after` / `.cta:hover` / `.cta:hover::before` /
+ * `.cta:hover::after` / `.cta-large` / `.cta-section` (~80 lines).
+ *
+ * `.cta` + `.cta-large` had ZERO consumers in src/ (every CTA uses
+ * the canonical `.btn` / `.btn primary` from §6.8 instead). Carried:
+ *   - hardcoded `#041016` color + `rgba(255, 255, 255, 0.2)` /
+ *     `rgba(255, 255, 255, 0.3)` highlight rgbas (token violations
+ *     skipped by lint:tokens because lint walks src/ only)
+ *   - `var(--primary, #22e3c5)` + `var(--brand-sky, #38bdf8)`
+ *     fallbacks pinning a violet / cyan palette regardless of theme
+ *   - "→" character injected via ::before — would have collided with
+ *     canonical .btn .arr span on any future class="btn cta" element
+ *
+ * `.cta-section` was active on /get-started ONLY (the scoped
+ * .cta-section in src/pages/get-started/index.astro doesn't override
+ * background or border). It rendered a teal/violet color-mix gradient
+ * + double border that visually clashed with the canonical bg-1 → bg
+ * fade on the inner .cta-card (Cta.jsx canonical wraps with bare
+ * `.section` class — no colored backdrop on the outer section).
+ * Removing the global rule lets the canonical .cta-card fade dominate
+ * uncluttered. */
+/* Canonical Hero.jsx:124 — section padding 80 0 120. The 5.1-era
+ * 42 px bottom compressed the gap between the hero and writing-strip
+ * by ~78 px. Restoring 120 lets the hero's lower meta strip
+ * (`Implements & contributes to`) breathe before the next section. */
 .hero {
-  padding: 84px 0 42px;
+  padding: 80px 0 120px;
 }
+/* USMR Phase 5.5.16-pt123 — bring the hero h1 fallback rule to
+ * canonical size (global.css:229 — clamp(56, 7.2vw, 108)) but DO
+ * NOT hardcode font-weight or letter-spacing here. Reason: the
+ * scoped `.hero h1.display` rule (specificity 0,2,1) intentionally
+ * does NOT set those two properties so the `.display` utility's
+ * token cascade (`letter-spacing: var(--display-tracking, ...)`,
+ * `font-weight: var(--display-weight, 400)`) wins. If `.hero h1`
+ * (specificity 0,1,1) hardcodes them, it BEATS the .display
+ * utility (0,1,0) and breaks the [data-hero-font] cascade — the
+ * tracking + weight no longer respond to fraunces / dmserif / mono
+ * variants. pt122 introduced this exact regression (broke the pt102
+ * letter-spacing token gate); pt123 reverts the hardcodes while
+ * keeping the canonical size + line-height + family, which are
+ * static across hero-font variants. (pt115 was the calc() wrap
+ * fix; pt122 corrected the size; pt123 corrects the cascade.) */
 .hero h1 {
-  font-size: clamp(2rem, 2.6vw + 1rem, 4rem);
-  line-height: 1.1;
+  font-family: var(--f-display);
+  font-size: clamp(56px, 7.2vw, 108px);
+  line-height: 0.94;
   margin: 0 0 16px;
 }
-.sub {
-  color: #a7b4c7;
-  max-width: 760px;
-  font-size: 1.15rem;
-}
+/* USMR Phase 5.5.16-pt76 — removed orphan `.sub` rule (4 lines).
+ * Carried hardcoded `#a7b4c7`. Zero consumers in src/. */
+/* Canonical .cluster contract — global.css gap 10 / no margin-top
+ * (the prior block carries the spacing via its own margin-bottom).
+ * Pre-fix used 0.75rem gap (=12) and 22 px margin-top, which
+ * compounded vertically with .lead margin-bottom. */
 .actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-top: 22px;
+  align-items: center;
 }
 .btn {
+  /* Canonical .btn — new-design global.css:236-244. `padding: 12 18`,
+   * `border-radius: 8`, `gap: 10`, `font-size: 14`, `font-weight: 500`.
+   * `border: 1px solid var(--line)`, `background: var(--bg-1)`,
+   * `color: var(--fg)`. Pre-canonical used teal-tinted border + bg
+   * (color-mix in srgb with brand-teal 25% / 5%), which made every
+   * secondary CTA read as a faint teal pill instead of the canonical
+   * neutral bordered button. */
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--brand-teal) 25%, transparent);
-  background: color-mix(in srgb, var(--surface) 90%, var(--brand-teal) 5%);
-  color: var(--text);
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: var(--fg);
   text-decoration: none;
   position: relative;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* USMR Phase 5.5.12 — canonical (new-design global.css:242):
+   *   transition: background .18s ease, border-color .18s ease, transform .18s ease;
+   * The `all 0.3s ease` we shipped earlier was 67 % slower than canonical
+   * AND included unintended properties (color, box-shadow, etc.). Snap-on
+   * canonical button feel is restored by scoping to the three properties
+   * canonical actually animates. */
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 14px;
+  /* Canonical .btn (global.css:236-244) does NOT use backdrop-filter
+   * or box-shadow — it's a flat bordered pill. The pre-canonical
+   * `backdrop-filter: blur(8px)` + `box-shadow: 0 2px 8px rgba(0,0,0,
+   * 0.1)` were 5.1-era decorative additions that pushed every CTA
+   * one z-layer above the canvas. Drop both for canonical fidelity;
+   * the .btn.primary hover provides its own accent-tinted shadow. */
 }
 
-.btn::before {
-  content: "◆";
-  font-size: 0.6em;
-  color: var(--brand-teal);
-  transition: all 0.3s ease;
-  opacity: 0.6;
+/* USMR 5.5.16 — legacy `.btn::before "◆"` decoration removed
+ * globally. Canonical (new-design global.css:236-244) `.btn` ships
+ * clean text + an optional trailing `.arr` chip on primary CTAs.
+ * The site-wide rule was suppressed surface-by-surface (.hero / .onramp
+ * / .writing-strip / .site-nav .right) since 5.1p.6, but each new
+ * page added a fresh suppression site (Get-started / FAQ / 404 / etc.)
+ * — the glyph kept leaking onto every untouched surface. Dropping the
+ * source rule eliminates the cleanup tax. The href-based variants
+ * (`[href*="docs"]` "📖" / `[href*="play"]` "⚡" / `[href*="github"]`
+ * "⭐") below are dropped in the same diff. */
+
+/* USMR Phase 5.1p.14 — screen-reader-only utility for visually-hidden
+ * landmarks that fix heading hierarchy (h1 → h2 → h3) without altering
+ * the rendered layout. Standard a11y utility. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
+/* USMR 5.5.16 — surface-scoped suppressions of the .btn::before glyph
+ * are no longer needed; the source rule was dropped globally above. */
+
+/* USMR Phase 5.5.9 — `.btn.primary` solid-fill ascends to global scope.
+ * Canonical (`new-design global.css:245`): `.btn.primary { background:
+ * var(--accent); color: var(--accent-ink); border-color: transparent; }`.
+ * Pre-5.5.9 the rule lived inside `Header.astro`'s scoped `.site-nav .right`
+ * block, so the Hero + onRamp + Writing primary CTAs ("Request design-
+ * partner access", "Apply as a design partner", "Read") fell through to
+ * the legacy `.btn` translucent-teal-mix base — visible as ghost-style
+ * pills instead of canonical solid cyan. */
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+.btn.primary:hover {
+  background: color-mix(in oklab, var(--accent) 90%, white);
+  color: var(--accent-ink);
+  border-color: transparent;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--accent) 30%, transparent);
+}
+
+/* USMR Phase 5.5.10 — `.btn .arr` is the trailing arrow chip on
+ * primary CTAs (canonical `global.css:247-248`). Slides 2 px right
+ * on hover. Hero "Request design-partner access" + onRamp "Apply
+ * as a design partner" both consume this. */
+.btn .arr {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.btn:hover .arr {
+  transform: translate(2px, 0);
+}
+
+/* Canonical .btn:hover — global.css:244 — `border-color: var(--fg-3);
+ * background: var(--bg-2)`. Subtle: hover bumps to fg-3 (slightly
+ * lighter line) + bg-2 (slightly lifted surface). Pre-fix used
+ * brand-teal border + 12% teal-tint bg + dual box-shadow — too loud
+ * for secondary CTAs. The .btn.primary rule below provides its own
+ * accent-tinted hover state. */
 .btn:hover {
-  transform: translateY(-2px);
-  border-color: var(--brand-teal);
-  background: color-mix(in srgb, var(--surface) 85%, var(--brand-teal) 12%);
-  box-shadow:
-    0 4px 16px color-mix(in srgb, var(--brand-teal) 20%, transparent),
-    inset 0 0 20px color-mix(in srgb, var(--brand-teal) 5%, transparent);
+  border-color: var(--fg-3);
+  background: var(--bg-2);
+  transform: translateY(-1px);
 }
 
-.btn:hover::before {
-  color: var(--brand-sky);
-  opacity: 1;
-  transform: rotate(180deg);
-}
-
-/* Specific button icon styles */
-.btn[href*="docs"]::before {
-  content: "📖";
-  font-size: 0.9em;
-}
-
-.btn[href*="docs"]:hover::before {
-  transform: scale(1.15);
-}
-
-.btn[href*="play"]::before {
-  content: "⚡";
-  font-size: 0.9em;
-}
-
-.btn[href*="play"]:hover::before {
-  transform: scale(1.2) rotate(0deg);
-}
-
-.btn[href*="github"]::before {
-  content: "⭐";
-  font-size: 0.85em;
-}
-
-.btn[href*="github"]:hover::before {
-  transform: scale(1.15) rotate(0deg);
-}
+/* USMR 5.5.16 — legacy hover + href-based ::before glyph rules
+ * (`.btn:hover::before`, `[href*="docs"]` "📖", `[href*="play"]` "⚡",
+ * `[href*="github"]` "⭐") removed alongside the source `.btn::before`
+ * "◆" rule. Canonical CTAs ship clean text. */
 .grid {
   display: grid;
   gap: 18px;
@@ -628,27 +848,50 @@ nav a:hover {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 18px;
 }
 
 /* Spacing & rhythm — global utilities */
 :root {
-  --section-pad: clamp(48px, 8vw, 112px);
+  /* Canonical global.css:215 — `padding: 120px 0` fixed. The fluid
+   * clamp shrunk to 64 on narrow viewports — 56 px of section padding
+   * lost on mobile. Keep clamp for the viewport-fluid floor at 80
+   * (canonical hero uses 80 top), 8vw track to canonical 120. */
+  --section-pad: clamp(80px, 8vw, 120px);
   --container-max: 1200px;
 }
+/* USMR Phase 5.1p.5 — section rhythm aligned with new-design
+ * global.css:214-219. 120 px padding at ≥1024 px (clamp floor
+ * 64 px below) + border-top divider, with :first-of-type
+ * stripping the border so the hero doesn't pick up a top line. */
 .section {
   padding-block: var(--section-pad);
+  border-top: 1px solid var(--line-soft);
+  position: relative;
+}
+.section:first-of-type {
+  border-top: 0;
 }
 .container.narrow {
   max-width: var(--container-max);
   margin-inline: auto;
 }
+/* USMR Phase 5.5.5 — `.lead` reset to canonical (new-design global.css:234)
+ * `font-size: 20px; max-width: 60ch`. Previous clamp(1rem, ..., 1.25rem)
+ * caused most viewports to render <20px (only hit canonical at the clamp
+ * ceiling). Canonical is a flat 20px. */
+/* Canonical global.css:234 — `font-size: 20px; color: var(--fg-1);
+ * line-height: 1.5; max-width: 60ch`. Pre-fix used `var(--fg-2)` —
+ * the lede rendered ~10% dimmer than canonical, which made bold-
+ * emphasized claim phrases pop too aggressively against the body
+ * text. fg-1 is brighter and reads as the canonical editorial weight. */
 .lead {
-  font-size: clamp(1rem, 0.65rem + 1vw, 1.25rem);
-  line-height: 1.6;
-  max-width: 62ch;
+  font-size: 20px;
+  line-height: 1.5;
+  max-width: 60ch;
+  color: var(--fg-1);
 }
 
 /* ===== UI UTILITIES ===== */
@@ -668,28 +911,50 @@ nav a:hover {
   gap: var(--gap-large);
 }
 
+/* USMR Phase 5.5.16-pt122 — canonicalize /vision SectionHeader h2.
+ * Pre-fix shipped clamp(28.8-40)/teal/700 — sub-canonical at the
+ * ceiling (40 vs canonical 60 = 33% smaller), wrong color
+ * (h2 is fg per global.css:230, not accent-tinted — accent is
+ * reserved for eyebrow dashes + CTAs), wrong weight (canonical
+ * 500 via --display-weight token, was 700 hard-coded). The token
+ * cascade ensures grotesk/fraunces/dmserif/mono variants land
+ * the right weight + tracking just like .display elsewhere. */
 .ui-section-header h2 {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  color: var(--brand-teal);
+  font-family: var(--f-display);
+  font-size: clamp(36px, 4vw, 60px);
+  line-height: 1.02;
+  letter-spacing: var(--display-tracking, -0.025em);
+  font-weight: var(--display-weight, 500);
+  color: var(--fg);
   margin: 0;
-  font-weight: 700;
   flex: 1;
 }
 
+/* USMR Phase 5.5.16-pt122 — drop legacy --teal-20 / --teal-20-
+ * fallback chain in favor of canonical --accent-dim, and pin
+ * 4rem (≈64) to fixed-px per the rem→px discipline (pt19-22).
+ * The decorative section number is intentionally subdued so it
+ * doesn't compete with the h2 for hierarchy. */
 .ui-section-number {
-  font-size: 4rem;
+  font-size: 64px;
   font-weight: 900;
-  color: var(--teal-20-fallback);
-  color: var(--teal-20);
+  color: var(--accent-dim);
   line-height: 1;
   flex-shrink: 0;
 }
 
+/* USMR Phase 5.5.16-pt122 — bring intro to canonical .lead
+ * contract (global.css:233-234 — `font-size: 20; color: fg-1;
+ * line-height: 1.5; max-width: 60ch`). Pre-fix 1.15rem ≈ 18.4 was
+ * 1.6 px under canonical, and fg-2 was a shade darker than the
+ * canonical brighter editorial weight (pt27 made the same fix on
+ * the global .lead utility). */
 .ui-section-intro {
-  font-size: 1.15rem;
-  color: var(--muted);
+  font-size: 20px;
+  color: var(--fg-1);
   margin-bottom: var(--margin-content-block);
-  line-height: 1.6;
+  line-height: 1.5;
+  max-width: 60ch;
 }
 
 .ui-grid {
@@ -709,8 +974,16 @@ nav a:hover {
   border: var(--border-teal-subtle);
   border-radius: var(--radius-card);
   padding: var(--padding-card);
-  color: var(--text);
-  transition: all 0.3s ease;
+  color: var(--fg);
+  /* USMR Phase 5.5.16-pt121 — restricted from `transition: all` per
+   * the same vibration-on-hover risk class pt120 caught on trust-chain.
+   * Cards animate border-color, background, color, and box-shadow on
+   * hover/focus only — never layout properties. */
+  transition:
+    border-color 0.3s ease,
+    background 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .ui-card--compact {
@@ -754,7 +1027,7 @@ nav a:hover {
   top: -12px;
   right: 16px;
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   padding: 0.25rem 0.7rem;
   border-radius: var(--radius-full);
   font-size: 0.85rem;
@@ -773,7 +1046,7 @@ nav a:hover {
   height: 40px;
   border-radius: var(--radius-full);
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -801,7 +1074,7 @@ nav a:hover {
 }
 
 .ui-card--pillar p {
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
   margin: 0;
 }
@@ -814,7 +1087,7 @@ nav a:hover {
 }
 
 .ui-card--domain p {
-  color: var(--muted);
+  color: var(--fg-2);
   line-height: 1.6;
   margin: 0;
 }
@@ -833,13 +1106,13 @@ nav a:hover {
 
 .ui-card--component p,
 .ui-card--product p {
-  color: var(--text);
+  color: var(--fg);
   line-height: 1.6;
   margin: 0 0 1rem;
 }
 
 .ui-card:focus-within {
-  outline: 2px solid var(--ring);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -848,7 +1121,7 @@ nav a:hover {
   height: 40px;
   border-radius: var(--radius-full);
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -955,7 +1228,7 @@ nav a:hover {
   left: 0;
   top: 1.5rem;
   background: var(--brand-teal);
-  color: #fff;
+  color: var(--accent-ink);
   width: 32px;
   height: 32px;
   border-radius: var(--radius-full);
@@ -988,15 +1261,37 @@ nav a:hover {
   }
 
   .ui-section-number {
-    font-size: 3rem;
+    /* USMR Phase 5.5.16-pt122 — rem→px parity with the desktop rule. */
+    font-size: 48px;
   }
 }
+/* Canonical .eyebrow — new-design global.css:220-226. Section-break
+ * primitive: mono uppercase 12 px / fg-2 / 0.1em tracking with a
+ * leading 18 px accent dash that anchors every section eyebrow on
+ * the site. Pre-canonical (5.1-era) used `var(--muted)` / 0.18em /
+ * 0.75rem with no dash. */
 .eyebrow {
-  color: var(--muted, #94a3b8);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--fg-2);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.75rem;
+  margin-bottom: 24px;
 }
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: var(--accent);
+}
+/* USMR Phase 5.5.16-pt91 — `.pill` (consumed by Tagline.astro on
+ * /docs and /console) had `var(--border, rgba(...))` and `var(--text,
+ * #cbd5e1)` fallbacks pointing to deleted legacy tokens. Both
+ * fallbacks fired in production. Migrated to canonical token chain. */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -1005,117 +1300,78 @@ nav a:hover {
   line-height: 1;
   padding: 0 0.65rem;
   gap: 0.35rem;
-  border: 1px solid
-    color-mix(in srgb, var(--border, rgba(148, 163, 184, 0.22)) 60%, white 10%);
+  border: 1px solid color-mix(in srgb, var(--line) 60%, white 10%);
   border-radius: 999px;
   font-size: 0.8rem;
-  color: var(--text, #cbd5e1);
+  color: var(--fg);
 }
 .hero-art {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  /* USMR pt426 — wrapper border removed. The inner `.trust-chain`
+   * already paints its own `1px solid var(--line)` (Hero.jsx:230
+   * canonical). Pre-pt426 the outer wrapper added a second
+   * `1px solid var(--line-soft)` border, creating two nested
+   * rounded boxes. On dark theme the outer was nearly invisible
+   * (line-soft on bg ≈ delta-L 0.08); on light theme it became
+   * clearly visible (line-soft 0.92 on bg-1 0.96). Wrapper now
+   * provides only layout positioning + overflow clipping for the
+   * inner card's box-shadow halo. */
   min-height: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.kpi {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 26px;
-}
-@media (max-width: 900px) {
-  .kpi {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 .twocol {
   display: grid;
   gap: 24px;
   grid-template-columns: 1.1fr 0.9fr;
 }
+/* USMR Phase 5.1p.4 — hero overrides the legacy .twocol gap (24 px)
+ * with the new-design `.grid-hero` value (clamp 56-80 px). The
+ * trust-chain card and the headline column visibly crowd at
+ * 24 px; mock specifies 80 px at desktop (new-design index.html:313). */
+.hero .twocol {
+  gap: clamp(56px, 6vw, 80px);
+}
 @media (max-width: 1000px) {
   .twocol {
     grid-template-columns: 1fr;
   }
 }
-.code {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  background: #0a1222;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  border-radius: 12px;
-  padding: 18px;
-  overflow: auto;
-}
-footer {
-  border-top: 1px solid rgba(148, 163, 184, 0.12);
-  padding: 28px 0 60px;
-  color: #9fb1c8;
-}
-.badges {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
+/* USMR Phase 5.5.16-pt74 — removed orphan `.code` rule (hardcoded
+ * `#0a1222` bg + `rgba(148, 163, 184, 0.16)` border, zero consumers
+ * in src/) and the legacy bare `footer` selector (hardcoded
+ * `rgba(148, 163, 184, 0.12)` border + `#9fb1c8` color, zero visible
+ * effect — fully overridden by `.site-footer` in Footer.astro which
+ * sets border-top + color + padding via canonical tokens). 13 lines. */
+/* USMR Phase 5.5.16-pt74 — `.discrete` consumed by ShimPage,
+ * /console, /docs placeholder pages. Pre-fix shipped hardcoded
+ * `#8fa0b8` (a near-fg-2 grey); canonicalized to `var(--fg-2)` so
+ * the placeholder copy follows theme + accent overrides instead of
+ * pinning to a single dark-mode palette literal. */
 .discrete {
-  color: #8fa0b8;
+  color: var(--fg-2);
   font-size: 0.92rem;
 }
-.menu {
-  display: none;
-}
-.menu-btn {
-  display: none;
-}
-@media (max-width: 860px) {
-  .menu-btn {
-    display: inline-flex;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    padding: 0.4rem 0.6rem;
-    border-radius: 10px;
-    background: transparent;
-    color: #e2e8f0;
-  }
-  .menu {
-    display: flex;
-    position: absolute;
-    top: 60px;
-    left: 0;
-    right: 0;
-    background: rgba(10, 15, 30, 0.98);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-    padding: 10px 20px;
-    backdrop-filter: blur(10px);
-  }
-  .menu ul {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-  }
-  .menu a {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0.75rem 0.5rem;
-  }
-  .menu .nav-icon {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-  }
-  nav ul {
-    display: none;
-  }
-  .menu[hidden] {
-    display: none;
-  }
-}
+/* USMR Phase 5.5.11 Task #35 — removed dead `.menu` / `.menu-btn`
+ * pre-USMR mobile-menu pattern (45 lines). No Astro component
+ * rendered `.menu` / `.menu-btn` — the only live rule was
+ * `nav ul { display: none }` at <860 px, which silently broke
+ * Header.astro's `.links` panel in the 720-859 px window where
+ * 5.5.11's hamburger doesn't show yet (only triggers <720 px).
+ * Header.astro now owns the mobile menu via `:global(body.nav-open)`
+ * + `.nav-toggle` per canonical index.html:387-421. */
+/* USMR Phase 5.5.16-pt80 — canonical DESIGN.md a11y contract:
+ * "Focus rings are 2px solid `--accent` with 2px offset". Pre-fix
+ * shipped `var(--ring)` (alpha-tinted accent at 0.45 opacity) plus a
+ * non-canonical `border-radius: 8px` that rounded the outline corners
+ * regardless of the focused element's shape (read as a generic
+ * floating pill, not the canonical sharp 2px rectangle). */
 :focus-visible {
-  outline: 2px solid var(--ring);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 8px;
 }
 .sidebar {
   width: 260px;
@@ -1127,7 +1383,7 @@ footer {
   padding: 16px;
 }
 .site-footer small {
-  color: #9fb1c8;
+  color: var(--fg-3);
 }
 .hide-sm {
   display: inline-flex;
@@ -1146,126 +1402,40 @@ footer {
 header {
   min-height: var(--nav-h);
 }
-header .nav {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  height: var(--nav-h);
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  line-height: 1;
-  height: var(--ctl-h);
-}
-header .links {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-header .links a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--ctl-h);
-  line-height: 1;
-  padding: 0 0.7rem;
-  color: var(--text);
-  opacity: 0.85;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  text-decoration: none;
-  position: relative;
-  transition: all 0.3s ease;
-}
-header .links a::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--brand-teal), var(--brand-sky));
-  border-radius: 2px;
-  transition: width 0.3s ease;
-  box-shadow: 0 0 8px var(--brand-teal);
-}
-header .links a:hover {
-  background: color-mix(in srgb, var(--brand-teal) 5%, transparent);
-  opacity: 1;
-  box-shadow: 0 0 15px color-mix(in srgb, var(--brand-teal) 15%, transparent);
-}
-header .links a:hover::after {
-  width: 70%;
-}
-header .links a.active,
-header .links a[aria-current="page"] {
-  border-color: color-mix(in srgb, var(--brand-teal) 40%, transparent);
-  background: color-mix(in srgb, var(--brand-teal) 8%, transparent);
-  opacity: 1;
-  box-shadow: 0 0 12px color-mix(in srgb, var(--brand-teal) 20%, transparent);
-}
-header .links a.active::after,
-header .links a[aria-current="page"]::after {
-  width: 70%;
-}
+/* USMR Phase 5.5.16-pt85 — removed bare `header .nav` (display: grid)
+ * and `.brand` rules. Both fully overridden by Header.astro scoped
+ * `.site-nav .nav` (display: flex) and `.site-nav__brand`. Pre-fix
+ * `header .nav { display: grid; grid-template-columns: auto 1fr auto }`
+ * conflicted with the scoped `display: flex` (scoped wins via
+ * attribute-selector specificity, so the grid declarations were
+ * already dead — removing makes the conflict visible). */
+/* USMR Phase 5.5.16-pt84 — removed pre-USMR `header .links*` rule
+ * cluster (~57 lines) and the `header .right .pill` + `@keyframes
+ * tagline-shimmer` block (~33 lines). 90 lines of dead pre-USMR CSS:
+ *
+ * - `header .links a` + ::after gradient underline + :hover + .active
+ *   states had been competing with Header.astro's scoped `.site-nav
+ *   .links a` rules. The pre-USMR animated gradient underline +
+ *   color-mix backgrounds did NOT match canonical (which uses a flat
+ *   border-bottom underline only). Source-order made the scoped rule
+ *   win in some cases but the pre-USMR rule still injected the
+ *   ::after pseudo-element creating visible stacking.
+ *
+ * - `header .right .pill` styled a header-tagline pill that never
+ *   exists in the canonical markup. Tagline.astro is mounted only on
+ *   /docs and /console (NOT inside <header>). Selector never matched.
+ *
+ * - `@keyframes tagline-shimmer` — only animation consumer was the
+ *   never-matching .pill rule above.
+ *
+ * Last live consumers of `var(--brand-violet)` (in this file) and
+ * `header .links a::after`'s `var(--brand-sky)` removed.
+ */
 
-/* Mobile menu button */
-.menu-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  font: inherit;
-  transition: all 0.2s ease;
-}
-header .right {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-/* Tagline in header - small and pop */
-header .right .pill {
-  font-size: 0.65rem;
-  padding: 0 0.6rem;
-  height: 28px;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--brand-teal) 12%, transparent),
-    color-mix(in srgb, var(--brand-violet) 12%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  color: var(--brand-teal);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  box-shadow:
-    0 0 12px color-mix(in srgb, var(--brand-teal) 20%, transparent),
-    inset 0 0 8px color-mix(in srgb, var(--brand-teal) 8%, transparent);
-  animation: tagline-shimmer 4s ease-in-out infinite;
-}
-
-@keyframes tagline-shimmer {
-  0%,
-  100% {
-    box-shadow:
-      0 0 12px color-mix(in srgb, var(--brand-teal) 20%, transparent),
-      inset 0 0 8px color-mix(in srgb, var(--brand-teal) 8%, transparent);
-    border-color: color-mix(in srgb, var(--brand-teal) 30%, transparent);
-  }
-  50% {
-    box-shadow:
-      0 0 18px color-mix(in srgb, var(--brand-teal) 35%, transparent),
-      inset 0 0 12px color-mix(in srgb, var(--brand-violet) 10%, transparent);
-    border-color: color-mix(in srgb, var(--brand-violet) 35%, transparent);
-  }
-}
+/* USMR Phase 5.5.16-pt85 — removed `.menu-btn` rule (orphan; pre-USMR
+ * mobile-menu pattern superseded by Header.astro `.nav-toggle` per
+ * canonical index.html:387-421). Plus removed bare `header .right`
+ * (fully overridden by Header.astro scoped `.site-nav .right`). */
 
 /* Accessible skip link: hidden until keyboard focus */
 .skip-link {
@@ -1278,6 +1448,13 @@ header .right .pill {
   white-space: nowrap;
 }
 .skip-link:focus {
+  /* USMR 5.5.16-pt7 — canonical-token migration. Was reading the
+   * legacy 5.1-era aliases (--surface / --text / --border / --shadow)
+   * which still resolve via the alias chain but bypass the canonical
+   * --bg-1 / --fg / --line palette. Rewriting at the canonical layer
+   * makes the skip-link respond cleanly to [data-theme] toggles
+   * (twilight / midnight) and survives the migrate-legacy-tokens-to-
+   * layer OpenSpec change. */
   position: fixed;
   left: 12px;
   top: 12px;
@@ -1285,11 +1462,13 @@ header .right .pill {
   height: auto;
   padding: 0.55rem 0.85rem;
   z-index: 10001;
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
+  background: var(--bg-1);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--accent) 18%, transparent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Anchor targets not hidden under sticky header */
@@ -1315,57 +1494,14 @@ header .right .pill {
   margin-bottom: 1.5rem;
 }
 
-/* Hero H1 - Verified, Private, Attested with gradient glow */
-#hero-h1 {
-  background: linear-gradient(
-    120deg,
-    var(--brand-teal) 0%,
-    var(--brand-sky) 45%,
-    var(--brand-violet) 100%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow:
-    0 0 40px color-mix(in srgb, var(--brand-teal) 30%, transparent),
-    0 0 80px color-mix(in srgb, var(--brand-violet) 20%, transparent);
-  filter: drop-shadow(
-      0 0 20px color-mix(in srgb, var(--brand-teal) 40%, transparent)
-    )
-    drop-shadow(
-      0 0 40px color-mix(in srgb, var(--brand-violet) 25%, transparent)
-    );
-  animation: rainbow-shift 8s ease-in-out infinite;
-  position: relative;
-}
-
-@keyframes rainbow-shift {
-  0%,
-  100% {
-    filter: drop-shadow(
-        0 0 20px color-mix(in srgb, var(--brand-teal) 40%, transparent)
-      )
-      drop-shadow(
-        0 0 40px color-mix(in srgb, var(--brand-violet) 25%, transparent)
-      );
-  }
-  33% {
-    filter: drop-shadow(
-        0 0 25px color-mix(in srgb, var(--brand-sky) 45%, transparent)
-      )
-      drop-shadow(
-        0 0 35px color-mix(in srgb, var(--brand-teal) 30%, transparent)
-      );
-  }
-  66% {
-    filter: drop-shadow(
-        0 0 25px color-mix(in srgb, var(--brand-violet) 45%, transparent)
-      )
-      drop-shadow(
-        0 0 35px color-mix(in srgb, var(--brand-sky) 30%, transparent)
-      );
-  }
-}
+/* USMR Phase 5.1p.2 — the legacy `#hero-h1` rainbow-gradient text +
+ * `rainbow-shift` keyframes (8s ease-in-out infinite) were removed
+ * because they overpainted `.hero h1.display` (5.1j) via ID
+ * specificity, defeating the typography contract. The new-design
+ * mock renders the headline solid `var(--fg)` with no animation; the
+ * only animated text on the hero is `.glow-text` inside the eyebrow
+ * pill (theme.css glow-component band, ported in 5.1i).
+ */
 
 /* ===== HOME PAGE MISSION SECTION ===== */
 
@@ -1373,130 +1509,748 @@ header .right .pill {
 .mission-intro {
   font-size: 1.15rem;
   line-height: 1.7;
-  color: var(--muted);
+  color: var(--fg-2);
   max-width: 900px;
   margin: 0 auto 2rem;
   text-align: center;
 }
 
 .mission-intro strong {
-  color: var(--text);
+  color: var(--fg);
   font-weight: 600;
 }
 
-/* Domain Cards */
-.domain-highlight {
-  position: relative;
-  transition: all 0.3s ease;
-  border-color: color-mix(in srgb, var(--border) 70%, transparent);
-}
-
-.domain-highlight:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-  border-color: var(--brand-teal);
-}
-
-.domain-badge {
-  position: absolute;
-  top: -12px;
-  right: 20px;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: var(--brand-teal);
-  background: var(--surface);
-  border: 2px solid var(--brand-teal);
-  border-radius: 50%;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--brand-teal) 30%, transparent);
-}
-
-.domain-highlight h3 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.75rem;
-  color: var(--text);
-  font-size: 1.3rem;
-}
-
-.domain-highlight p {
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* Pillar Cards */
-.pillar-card {
-  position: relative;
-  padding: 1.5rem 1.5rem 1.5rem 6rem;
-  transition: all 0.3s ease;
-  border-color: color-mix(in srgb, var(--border) 70%, transparent);
-}
-
-.pillar-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  border-color: var(--brand-violet);
-}
-
-.pill-number {
-  position: absolute;
-  left: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--brand-violet);
-  background: color-mix(in srgb, var(--brand-violet) 15%, transparent);
-  border: 2px solid var(--brand-violet);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.pillar-card h4 {
-  margin-top: 0;
-  margin-bottom: 0.6rem;
-  color: var(--text);
-  font-size: 1.15rem;
-}
-
-.pillar-card p {
-  color: var(--muted);
-  line-height: 1.6;
-  margin: 0;
-  font-size: 0.95rem;
-}
-
+/* USMR 5.5.16-pt58 — orphan CSS removed: `.domain-highlight`,
+ * `.domain-badge`, `.pillar-card`, `.pill-number` and their @media
+ * mobile overrides had ZERO consumers across src/ + tests/ (verified
+ * via rtk grep). They were 5.1-era styles for the legacy MissionSection
+ * + early Pillars markup that was replaced by `.pillars__panel` in
+ * 5.2. The .mission-badge mobile override stays — vision.mdx still
+ * consumes it. */
 @media (max-width: 768px) {
   .mission-badge {
     font-size: 0.7rem;
     padding: 0.5rem 1rem;
   }
+}
 
-  .domain-badge {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
-    top: -10px;
-    right: 15px;
+/* ============================================================
+ * USMR Phase 5.1i — Glow components (ported from
+ * new-design/extracted/src/styles/global.css lines 115-210).
+ *
+ * Pure CSS — no JS. Used by the home hero eyebrow pill (5.1j) and
+ * future hero meta-strip (5.1k). Each effect uses a `--g-accent`
+ * custom property that defaults to `--accent` so consumers can
+ * override per-instance (e.g., `.glow-tag.is-warning { --g-accent:
+ * var(--warn); }` for an alert-tone pill) without rewriting the
+ * keyframes.
+ *
+ * `prefers-reduced-motion: reduce` disables all four animations.
+ * ============================================================ */
+
+.glow-tag {
+  --g-accent: var(--accent);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  /* Canonical global.css:119 — `var(--f-mono)` only; --f-mono itself
+   * declares the fallback chain "JetBrains Mono", ui-monospace,
+   * SFMono-Regular, Menlo, monospace. The redundant fallback list
+   * here was a 5.1-era safety net before --f-mono had a robust chain. */
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+  font-weight: 500;
+  color: var(--fg);
+  padding: 11px 22px 11px 18px;
+  border-radius: 999px;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      120% 140% at 0% 50%,
+      color-mix(in oklab, var(--g-accent) 18%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      120% 140% at 100% 50%,
+      color-mix(in oklab, var(--g-accent) 10%, transparent) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--bg-1) 88%, transparent) 0%,
+      color-mix(in oklab, var(--bg) 82%, transparent) 100%
+    );
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
+    0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
+    0 0 18px -2px color-mix(in oklab, var(--g-accent) 35%, transparent),
+    0 0 80px -20px color-mix(in oklab, var(--g-accent) 70%, transparent);
+  animation: glow-breathe 5.2s ease-in-out infinite;
+}
+
+.glow-tag::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in oklab, var(--g-accent) 75%, transparent) 0deg,
+    color-mix(in oklab, var(--g-accent) 15%, transparent) 60deg,
+    color-mix(in oklab, var(--g-accent) 65%, transparent) 140deg,
+    color-mix(in oklab, var(--g-accent) 10%, transparent) 240deg,
+    color-mix(in oklab, var(--g-accent) 80%, transparent) 330deg,
+    color-mix(in oklab, var(--g-accent) 75%, transparent) 360deg
+  );
+  /* `#000` mask shapes — pure black is the compositing primitive, not
+   * a theme color. Tokenizing would change the mask semantics. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box /* lint-tokens: ok */,
+    linear-gradient(#000 0 0) /* lint-tokens: ok */;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glow-tag::after {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border-radius: inherit;
+  background: radial-gradient(
+    60% 120% at 50% 50%,
+    color-mix(in oklab, var(--g-accent) 28%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(14px);
+  opacity: 0.9;
+  z-index: -2;
+  pointer-events: none;
+  animation: glow-halo-drift 7s ease-in-out infinite;
+}
+
+.glow-dot {
+  --g-accent: var(--accent);
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  /* glow-dot center highlight (#fff) + edge shadow (#000) — pure
+   * white/black anchors for the radial gradient's metallic specular
+   * effect. Tokenizing would tint the highlight, breaking the metallic
+   * reading the canonical Hero glow-tag depends on. */
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fff 0% /* lint-tokens: ok */,
+    var(--g-accent) 55%,
+    color-mix(in oklab, var(--g-accent) 60%, #000) 100% /* lint-tokens: ok */
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--g-accent) 55%, transparent),
+    0 0 10px var(--g-accent),
+    0 0 22px color-mix(in oklab, var(--g-accent) 70%, transparent);
+  flex-shrink: 0;
+}
+
+.glow-dot::before,
+.glow-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--g-accent) 65%, transparent);
+  opacity: 0;
+  animation: glow-ring-ping 2.4s cubic-bezier(0.2, 0.6, 0.2, 1) infinite;
+}
+
+.glow-dot::after {
+  animation-delay: 1.2s;
+}
+
+.glow-text {
+  --g-accent: var(--accent);
+  position: relative;
+  z-index: 1;
+  color: transparent;
+  /* glow-text shimmer — pure-white highlights at 45% / 55% are the
+   * specular sweep that animates across the headline. Tokenizing
+   * would tint the highlight band and break the metallic shimmer. */
+  background: linear-gradient(
+    100deg,
+    color-mix(in oklab, var(--fg) 85%, var(--g-accent)) 0%,
+    #fff 45% /* lint-tokens: ok */,
+    var(--g-accent) 50%,
+    #fff 55% /* lint-tokens: ok */,
+    color-mix(in oklab, var(--fg) 85%, var(--g-accent)) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: glow-text-shimmer 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  filter: drop-shadow(
+    0 0 14px color-mix(in oklab, var(--g-accent) 35%, transparent)
+  );
+}
+
+/* Canonical global.css:185-191 — `.glow-amp { font-family: var(--f-
+ * serif); font-style: italic; ... }`. Pre-fix duplicated the
+ * --f-serif fallback chain inline; the token already provides
+ * "Fraunces", "Instrument Serif", Georgia, serif. */
+.glow-amp {
+  --g-accent: var(--accent);
+  display: inline-block;
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0;
+  margin: 0 2px 0 6px;
+  padding: 0 2px;
+  color: var(--g-accent);
+  -webkit-text-fill-color: var(--g-accent);
+  text-transform: none;
+  transform: translateY(1px);
+  text-shadow:
+    0 0 6px var(--g-accent),
+    0 0 16px color-mix(in oklab, var(--g-accent) 60%, transparent);
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--accent) 22%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--accent) 8%, transparent),
+      0 1px 0 color-mix(in oklab, var(--accent) 10%, transparent),
+      0 0 18px -2px color-mix(in oklab, var(--accent) 35%, transparent),
+      0 0 80px -20px color-mix(in oklab, var(--accent) 70%, transparent);
   }
-
-  .pillar-card {
-    padding-left: 20px;
-    padding-top: 3rem;
+  50% {
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--accent) 35%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--accent) 14%, transparent),
+      0 1px 0 color-mix(in oklab, var(--accent) 18%, transparent),
+      0 0 28px 0 color-mix(in oklab, var(--accent) 55%, transparent),
+      0 0 130px -14px color-mix(in oklab, var(--accent) 85%, transparent);
   }
+}
 
-  .pill-number {
-    left: auto;
-    right: 20px;
-    top: 15px;
+@keyframes glow-halo-drift {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes glow-ring-ping {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  80% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-text-shimmer {
+  0%,
+  100% {
+    background-position: 120% 50%;
+  }
+  50% {
+    background-position: -20% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-tag,
+  .glow-tag::before,
+  .glow-tag::after,
+  .glow-dot,
+  .glow-dot::before,
+  .glow-dot::after,
+  .glow-text {
+    animation: none;
+  }
+}
+
+/* USMR pt427 — Light-theme polish for hero glow primitives. The
+ * canonical glow-tag halo + glow-text white shimmer were tuned for
+ * dark-mode specular pop. On near-white surfaces:
+ *   1. `.glow-tag::after` (radial blur 14px reaching 20px past the
+ *      pill) bleeds an amber wash into adjacent UI (visible smear
+ *      across the trust-card top-left). Killed entirely; the chip
+ *      keeps its border + ::before inset highlight.
+ *   2. `.glow-text` shimmer keyframes pass through pure `#fff` at
+ *      45% / 55% — on white bg the headline letters dissolve mid-
+ *      cycle. Override with a fg ↔ accent gradient (no white peak)
+ *      so the shimmer modulates between dark text and accent tint
+ *      instead of vanishing into the page.
+ *   3. `.glow-tag` outer drop-shadow tuned for dark-mode specular —
+ *      flatten on light theme to keep the chip readable. */
+:root[data-theme="light"] .glow-tag::after {
+  display: none;
+}
+:root[data-theme="light"] .glow-tag {
+  /* Drop the 80px atmospheric bloom from the canonical chain — on
+   * white it leaves an amber wash extending well past the chip
+   * (visible smear in the screenshot). Keep the inset highlight +
+   * 1px outline for chip definition. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
+    0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
+    0 0 12px -4px color-mix(in oklab, var(--g-accent) 25%, transparent);
+}
+:root[data-theme="light"] .glow-text {
+  background: linear-gradient(
+    100deg,
+    var(--fg) 0%,
+    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 35%,
+    var(--g-accent) 50%,
+    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 65%,
+    var(--fg) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: none;
+}
+
+/* USMR Phase 5.5.16-pt131 — global reduced-motion override for the
+ * canonical interactive primitives (.btn / .btn.primary / .btn .arr /
+ * .ui-card--hover) that ship on every CTA + hoverable card across
+ * the site. Pre-pt131 each `:hover` lifted via `transform: translateY()`
+ * or slid the arrow chip via `transform: translate(2px, 0)` — the
+ * project DESIGN.md §8.2 contract says transform-based interactive
+ * motion MUST be opt-out under `prefers-reduced-motion: reduce`. The
+ * color + border state signals stay (those are state markers, not
+ * motion); only the transform + transition timing are zeroed. */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn .arr {
+    transition: none;
+  }
+  .btn:hover,
+  .btn.primary:hover {
+    transform: none;
+  }
+  .btn:hover .arr {
+    transform: none;
+  }
+  .ui-card--hover {
+    transition: none;
+  }
+  .ui-card--hover:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+ * USMR Phase 5.1 — Hero-font + accent variants. Default tokens
+ * live inside the `:root` block above; these attribute-scoped
+ * overrides let pages switch the hero face or campaign accent
+ * via `<html data-hero-font="fraunces" data-accent="blue">`.
+ * Ports new-design global.css lines 38-41 + 61-63.
+ * ============================================================ */
+
+[data-hero-font="grotesk"] {
+  --f-display: "Space Grotesk", "Inter Tight", sans-serif;
+  --display-tracking: -0.035em;
+  --display-weight: 500;
+  /* Resolved Open question 5 (5.2.5) — emphasis-span face. Under
+   * grotesk the italic span swaps to serif for editorial contrast.
+   * Other hero-font variants `inherit` so the italic span reads as
+   * the same face in italic — no clashing font swap. */
+  --f-emphasis: var(--f-serif);
+}
+[data-hero-font="fraunces"] {
+  --f-display: "Fraunces", "Instrument Serif", Georgia, serif;
+  --display-tracking: -0.025em;
+  --display-weight: 400;
+  --f-emphasis: inherit;
+}
+[data-hero-font="dmserif"] {
+  --f-display: "DM Serif Display", Georgia, serif;
+  --display-tracking: -0.015em;
+  --display-weight: 400;
+  --f-emphasis: inherit;
+}
+[data-hero-font="mono"] {
+  --f-display: "JetBrains Mono", ui-monospace, monospace;
+  --display-tracking: -0.04em;
+  --display-weight: 400;
+  --f-emphasis: inherit;
+}
+
+/* ============================================================
+ * USMR Phase 5.2.1 — Standard / glossary chip (promoted from
+ * scoped Astro to global so the React PillarsIsland can reuse
+ * the same class without duplicating styles). The Astro
+ * `<Standard>` component and the React island both render the
+ * same `.standard-chip` markup; this is the single source of
+ * truth for that contract.
+ * ============================================================ */
+
+.standard-chip {
+  color: inherit;
+  font-weight: 500;
+  border-bottom: 1px dotted var(--fg-3);
+  padding-bottom: 1px;
+  text-decoration: none;
+  cursor: help;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+.standard-chip:hover,
+.standard-chip:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.standard-chip--missing {
+  border-bottom-color: transparent;
+  cursor: default;
+}
+@media (forced-colors: active) {
+  .standard-chip {
+    border-bottom-color: CanvasText;
+  }
+  .standard-chip:hover,
+  .standard-chip:focus-visible {
+    color: Highlight;
+    border-bottom-color: Highlight;
+  }
+}
+
+[data-accent="cyan"] {
+  --accent: oklch(0.86 0.14 185);
+  --accent-dim: oklch(0.5 0.1 185);
+  --accent-ink: oklch(0.18 0.04 185);
+}
+[data-accent="blue"] {
+  --accent: oklch(0.72 0.17 245);
+  --accent-dim: oklch(0.46 0.12 245);
+}
+[data-accent="amber"] {
+  --accent: oklch(0.84 0.14 75);
+  --accent-dim: oklch(0.52 0.1 75);
+}
+[data-accent="lime"] {
+  --accent: oklch(0.88 0.18 135);
+  --accent-dim: oklch(0.52 0.12 135);
+}
+
+/* USMR pt425 — Light-theme accent overrides. The default accent
+ * triples above (L≈0.84-0.88) are tuned for dark backgrounds; on
+ * light theme (bg L≈0.98) they wash out — pill borders, CTA
+ * surfaces, and chip text fail contrast. Drop lightness ~25 LSB
+ * to L≈0.55-0.62 so the accent reads on white. `--accent-ink`
+ * (text on accent surfaces) flips near-white because the accent
+ * itself is now dark. Specificity (0,3,0) wins against the bare
+ * `[data-accent]` block above. */
+:root[data-theme="light"][data-accent="cyan"] {
+  --accent: oklch(0.55 0.14 185);
+  --accent-dim: oklch(0.4 0.1 185);
+  --accent-ink: oklch(0.98 0.01 185);
+}
+:root[data-theme="light"][data-accent="blue"] {
+  --accent: oklch(0.55 0.17 245);
+  --accent-dim: oklch(0.4 0.12 245);
+  --accent-ink: oklch(0.98 0.01 245);
+}
+:root[data-theme="light"][data-accent="amber"] {
+  --accent: oklch(0.62 0.14 75);
+  --accent-dim: oklch(0.45 0.1 75);
+  --accent-ink: oklch(0.98 0.01 75);
+}
+:root[data-theme="light"][data-accent="lime"] {
+  --accent: oklch(0.6 0.18 135);
+  --accent-dim: oklch(0.45 0.12 135);
+  --accent-ink: oklch(0.98 0.01 135);
+}
+
+/* ============================================================
+ * enhance-a11y-coverage Phase 5 — forced-colors mode mapping.
+ * Windows High Contrast and equivalent modes ignore tinted CSS
+ * colors and substitute system colors. Map our semantic aliases
+ * so the surface remains legible without each component
+ * authoring its own forced-colors block. Component-scoped
+ * overrides (TrustChainIsland.css, etc.) handle the
+ * composition-specific cases on top of this base.
+ * ============================================================ */
+
+@media (forced-colors: active) {
+  :root {
+    --accent: Highlight;
+    --accent-dim: Highlight;
+    --accent-ink: Canvas;
+    --bad: Mark;
+    --ok: Highlight;
+    --warn: Mark;
+    --fg: CanvasText;
+    --fg-1: CanvasText;
+    --fg-2: CanvasText;
+    --fg-3: CanvasText;
+    --bg: Canvas;
+    --bg-1: Canvas;
+    --bg-2: Canvas;
+    --line: CanvasText;
+    --line-soft: CanvasText;
+    --card-bg: Canvas;
+    --card-stroke: CanvasText;
+  }
+  /* Decorative shadows do not render in forced-colors anyway, but
+   * making this explicit keeps the rendered tree predictable. */
+  .glow-tag,
+  .trust-chain,
+  .btn,
+  .footer-cols a,
+  .writing-strip__link {
+    box-shadow: none !important;
+  }
+  /* Keyframe animations are visually meaningless under forced-
+   * colors (no color change to perceive); halt them globally. */
+  *,
+  *::before,
+  *::after {
+    animation-play-state: paused !important;
+  }
+}
+
+/* ============================================================
+ * enhance-a11y-coverage Phase 7 — site-wide focus-visible
+ * indicators. Every interactive element gets a 2 px accent
+ * outline + 2 px offset so keyboard users always see focus,
+ * regardless of background tint. Component-scoped focus styles
+ * (TrustChainIsland.css, etc.) override where the contract
+ * needs a different rendering.
+ * ============================================================ */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (forced-colors: active) {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* ============================================================
+ * USMR Phase 5.1q.5 — Generic primitives ported from new-design
+ * (see DESIGN.md §6.15). Token-only; no raw color literals.
+ * Ride alongside `.glow-tag` / `.btn` / `.section` so component
+ * authors don't re-declare layout in scoped Astro styles.
+ * ============================================================ */
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Canonical .tag — new-design global.css:103-113. Asymmetric padding
+ * (4 right ≠ 4 left dot side) makes room for the leading dot without
+ * pushing the label off-center. The dot consumes the accent token and
+ * carries a 12 px box-shadow to bleed-glow against the bg-1 backdrop. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--bg-1) 60%, transparent);
+  color: var(--fg-2);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.tag .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  min-width: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: var(--fg-1);
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+ * USMR Phase 5.1q.5 — Legacy Explore grid primitives (DESIGN.md
+ * §6.6). The shipped home-page component is `<HomeExplore>`
+ * (`src/components/HomeExplore.astro`, USMR Phase 5.5.2 + 5.5.7
+ * typed-data extraction) at `src/pages/index.astro:264`; it uses
+ * scoped `.home-explore__*` classes and does NOT consume the
+ * primitives below. These `.explore-grid` / `.explore-card` rules
+ * remain for surfaces wanting the grid pattern outside the home
+ * page. Ports new-design global.css:294-307. The earlier
+ * "<ExploreGrid> Planned for Phase 5.x" comment text predated the
+ * Phase 5.5.2 ship; corrected in pt326 (sibling of pt307 §6.6
+ * DESIGN.md update).
+ * ============================================================ */
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.explore-card {
+  /* Canonical .explore-card — new-design global.css:296-303. Top
+   * padding 28 (room for the idx label), inline + bottom 24, gap 14
+   * between rows, min-height 220 anchors a consistent card height
+   * across the 4-card row even when title text wraps. */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 24px 24px;
+  min-height: 220px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+.explore-card:hover,
+.explore-card:focus-visible {
+  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
+  background: color-mix(in oklab, var(--accent) 6%, var(--bg-1));
+  transform: translateY(-2px);
+}
+.explore-card__num {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: var(--fg-3);
+}
+.explore-card__title {
+  font-family: var(--f-display);
+  font-size: 1.2rem;
+  color: var(--fg);
+  margin: 0;
+}
+.explore-card__desc {
+  font-size: 0.95rem;
+  color: var(--fg-2);
+  line-height: 1.5;
+  margin: 0;
+}
+.explore-card__cta {
+  margin-top: auto;
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+@media (max-width: 720px) {
+  .explore-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .explore-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+ * USMR Phase 5.1q.5 — Trust-chain animation keyframes (DESIGN.md
+ * §6.5 "Animation primitives"). Keyframes ship now; consumer
+ * wiring on `.trust-chain__stage.is-evaluating` and the
+ * "checking…" inline status lands with 5.1d-idle (auto stage
+ * progression). Ports new-design index.html:204-210.
+ * ============================================================ */
+
+@keyframes chain-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes chain-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.chain-spinner {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  border-top-color: var(--accent);
+  animation: chain-spin 0.7s linear infinite;
+  vertical-align: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chain-spinner {
+    animation: none;
   }
 }

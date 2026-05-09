@@ -1,19 +1,31 @@
 ---
 title: "Artagon Identity Platform: Vision and Roadmap"
-description: "Trusted Identity for Machines and Humans — Verified, Private, Attested."
+description: "Artagon unifies machine, human, and credential identity into one trust infrastructure for the post-perimeter era."
+eyebrow: "Vision and Roadmap"
+headline: "Artagon Identity Platform"
+lede: "Trusted Identity for Machines and Humans — Verified, Private, Attested."
+ctas:
+  - label: "See the roadmap"
+    href: "/roadmap"
+    variant: primary
+  - label: "Read the platform overview"
+    href: "/platform"
+    variant: secondary
 hero:
   title: "Artagon Identity Platform"
   subtitle: "Vision and Roadmap"
   missionText: "Trusted Identity for Machines and Humans — Verified, Private, Attested"
 ---
 
-import { Card, FeatureList, SectionHeader } from '../../components/ui';
+import { Card, FeatureList, SectionHeader } from "../../components/ui";
 
 <div class="hero-section">
   <h1>Artagon Identity Platform</h1>
   <p class="hero-subtitle">Vision and Roadmap</p>
   <Card variant="solid" className="mission-statement">
-    <p class="mission-text">Trusted Identity for Machines and Humans — Verified, Private, Attested</p>
+    <div class="mission-text">
+      Trusted Identity for Machines and Humans — Verified, Private, Attested
+    </div>
   </Card>
 </div>
 
@@ -74,6 +86,7 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         <strong>For End-Users:</strong> A truly portable, private, and secure digital identity.
       </div>
     </div>
+
   </SectionHeader>
 
   <SectionHeader id="product-vision" title="Product Vision &amp; Value Proposition" number="02">
@@ -96,6 +109,7 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         </Card>
       </div>
     </div>
+
   </SectionHeader>
 
   <SectionHeader
@@ -145,6 +159,7 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         </div>
       </Card>
     </div>
+
   </SectionHeader>
 
   <SectionHeader id="core-components" title="Core Components and Capabilities" number="04">
@@ -196,52 +211,96 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         <p>The capstone—a powerful synthesis elevating Artagon from "Identity Provider" to true "Authority Broker."</p>
       </Card>
     </div>
+
   </SectionHeader>
 
-  <SectionHeader
-    id="technology-stack"
-    title="Technology Stack"
-    number="05"
-    intro='Architected for extreme performance, security, and scalability using a "best-of-both-worlds" technology stack.'
-    className="ui-section--simple"
+<SectionHeader
+  id="technology-stack"
+  title="Technology Stack"
+  number="05"
+  intro='Architected for extreme performance, security, and scalability using a "best-of-both-worlds" technology stack.'
+  className="ui-section--simple"
+>
+  <div
+    class="ui-grid"
+    style="--grid-min-width: 220px; --grid-gap: 1rem; --grid-margin: 1.5rem 0 0;"
   >
-    <div class="ui-grid" style="--grid-min-width: 220px; --grid-gap: 1rem; --grid-margin: 1.5rem 0 0;">
-      <div class="ui-card ui-card--tight"><strong>Core:</strong> Java 25/26 LTS with Virtual Threads (Project Loom)</div>
-      <div class="ui-card ui-card--tight"><strong>Hot Paths:</strong> Rust sidecars for crypto ops (BBS+, ZKP) and graph traversal</div>
-      <div class="ui-card ui-card--tight"><strong>Primary Store:</strong> PostgreSQL for tenant config, policies, metadata</div>
-      <div class="ui-card ui-card--tight"><strong>Hot Store:</strong> Redis/KeyDB for sessions, states, caches</div>
-      <div class="ui-card ui-card--tight"><strong>Graph:</strong> In-memory, off-heap Zanzibar-style store</div>
-      <div class="ui-card ui-card--tight"><strong>Secrets:</strong> KMS/HSM for all cryptographic material</div>
+    <div class="ui-card ui-card--tight">
+      <strong>Core:</strong> Java 25/26 LTS with Virtual Threads (Project Loom)
     </div>
-  </SectionHeader>
-
-  <SectionHeader id="security-privacy" title="Security &amp; Privacy Model" number="06" className="ui-section--simple">
-    <div class="ui-card ui-card--lg ui-grid security-grid" style="--grid-min-width: 260px; --grid-gap: 2rem;">
-      <div>
-        <h3>Security: Phishing-Resistant, Zero-Trust</h3>
-        <p>Passkey-primary authentication, DPoP token binding, device attestation, mTLS, and PAR—secure-by-default at every layer.</p>
-      </div>
-      <div>
-        <h3>Privacy: Holder-Controlled, Minimum Disclosure</h3>
-        <p>Zero-knowledge selective disclosure (SD-JWT, BBS+), unlinkable presentations, data portability, and privacy-preserving revocation.</p>
-      </div>
+    <div class="ui-card ui-card--tight">
+      <strong>Hot Paths:</strong> Rust sidecars for crypto ops (BBS+, ZKP) and
+      graph traversal
     </div>
-  </SectionHeader>
+    <div class="ui-card ui-card--tight">
+      <strong>Primary Store:</strong> PostgreSQL for tenant config, policies,
+      metadata
+    </div>
+    <div class="ui-card ui-card--tight">
+      <strong>Hot Store:</strong> Redis/KeyDB for sessions, states, caches
+    </div>
+    <div class="ui-card ui-card--tight">
+      <strong>Graph:</strong> In-memory, off-heap Zanzibar-style store
+    </div>
+    <div class="ui-card ui-card--tight">
+      <strong>Secrets:</strong> KMS/HSM for all cryptographic material
+    </div>
+  </div>
+</SectionHeader>
 
-  <SectionHeader
-    id="developer-experience"
-    title="Developer Experience"
-    number="07"
-    intro="World-class, developer-first experience modeled after Stripe and Auth0."
-    className="ui-section--simple"
+<SectionHeader
+  id="security-privacy"
+  title="Security &amp; Privacy Model"
+  number="06"
+  className="ui-section--simple"
+>
+  <div
+    class="ui-card ui-card--lg ui-grid security-grid"
+    style="--grid-min-width: 260px; --grid-gap: 2rem;"
   >
-    <div class="ui-grid" style="--grid-min-width: 220px; --grid-gap: 1rem; --grid-margin: 1.5rem 0 0;">
-      <div class="ui-card ui-card--tight"><strong>SDKs:</strong> Java, Rust, TypeScript, Go, Swift</div>
-      <div class="ui-card ui-card--tight"><strong>CLI:</strong> Full platform operations, policy testing, conformance</div>
-      <div class="ui-card ui-card--tight"><strong>APIs:</strong> Dual GraphQL + REST</div>
-      <div class="ui-card ui-card--tight"><strong>Playground:</strong> Live OAuth/GNAP/VC flows in-browser</div>
+    <div>
+      <h3>Security: Phishing-Resistant, Zero-Trust</h3>
+      <p>
+        Passkey-primary authentication, DPoP token binding, device attestation,
+        mTLS, and PAR—secure-by-default at every layer.
+      </p>
     </div>
-  </SectionHeader>
+    <div>
+      <h3>Privacy: Holder-Controlled, Minimum Disclosure</h3>
+      <p>
+        Zero-knowledge selective disclosure (SD-JWT, BBS+), unlinkable
+        presentations, data portability, and privacy-preserving revocation.
+      </p>
+    </div>
+  </div>
+</SectionHeader>
+
+<SectionHeader
+  id="developer-experience"
+  title="Developer Experience"
+  number="07"
+  intro="World-class, developer-first experience modeled after Stripe and Auth0."
+  className="ui-section--simple"
+>
+  <div
+    class="ui-grid"
+    style="--grid-min-width: 220px; --grid-gap: 1rem; --grid-margin: 1.5rem 0 0;"
+  >
+    <div class="ui-card ui-card--tight">
+      <strong>SDKs:</strong> Java, Rust, TypeScript, Go, Swift
+    </div>
+    <div class="ui-card ui-card--tight">
+      <strong>CLI:</strong> Full platform operations, policy testing,
+      conformance
+    </div>
+    <div class="ui-card ui-card--tight">
+      <strong>APIs:</strong> Dual GraphQL + REST
+    </div>
+    <div class="ui-card ui-card--tight">
+      <strong>Playground:</strong> Live OAuth/GNAP/VC flows in-browser
+    </div>
+  </div>
+</SectionHeader>
 
   <SectionHeader
     id="use-cases"
@@ -353,6 +412,7 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         </div>
       </Card>
     </div>
+
   </SectionHeader>
 
   <SectionHeader id="competitive-differentiation" title="Competitive Differentiation" number="09">
@@ -393,6 +453,7 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         </Card>
       </div>
     </div>
+
   </SectionHeader>
 
   <SectionHeader
@@ -502,6 +563,7 @@ import { Card, FeatureList, SectionHeader } from '../../components/ui';
         </div>
       </Card>
     </div>
+
   </SectionHeader>
 
   <SectionHeader id="long-term-outlook" title="Vision 2030" number="11" className="vision-2030">

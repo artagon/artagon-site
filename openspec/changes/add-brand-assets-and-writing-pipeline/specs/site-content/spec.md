@@ -2,9 +2,9 @@
 
 ### Requirement: Per-route Frontmatter Contract
 
-Each marketing-route MDX file MUST declare frontmatter `eyebrow` (string), `headline` (string), `lede` (string), `description` (string, 80–160 characters), and a `ctas[]` array where each element is an object with `label` (string) and `href` (string). Writing posts (under `pages/writing`) additionally accept optional `repo`, `path`, `commit`, and constrained `cover` fields per the requirements below.
+Each marketing-route MDX file MUST declare frontmatter `eyebrow` (string), `headline` (string), `lede` (string), `description` (string, 80–160 characters), and a `ctas[]` array where each element is an object with `label` (string) and `href` (string). Writing posts (in the `writing` collection — pre-pt415 cited as `pages/writing` — collection is named `writing` per `src/content.config.ts:128`, sibling of `pages` and `authors`; sister to pt401/pt413/pt414 path-nesting fixes) additionally accept optional `repo`, `path`, `commit`, and constrained `cover` fields per the requirements below.
 
-The `pages/writing` Zod schema MUST accept optional `repo` (Zod enum constrained to the allowlist `['artagon/content']` — extending the allowlist requires a separate OpenSpec change), `path` (string, relative path within `repo` matching `^posts/[A-Za-z0-9._/-]{1,200}$` AND failing path-traversal validation — see below), and `commit` (string, 40 hex characters — no truncated SHAs because the redeploy workflow pins on the merge SHA). These fields MUST be auto-populated by `scripts/fetch-content.mjs` for posts sourced from a remote content repo; local posts MAY omit all three. Posts that declare `repo` MUST also declare `path` and `commit`; the schema MUST fail the build if any one is present without the other two.
+The `writing` Zod schema MUST accept optional `repo` (Zod enum constrained to the allowlist `['artagon/content']` — extending the allowlist requires a separate OpenSpec change), `path` (string, relative path within `repo` matching `^posts/[A-Za-z0-9._/-]{1,200}$` AND failing path-traversal validation — see below), and `commit` (string, 40 hex characters — no truncated SHAs because the redeploy workflow pins on the merge SHA). These fields MUST be auto-populated by `scripts/fetch-content.mjs` for posts sourced from a remote content repo; local posts MAY omit all three. Posts that declare `repo` MUST also declare `path` and `commit`; the schema MUST fail the build if any one is present without the other two.
 
 The `cover` field MUST match `^(\.\/assets\/|posts\/assets\/)[A-Za-z0-9._/-]+\.(png|jpg|jpeg|webp|avif|svg)$` for both local and remote posts; absolute URLs (anything starting with `http://`, `https://`, `//`) MUST be rejected. This prevents build-host SSRF when `astro:assets` resolves the cover at build time (a malicious post could otherwise set `cover: https://169.254.169.254/...` to exfiltrate cloud-metadata from the GitHub Actions runner).
 
@@ -32,7 +32,7 @@ The `cover` field MUST match `^(\.\/assets\/|posts\/assets\/)[A-Za-z0-9._/-]+\.(
 
 #### Scenario: Local post omits remote-source fields
 
-- **WHEN** a contributor authors `src/content/pages/writing/welcome.mdx` without `repo`, `path`, or `commit` frontmatter
+- **WHEN** a contributor authors `src/content/writing/welcome.mdx` (pre-pt414 cited as `src/content/pages/writing/welcome.mdx` — path-nesting drift; sister to pt401/pt413) without `repo`, `path`, or `commit` frontmatter
 - **THEN** the build succeeds and the post is recorded as a local-source entry with `repo === undefined`.
 
 #### Scenario: Remote post declares all three
@@ -68,4 +68,4 @@ The `cover` field MUST match `^(\.\/assets\/|posts\/assets\/)[A-Za-z0-9._/-]+\.(
 #### Scenario: Future-dated post excluded but build succeeds
 
 - **WHEN** a post declares `published: "2027-01-01"` and the build runs on 2026-05-01
-- **THEN** `getCollection('pages/writing')` does NOT include the post in returned entries; the build succeeds without error and the post becomes visible after a rebuild on or after 2027-01-01.
+- **THEN** `getCollection('writing')` does NOT include the post in returned entries (pre-pt415 cited as `getCollection('pages/writing')` — sister to pt414/pt415 fixes; collection name is `writing`); the build succeeds without error and the post becomes visible after a rebuild on or after 2027-01-01.

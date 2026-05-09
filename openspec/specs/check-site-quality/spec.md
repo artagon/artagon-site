@@ -16,7 +16,7 @@ This Requirement governs ONLY paths and the ready-signal contract. Assertion sha
 
 #### Scenario: LHCI starts audits after readiness
 
-- **WHEN** `npx -y @lhci/cli@0.14.x autorun --config=lighthouserc.json` runs after `npm run build`
+- **WHEN** `npx -y @lhci/cli@0.15.x autorun --config=lighthouserc.json` runs after `npm run build`
 - **THEN** the configured server prints `READY` before Lighthouse audits begin
 
 #### Scenario: Lighthouse reports under .build/reports

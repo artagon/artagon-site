@@ -1,0 +1,34 @@
+---
+// USMR Phase 5.3 — /use-cases route. Mounts the canonical vertical-
+// tablist composition ported from
+// new-design/extracted/src/components/UseCases.jsx.
+//
+// The UseCasesIsland React island consumes src/data/use-cases.ts (4
+// scenarios) and renders a 260px left rail + scenario detail panel
+// (metrics strip + ordered protocol trace). Hydrated client:visible —
+// the panel is below the fold and the JS chunk only loads once the
+// section enters the viewport.
+import { getEntry } from 'astro:content';
+import Base from '../../layouts/BaseLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import UseCasesIsland from '../../components/UseCasesIsland.tsx';
+import '../../components/UseCasesIsland.css';
+
+const entry = await getEntry('pages', 'use-cases');
+if (!entry) {
+  throw new Error(
+    "use-cases.mdx missing — Phase 5.3 expects src/content/pages/use-cases.mdx to exist."
+  );
+}
+const { title, description } = entry.data;
+---
+<Base title={title} description={description} path="/use-cases">
+  <Fragment slot="header"><Header /></Fragment>
+
+  {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
+      wraps the slot in <main id="main-content"> already. */}
+  <UseCasesIsland client:visible />
+
+  <Fragment slot="footer"><Footer /></Fragment>
+</Base>

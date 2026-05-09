@@ -1,7 +1,12 @@
 #!/usr/bin/env sh
-# Pre-commit drift gate per `standardize-build-artifacts` spec.
+# Pre-commit drift gate per the build-config capability spec.
 # Aborts commit if generated configs (lighthouserc.json, lychee.toml) drift
 # from build.config.json + scripts/fixtures/lhci-assertions.json.
+#
+# Spec source: openspec/specs/build-config/spec.md `Pre-commit safety net`
+# Requirement (originally authored in the archived
+# openspec/changes/archive/2026-05-05-standardize-build-artifacts/ proposal;
+# its build-config capability is now the live spec).
 #
 # Bypass per-commit with `SKIP_BUILD_SYNC=1 git commit ...` (documented as
 # a hot-loop opt-out, not for landing PRs — CI re-runs the same check).
@@ -22,7 +27,10 @@ if ! git diff --exit-code -- lighthouserc.json lychee.toml >/dev/null 2>&1; then
   exit 1
 fi
 
-# Run lint:design if DESIGN.md is in staged changes (Phase 2.3a).
+# Run lint:design if DESIGN.md is in staged changes. Source: the
+# archived `adopt-design-md-format` proposal Phase 2.3a (now at
+# `openspec/changes/archive/2026-05-05-adopt-design-md-format/tasks.md`;
+# the live capability spec is `openspec/specs/design-system-format/spec.md`).
 if git diff --cached --name-only | grep -q "^DESIGN\.md$"; then
   echo "husky/pre-commit: DESIGN.md staged — running lint:design"
   npm run lint:design || {

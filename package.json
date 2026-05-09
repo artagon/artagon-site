@@ -1,6 +1,10 @@
 {
   "name": "artagon-web",
   "version": "0.1.0",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "description": "Artagon Identity Platform - The Unified Identity Platform: Trusted Identity for Machines and Humans. OIDC 2.1 Provider, GNAP Authorization Server, Verifiable Credentials (SD-JWT, BBS+), Passkeys, WebAuthn, Device Attestation, Zanzibar Policy Engine. Verified, Private, Attested.",
   "keywords": [
     "OIDC",
@@ -32,7 +36,7 @@
     "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:design && npm run lint:design-md-uniqueness",
+    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:skip-link && npm run lint:taglines && npm run lint:design && npm run lint:design-md-uniqueness && npm run verify:indexation",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
@@ -45,14 +49,18 @@
     "test:tweaks-prod-noship": "node --test tests/tweaks-prod-noship.test.mjs",
     "test:prerequisites": "node --test tests/verify-prerequisites.test.mjs",
     "test:lint-tokens": "node --test tests/lint-tokens.test.mjs",
-    "test:node": "node --test tests/build-config.test.mjs tests/design-md-fixtures.test.mjs tests/lint-tokens.test.mjs tests/tweaks-parse.test.mjs tests/tweaks-state.test.mts tests/tweaks-prod-noship.test.mjs tests/verify-design-prerequisites.test.mjs tests/verify-prerequisites.test.mjs",
+    "test:node": "node --test tests/build-config.test.mjs tests/csp.test.mjs tests/design-md-fixtures.test.mjs tests/lint-skip-link.test.mjs tests/lint-taglines.test.mjs tests/lint-tokens.test.mjs tests/oklch-to-hex.test.mjs tests/tweaks-parse.test.mjs tests/tweaks-state.test.mts tests/tweaks-prod-noship.test.mjs tests/verify-design-prerequisites.test.mjs tests/verify-prerequisites.test.mjs",
+    "test:vitest": "vitest run",
     "verify:design-prerequisites": "node scripts/verify-design-prerequisites.mjs",
     "verify:font-self-hosting": "node scripts/verify-font-self-hosting.mjs",
     "verify:prerequisites": "node scripts/verify-prerequisites.mjs",
     "verify:design-md-telemetry": "node scripts/verify-design-md-telemetry.mjs",
+    "verify:indexation": "node scripts/validate-indexation.mjs",
     "lint:design": "npm run check:oklch-hex-parity && design.md lint DESIGN.md",
     "lint:design-md-uniqueness": "node scripts/verify-design-md-uniqueness.mjs",
     "lint:tokens": "node scripts/lint-tokens.mjs",
+    "lint:taglines": "node scripts/lint-taglines.mjs",
+    "lint:skip-link": "node scripts/lint-skip-link.mjs",
     "diff:design": "design.md diff origin/main:DESIGN.md DESIGN.md",
     "export:dtcg": "design.md export --format dtcg DESIGN.md",
     "spec:cache": "design.md spec --format markdown > openspec/.cache/design-md-spec.md",
@@ -72,14 +80,17 @@
   "dependencies": {
     "@astrojs/mdx": "5.0.4",
     "@astrojs/react": "5.0.4",
+    "@astrojs/rss": "4.0.18",
     "@astrojs/sitemap": "3.7.2",
     "astro": "6.2.1",
     "react": "19.2.5",
     "react-dom": "19.2.5",
+    "serialize-javascript": "7.0.5",
     "sharp": "0.34.5"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.42.1",
+    "@axe-core/playwright": "4.11.3",
     "@google/design.md": "0.1.1",
     "@lhci/cli": "0.15.1",
     "@playwright/test": "1.59.1",
@@ -87,13 +98,14 @@
     "@types/react-dom": "19.2.3",
     "cheerio": "1.2.0",
     "husky": "9.1.7",
-    "prettier": "3.8.3"
+    "prettier": "3.8.3",
+    "vitest": "4.1.5"
   },
   "overrides": {
-    "chrome-launcher": "^1.2.1",
-    "tmp": "^0.2.5",
-    "rimraf": "^6.0.1",
-    "glob": "^11.0.0",
-    "uuid": "^14.0.0"
+    "chrome-launcher": "1.2.1",
+    "tmp": "0.2.5",
+    "rimraf": "6.0.1",
+    "glob": "11.0.0",
+    "uuid": "14.0.0"
   }
 }

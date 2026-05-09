@@ -15,7 +15,7 @@
  * The React runtime IS shipped to production. Other interactive surfaces
  * (`/play`, `/console`, `/search`) will use it; Tweaks pays the entry cost.
  *
- * State persists in localStorage under `artagon.tweaks.v1` and projects
+ * State persists in localStorage under `artagon.tweaks.v2` and projects
  * onto `data-accent`, `data-density`, `data-theme`, `data-hero-font` on
  * `<html>` plus `.no-grid` on `<body>` — the same contract upstream CSS
  * keys off.
@@ -41,18 +41,20 @@ const isDev = import.meta.env.DEV;
       <script is:inline>
         (function () {
           try {
-            const raw = localStorage.getItem("artagon.tweaks.v1");
+            const raw = localStorage.getItem("artagon.tweaks.v3");
             if (!raw) return;
             const t = JSON.parse(raw);
             const html = document.documentElement;
-            const accents = ["cyan", "violet", "amber", "lime"];
+            const accents = ["cyan", "blue", "amber", "lime"];
             const densities = ["dense", "comfortable", "roomy"];
             const themes = ["dark", "light"];
             const fonts = ["grotesk", "fraunces", "dmserif", "mono"];
+            const widgets = ["in-hero", "A · strip", "B · 3-up", "C · split", "D · ticker", "off"];
             if (accents.indexOf(t.accent) >= 0) html.setAttribute("data-accent", t.accent);
             if (densities.indexOf(t.density) >= 0) html.setAttribute("data-density", t.density);
             if (themes.indexOf(t.theme) >= 0) html.setAttribute("data-theme", t.theme);
             if (fonts.indexOf(t.heroFont) >= 0) html.setAttribute("data-hero-font", t.heroFont);
+            if (widgets.indexOf(t.writingWidget) >= 0) html.setAttribute("data-writing-widget", t.writingWidget);
             if (t.showGrid === false && document.body) document.body.classList.add("no-grid");
             else if (t.showGrid === false) {
               document.addEventListener("DOMContentLoaded", function () {
@@ -79,13 +81,13 @@ const isDev = import.meta.env.DEV;
             Consolas,
             monospace;
           font-size: 12px;
-          color: var(--text);
+          color: var(--fg);
         }
         .tweaks-trigger {
           appearance: none;
-          background: var(--surface);
-          color: var(--text);
-          border: 1px solid var(--border);
+          background: var(--bg-1);
+          color: var(--fg);
+          border: 1px solid var(--line);
           padding: 6px 10px;
           border-radius: 8px;
           cursor: pointer;
@@ -113,7 +115,7 @@ const isDev = import.meta.env.DEV;
           border-radius: 3px;
           margin-right: 6px;
           vertical-align: -3px;
-          border: 1px solid var(--border);
+          border: 1px solid var(--line);
         }
         .tweaks-panel {
           position: absolute;
@@ -123,8 +125,8 @@ const isDev = import.meta.env.DEV;
           max-height: 70vh;
           overflow-y: auto;
           padding: 14px 16px 12px;
-          background: var(--surface);
-          border: 1px solid var(--border);
+          background: var(--bg-1);
+          border: 1px solid var(--line);
           border-radius: 12px;
           box-shadow: var(--elevation-5);
         }
@@ -147,7 +149,7 @@ const isDev = import.meta.env.DEV;
           font-size: 10px;
           font-family: inherit;
           padding: 2px 6px;
-          border: 1px solid var(--border);
+          border: 1px solid var(--line);
           border-radius: 4px;
           background: var(--chip-bg-neutral);
         }
@@ -160,7 +162,7 @@ const isDev = import.meta.env.DEV;
           font-size: 10px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          color: var(--muted);
+          color: var(--fg-2);
           padding: 0;
           margin-bottom: 6px;
         }
@@ -172,8 +174,8 @@ const isDev = import.meta.env.DEV;
         .tweaks-opt {
           appearance: none;
           background: transparent;
-          color: var(--text);
-          border: 1px solid var(--border);
+          color: var(--fg);
+          border: 1px solid var(--line);
           padding: 4px 8px;
           border-radius: 6px;
           cursor: pointer;
@@ -185,19 +187,41 @@ const isDev = import.meta.env.DEV;
             border-color 0.15s ease;
         }
         .tweaks-opt:hover {
-          border-color: var(--brand-teal);
+          border-color: var(--accent);
         }
         .tweaks-opt.is-active {
-          background: var(--brand-teal);
+          background: var(--accent);
           color: var(--bg);
-          border-color: var(--brand-teal);
+          border-color: var(--accent);
+        }
+        /* USMR Phase 5.5.16-pt422 — override the global
+         * `button:focus-visible { outline: 2px solid var(--accent) }`
+         * (theme.css:1939-1949) for buttons inside the Tweaks panel.
+         *
+         * The global rule uses var(--accent) for the outline AND the
+         * .is-active rule above uses var(--accent) for the background.
+         * On Safari, :focus-visible fires for pointer clicks too (Chrome
+         * only fires for keyboard nav), so a previously-clicked-then-
+         * deselected button retains an accent-colored outline that
+         * looks identical to the .is-active highlight — the user
+         * reported this as "selection stays".
+         *
+         * Defense in depth: TweaksPanel.tsx Opt onClick blurs the
+         * button after click, AND this rule scopes a neutral focus
+         * indicator (--fg-2 instead of --accent) so any residual
+         * focus is visually distinct from a selected state.
+         */
+        .tweaks-opt:focus-visible {
+          outline-color: var(--fg-2);
+          outline-width: 1.5px;
+          outline-offset: 1px;
         }
         .tweaks-footer {
           margin-top: 8px;
           padding-top: 8px;
-          border-top: 1px solid var(--border);
+          border-top: 1px solid var(--line);
           font-size: 10px;
-          color: var(--muted);
+          color: var(--fg-2);
           line-height: 1.5;
         }
       </style>

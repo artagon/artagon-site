@@ -20,17 +20,24 @@ If this PR doesn't merge cleanly, the conversion plan needs revision before any 
 
 **New-design HTML mocks load:**
 
-- `unpkg.com` React/Babel CDN at `new-design/extracted/src/pages/index.html:10` and `:429`
-- Google Fonts CDN
+- `unpkg.com` React/Babel CDN (3 `<script src=...>` tags at
+  `new-design/extracted/src/pages/index.html:429-431` —
+  React, react-dom, @babel/standalone)
+- Google Fonts CDN (preconnect pair near
+  `new-design/extracted/src/pages/index.html:9-10` plus the
+  stylesheet `<link>` immediately following)
 
-**Live CSP at `scripts/csp.mjs:23` allows ONLY:**
+**Live CSP** (in `scripts/csp.mjs`'s `buildPolicy()` — the
+`script-src` directive is constructed inside the `directives`
+object, current line offset varies as the function grows; the
+contract has not changed) **allows ONLY:**
 
 - `script-src 'self'` + page-specific hashes
 - No `unpkg.com`, no `cdn.jsdelivr.net`
 
 **Implication:** Copying mock HTML verbatim breaks runtime even if build passes.
 
-**Fix path (per USMR Phase 2):** Self-host fonts under `public/fonts/` and inline subsetted WOFF2. Translate React/JSX server-side at build time (Astro does this for `.astro` files automatically — but only if hooks are translated, see below).
+**Fix path (per USMR Phase 2):** Self-host fonts under `public/assets/fonts/` (canonical path per `self-host-woff2-fonts/specs/font-self-hosting/`) and inline subsetted WOFF2. Translate React/JSX server-side at build time (Astro does this for `.astro` files automatically — but only if hooks are translated, see below).
 
 ## Mandatory skills + tools (install before starting)
 
@@ -110,8 +117,8 @@ If a skill conflicts with this guidance prompt, the skill wins for its domain (T
 ## Source of truth (precedence order)
 
 1. `openspec/specs/*` — live specs (highest authority for requirements)
-2. `openspec/changes/update-site-marketing-redesign/` (USMR, 100 tasks) — the change you're implementing
-3. `new-design/extracted/DESIGN.md` (39KB) — visual + content intent. Spec wins where they disagree (DESIGN.md:19-21, NOT line 18).
+2. `openspec/changes/update-site-marketing-redesign/` (USMR — task count + ralph-loop narrative log grew substantially through Phase 5.x and the 5.5.16-loop deep-audit pass; the file is now in the ~500-line range and grows by ~1 narrative entry per pt-iter. For the live count run `wc -l openspec/changes/update-site-marketing-redesign/tasks.md` and `grep -c '^\s*- \[' openspec/changes/update-site-marketing-redesign/tasks.md` for the task-checkbox count) — the change you're implementing
+3. `new-design/extracted/DESIGN.md` (39KB) — visual + content intent. The repo-rooted `DESIGN.md` (per `openspec/specs/design-system-format`) is the canonical visual identity contract; the new-design copy is FROZEN reference material. Where the two disagree, the spec wins and the repo-rooted DESIGN.md is updated in the same change (per the precedence chain in `openspec/project.md` and `AGENTS.md`).
 4. `new-design/extracted/MIGRATION.md` — historical migration notes. **STALE — do not follow as roadmap.** Use only as visual reference.
 5. This guidance prompt.
 
@@ -132,7 +139,7 @@ The new design ships as a React + HTML mock staging area. You are converting the
 | `new-design/extracted/src/styles/global.css` (307 lines) | Component styles                                                                                                                        | Per-class merge into `public/assets/theme.css`; preserve live classes by default.                                                                                                                                      |
 | `new-design/extracted/src/data/roadmap.ts`               | Typed roadmap data                                                                                                                      | Diff against existing `src/data/roadmap.ts` and merge the new shape. Don't overwrite.                                                                                                                                  |
 | `new-design/extracted/public/assets/`                    | Brand assets                                                                                                                            | Defer to `add-brand-assets-and-writing-pipeline` change for SVG generation.                                                                                                                                            |
-| `new-design/extracted/screenshots/`                      | 2 reference screenshots (`home-nav.png`, `platform.png`)                                                                                | Visual oracle for those 2 routes only. For the other 14 routes, render the new-design HTML mock in a browser as the visual oracle.                                                                                     |
+| `new-design/extracted/screenshots/`                      | 2 reference screenshots (`home-nav.png`, `platform.png`)                                                                                | Visual oracle for those 2 routes only. For other routes that have a corresponding `new-design/extracted/src/pages/<name>.html` mock, render the mock in a browser as the visual oracle.                                |
 | `new-design/extracted/openspec/`                         | DRAFT openspec changes — superseded by repo `openspec/`.                                                                                | Read only. Do NOT adopt. Live `openspec/` wins.                                                                                                                                                                        |
 
 ### Hook locations (from round-2 codex audit)
@@ -156,16 +163,39 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 
 ### Build + tooling
 
-- Astro 5, build via `npm run build` (NOT bun — `package-lock.json` is canonical at 412KB).
+- Astro 6 (per `package.json` `"astro": "6.2.1"`), build via `npm run build` (NOT bun — `package-lock.json` is canonical).
 - `@google/design.md@0.1.1` installed — use `npx design.md lint DESIGN.md` after any DESIGN.md edit.
 
-### CSS budgets (verified 2026-05-04)
+### CSS budgets
 
-- `public/assets/theme.css`: **28.8KB raw / 5.94KB gz** (28805 bytes raw / 5937 bytes gz). Budget ≤35KB raw / ≤7KB gz.
-- `public/assets/roadmap.css`: **4.27KB raw** (4268 bytes), loaded only on `/roadmap` via `head` slot.
-- ANY component conversion that pushes per-page CSS over budget must REVERT or split.
+The pre-USMR snapshot (verified 2026-05-04) recorded
+`public/assets/theme.css` at **28.8KB raw / 5.94KB gz** with a budget
+of ≤35KB raw / ≤7KB gz. That snapshot is no longer the authoritative
+budget — the file grew with USMR Phase 5.x token additions (current
+size: run `wc -c public/assets/theme.css`), and the budget tracking
+model itself shifted from a single global stylesheet to per-route /
+per-component scoped styles. The pre-USMR `public/assets/roadmap.css`
+(4.27KB raw, loaded only on `/roadmap` via the `head` slot) was
+absorbed into `src/components/RoadmapTimeline.astro` scoped styles
+during the 5.7 redesign as part of that shift.
 
-### Live route map (verified 16 routes)
+No active gate enforces a global `theme.css` budget today. ANY
+component conversion that pushes per-page CSS visibly over the
+historic budget should still be flagged in review and either REVERTED
+or SPLIT — but the threshold is now contextual, not a fixed number
+in this guide.
+
+### Live route map
+
+Pre-USMR-Phase-5.x the live route count was 16 (this section was originally
+labeled "verified 16 routes"). Post-USMR Phase 5.x the count grew to 22
+unique route patterns (the `/writing/[slug]` dynamic expands to 3
+instantiations on disk; see `openspec/project.md` for the authoritative
+list). The conversion-target rows below preserve the original route↔mock
+mapping for the routes that fell within the conversion scope; the
+post-USMR additions (`/use-cases`, `/standards`, `/writing/[slug]`,
+`/writing/feed.xml`, `/bridge`) are summarized in the next subsection
+with their shipped status.
 
 | Route          | File                                | Pattern | New-design source                           | Status                  |
 | -------------- | ----------------------------------- | ------- | ------------------------------------------- | ----------------------- |
@@ -186,30 +216,43 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 | `/status`      | `src/pages/status/index.astro`      | nested  | none                                        | Keep, no change         |
 | `/vision`      | `src/pages/vision/index.astro`      | nested  | none (uses `src/content/pages/vision.mdx`)  | Keep, no change         |
 
-### New routes USMR adds (do NOT create until USMR Phase 5 explicitly says so)
+### New routes USMR added (shipped status)
 
-- `/use-cases` (USMR adds; new-design has `use-cases.html`)
-- `/standards` (USMR adds; new-design has `standards.html`)
-- `/writing/[slug]` (USMR adds; uses `add-brand-assets-and-writing-pipeline` content collection)
-- `/writing/feed.xml` (USMR adds; use existing `@astrojs/sitemap` + custom endpoint)
-- `/bridge` (new-design has `bridge.html`; **USMR does NOT create this route — discard**)
-- `/blog` (new-design has `blog.html`; **superseded by `/writing/[slug]`**)
-- `/brand-icons` (new-design has `brand-icons.html`; **defer to brand-assets change**)
+The pre-pt241 instruction "do NOT create until USMR Phase 5 explicitly
+says so" is no longer load-bearing — USMR Phase 5.x has shipped or
+discarded each of these routes. Current status:
 
-### BaseLayout.astro contract (verified line numbers)
+- `/use-cases` — **SHIPPED** in Phase 5.3 (sourced from `new-design/extracted/src/pages/use-cases.html`).
+- `/standards` — **SHIPPED** in Phase 5.4 (sourced from `new-design/extracted/src/pages/standards.html`; data registry at `src/data/standards.ts`).
+- `/writing/[slug]` — **SHIPPED** in Phase 5.x (3 dynamic posts: welcome / bridge-strategy / compounding-trust-chain).
+- `/writing/feed.xml` — **SHIPPED** in Phase 5.x (RSS feed; auto-discovery wiring landed in pt197).
+- `/bridge` — **SHIPPED** as a real route (the pre-pt241 "USMR does NOT create — discard" instruction was reversed in Phase 5.2.8 when `/bridge` got its own dedicated landing).
+- `/blog` — **DISCARDED** as planned (superseded by `/writing/[slug]`).
+- `/brand-icons` — **DEFERRED** to `add-brand-assets-and-writing-pipeline` change as planned.
 
-`src/layouts/BaseLayout.astro` (65 lines total):
+### BaseLayout.astro contract
 
-- Lines 11-14: `<meta>` charset/viewport, `<Seo>`, `<SeoIcons>`
-- **Lines 16-37: pre-paint theme persistence script** (`<script is:inline>`). DO NOT touch. This must execute before paint to avoid theme flash.
-- Line 38: `<link rel="stylesheet" href="/assets/theme.css" />`
-- Line 39: `<slot name="head" />` — for per-page CSS injection (used by `/roadmap`)
-- Line 40: legacy `toggleMenu` script — keep, not yours to refactor
-- Lines 41-52: `__setTheme` global helper — keep
-- Line 55: `<a class="skip-link">` — keep, route target is `#main`
-- Line 56: `<slot name="header" />` — header injection
-- Line 57: `<main id="main">` + line 58: default `<slot />` — page content
-- Line 60: `<slot name="footer" />` — footer injection
+`src/layouts/BaseLayout.astro` (current size: run `wc -l src/layouts/
+BaseLayout.astro` — pre-USMR snapshot was 65 lines; the file grew
+through Phase 5.x additions including the canonical webfonts loader
+and the `[data-theme-toggle]` sync hook, current size ~142 lines as
+of pt243). Read the file directly for current line numbers — what
+follows is the LOGICAL structure, stable across versions:
+
+- `<meta>` charset/viewport, `<Seo>`, `<SeoIcons>` block.
+- **Pre-paint theme persistence `<script is:inline>` block.** DO NOT
+  touch. This must execute before paint to avoid theme flash.
+- Webfonts loader (Google Fonts preconnect pair + 6-family stylesheet
+  link), site-wide `<link rel="stylesheet" href="/assets/theme.css">`,
+  named slots: `head` (per-page CSS injection), `json-ld`,
+  `indexation`, `branding`.
+- Legacy menu/script blocks (most retired in pt85; the surviving
+  `__setTheme` global helper synchronizes `aria-pressed` on every
+  `[data-theme-toggle]` button).
+- `<body>`: `<SkipLink>`, `<slot name="header">` (header injection),
+  `<main id="main-content">` + default `<slot />` (page content),
+  `<slot name="footer">` (footer injection), dev-only
+  `<ThemePreview>` + `<Tweaks />` panels.
 
 To merge new-design's `BaseLayout.jsx` content (Nav, Footer, GLOSSARY, ArtagonGlyph):
 
@@ -223,15 +266,24 @@ To merge new-design's `BaseLayout.jsx` content (Nav, Footer, GLOSSARY, ArtagonGl
 
 ## Critical constraints (consolidated from adversarial review)
 
-### 1. RSA prerequisite gate (verified)
+### 1. RSA prerequisite gate
 
-USMR depends on `refactor-styling-architecture` (RSA) being archive-ready. RSA is currently **65/83 tasks complete** (verified by `rtk rg -c '^\s*- \[x\]' openspec/changes/refactor-styling-architecture/tasks.md`).
+USMR depends on `refactor-styling-architecture` (RSA) being archive-
+ready. **RSA archived 2026-05-04** to
+`openspec/changes/archive/2026-05-04-refactor-styling-architecture/`.
+The pre-USMR snapshot recorded RSA at "65/83 tasks complete" with
+`scripts/verify-prerequisites.mjs` not yet authored — both
+conditions have since resolved.
 
-**The script `npm run verify:prerequisites` does NOT yet exist.** It is the deliverable of USMR task 0.5. So:
+The script `npm run verify:prerequisites` is now live
+(`scripts/verify-prerequisites.mjs` + npm script in `package.json`)
+and runs as part of the postbuild chain. Run it directly:
 
-- DO NOT run `npm run verify:prerequisites` (it errors with missing-script).
-- DO check RSA tasks.md by hand: `rtk rg -c '^\s*- \[ \]' openspec/changes/refactor-styling-architecture/tasks.md` should be ≤ small number of acceptable holdouts (browser-blocked tasks like Lighthouse, visual regression).
-- USMR task 0.5 itself is your FIRST conversion task: implement `scripts/verify-prerequisites.mjs`, add npm script, write tests, wire CI. Then use it from then on.
+```bash
+npm run verify:prerequisites
+```
+
+USMR task 0.5 (the deliverable that authored this script) is closed.
 
 ### 2. CSS token namespace collision (verified)
 
@@ -241,19 +293,29 @@ Live `theme.css` has these tokens that new-design ALSO defines with different va
 - `--bg-alt` (live: hex per theme; new: not defined as `--bg-alt`)
 - `--accent` (live: `#7c5cff`; new: `oklch(0.86 0.14 185)` per theme)
 
-There ARE plain `:root {}` blocks in theme.css (L2, L72, L475, L980 — verified). Tokens are also defined under `:root[data-theme="midnight|twilight|slate"]`.
+There ARE plain `:root {}` blocks in theme.css (current line numbers
+shift with each token addition; run `grep -n '^:root' public/assets/
+theme.css` for the live offsets). Tokens are also defined under
+`:root[data-theme="midnight|twilight"]`. The pre-pt167 third theme
+`slate` was retired (only twilight + midnight remain).
 
 **Token rename contract (mandatory):**
 
 1. Before merging new-design `tokens.css`, sed-rename ALL its tokens to `--nd-` prefix in a copy: `--bg` → `--nd-bg`, `--accent` → `--nd-accent`, `--fg` → `--nd-fg`, etc.
 2. Append the renamed block to theme.css under a new comment `/* ===== NEW-DESIGN TOKENS (OKLCH) ===== */`.
 3. Per-converted-page, alias old tokens via `:root[data-theme="midnight"] { --bg: var(--nd-bg); }` AFTER visual verification that the new color matches DESIGN.md intent.
-4. Run `npm run build` after EACH alias. Verify the page in browser. Verify all 3 themes (midnight/twilight/slate) still work.
+4. Run `npm run build` after EACH alias. Verify the page in browser. Verify both shipped themes (twilight + midnight) still work — pre-pt167 there was a third `slate` theme; only twilight + midnight remain.
 5. Do NOT merge new-design `--bg` directly into a plain `:root` — it would shadow themed variants.
 
 ### 3. React interactivity — guidance
 
-This repo has **`@astrojs/react` NOT YET installed** but React islands are PERMITTED for components that genuinely need state. The Tweaks panel shipped as vanilla TS as an existence proof, not as a precedent that bans React for everything.
+This repo has **`@astrojs/react` installed** (per `package.json` —
+the integration was added during USMR Phase 5.x for the
+`TrustChainIsland` + `TweaksPanel` interactive surfaces). React
+islands are PERMITTED for components that genuinely need state.
+The Tweaks panel shipped initially as vanilla TS as an existence
+proof; the React migration came later. The vanilla version is not
+a precedent that bans React for everything.
 
 **Forward-looking use cases that justify React islands:**
 
@@ -268,10 +330,10 @@ These ship as React islands because rebuilding state machines + form validation 
 **Decision tree for any new-design React component**:
 
 1. **Cheapest path first** — try CSS-only state (`:checked`/`:has()`/`:hover`/`:focus-within`/`:target`) or native HTML elements (`<details>`/`<dialog>`/`<input type="radio|checkbox">`/`popover` API). If it works, ship that.
-2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/scripts/tweaks.ts` (custom element) or `src/scripts/tweaks-state.ts` (pure logic).
+2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/components/Tweaks.astro` (custom element via Astro `<script is:inline>`) or `src/scripts/tweaks-state.ts` (pure logic).
 3. **React island** — if the component has non-trivial state (e.g. carousel timing, multi-step form, focus-trap dialog), use a React island. Cost per island:
-   - Add deps once: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (~120KB minified+gzipped for the React runtime, shared across all islands)
-   - Add `react()` to `astro.config.mjs` integrations
+   - Deps already installed: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (per `package.json`; ~120KB minified+gzipped for the React runtime, shared across all islands)
+   - `react()` is already in `astro.config.ts` integrations — no config edit needed for new islands
    - Each island re-runs CSP/SRI hash regen at build time — verify `scripts/csp.mjs` and `scripts/sri.mjs` postbuild succeed
    - Use `client:visible` (lazy hydration, IntersectionObserver-based) BEFORE `client:load` (eager) unless the island is above the fold
    - Document the cost in the conversion commit message — bundle delta and CSP changes
@@ -291,15 +353,15 @@ Live theme.css already defines: `.btn`, `.card`, `.lead`, `.section`, `.containe
 
 ## Order of operations (USMR-aligned)
 
-| Phase                            | Tasks                                                                                                                                | Done when                                                                                                                                                                            |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **0. Prerequisite gate**         | Implement `scripts/verify-prerequisites.mjs` (USMR 0.5). Tests pass.                                                                 | `npm run verify:prerequisites` exits 0 with RSA archive-ready signal.                                                                                                                |
-| **1. Token landing**             | Sed-rename new-design tokens to `--nd-*`. Append to theme.css. Build green.                                                          | `npm run build` succeeds. Visual diff zero on all 16 pages.                                                                                                                          |
-| **2. Homepage E2E**              | Convert `index.html` → `src/pages/index.astro`. Per-page tokens aliased. Playwright smoke test passes.                               | Build green + screenshot matches `new-design/extracted/screenshots/home-nav.png` (only 2 screenshots exist; for the rest, render new-design HTML in a browser as the visual oracle). |
-| **3. Per-page rollout**          | Convert `/platform`, `/roadmap` (only routes that have new-design HTML). Each is its own commit.                                     | Build green between each. All 3 themes still work on each converted page.                                                                                                            |
-| **4. New routes (USMR Phase 5)** | Add `/use-cases`, `/standards`. Author per USMR spec, NOT by copying new-design HTML wholesale.                                      | New routes pass Playwright + a11y.                                                                                                                                                   |
-| **5. Component extraction**      | After all pages converted, lift duplicated markup into `src/components/*.astro`.                                                     | No regression in any page. Components pass unit tests.                                                                                                                               |
-| **6. Cleanup**                   | Remove dead live theme.css rules superseded by new-design. Use coverage tooling (e.g. `unused-css-class-detector`) — not eyeballing. | Final theme.css ≤ budget.                                                                                                                                                            |
+| Phase                            | Tasks                                                                                                                                        | Done when                                                                                                                                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **0. Prerequisite gate**         | Implement `scripts/verify-prerequisites.mjs` (USMR 0.5). Tests pass.                                                                         | `npm run verify:prerequisites` exits 0 with RSA archive-ready signal.                                                                                                                |
+| **1. Token landing**             | Sed-rename new-design tokens to `--nd-*`. Append to theme.css. Build green.                                                                  | `npm run build` succeeds. Visual diff zero on all 16 pages.                                                                                                                          |
+| **2. Homepage E2E**              | Convert `index.html` → `src/pages/index.astro`. Per-page tokens aliased. Playwright smoke test passes.                                       | Build green + screenshot matches `new-design/extracted/screenshots/home-nav.png` (only 2 screenshots exist; for the rest, render new-design HTML in a browser as the visual oracle). |
+| **3. Per-page rollout**          | Convert `/platform`, `/roadmap`, `/bridge`, `/use-cases`, `/standards` (the routes that have new-design HTML mocks). Each is its own commit. | Build green between each. Both shipped themes (twilight + midnight) still work on each converted page.                                                                               |
+| **4. New routes (USMR Phase 5)** | Add `/use-cases`, `/standards`. Author per USMR spec, NOT by copying new-design HTML wholesale.                                              | New routes pass Playwright + a11y.                                                                                                                                                   |
+| **5. Component extraction**      | After all pages converted, lift duplicated markup into `src/components/*.astro`.                                                             | No regression in any page. Components pass unit tests.                                                                                                                               |
+| **6. Cleanup**                   | Remove dead live theme.css rules superseded by new-design. Use coverage tooling (e.g. `unused-css-class-detector`) — not eyeballing.         | Final theme.css ≤ budget.                                                                                                                                                            |
 
 ## Success criteria per page conversion
 
@@ -317,9 +379,9 @@ Run ALL of these. None optional.
      expect(text?.length ?? 0).toBeGreaterThan(100);
    });
    ```
-3. **Theme switching:** Test all 3 themes:
+3. **Theme switching:** Test both shipped themes (the third theme `slate` was retired in pt167):
    ```ts
-   for (const theme of ["midnight", "twilight", "slate"]) {
+   for (const theme of ["twilight", "midnight"]) {
      await page.goto(`/<route>?theme=${theme}&persist=0`);
      const bg = await page.evaluate(() =>
        getComputedStyle(document.documentElement).getPropertyValue("--bg"),
@@ -330,7 +392,7 @@ Run ALL of these. None optional.
    ```
 4. **Console clean:** No JS console errors, no 404s on assets.
 5. **Lighthouse a11y:** ≥ 95. Run via `npx lighthouse http://localhost:4321/<route> --only-categories=accessibility --chrome-flags="--headless"`.
-6. **CSS budget:** Per-page CSS load ≤ 35KB raw / ≤ 7KB gz. Verify: `wc -c .build/dist/<route>/index.html` + linked CSS files.
+6. **CSS budget:** No active gate enforces a fixed global threshold today (see "CSS budgets" section above for the model shift from a single global stylesheet to per-component scoped styles). Per-page CSS load that visibly exceeds the historic ~35KB raw / ~7KB gz pre-USMR snapshot should still be flagged in review and either REVERTED or SPLIT, but the threshold is contextual rather than fixed. Inspect: `wc -c .build/dist/<route>/index.html` + linked CSS files.
 7. **No regressions:** All previously-converted pages still pass their tests.
 
 ## What MUST NOT happen

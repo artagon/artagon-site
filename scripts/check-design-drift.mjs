@@ -2,7 +2,9 @@
 /**
  * check-design-drift.mjs
  *
- * Per `adopt-design-md-format` Phase 6.1–6.2:
+ * Per `adopt-design-md-format` Phase 6.1–6.2 (proposal archived
+ * 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+ * the live spec is `openspec/specs/design-system-format/spec.md`):
  *   Asserts that every CSS custom property declared in `public/assets/theme.css`
  *   resolves to a token in `DESIGN.md` YAML frontmatter — or appears on the
  *   documented allow-list in `docs/design-md.md` Section 6.
@@ -262,7 +264,9 @@ const docsBody = readFileSync(DOCS_DESIGN_MD, "utf8");
 
 const yaml = extractFrontmatter(designBody);
 if (!yaml) {
-  console.error("✗ DESIGN.md has no YAML frontmatter (Phase 3.2 pending).");
+  console.error(
+    "✗ DESIGN.md has no YAML frontmatter — the canonical structure (per `adopt-design-md-format` archived 2026-05-05) requires `---`-fenced YAML at the top of DESIGN.md with `version`, `name`, `description`, `colors`, etc. If frontmatter was removed, restore it; the format spec is mirrored at `openspec/.cache/design-md-spec.md` and the upstream is `npx @google/design.md spec`.",
+  );
   exit(2);
 }
 

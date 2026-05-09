@@ -138,11 +138,14 @@ Test content
   test("should accept valid frontmatter", () => {
     const validContent = `---
 title: "Valid Title"
-description: "Valid description"
-hero:
-  title: "Valid Hero Title"
-  subtitle: "Valid Subtitle"
-  missionText: "Valid Mission"
+description: "Valid description for this test page that satisfies the eighty-character minimum length constraint."
+eyebrow: "Valid Eyebrow"
+headline: "Valid Headline"
+lede: "Valid lede text that describes the page content."
+ctas:
+  - label: "Get started"
+    href: "/get-started"
+    variant: primary
 ---
 
 # Valid Content
@@ -166,15 +169,18 @@ This is valid markdown content.
     });
   });
 
-  test("should allow optional hero field", () => {
+  test("should accept frontmatter without optional ctas field", () => {
     const validContent = `---
 title: "Valid Title"
-description: "Valid description"
+description: "Valid description for this test page that satisfies the eighty-character minimum length constraint."
+eyebrow: "Valid Eyebrow"
+headline: "Valid Headline"
+lede: "Valid lede text that describes the page content."
 ---
 
-# Valid Content Without Hero
+# Valid Content Without CTAs
 
-This is valid markdown content without a hero section.
+This is valid markdown content without explicit ctas (defaults to empty array).
 `;
 
     withVisionContent(validContent, () => {

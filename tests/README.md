@@ -4,35 +4,39 @@ This directory contains automated tests for the Artagon Web site using [Playwrig
 
 ## Test Structure
 
+The original Phase-1-era tree (5 Playwright specs + 6 node:test files,
+manually enumerated) was retired in pt234 because the suite has grown
+substantially under USMR Phase 5.x and any static enumeration drifts
+against the live tree within one or two pt-iters. Today three runners
+coexist:
+
+- **Playwright** owns `tests/**/*.spec.ts` (`npm test`, `npm run test:ci`)
+- **vitest** owns `tests/**/*.test.mts` EXCEPT the legacy `tweaks-state.test.mts` (`npm run test:vitest`; the script already includes `vitest run` so no extra `--run` flag is needed)
+- **node:test** owns `tests/**/*.test.mjs` plus the legacy `tweaks-state.test.mts` (`npm run test:node`)
+
+The runners' globs MUST stay disjoint — see [`AGENTS.md`](../AGENTS.md)
+§Testing for the rationale (Symbol($$jest-matchers-object) collision).
+
+For the live tree run:
+
+```bash
+ls tests/*.spec.ts                                # Playwright specs
+find tests -name '*.test.mts' -not -path '*/node_modules/*' -not -name 'tweaks-state.test.mts'   # vitest (vitest.config.ts excludes tweaks-state.test.mts)
+find tests -name '*.test.mjs' -not -path '*/node_modules/*'   # node:test (plus tweaks-state.test.mts via test:tweaks)
 ```
-tests/
-├── Playwright (npm test, npm run test:ci)
-│   ├── vision-page.spec.ts             # Vision page functional + gated visual regression
-│   ├── styling-snapshots.spec.ts       # 3 themes × 3 breakpoints visual baseline (gated on VISUAL_REGRESSION=1)
-│   ├── styling-a11y.spec.ts            # Keyboard traversal + focus-ring contract (chromium-only)
-│   ├── content-collections.spec.ts     # Content Collections schema validation (chromium-only)
-│   └── faq-markdown.spec.ts            # FAQ markdown rendering
-│
-├── node:test (npm run test:tweaks, test:tweaks-prod-noship, test:build-config, …)
-│   ├── tweaks-state.test.mts           # Pure state-module logic + type guards
-│   ├── tweaks-parse.test.mjs           # parse() boundary cases + prototype-pollution probe
-│   ├── tweaks-prod-noship.test.mjs     # Asserts dev-only Tweaks panel doesn't reach prod HTML
-│   ├── build-config.test.mjs           # SSoT drift gate + sync-determinism
-│   ├── design-md-fixtures.test.mjs     # design.md linter fixture snapshots
-│   └── verify-design-prerequisites.test.mjs  # openspec ordering preconditions
-│
-├── fixtures/                           # Test fixtures (design.md good/bad, etc.)
-├── styling-snapshots.spec.ts-snapshots/  # Linux-pinned visual baselines (regenerate via workflow_dispatch)
-├── vision-page.spec.ts-snapshots/        # ditto
-└── README.md                           # This file
-```
+
+`tests/fixtures/` holds shared fixtures (design.md good/bad inputs,
+etc.). Visual-regression baselines live in
+`tests/<spec-name>.spec.ts-snapshots/` directories — Linux-pinned,
+regenerate via the `workflow_dispatch` path in
+`.github/workflows/playwright.yml`.
 
 **Gating notes**:
 
-- **Visual regression** (`vision-page.spec.ts` + `styling-snapshots.spec.ts`) requires `VISUAL_REGRESSION=1`. Test bodies are skipped without it. CI runs them in a dedicated job under `.github/workflows/playwright.yml`. Baselines are Linux-pinned; local darwin runs produce non-authoritative `*-darwin.png` files (do not commit).
-- **`styling-a11y.spec.ts`** is chromium-only — focus-visible behavior is browser-engine-dependent but the rules under test are not.
-- **`content-collections.spec.ts`** is chromium-only because tests mutate `src/content/pages/vision.mdx` and would race across parallel browser projects.
-- **node:test files** (`*.test.mts`, `*.test.mjs`) are NOT run by `npm test` (which runs Playwright). The umbrella `npm run test:node` runs all six in one shot; individual files have per-file scripts (`test:tweaks`, `test:tweaks-prod-noship`, `test:build-config`, `test:design-fixtures`, `test:design-prerequisites`) for targeted runs. CI invokes `test:node` once on shard 1 of the playwright workflow (`.github/workflows/playwright.yml`).
+- **Visual regression** specs are gated on `VISUAL_REGRESSION=1`; test bodies are skipped without it. CI runs them in a dedicated job under `.github/workflows/playwright.yml`. Baselines are Linux-pinned; local darwin runs produce non-authoritative `*-darwin.png` files (do not commit).
+- **a11y / focus-visible specs** are chromium-only when the behavior under test is browser-engine-dependent but the rules under test are not.
+- **content-collection schema specs** that mutate `src/content/pages/*.mdx` are chromium-only because they would race across parallel browser projects.
+- **node:test + vitest files** are NOT run by `npm test` (which runs Playwright). CI invokes `test:node` and `test:vitest` once on shard 1 of the playwright workflow (`.github/workflows/playwright.yml`); individual files have per-file scripts for targeted runs (see `package.json` `scripts` section).
 
 ## Running Tests Locally
 
@@ -207,7 +211,7 @@ Tests run automatically in GitHub Actions on:
 
 **Jobs:**
 
-1. **test** - Run all tests in parallel (3 shards)
+1. **test** - Run all tests in parallel (5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22`)
 2. **visual-regression** - Run visual regression tests
 3. **accessibility** - Run accessibility tests
 4. **merge-reports** - Combine test reports from shards
@@ -345,10 +349,15 @@ Playwright configuration: `playwright.config.ts`
 Key settings:
 
 - **testDir**: `./tests`
+- **testMatch**: `**/*.spec.ts` (Playwright owns spec.ts; vitest owns _.test.mts; node:test owns _.test.mjs — see "Test Structure" above for the disjoint-glob rationale)
 - **workers**: Parallel execution (1 on CI, unlimited locally)
 - **retries**: 2 on CI, 0 locally
-- **browsers**: Chromium, Firefox, WebKit, Mobile Chrome/Safari
-- **webServer**: Auto-starts preview server on http://localhost:4321
+- **projects** (15 device profiles per the AGENTS.md device matrix):
+  - Desktop: chromium · firefox · webkit · Edge (msedge channel) · Chrome (chrome channel)
+  - Mobile: Mobile Chrome (Pixel 5) · Mobile Chrome (Pixel 7) · Mobile Chrome (Galaxy S9+) · Mobile Safari (iPhone 12) · Mobile Safari (iPhone 14 Pro Max)
+  - Tablet: Tablet Safari (iPad Pro 11) · Tablet Safari (iPad Mini) · Tablet Chrome (Galaxy Tab S4)
+  - Large: TV (1920×1080) · TV 4K (3840×2160 HiDPI)
+- **webServer**: Auto-starts preview server on http://localhost:4321 (per `webServer` block; Astro `npm run preview` over `.build/dist/`)
 
 ## Troubleshooting
 

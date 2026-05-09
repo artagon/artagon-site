@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#0B1220",
-  "background_color": "#0B1220",
+  "theme_color": "#0a0d12",
+  "background_color": "#0a0d12",
   "lang": "en-US",
   "dir": "ltr",
   "categories": ["security", "identity", "authentication"],
@@ -75,7 +75,7 @@
   ],
   "screenshots": [
     {
-      "src": "/assets/og-image.png",
+      "src": "/assets/logos/og-image.png",
       "sizes": "1200x630",
       "type": "image/png",
       "form_factor": "wide"

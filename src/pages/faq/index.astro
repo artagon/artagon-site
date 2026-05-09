@@ -5,6 +5,7 @@ import Footer from '../../components/Footer.astro';
 import FaqItem from '../../components/FaqItem.astro';
 import FaqSearch from '../../components/FaqSearch.astro';
 import { FAQS, FAQ_CATEGORIES } from '../../data/faq';
+import { safeJsonLd } from '../../lib/charset';
 
 const page = {
   title: "FAQ — Artagon",
@@ -38,19 +39,23 @@ const faqSchema = {
 };
 ---
 
-<Base title={page.title} description={page.description}>
+<Base title={page.title} description={page.description} path="/faq">
   <Fragment slot="header"><Header /></Fragment>
 
-  <section class="faq-hero">
+  {/* USMR Phase 5.5.16-pt139 — landmark labelling. */}
+  <section class="faq-hero" aria-labelledby="faq-hero-h">
     <div class="container narrow">
-      <h1 class="gradient-text" style="font-size:clamp(2rem,1.2rem+3vw,3rem)">Frequently Asked Questions</h1>
-      <p class="faq-lead">
+      <h1 id="faq-hero-h" class="faq-hero__title display">Frequently Asked Questions</h1>
+      <p class="faq-lead lead">
         Everything you need to know about Artagon's identity platform—from OIDC and GNAP to verifiable credentials, device attestation, and graph-native authorization.
       </p>
     </div>
   </section>
 
-  <section class="section faq-content">
+  {/* USMR Phase 5.5.16-pt140 — landmark labelling. The faq-content
+      section has no heading inside it (the FAQ list renders inline);
+      use aria-label for a static name. */}
+  <section class="section faq-content" aria-label="FAQ content">
     <div class="container narrow">
       <FaqSearch />
 
@@ -67,7 +72,7 @@ const faqSchema = {
         <h2>Still have questions?</h2>
         <p>Can't find what you're looking for? Reach out to our team.</p>
         <div class="faq-cta-actions">
-          <a class="btn solid" href="/get-started">Get Started</a>
+          <a class="btn primary" href="/get-started">Get Started</a>
         </div>
       </div>
     </div>
@@ -75,8 +80,17 @@ const faqSchema = {
 
   <Fragment slot="footer"><Footer /></Fragment>
 
-  <!-- JSON-LD Schema for FAQPage -->
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema, null, 2)} />
+  {/* USMR 5.5.13 — FAQPage JSON-LD now lives in <head> via the
+       `json-ld` slot (BaseLayout.astro:91). Google parses ld+json
+       from anywhere, but Bing webmaster tools + some validators
+       prefer head; matches the canonical pattern used by SeoTags
+       for Article / Organization JSON-LD. Routed through
+       `safeJsonLd` for U+2028 / U+2029 / `</script>` escape. */}
+  <script
+    slot="json-ld"
+    type="application/ld+json"
+    set:html={safeJsonLd(faqSchema)}
+  />
 </Base>
 
 <style>
@@ -85,11 +99,41 @@ const faqSchema = {
   border-bottom: 1px solid var(--card-stroke);
 }
 
+/* USMR Phase 5.5.16-pt114 — canonical FAQ h1 size + cleanup. Pre-pt114
+ * the markup was `<h1 class="gradient-text" style="font-size:
+ * clamp(2rem, 1.2rem+3vw, 3rem)">` — the inline `1.2rem+3vw` (no
+ * calc()) is INVALID CSS and the browser ignored the entire clamp(),
+ * falling back to the bare h1 var(--fs-h1) = 102 px hero size. Plus
+ * `gradient-text` is a legacy class with no CSS rule defined.
+ *
+ * Fix: replaced markup with `class="faq-hero__title display"` so the
+ * .display utility's canonical token cascade applies (font-family,
+ * tracking, weight). Scoped sizing here is canonical clamp(40, 5vw,
+ * 64) — display-sized but smaller than the home-Hero clamp(56-108)
+ * since FAQ is a content page not the marketing front door. */
+.faq-hero__title {
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.05;
+  margin: 0;
+}
+
+/* USMR Phase 5.5.16-pt115 — same fix pattern as pt106 (onRamp lede)
+ * + pt114 (FAQ h1). Pre-pt115 the .faq-lead rule had three issues:
+ *   (a) Invalid clamp(): `clamp(1rem, 0.65rem + 1vw, 1.15rem)` — the
+ *       middle term `0.65rem + 1vw` is not a valid CSS length without
+ *       `calc()`, so the entire clamp() was unparseable. Browser fell
+ *       back to whatever the cascade provided (paragraph default 16px).
+ *   (b) Non-canonical color: `color-mix(..., white 6%)` produces an
+ *       off-white instead of the canonical .lead `var(--fg-1)` color.
+ *   (c) Scoped duplication: the .lead utility already provides
+ *       font-size 20 + line-height 1.5 + color fg-1; redefining them
+ *       in scope created drift.
+ *
+ * Fix: added `lead` to the markup classes (.faq-lead now extends the
+ * .lead utility); scoped rule retains only max-width + margin-top
+ * overrides per canonical FAQ-specific layout. */
 .faq-lead {
-  font-size: clamp(1rem, 0.65rem + 1vw, 1.15rem);
-  line-height: 1.6;
   max-width: 65ch;
-  color: color-mix(in srgb, var(--text) 85%, white 6%);
   margin-top: 12px;
 }
 
@@ -102,12 +146,17 @@ const faqSchema = {
   margin-bottom: 48px;
 }
 
+/* USMR Phase 5.5.16-pt127 — rem→px discipline (pt19-22).
+ * 1.5rem at root 16 = 24 px; pinned fixed-px so the category
+ * heading scale is visually obvious in code review. Category
+ * dividers use accent + 30%-tinted border bottom so they read
+ * as section breaks, not normal headings. */
 .faq-category-title {
-  font-size: 1.5rem;
-  color: var(--brand-teal);
+  font-size: 24px;
+  color: var(--accent);
   margin-bottom: 20px;
   padding-bottom: 8px;
-  border-bottom: 2px solid color-mix(in srgb, var(--brand-teal) 30%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .faq-list {
@@ -126,11 +175,11 @@ const faqSchema = {
 
 .faq-cta h2 {
   margin: 0 0 8px 0;
-  color: var(--text);
+  color: var(--fg);
 }
 
 .faq-cta p {
-  color: var(--muted);
+  color: var(--fg-2);
   margin: 0 0 24px 0;
 }
 
@@ -151,7 +200,9 @@ const faqSchema = {
   }
 
   .faq-category-title {
-    font-size: 1.3rem;
+    /* USMR Phase 5.5.16-pt129 — 1.3rem ≈ 20.8 → 21 px (mobile
+     * variant; pt127 set the desktop value to 24 px). */
+    font-size: 21px;
   }
 
   .faq-cta {
@@ -165,6 +216,22 @@ const faqSchema = {
 
   .faq-cta-actions .btn {
     width: 100%;
+  }
+}
+
+/* USMR Phase 5.5.16-pt127 — forced-colors override per DESIGN.md
+ * §11.7 "Forced colors mode" line 1343 (pre-pt378 cite was
+ * incorrectly §7 "Do's and Don'ts" which doesn't mandate forced-
+ * colors). Category-title heading + its accent-tinted border-bottom collapse
+ * to flat system colors under Windows High Contrast. Map the title
+ * color to CanvasText (regular heading body) and the divider to
+ * GrayText 1px solid (system divider line) so the section-break
+ * signal survives. The 30%-tint color-mix() in the border-bottom
+ * gets dropped because forced-colors blocks color-mix() blending. */
+@media (forced-colors: active) {
+  .faq-category-title {
+    color: CanvasText;
+    border-bottom-color: GrayText;
   }
 }
 </style>

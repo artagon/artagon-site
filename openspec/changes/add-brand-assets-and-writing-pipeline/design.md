@@ -5,7 +5,7 @@ This change sequences AFTER `update-site-marketing-redesign` (the redesign estab
 The redesign change deferred two scopes:
 
 1. The brand-icon system documented in DESIGN.md §4.14 (7+ glyph variants, wordmark, favicon, OG cards). It currently lives inlined in `new-design/extracted/src/pages/brand-icons.html` as raw JS string constants.
-2. A GitHub-sourced writing pipeline. DESIGN.md §4.12 calls for "GitHub-sourced writing & docs" with build-time fetch from a content repo; the redesign shipped only the local `src/content/pages/writing/*.mdx` form.
+2. A GitHub-sourced writing pipeline. DESIGN.md §4.12 calls for "GitHub-sourced writing & docs" with build-time fetch from a content repo; the redesign shipped only the local `src/content/writing/*.mdx` form (pre-pt414 cited as `src/content/pages/writing/*.mdx` — path-nesting drift; the writing collection is a sibling of pages/, not nested. Sister to pt401/pt413 fixes.).
 
 Both gaps are now in scope.
 
@@ -32,7 +32,7 @@ Both gaps are now in scope.
 
 ### 1. SVG source-of-truth: `src/data/brand-svgs.ts`, never inlined
 
-Glyph paths and wordmark builders move from `brand-icons.html`'s inline `<script>` block to a typed TS module. Astro components (`Nav.astro`, `Footer.astro`, `BrandTile.astro`) import from this module. ast-grep rule `no-inline-glyph` rejects raw `<svg ... viewBox="0 0 24 24"` paths anywhere outside the module and `/brand`'s gallery template.
+Glyph paths and wordmark builders move from `brand-icons.html`'s inline `<script>` block to a typed TS module. Astro components (`Header.astro`, `Footer.astro`, `BrandTile.astro`) import from this module — pre-pt406 cited `Nav.astro` for the header surface; `Nav.astro` was consolidated into `Header.astro` per the USMR change's `proposal.md:75`. ast-grep rule `no-inline-glyph` rejects raw `<svg ... viewBox="0 0 24 24"` paths anywhere outside the module and `/brand`'s gallery template.
 
 Tradeoff: A second source of truth in TS instead of just DESIGN.md prose. Mitigated by `check:glyph-parity` script that diffs the TS module against the DESIGN.md §4.14 path constants.
 
@@ -101,7 +101,7 @@ git -C .cache/content-repo fetch --depth 1 origin $WRITING_REMOTE_REF
 git -C .cache/content-repo checkout FETCH_HEAD
 ```
 
-Astro's content collection adds a glob loader pointing at `.cache/content-repo/posts/*.{md,mdx}` ALONGSIDE the existing local glob. Both are merged into the same `pages/writing` collection; Zod validates uniformly. The collection's loader `digest` includes `entry.data.commit` so path-stable / commit-changed posts invalidate cache correctly.
+Astro's content collection adds a glob loader pointing at `.cache/content-repo/posts/*.{md,mdx}` ALONGSIDE the existing local glob. Both are merged into the same `writing` collection (pre-pt415 cited as `pages/writing` — collection is named `writing` per `src/content.config.ts:128`); Zod validates uniformly. The collection's loader `digest` includes `entry.data.commit` so path-stable / commit-changed posts invalidate cache correctly.
 
 Tradeoff: Two source locations for one collection. Justified by the explicit `repo` frontmatter discriminating local from remote at render time (e.g., for the "Edit on GitHub" link).
 
@@ -122,11 +122,11 @@ The site repo's secret `CONTENT_DISPATCH_TOKEN` is a fine-grained PAT scoped to 
 
 ### 7. Schema additive, not breaking
 
-The redesign's `pages/writing` Zod schema requires `title`, `description`, `eyebrow`, `headline`, `lede`, `ctas[]`, `published`, `tags[]` and accepts optional `updated`, `cover`, `accent`, `repo`. This change extends the optional set with `path` (path within `repo`) and `commit?` (the SHA at which the post was authored). Both are derived automatically by `fetch-content.mjs` for remote posts; local posts can omit them.
+The redesign's `writing` collection Zod schema (pre-pt415 cited as `pages/writing` — collection is named `writing` per `src/content.config.ts:128`) requires `title`, `description`, `eyebrow`, `headline`, `lede`, `ctas[]`, `published`, `tags[]` and accepts optional `updated`, `cover`, `accent`, `repo`. This change extends the optional set with `path` (path within `repo`) and `commit?` (the SHA at which the post was authored). Both are derived automatically by `fetch-content.mjs` for remote posts; local posts can omit them.
 
 ### 8. MDX component allowlist enforced via custom remark plugin (Astro built-in does NOT enforce)
 
-Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustChain`, `Diagram`, `Callout`. **Astro's MDX `components` config does NOT reject unknown JSX** — it falls through and renders unknown JSX as plain HTML/custom-element. Enforcement therefore requires a custom remark/rehype plugin (`remark-mdx-restrict-jsx`) wired into `astro.config.mjs`'s `markdown.remarkPlugins`. The plugin walks the MDX AST and throws on disallowed AST kinds: `mdxJsxFlowElement`, `mdxJsxTextElement`, `mdxFlowExpression`, `mdxTextExpression`, plus `mdxjsEsm` for posts where `entry.data.repo` is set (remote ESM imports rejected unconditionally). Documented in `docs/writing-pipeline.md`.
+Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustChain`, `Diagram`, `Callout`. **Astro's MDX `components` config does NOT reject unknown JSX** — it falls through and renders unknown JSX as plain HTML/custom-element. Enforcement therefore requires a custom remark/rehype plugin (`remark-mdx-restrict-jsx`) wired into `astro.config.ts`'s `markdown.remarkPlugins` (file renamed from `astro.config.mjs` mid-USMR per pt342 archaeology). The plugin walks the MDX AST and throws on disallowed AST kinds: `mdxJsxFlowElement`, `mdxJsxTextElement`, `mdxFlowExpression`, `mdxTextExpression`, plus `mdxjsEsm` for posts where `entry.data.repo` is set (remote ESM imports rejected unconditionally). Documented in `docs/writing-pipeline.md`.
 
 ### 9. Coordination with prior changes
 
@@ -147,7 +147,7 @@ Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustCha
 - **Risk: Glyph drift between TS and DESIGN.md.** Mitigation: `check:glyph-parity` snapshot diff.
 - **Risk: `/brand` perf hit on Lighthouse.** Mitigation: documented exception with relaxed threshold; route is `noindex`.
 - **Risk: Remote MDX uses disallowed components.** Mitigation: Astro MDX allowlist fails the build at parse time.
-- **Rollback ordering (matters):** Disable `WRITING_REMOTE_REPO` env in CI first (immediate fallback to local-only without a code revert). Then `.github/workflows/content-redeploy.yml`. Then `src/content/config.ts` augmentation. Then `/brand` route + generators + `brand-svgs.ts`. Per-step independent within this order.
+- **Rollback ordering (matters):** Disable `WRITING_REMOTE_REPO` env in CI first (immediate fallback to local-only without a code revert). Then `.github/workflows/content-redeploy.yml`. Then `src/content.config.ts` augmentation. Then `/brand` route + generators + `brand-svgs.ts`. Per-step independent within this order.
 
 ## Open Questions
 

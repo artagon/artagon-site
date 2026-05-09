@@ -33,13 +33,13 @@ The entire `.build/` tree MUST be a single `.gitignore` entry. Nested entries fo
 #### Scenario: Public deliverables stay outside .build
 
 - **WHEN** the repo is inspected
-- **THEN** `public/assets/logos/*.png`, `public/favicon.svg`, `public/icon-*.png`, `public/apple-touch-icon.png` remain under `public/` (committed deliverables, not runtime artifacts).
+- **THEN** `public/assets/logos/*.png`, `public/favicon.ico`, `public/icons/icon-*.png`, `public/apple-touch-icon.png` remain under `public/` (committed deliverables, not runtime artifacts).
 
 ### Requirement: Single Source of Truth Path Config
 
 A single `build.config.json` at the repo root MUST be the canonical source of truth for every path under `.build/`. A typed `build.config.ts` MUST load the JSON via `fs.readFileSync` + `JSON.parse` (NOT via `with { type: 'json' }` import-attribute syntax, which requires `module: "nodenext"` and is inconsistently supported by Astro's Vite-based config loader at the time of this change), then expose a typed `BUILD` constant via the `satisfies BuildPaths` type assertion against a `DeepReadonly<typeof data>` wrapper. Tools that accept TS/JS configs (Astro, Playwright) MUST import `BUILD` from `build.config.ts`; they MUST NOT duplicate path strings. Tools that require JSON/YAML/TOML (Lighthouse CI, Lychee, GitHub Actions YAML) MUST consume paths via files generated from `build.config.json` by `scripts/sync-build-config.mjs`.
 
-The `tsconfig.json` at the repo root MUST set `"resolveJsonModule": true`, `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, and `"target": "ES2022"` (or stricter). The `tsconfig.json` MUST be created if absent (the project currently has none at root); CI MUST run `astro check` post-rename to confirm typing.
+The `tsconfig.json` at the repo root MUST set `"resolveJsonModule": true`, `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, and `"target": "ES2022"` (or stricter). Pre-build-config-change the project had no `tsconfig.json` at the repo root; the change-author created one, and the file now ships at `tsconfig.json` extending `astro/tsconfigs/strictest`. CI MUST run `astro check` post-rename to confirm typing.
 
 Path strings written to `build.config.json` MUST conform to the regex `^\.build/[a-z0-9/_-]+$`. The sync generator MUST validate every path string against this regex BEFORE writing any output file and MUST exit non-zero on violation. Paths containing `..`, newlines, backticks, `$()`, or absolute prefixes are rejected. This guards against path-traversal attacks where a malicious or typo'd path string is templated into committed workflow YAML.
 
@@ -145,7 +145,7 @@ To avoid implicit ordering coupling between this change and `add-brand-assets-an
 - `npm run clean:cache` — removes only `.build/cache/`.
 - `npm run clean:reports` — removes only `.build/reports/`.
 
-Mid-run race protection (a `.build/.run.lock` sentinel file consulted by all three clean scripts and acquired by Playwright `globalSetup` / LHCI wrapper) is tracked under a follow-up change; the round-1 clean scripts described here perform an unconditional delete and rely on contributors not running `clean` while a test run is active. The lock-protocol clauses in earlier draft text are deferred until the runner-integration glue ships.
+Mid-run race protection via a `.build/.run.lock` sentinel file is now LIVE per `scripts/clean.mjs` (line 2 docstring: "Lock-aware clean helper for .build/"; line 17 declares `LOCK = join(BUILD, ".run.lock")`). The clean scripts now route through `scripts/clean.mjs` taking a target argv (`all` / `cache` / `reports`); the script validates argv (exit 64 on bad input), reads the lock, refuses delete with exit 73 if held by a live PID on the same host, and auto-clears stale locks (dead PID OR mtime > 2 h OR foreign hostname). (Pre-pt411 cited the script invocation as "scripts/clean.mjs &lt;target&gt;" inside a backtick — the angle-bracket placeholder confused the `lint-openspec-spec-path-citations.test.mts` gate's path-extraction regex into treating the whole backticked literal as a filename to verify on disk; refactored to plain prose to clear the gate per its own fix-suggestion.) The pre-pt300 spec text said the lock-protocol "is tracked under a follow-up change" and described the round-1 scripts as unconditional-delete; both became stale when the lock-aware implementation shipped. The lock acquisition by Playwright `globalSetup` / LHCI wrapper is still evolving (some test runners acquire via `npm run` lifecycle, not yet via `globalSetup` hook), but the clean-side enforcement is fully in place.
 
 #### Scenario: clean nukes everything
 

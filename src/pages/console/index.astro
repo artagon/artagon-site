@@ -4,17 +4,46 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import Tagline from '../../components/Tagline.astro';
 ---
-<Base title="Artagon Console" description="Manage tenants, clients, credentials, and policy — Verified. Private. Attested." robots="noindex, nofollow">
+{/* USMR Phase 5.5.16-pt143 — canonical title pattern per DESIGN.md
+    §9.5: `{Page} — Artagon`. Pre-pt143 was "Artagon Console". */}
+<Base title="Console — Artagon" description="Manage tenants, clients, credentials, and policy — Verified. Private. Attested." path="/console">
   <Fragment slot="header"><Header /></Fragment>
-  <section class="container card" style="margin-top:40px">
-    <h1>Welcome</h1>
-    <div class="discrete"><Tagline variant="sentence" /></div>
+  {/* USMR Phase 5.5.16-pt119 — pre-pt119 the bare <h1>Welcome</h1>
+      rendered at 102 px (hero-sized). Same drift class as pt114 / pt117
+      / pt118. Canonicalized to .display + clamp(40, 5vw, 64) sizing.
+      The .discrete description swaps to .lead utility. */}
+  {/* USMR Phase 5.5.16-pt139 — landmark labelling. */}
+  <section class="console-hero card" aria-labelledby="console-hero-h">
+    <h1 id="console-hero-h" class="console-hero__title display">Welcome</h1>
+    <p class="console-hero__lede lead"><Tagline variant="sentence" /></p>
     <p>Create a sandbox tenant, register a client, and issue your first DPoP‑bound token.</p>
-    <div class="actions" style="margin-bottom:12px">
-      <a class="btn" href="#">Create tenant</a>
-      <a class="btn" href="#">Register client</a>
-      <a class="btn" href="#">Open policy editor</a>
+    {/* USMR Phase 5.5.14 — console preview not built yet. Three earlier
+       actions ("Create tenant" / "Register client" / "Open policy
+       editor") were href="#" dead anchors that took users nowhere.
+       Until the console ships, surface a single design-partner CTA
+       so visitors who land on /console (e.g. via earlier Get-Started
+       copy) reach the conversion path instead of dead buttons. */}
+    <p>The Artagon console is in private preview for design-partner cohorts.</p>
+    <div class="actions">
+      <a class="btn primary" href="/get-started">Apply as a design partner →</a>
+      <a class="btn" href="/platform">Read platform docs</a>
     </div>
   </section>
+
+  <style>
+    .console-hero {
+      max-width: var(--maxw, 1240px);
+      margin: clamp(48px, 8vw, 80px) auto 0;
+      padding-inline: clamp(24px, 4vw, 40px);
+    }
+    .console-hero__title {
+      font-size: clamp(40px, 5vw, 64px);
+      line-height: 1.05;
+      margin: 0 0 16px;
+    }
+    .console-hero__lede {
+      margin-bottom: 16px;
+    }
+  </style>
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

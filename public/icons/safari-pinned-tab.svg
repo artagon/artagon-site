@@ -1,4 +1,17 @@
-<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-  <path fill="#000" d="M128 12l104 60v112l-104 60L24 184V72z"/>
-  <path fill="#000" d="M88 184l40-96 40 96M108 136h40"/>
+<!-- USMR Phase 5.5.16-pt107 — canonical Artagon glyph for Safari
+     pinned-tab mask-icon. Replaces the prior hexagon-shield design
+     with the canonical 4-element brand mark from
+     src/components/ArtagonGlyph.astro:
+       1. Outer circle (faint outline)
+       2. Triangle path
+       3. Inner filled dot
+       4. Base line
+     viewBox 0 0 24 24 matches the source component; Safari rasterizes
+     to whatever pinned-tab size the user has + tints with the
+     mask-icon color attribute on the <link rel="mask-icon">. -->
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <circle cx="12" cy="12" r="10.5" stroke="currentColor" stroke-opacity="0.28" stroke-width="1" fill="none"/>
+  <path d="M12 2.5 L20 18.5 L4 18.5 Z" stroke="currentColor" stroke-width="1.25" fill="none" stroke-linejoin="round"/>
+  <circle cx="12" cy="13.2" r="2.1" fill="currentColor"/>
+  <path d="M7 18.5 L17 18.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
 </svg>
