@@ -353,15 +353,15 @@ Live theme.css already defines: `.btn`, `.card`, `.lead`, `.section`, `.containe
 
 ## Order of operations (USMR-aligned)
 
-| Phase                            | Tasks                                                                                                                                | Done when                                                                                                                                                                            |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **0. Prerequisite gate**         | Implement `scripts/verify-prerequisites.mjs` (USMR 0.5). Tests pass.                                                                 | `npm run verify:prerequisites` exits 0 with RSA archive-ready signal.                                                                                                                |
-| **1. Token landing**             | Sed-rename new-design tokens to `--nd-*`. Append to theme.css. Build green.                                                          | `npm run build` succeeds. Visual diff zero on all 16 pages.                                                                                                                          |
-| **2. Homepage E2E**              | Convert `index.html` → `src/pages/index.astro`. Per-page tokens aliased. Playwright smoke test passes.                               | Build green + screenshot matches `new-design/extracted/screenshots/home-nav.png` (only 2 screenshots exist; for the rest, render new-design HTML in a browser as the visual oracle). |
-| **3. Per-page rollout**          | Convert `/platform`, `/roadmap` (only routes that have new-design HTML). Each is its own commit.                                     | Build green between each. All 3 themes still work on each converted page.                                                                                                            |
-| **4. New routes (USMR Phase 5)** | Add `/use-cases`, `/standards`. Author per USMR spec, NOT by copying new-design HTML wholesale.                                      | New routes pass Playwright + a11y.                                                                                                                                                   |
-| **5. Component extraction**      | After all pages converted, lift duplicated markup into `src/components/*.astro`.                                                     | No regression in any page. Components pass unit tests.                                                                                                                               |
-| **6. Cleanup**                   | Remove dead live theme.css rules superseded by new-design. Use coverage tooling (e.g. `unused-css-class-detector`) — not eyeballing. | Final theme.css ≤ budget.                                                                                                                                                            |
+| Phase                            | Tasks                                                                                                                                        | Done when                                                                                                                                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **0. Prerequisite gate**         | Implement `scripts/verify-prerequisites.mjs` (USMR 0.5). Tests pass.                                                                         | `npm run verify:prerequisites` exits 0 with RSA archive-ready signal.                                                                                                                |
+| **1. Token landing**             | Sed-rename new-design tokens to `--nd-*`. Append to theme.css. Build green.                                                                  | `npm run build` succeeds. Visual diff zero on all 16 pages.                                                                                                                          |
+| **2. Homepage E2E**              | Convert `index.html` → `src/pages/index.astro`. Per-page tokens aliased. Playwright smoke test passes.                                       | Build green + screenshot matches `new-design/extracted/screenshots/home-nav.png` (only 2 screenshots exist; for the rest, render new-design HTML in a browser as the visual oracle). |
+| **3. Per-page rollout**          | Convert `/platform`, `/roadmap`, `/bridge`, `/use-cases`, `/standards` (the routes that have new-design HTML mocks). Each is its own commit. | Build green between each. Both shipped themes (twilight + midnight) still work on each converted page.                                                                               |
+| **4. New routes (USMR Phase 5)** | Add `/use-cases`, `/standards`. Author per USMR spec, NOT by copying new-design HTML wholesale.                                              | New routes pass Playwright + a11y.                                                                                                                                                   |
+| **5. Component extraction**      | After all pages converted, lift duplicated markup into `src/components/*.astro`.                                                             | No regression in any page. Components pass unit tests.                                                                                                                               |
+| **6. Cleanup**                   | Remove dead live theme.css rules superseded by new-design. Use coverage tooling (e.g. `unused-css-class-detector`) — not eyeballing.         | Final theme.css ≤ budget.                                                                                                                                                            |
 
 ## Success criteria per page conversion
 
@@ -379,9 +379,9 @@ Run ALL of these. None optional.
      expect(text?.length ?? 0).toBeGreaterThan(100);
    });
    ```
-3. **Theme switching:** Test all 3 themes:
+3. **Theme switching:** Test both shipped themes (the third theme `slate` was retired in pt167):
    ```ts
-   for (const theme of ["midnight", "twilight", "slate"]) {
+   for (const theme of ["twilight", "midnight"]) {
      await page.goto(`/<route>?theme=${theme}&persist=0`);
      const bg = await page.evaluate(() =>
        getComputedStyle(document.documentElement).getPropertyValue("--bg"),
@@ -392,7 +392,7 @@ Run ALL of these. None optional.
    ```
 4. **Console clean:** No JS console errors, no 404s on assets.
 5. **Lighthouse a11y:** ≥ 95. Run via `npx lighthouse http://localhost:4321/<route> --only-categories=accessibility --chrome-flags="--headless"`.
-6. **CSS budget:** Per-page CSS load ≤ 35KB raw / ≤ 7KB gz. Verify: `wc -c .build/dist/<route>/index.html` + linked CSS files.
+6. **CSS budget:** No active gate enforces a fixed global threshold today (see "CSS budgets" section above for the model shift from a single global stylesheet to per-component scoped styles). Per-page CSS load that visibly exceeds the historic ~35KB raw / ~7KB gz pre-USMR snapshot should still be flagged in review and either REVERTED or SPLIT, but the threshold is contextual rather than fixed. Inspect: `wc -c .build/dist/<route>/index.html` + linked CSS files.
 7. **No regressions:** All previously-converted pages still pass their tests.
 
 ## What MUST NOT happen
