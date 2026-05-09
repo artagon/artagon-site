@@ -47,7 +47,15 @@ export type TrustScenario = {
   finalClaim: string;
 };
 
-export const STAGES: readonly TrustStage[] = [
+// pt428 — STAGES is `as const satisfies readonly TrustStage[]` so the
+// tuple literal type is preserved (5-tuple), not widened to a plain
+// readonly array. This locks the compile-time invariant promised in
+// `TrustScenario.stages` and asserted by `_AssertStagesMatchScenario`
+// below: adding/removing a stage forces every TrustScenario to update
+// its 5-tuple width OR fail TS check. Pre-pt428 the explicit
+// `: readonly TrustStage[]` annotation widened away from tuple → the
+// length invariant was unenforced (silent desync risk).
+export const STAGES = [
   {
     id: "passkey",
     label: "Passkey",
@@ -83,7 +91,22 @@ export const STAGES: readonly TrustStage[] = [
     pass: "decision=PERMIT (2.3ms)",
     fail: "decision=DENY · policy",
   },
-] as const;
+] as const satisfies readonly TrustStage[];
+
+// Static assertion: TrustScenario.stages tuple length MUST match the
+// number of STAGES entries. This is the compile-time gate the original
+// JSDoc on `stages` claimed — pre-pt428 the widened STAGES type made
+// `.length` resolve to `number` instead of literal `5`, so this
+// assertion would have type-checked vacuously. With the corrected
+// `as const satisfies` the tuple length is preserved as `5`.
+type _AssertStagesMatchScenario =
+  TrustScenario["stages"]["length"] extends (typeof STAGES)["length"]
+    ? (typeof STAGES)["length"] extends TrustScenario["stages"]["length"]
+      ? true
+      : never
+    : never;
+const _stagesShapeCheck: _AssertStagesMatchScenario = true;
+void _stagesShapeCheck;
 
 export const SCENARIOS: readonly TrustScenario[] = [
   {

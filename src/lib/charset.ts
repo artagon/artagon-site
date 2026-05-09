@@ -26,9 +26,12 @@
  * are referenced by their U+XXXX label, never inlined.
  */
 
-// @ts-expect-error — serialize-javascript ships no .d.ts; types are
-// authored inline at the call site (the public API is a single function
-// with the signature we use below).
+// pt428 — types declared in `src/types/serialize-javascript.d.ts`.
+// Pre-pt428 this import used `@ts-expect-error` because the upstream
+// package ships no .d.ts, so the returned `serialize(...)` value was
+// implicitly `any` and propagated through `safeJsonLd`'s return path.
+// The dedicated ambient declaration tightens the boundary to `string` —
+// closing the type hole flagged in the 2026-05-09 security review.
 import serialize from "serialize-javascript";
 
 export function safeJsonLd(payload: unknown): string {

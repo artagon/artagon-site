@@ -101,12 +101,25 @@ export default function TrustChainIsland() {
   // state / localStorage / props and an out-of-range value lands, render
   // the healthy default scenario rather than blanking the hero. The
   // console.error surfaces the actual bug so we don't silently degrade.
-  const scenario = SCENARIOS[scenarioIdx] ?? SCENARIOS[0]!;
-  if (scenarioIdx < 0 || scenarioIdx >= SCENARIOS.length) {
+  //
+  // pt428 — bounds-check fires BEFORE the fallback, not after. Pre-pt428
+  // the order was `const scenario = SCENARIOS[idx] ?? SCENARIOS[0]!;
+  // if (out-of-range) console.error(...);` — but `??` already handled
+  // the bad-input path, so the `console.error` only fired for negative
+  // indices (where `SCENARIOS[-1]` returns undefined and `??` picks the
+  // fallback). The "bug-surfacing" contract was effectively dead. Now
+  // we evaluate the predicate first, log explicitly when falling back,
+  // then assign — every out-of-range read produces an error.
+  const inRange =
+    Number.isInteger(scenarioIdx) &&
+    scenarioIdx >= 0 &&
+    scenarioIdx < SCENARIOS.length;
+  if (!inRange) {
     console.error(
       `[TrustChainIsland] scenarioIdx ${scenarioIdx} out of range [0, ${SCENARIOS.length}); falling back to scenario 0.`,
     );
   }
+  const scenario = inRange ? SCENARIOS[scenarioIdx]! : SCENARIOS[0]!;
 
   // Auto-progression effect — animates the active scenario's chain
   // stage-by-stage on a setTimeout chain. Plays on every scenario

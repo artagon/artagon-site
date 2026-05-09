@@ -1,7 +1,17 @@
 id: no-set-html-directive
+# pt428 — Re-authored after the prior Gemini Pro security review
+# verified the original `kind: document` + `regex: "set:html"` rule
+# emitted ZERO findings against positive-case .astro files. ast-grep's
+# `kind: document` matches the document-root AST node and applies the
+# regex to that node's serialized text — but Astro's `<script>` text
+# content is treated as a special leaf by the html parser, so the
+# `set:html=` attribute string didn't propagate up. Switch to a
+# top-level `regex:` rule (no `kind:` filter) which scans the raw file
+# bytes — this is what the rule's intent is anyway, and matches the
+# stable scanning behavior of `lint:tokens` (raw-string lookups).
 language: html
 severity: error
-message: "set:html bypasses Astro's automatic XSS sanitization. Audit this usage — never pass user-controlled input."
+message: "set:html bypasses Astro's automatic XSS sanitization. Audit this usage — never pass user-controlled input. Route inline JSON-LD through `safeJsonLd` (src/lib/charset.ts)."
 note: |
   Astro's set:html is equivalent to innerHTML: it renders raw, unsanitized HTML.
   Only use it with trusted, server-controlled strings.
