@@ -11,7 +11,7 @@ against the live tree within one or two pt-iters. Today three runners
 coexist:
 
 - **Playwright** owns `tests/**/*.spec.ts` (`npm test`, `npm run test:ci`)
-- **vitest** owns `tests/**/*.test.mts` (`npm run test:vitest -- --run`)
+- **vitest** owns `tests/**/*.test.mts` EXCEPT the legacy `tweaks-state.test.mts` (`npm run test:vitest`; the script already includes `vitest run` so no extra `--run` flag is needed)
 - **node:test** owns `tests/**/*.test.mjs` plus the legacy `tweaks-state.test.mts` (`npm run test:node`)
 
 The runners' globs MUST stay disjoint — see [`AGENTS.md`](../AGENTS.md)
@@ -21,8 +21,8 @@ For the live tree run:
 
 ```bash
 ls tests/*.spec.ts                                # Playwright specs
-find tests -name '*.test.mts' -not -path '*/node_modules/*'   # vitest
-find tests -name '*.test.mjs' -not -path '*/node_modules/*'   # node:test
+find tests -name '*.test.mts' -not -path '*/node_modules/*' -not -name 'tweaks-state.test.mts'   # vitest (vitest.config.ts excludes tweaks-state.test.mts)
+find tests -name '*.test.mjs' -not -path '*/node_modules/*'   # node:test (plus tweaks-state.test.mts via test:tweaks)
 ```
 
 `tests/fixtures/` holds shared fixtures (design.md good/bad inputs,
