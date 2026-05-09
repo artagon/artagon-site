@@ -30,7 +30,7 @@ Comprehensive testing for the refactored Vision page using Content Collections:
 
 - Page title and meta tags validation
 - Hero section rendering
-- All 7 sections with numbered headers (01-07)
+- All 11 sections with numbered headers (01-11)
 - Three domain cards (High-Assurance, Decentralized, Authorization)
 - Three strategic pillars with numbers
 - Interactive hover effects
