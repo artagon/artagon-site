@@ -155,6 +155,6 @@ The TS wrapper is a convenience for the Node ecosystem; the JSON file is the can
 
 ## Rollback
 
-Per-step independent in reverse phase order (see `openspec/changes/archive/2026-05-05-standardize-build-artifacts/design.md` § Risks & Rollback). The deploy-affecting step (`actions/upload-pages-artifact@v4 path: ./.build/dist`) reverts via single workflow YAML edit.
+Per-step independent in reverse phase order (see `openspec/changes/archive/2026-05-05-standardize-build-artifacts/design.md` § Risks & Rollback). The deploy-affecting step (`actions/upload-pages-artifact` with `path: ./.build/dist`) reverts via single workflow YAML edit. The action is SHA-pinned per the project's CODEOWNERS rule (current pin: `@fc324d3547... # v5.0.0` at `.github/workflows/deploy.yml:25`); pre-USMR-Phase-5.x the workflow used `@v4` floating-tag form, replaced when SHA-pin enforcement landed.
 
 If `astro.config.mjs` → `astro.config.ts` rename loses git blame post-squash-merge, document the squash exception or disable squash-merge on `main`.
