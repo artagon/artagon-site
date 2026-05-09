@@ -1792,6 +1792,48 @@ header {
   }
 }
 
+/* USMR pt427 — Light-theme polish for hero glow primitives. The
+ * canonical glow-tag halo + glow-text white shimmer were tuned for
+ * dark-mode specular pop. On near-white surfaces:
+ *   1. `.glow-tag::after` (radial blur 14px reaching 20px past the
+ *      pill) bleeds an amber wash into adjacent UI (visible smear
+ *      across the trust-card top-left). Killed entirely; the chip
+ *      keeps its border + ::before inset highlight.
+ *   2. `.glow-text` shimmer keyframes pass through pure `#fff` at
+ *      45% / 55% — on white bg the headline letters dissolve mid-
+ *      cycle. Override with a fg ↔ accent gradient (no white peak)
+ *      so the shimmer modulates between dark text and accent tint
+ *      instead of vanishing into the page.
+ *   3. `.glow-tag` outer drop-shadow tuned for dark-mode specular —
+ *      flatten on light theme to keep the chip readable. */
+:root[data-theme="light"] .glow-tag::after {
+  display: none;
+}
+:root[data-theme="light"] .glow-tag {
+  /* Drop the 80px atmospheric bloom from the canonical chain — on
+   * white it leaves an amber wash extending well past the chip
+   * (visible smear in the screenshot). Keep the inset highlight +
+   * 1px outline for chip definition. */
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
+    0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
+    0 0 12px -4px color-mix(in oklab, var(--g-accent) 25%, transparent);
+}
+:root[data-theme="light"] .glow-text {
+  background: linear-gradient(
+    100deg,
+    var(--fg) 0%,
+    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 35%,
+    var(--g-accent) 50%,
+    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 65%,
+    var(--fg) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: none;
+}
+
 /* USMR Phase 5.5.16-pt131 — global reduced-motion override for the
  * canonical interactive primitives (.btn / .btn.primary / .btn .arr /
  * .ui-card--hover) that ship on every CTA + hoverable card across
