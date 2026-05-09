@@ -29,7 +29,13 @@ const BREAKPOINTS = [
   { name: "mobile", width: 375, height: 812 },
 ] as const;
 
-const THEMES = ["midnight", "twilight", "slate"] as const;
+// USMR Phase 5.5.16-pt207 — `slate` removed from THEMES array.
+// The slate theme variant was retired in pt167 (theme.css no
+// longer ships a `:root[data-theme="slate"]` block — see pt188's
+// glossary sync gate for the wider drift fix). Iterating slate
+// here generated 15 orphan baseline PNGs that fall through to
+// the unstyled default cascade.
+const THEMES = ["midnight", "twilight"] as const;
 
 async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
   await page.evaluate((t) => {
