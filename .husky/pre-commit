@@ -27,7 +27,10 @@ if ! git diff --exit-code -- lighthouserc.json lychee.toml >/dev/null 2>&1; then
   exit 1
 fi
 
-# Run lint:design if DESIGN.md is in staged changes (Phase 2.3a).
+# Run lint:design if DESIGN.md is in staged changes. Source: the
+# archived `adopt-design-md-format` proposal Phase 2.3a (now at
+# `openspec/changes/archive/2026-05-05-adopt-design-md-format/tasks.md`;
+# the live capability spec is `openspec/specs/design-system-format/spec.md`).
 if git diff --cached --name-only | grep -q "^DESIGN\.md$"; then
   echo "husky/pre-commit: DESIGN.md staged — running lint:design"
   npm run lint:design || {
