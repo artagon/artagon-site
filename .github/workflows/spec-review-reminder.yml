@@ -17,8 +17,10 @@ jobs:
           TEAM_MENTIONS: "@artagon/maintainers" # Update to match your team handle
         with:
           script: |
-            const core = require('@actions/core');
-
+            // pt448 — `core` is auto-injected as a global by
+            // actions/github-script@v9; re-declaring via `require`
+            // causes `SyntaxError: Identifier 'core' has already been
+            // declared`. Use the global directly.
             const issue = context.payload.issue;
             const action = context.payload.action;
             const label = context.payload.label;
