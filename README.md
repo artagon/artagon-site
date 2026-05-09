@@ -221,21 +221,31 @@ timeout = 20
 
 ### Package.json Scripts
 
+The `dev` and `build` scripts both run a `prebuild`/`predev` chain
+that regenerates `lighthouserc.json` + `lychee.toml` from
+`build.config.json` SSoT. The `build` script runs a 10-step
+`postbuild` chain (per the "Build Scripts" subsection below for
+the full ordered list — gated structurally by the pt267
+`lint-readme-postbuild-chain-sync` test).
+
 ```json
 {
   "dev": "astro dev", // Start dev server
-  "build": "astro build", // Build + run postbuild scripts
+  "predev": "npm run build:prebuild-chain", // Sync configs
+  "build": "astro build", // Static site build
+  "prebuild": "npm run build:prebuild-chain", // Sync configs
   "preview": "astro preview", // Preview production build
   "format": "prettier --write .", // Format all files
-  "postbuild": "node scripts/sri.mjs && node scripts/csp.mjs"
+  "postbuild": "<10-step chain — see Build Scripts below>"
 }
 ```
 
-**Postbuild Pipeline:**
+**Build pipeline summary:**
 
-1. `astro build` - Compiles to `.build/dist/` (per `build.config.json` SSoT)
-2. `scripts/sri.mjs` - Injects SRI hashes and crossorigin attributes
-3. `scripts/csp.mjs` - Generates CSP meta tags with inline script hashes
+1. `prebuild` / `predev` run `npm run build:prebuild-chain` (regenerates the JSON/YAML/TOML configs that derive from `build.config.json`).
+2. `astro build` compiles pages, components, and assets to `.build/dist/`.
+3. `@astrojs/sitemap` emits `sitemap-index.xml` (filtered to indexable routes per `NOINDEX_ROUTES` allow-list).
+4. `postbuild` runs the 10-step chain (verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness — the canonical ordered list lives in the "Build Scripts" subsection below).
 
 ## Development
 
