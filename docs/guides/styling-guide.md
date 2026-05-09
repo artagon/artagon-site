@@ -2,8 +2,12 @@
 
 > Guide for implementing consistent, reusable styles across the Artagon site
 
-Note: This guide is draft planning material for the `refactor-styling-architecture` change.
-Components and tokens referenced here are proposed until implementation is completed.
+Note: This guide originated as draft planning material for the
+`refactor-styling-architecture` change (archived 2026-05-04 to
+`openspec/changes/archive/2026-05-04-refactor-styling-architecture/`).
+The token system and component conventions referenced here have since
+shipped via USMR Phase 5.x; treat this guide as the post-archive
+distilled record of the decisions taken there.
 
 ## Table of Contents
 
@@ -755,7 +759,7 @@ When refactoring existing pages:
 | Border              | `border: var(--border-teal-subtle);`      | CSS token                         |
 | Spacing             | `padding: var(--padding-card);`           | CSS token                         |
 | Custom token        | Add to `:root` in `theme.css`             | `public/assets/theme.css`         |
-| Page-specific style | Scope under `.page-name`                  | `src/styles/page-name.css`        |
+| Page-specific style | Scope under `.<page-name>`                | `src/styles/<page-name>.css`      |
 
 ---
 
@@ -815,9 +819,9 @@ When refactoring existing pages:
 
 ## Additional Resources
 
-- **Token Inventory**: See `openspec/changes/refactor-styling-architecture/token-inventory.md`
-- **Architecture Decisions**: See `openspec/changes/refactor-styling-architecture/decisions.md`
-- **Implementation Tasks**: See `openspec/changes/refactor-styling-architecture/tasks.md`
+- **Token Inventory**: See `openspec/changes/archive/2026-05-04-refactor-styling-architecture/token-inventory.md`
+- **Architecture Decisions**: See `openspec/changes/archive/2026-05-04-refactor-styling-architecture/decisions.md`
+- **Implementation Tasks**: See `openspec/changes/archive/2026-05-04-refactor-styling-architecture/tasks.md`
 - **Theme CSS**: `public/assets/theme.css` (source of truth for tokens)
 - **UI Components**: `src/components/ui/` (planned reusable components)
 
