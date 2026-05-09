@@ -1,12 +1,16 @@
 // USMR Phase 5.5.16-pt125 — forced-colors mode coverage gate.
 //
-// DESIGN.md §7 mandates that any component shipping a brand-OKLCH
-// color (var(--accent), var(--brand-teal), color-mix() with the
-// accent, etc.) MUST also provide a `@media (forced-colors: active)`
-// override that maps to the OS-system palette (Canvas / CanvasText /
-// Highlight / GrayText / etc.). Without this, Windows High Contrast
-// users see flat gray on every interactive surface — the brand-color
-// signal disappears.
+// DESIGN.md §11.7 "Forced colors mode" (line 1343) mandates that any
+// component shipping a brand-OKLCH color (var(--accent), the legacy
+// retained alias var(--brand-teal), color-mix() with the accent, etc.)
+// MUST also provide a `@media (forced-colors: active)` override that
+// maps to the OS-system palette (Canvas / CanvasText / Highlight /
+// GrayText / etc.). Without this, Windows High Contrast users see
+// flat gray on every interactive surface — the brand-color signal
+// disappears. Pre-pt378 the gate cited DESIGN.md §7 — incorrect; §7
+// is "Do's and Don'ts" (writing voice + visual aesthetic) and does
+// not mandate forced-colors palette remapping. The forced-colors
+// mappings table lives in §11.7.
 //
 // pt125 added forced-colors blocks to Header.astro + Footer.astro
 // (the two components rendered on EVERY page). This gate asserts
@@ -60,7 +64,7 @@ describe("forced-colors mode coverage", () => {
       const stripped = body.replace(/\/\*[\s\S]*?\*\//g, "");
       expect(
         /@media\s*\(\s*forced-colors\s*:\s*active\s*\)/.test(stripped),
-        `${rel} must include @media (forced-colors: active) — DESIGN.md §7`,
+        `${rel} must include @media (forced-colors: active) — DESIGN.md §11.7`,
       ).toBe(true);
     });
   }

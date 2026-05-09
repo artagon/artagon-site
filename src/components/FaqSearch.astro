@@ -118,8 +118,10 @@
   }
 }
 
-/* USMR Phase 5.5.16-pt126 — forced-colors override per DESIGN.md §7.
- * Under Windows High Contrast the focus-state border (var(--accent))
+/* USMR Phase 5.5.16-pt126 — forced-colors override per DESIGN.md
+ * §11.7 "Forced colors mode" line 1343 (pre-pt378 cite was
+ * incorrectly §7 "Do's and Don'ts" which doesn't mandate forced-
+ * colors). Under Windows High Contrast the focus-state border (var(--accent))
  * + 3px box-shadow halo collapse to flat system colors and lose the
  * "input-is-focused" signal entirely. Map:
  *   - #faq-search:focus border + box-shadow → Highlight (system focus
