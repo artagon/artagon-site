@@ -16,7 +16,7 @@ Both additions are infrastructure-and-content scoped. They sequence AFTER `updat
 - **Add `/brand` route** rendering the gallery (favicons, avatars, OG cards, monochrome, wordmarks, cropped/filled remixes — all 7 variants per DESIGN.md §4.14) with copy-SVG buttons on each tile. The route is `noindex` (it's a brand-asset reference, not marketing content).
 - **Add `scripts/generate-logo-pngs.mjs`** (sharp-based, already a dep) producing the 15 PNG outputs documented in `public/assets/logos/README.md`. Wired into `postbuild` AFTER `sri.mjs`+`csp.mjs` (PNGs don't need SRI hashing). Generated PNGs are committed (deterministic outputs, audit trail).
 - **Add `scripts/generate-favicons.mjs`** producing `favicon.ico` (multi-size), `favicon.svg` (themed via `currentColor`), `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, `mask-icon.svg` from the same `brand-svgs.ts` source. Adds a `Deterministic Favicon Generation` requirement to the `site-branding` capability; the redesign's hand-authored favicon task is superseded by this generator.
-- **Strengthen `site-branding` Inline-Wordmark Ban** to forbid inlined glyph paths anywhere outside `Nav.astro`, `Footer.astro`, and the `/brand` gallery route — closes a gap where contributors might paste glyph SVG into MDX or other Astro components.
+- **Strengthen `site-branding` Inline-Wordmark Ban** to forbid inlined glyph paths anywhere outside `Header.astro` (pre-pt406 `Nav.astro` — consolidated into `Header.astro` per USMR proposal.md:75), `Footer.astro`, and the `/brand` gallery route — closes a gap where contributors might paste glyph SVG into MDX or other Astro components.
 
 ### Writing pipeline (extends `site-content`, adds `site-writing-pipeline`)
 

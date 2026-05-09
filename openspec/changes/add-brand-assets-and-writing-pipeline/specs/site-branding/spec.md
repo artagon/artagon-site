@@ -16,7 +16,7 @@ The static `og-image.png` produced by `scripts/generate-logo-pngs.mjs` (1200×63
 
 ### Requirement: Inline-Glyph Ban (Multi-Surface)
 
-Glyph SVG path data (the Artagon mark, all variants per DESIGN.md §4.14) and wordmark SVG path data MUST NOT appear inline anywhere except `src/data/brand-svgs.ts` and `src/pages/brand.astro` (the gallery route's tile templates). All other consumers (`Nav.astro`, `Footer.astro`, MDX, CSS background images) MUST import from `src/data/brand-svgs.ts`. ast-grep rule `rules/security/no-inline-glyph.yaml` MUST enforce the ban across these surfaces:
+Glyph SVG path data (the Artagon mark, all variants per DESIGN.md §4.14) and wordmark SVG path data MUST NOT appear inline anywhere except `src/data/brand-svgs.ts` and `src/pages/brand.astro` (the gallery route's tile templates). All other consumers (`Header.astro` — pre-pt406 cited as `Nav.astro`; consolidated into `Header.astro` per USMR proposal.md:75 / verified `ls src/components/Header.astro ✓` — `Footer.astro`, MDX, CSS background images) MUST import from `src/data/brand-svgs.ts`. ast-grep rule `rules/security/no-inline-glyph.yaml` MUST enforce the ban across these surfaces:
 
 1. Inline `<svg ... viewBox="0 0 24 24"` in `.astro`, `.mdx`, `.html`.
 2. CSS `background-image: url("data:image/svg+xml,...<svg viewBox='0 0 24 24'…")` in `.css` and Astro `<style>` blocks.

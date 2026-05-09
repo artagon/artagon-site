@@ -32,7 +32,7 @@ Both gaps are now in scope.
 
 ### 1. SVG source-of-truth: `src/data/brand-svgs.ts`, never inlined
 
-Glyph paths and wordmark builders move from `brand-icons.html`'s inline `<script>` block to a typed TS module. Astro components (`Nav.astro`, `Footer.astro`, `BrandTile.astro`) import from this module. ast-grep rule `no-inline-glyph` rejects raw `<svg ... viewBox="0 0 24 24"` paths anywhere outside the module and `/brand`'s gallery template.
+Glyph paths and wordmark builders move from `brand-icons.html`'s inline `<script>` block to a typed TS module. Astro components (`Header.astro`, `Footer.astro`, `BrandTile.astro`) import from this module — pre-pt406 cited `Nav.astro` for the header surface; `Nav.astro` was consolidated into `Header.astro` per the USMR change's `proposal.md:75`. ast-grep rule `no-inline-glyph` rejects raw `<svg ... viewBox="0 0 24 24"` paths anywhere outside the module and `/brand`'s gallery template.
 
 Tradeoff: A second source of truth in TS instead of just DESIGN.md prose. Mitigated by `check:glyph-parity` script that diffs the TS module against the DESIGN.md §4.14 path constants.
 
