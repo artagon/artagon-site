@@ -286,8 +286,8 @@ GITHUB_SHA=...                      # Footer build-sha (falls back to git rev-pa
 VERIFY_PREREQ_ARCHIVE_SHA=<sha>
 
 # Hot-loop opt-out for the sync:build-config drift gate. Used by .husky/
-# pre-commit:9 to bypass per-commit; also recognized by
-# scripts/sync-build-config.mjs:30 to short-circuit the prebuild/predev
+# pre-commit:14 to bypass per-commit; also recognized by
+# scripts/sync-build-config.mjs:37 to short-circuit the prebuild/predev
 # sync. Per the openspec/specs/build-config/spec.md `Pre-commit safety
 # net` Requirement, opt-out applies only when explicitly set per-commit.
 SKIP_BUILD_SYNC=1
