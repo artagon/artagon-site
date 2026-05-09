@@ -80,7 +80,7 @@ const POSTS = loadPosts();
 const TODAY_MS = Date.now();
 
 describe("writing collection — registry shape", () => {
-  test("at least 3 non-draft posts exist (welcome + trust-chain + bridge-strategy)", () => {
+  test("at least 3 non-draft posts exist (welcome + compounding-trust-chain + bridge-strategy)", () => {
     const live = POSTS.filter((p) => p.frontmatter.draft !== true);
     expect(live.length).toBeGreaterThanOrEqual(3);
   });
