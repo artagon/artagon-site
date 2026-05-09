@@ -1,5 +1,5 @@
 // USMR Phase 5.2.0 — canonical glossary registry. Ported verbatim
-// from new-design/extracted/src/pages/index.html:439-507 (the GLOSSARY
+// from new-design/extracted/src/pages/index.html:439-510 (the GLOSSARY
 // const + the T component's lookup contract). Every term that appears
 // inside a `<Standard>` chip on a marketing route MUST resolve here;
 // the Standard component logs a build-time warning on misses so a
