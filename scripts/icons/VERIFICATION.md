@@ -36,7 +36,7 @@ Use this checklist to verify that all icons are correctly integrated across diff
 
 - [ ] Favicon visible in browser tab
 - [ ] Pinned tab shows monochrome icon
-- [ ] Pinned tab color is #0EA5E9 (brand sky)
+- [ ] Pinned tab color is #3ceedd (canonical brand-teal; pre-pt107 was #0EA5E9 sky blue)
 - [ ] Reading mode icon displays correctly
 
 ### Mobile Browsers
@@ -75,8 +75,8 @@ Expected tags:
 - [x] `<link rel="shortcut icon" href="/icons/favicon.ico">`
 - [x] `<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">`
 - [x] `<link rel="manifest" href="/site.webmanifest">`
-- [x] `<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#0EA5E9">`
-- [x] `<meta name="theme-color" content="#0B1220">`
+- [x] `<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3ceedd">` (pt107 canonical brand-teal; pre-pt107 was `#0EA5E9` sky blue)
+- [x] `<meta name="theme-color" content="#0a0d12">` (canonical neutral-dark `--bg` per `BaseLayout.astro:34` archaeology; pre-pt107 draft was `#0B1220` midnight)
 
 ### File Accessibility
 

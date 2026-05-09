@@ -139,7 +139,7 @@ Add to your `<head>`:
 <link rel="icon" type="image/png" href="/icons/icon-16.png" sizes="16x16" />
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />
-<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#0EA5E9" />
+<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3ceedd" />
 <link rel="shortcut icon" href="/icons/favicon.ico" />
 ```
 
