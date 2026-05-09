@@ -63,6 +63,30 @@ if (platform === "linux" || FORCE_LINUX) {
       );
       exit(0);
     }
+    // pt444 — surface spawn-level failures explicitly. `result.error`
+    // is set when spawn itself failed (ENOENT on the binary, EACCES,
+    // etc.); `result.signal` is set when the process was killed by a
+    // signal (`status` is `null` in that case). Pre-pt444 these hit
+    // the "lint failed in isolated namespace" branch and printed
+    // confusing `(exit null)` / `stderr: undefined`. Now both are
+    // disambiguated and exit 1 with actionable diagnostics.
+    if (result.error) {
+      console.error(
+        `✗ unshare spawn failed: ${result.error.code ?? "unknown"} ${result.error.message}`,
+      );
+      console.error(
+        "  Check that /usr/bin/unshare exists and has execute permission.",
+      );
+      exit(1);
+    }
+    if (result.signal) {
+      console.error(
+        `✗ unshare killed by signal ${result.signal} (status=${result.status})`,
+      );
+      console.error(`  stderr: ${result.stderr ?? "(empty)"}`);
+      console.error("  Process did not exit normally; treat as inconclusive.");
+      exit(1);
+    }
     // Disambiguate `unshare` failing to create the namespace
     // (CAP_SYS_ADMIN missing on the runner — unprivileged GitHub
     // Actions Linux runners hit this) from the wrapped lint
@@ -83,7 +107,7 @@ if (platform === "linux" || FORCE_LINUX) {
       console.error(
         `✗ lint failed in isolated network namespace (exit ${result.status})`,
       );
-      console.error(`  stderr: ${result.stderr}`);
+      console.error(`  stderr: ${result.stderr ?? "(empty)"}`);
       console.error(
         "  This suggests the CLI made an outbound network call. Investigate.",
       );

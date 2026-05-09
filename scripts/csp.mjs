@@ -33,7 +33,27 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
     // though Astro auto-escapes — defense-in-depth removes the
     // permission entirely. The 2026-05-09 security review (blackhat
     // lens) flagged this as a Minor exfil channel.
-    "style-src": ["'self'", ...stHashes],
+    //
+    // pt444 — `https://fonts.googleapis.com` allow-listed for
+    // `<link rel="stylesheet">` requests until `self-host-woff2-fonts`
+    // archives. Without this the canonical Google Fonts CSS at
+    // `BaseLayout.astro:104` is blocked → Space Grotesk / Inter Tight
+    // don't load → the webfonts test fails. Same proposal-in-flight
+    // exception pattern as `verify-font-self-hosting.mjs:199-215`
+    // (pt441). After the proposal archives, fonts move under
+    // `public/assets/fonts/` and self-host kills this allow-list.
+    "style-src": ["'self'", ...stHashes, "https://fonts.googleapis.com"],
+    // pt444 — inline `style="..."` attributes need their own
+    // directive (`style-src-attr` per CSP3 §6.6.2.6). pt432 closed
+    // the `<style>` block exfil channel but inadvertently also
+    // blocked all inline `style="..."` attribute usage, which Astro
+    // and many MDX-rendered components emit (`hero-section h1
+    // style="--grid-min-width: 280px"`, etc). The exfil surface for
+    // attribute-only is much smaller than `<style>` blocks (an
+    // attacker who can inject HTML can already inject `<script>`).
+    // Allow `'unsafe-inline'` on `style-src-attr` as a separate
+    // directive; `<style>` block strict mode is unaffected.
+    "style-src-attr": ["'unsafe-inline'"],
     // USMR Phase 2 (style-system §"CSP font-src is self-only"): self only,
     // no data: URIs and no third-party CDNs. The `self-host-woff2-fonts`
     // proposal (in flight per openspec/changes/) will finish the
@@ -47,7 +67,15 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
     // current findings (Google Fonts refs in dist/) are tracked under
     // the `self-host-woff2-fonts` proposal as the open architectural
     // tension, not as a CI regression to fix in isolation.
-    "font-src": ["'self'"],
+    // pt444 — `https://fonts.gstatic.com` allow-listed for the
+    // actual woff2 font files until `self-host-woff2-fonts`
+    // archives. Same rationale as the `style-src` Google Fonts
+    // exception above. The font-self-hosting gate
+    // (`scripts/verify-font-self-hosting.mjs`, warn-only per
+    // pt441) tracks the migration; both come down together when
+    // the proposal lands and the woff2 files move under
+    // `public/assets/fonts/`.
+    "font-src": ["'self'", "https://fonts.gstatic.com"],
     "connect-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],
@@ -95,6 +123,16 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
   // emitted directive contains only well-formed source-expressions,
   // regardless of caller correctness.
   for (const [k, v] of Object.entries(extras)) {
+    // pt444 — array guard. Pre-pt444 a caller passing
+    // `extras = { "script-src": "https://x" }` (string instead of
+    // array) crashed with `TypeError: v.filter is not a function`.
+    // The pt435 narrative claimed defense-in-depth against malformed
+    // callers but didn't cover non-array values. Skip non-arrays
+    // (treat as no-op) so a single typo in the only callsite at
+    // line 88 — or any future callsite — doesn't crash the
+    // postbuild gate. Code-reviewer (2026-05-09 multi-agent review)
+    // flagged this as a Minor gap.
+    if (!Array.isArray(v)) continue;
     const filtered = v.filter(
       (tok) => typeof tok === "string" && !isForbidden(tok),
     );

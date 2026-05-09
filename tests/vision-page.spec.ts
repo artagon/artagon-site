@@ -208,11 +208,19 @@ test.describe("Vision Page - Content Collections", () => {
     // set. Tracked under a follow-up CSP-runtime-styles harden;
     // ignore here so this test asserts the absence of *unexpected*
     // errors only (JS exceptions, network failures, etc.).
+    // pt444 — Firefox emits CSP violations as `Content-Security-Policy:`
+    // (canonical hyphenated header name) while Chromium says `Refused
+    // to apply inline style`. pt443's `"Content Security Policy"` (with
+    // spaces) didn't match either — too narrow against Chromium AND
+    // wrong-form for Firefox. Match the actual common substrings
+    // emitted across both engines.
     const ignoredConsoleMessages = [
       "frame-ancestors",
-      "Content Security Policy",
-      "Refused to apply inline style",
-      "Refused to execute inline script",
+      "Content-Security-Policy", // Firefox
+      "Refused to apply inline style", // Chromium <style> / [style]
+      "Refused to execute inline script", // Chromium inline <script>
+      "blocked an inline style", // Firefox style-src-attr
+      "blocked a style", // Firefox style-src-elem (e.g. fonts.googleapis blocked while migration in flight — superseded by pt444 allow-list, but match defensively)
     ];
 
     page.on("console", (msg) => {

@@ -257,6 +257,41 @@ test("buildPolicy filter rejects non-string and falsy tokens safely", () => {
 // (browsers ignore but they pollute the policy text). Now those
 // tokens are silently dropped so the emitted directive contains
 // only well-formed source-expressions.
+// pt444 — array guard. A caller passing a single-string `extras[k]`
+// (instead of an array) used to crash with
+// `TypeError: v.filter is not a function`. The guard silently
+// skips non-arrays so the postbuild gate doesn't crash on a typo.
+test("buildPolicy treats non-array extras values as no-op (no crash, no inclusion)", () => {
+  // String instead of array.
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": "https://safe.example",
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  // The string is ignored — neither honored nor crashed.
+  assert.doesNotMatch(m[1], /https:\/\/safe\.example/);
+});
+
+test("buildPolicy treats null/undefined extras values as no-op", () => {
+  // Both null and undefined; neither should crash.
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": null,
+      "style-src": undefined,
+      "img-src": ["https://valid.example"],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)img-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  assert.match(m[1], /https:\/\/valid\.example/);
+});
+
 test("buildPolicy drops non-string tokens entirely (no 'null' / 'undefined' / '42' in directive)", () => {
   const policy = buildPolicy(
     new Set(),
