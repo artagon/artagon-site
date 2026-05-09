@@ -22,13 +22,14 @@ export type Density = "dense" | "comfortable" | "roomy";
 export type Theme = "dark" | "light";
 export type HeroFont = "grotesk" | "fraunces" | "dmserif" | "mono";
 
-/** USMR Phase 5.5.16-pt108 — Writing widget layout variants per
- *  canonical `new-design/extracted/explorations/writing-widget.jsx`
- *  (4 OPTION blocks A-D) + index.html:938 HeroLatestStrip (in-hero)
- *  + an "off" no-op variant. The actual rendering switch (data
- *  -writing-widget consumer) is task 5.8 in
- *  openspec/changes/update-site-marketing-redesign/tasks.md — pt108
- *  ships the Tweaks panel control surface only. */
+/** USMR Phase 5.5.16-pt108 + pt109 — Writing widget layout variants
+ *  per canonical `new-design/extracted/explorations/writing-widget.
+ *  jsx` (4 OPTION blocks A-D) + index.html:938 HeroLatestStrip
+ *  (in-hero) + an "off" no-op variant. pt108 shipped the Tweaks
+ *  panel control surface; pt109 wired the rendering switch via
+ *  `:global([data-writing-widget="..."])` selectors in
+ *  `src/pages/index.astro:735+` that toggle `.writing-strip` and
+ *  `.hero__latest-strip` visibility per variant. */
 export type WritingWidget =
   | "in-hero"
   | "A · strip"

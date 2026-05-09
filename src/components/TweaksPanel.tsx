@@ -63,10 +63,11 @@ function applyToDom(t: Tweaks): void {
   html.setAttribute("data-density", t.density);
   html.setAttribute("data-theme", t.theme);
   html.setAttribute("data-hero-font", t.heroFont);
-  // pt108 — writingWidget projected to data-writing-widget on <html>;
-  // task 5.8 wires the per-variant rendering. Until then this is
-  // a no-op visually (control surface only) but the attribute is in
-  // place so 5.8 can hook on it without further wiring.
+  // pt108 + pt109 — writingWidget projected to data-writing-widget
+  // on <html>; pt109 wired the per-variant rendering via :global()
+  // selectors in src/pages/index.astro:735+ that toggle visibility
+  // of `.writing-strip` and `.hero__latest-strip`. Setting the
+  // attribute here drives the live layout (no longer no-op).
   html.setAttribute("data-writing-widget", t.writingWidget);
   document.body.classList.toggle("no-grid", !t.showGrid);
 }

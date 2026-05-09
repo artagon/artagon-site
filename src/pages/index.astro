@@ -729,8 +729,10 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
    *   D · ticker → mono-list, vertical, no card-on-canvas; lighter weight
    *   C · split  → 1.5fr 1fr layout, featured first card visually wider
    *
-   * `in-hero` is deferred (task 5.8.in-hero) — it requires moving the
-   * latest-post strip INTO the Hero block, which is markup not just CSS.
+   * `in-hero` shipped via pt110: the latest-post strip mounts INSIDE the
+   * Hero block as `.hero__latest-strip` (line ~155 above), and this rule
+   * pair (lines 740-746 below) hides the standalone `.writing-strip` +
+   * shows the in-hero card when `[data-writing-widget="in-hero"]`.
    */
   :global([data-writing-widget="off"]) .writing-strip {
     display: none;
