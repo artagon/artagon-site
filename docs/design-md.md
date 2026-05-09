@@ -181,7 +181,7 @@ Compound `border` shorthand presets — `Npx solid var(--teal-N)` — that exist
 
 Tokens: `` `--gradient-hero` ``, `` `--gradient-hero-fallback` ``, `` `--gradient-surface` ``, `` `--gradient-surface-fallback` ``, `` `--gradient-accent` ``, `` `--gradient-accent-fallback` ``, `` `--gradient-inline` ``, `` `--gradient-inline-fallback` ``, `` `--gradient-vision-2030` ``, `` `--gradient-vision-2030-fallback` ``.
 
-Named multi-stop linear gradients used by the hero, surface, accent, inline-CTA, and vision-2030 sections. Each pairs a `color-mix`-based primary with a `rgba()`-based fallback. DESIGN.md `colors` is single-stop only; gradients are component-level visual primitives that the upstream schema does not model. Per DESIGN.md §1.2 ("Editorial, not SaaS"), gradients are _minimised_, but the few we ship live here.
+Named multi-stop linear gradients used by the hero, surface, accent, inline-CTA, and vision-2030 sections. Each pairs a `color-mix`-based primary with a `rgba()`-based fallback. DESIGN.md `colors` is single-stop only; gradients are component-level visual primitives that the upstream schema does not model. Per DESIGN.md §1.1.2 "Editorial, not SaaS" (line 117), gradients are _minimised_, but the few we ship live here (pre-pt377 cite was incorrectly §1.2 "Voice & tone" — that section is about copy voice, not visual minimalism).
 
 ### 6.7 Shadow scale
 
