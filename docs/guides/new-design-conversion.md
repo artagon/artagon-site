@@ -165,7 +165,17 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 - The pre-USMR `public/assets/roadmap.css` (4.27KB raw, loaded only on `/roadmap` via the `head` slot) was absorbed into `src/components/RoadmapTimeline.astro` scoped styles during the 5.7 redesign — per-route CSS budget tracking has shifted to component-scoped styles.
 - ANY component conversion that pushes per-page CSS over budget must REVERT or split.
 
-### Live route map (verified 16 routes)
+### Live route map
+
+Pre-USMR-Phase-5.x the live route count was 16 (this section was originally
+labeled "verified 16 routes"). Post-USMR Phase 5.x the count grew to 22
+unique route patterns (the `/writing/[slug]` dynamic expands to 3
+instantiations on disk; see `openspec/project.md` for the authoritative
+list). The conversion-target rows below preserve the original route↔mock
+mapping for the routes that fell within the conversion scope; the
+post-USMR additions (`/use-cases`, `/standards`, `/writing/[slug]`,
+`/writing/feed.xml`, `/bridge`) are summarized in the next subsection
+with their shipped status.
 
 | Route          | File                                | Pattern | New-design source                           | Status                  |
 | -------------- | ----------------------------------- | ------- | ------------------------------------------- | ----------------------- |
@@ -186,15 +196,19 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 | `/status`      | `src/pages/status/index.astro`      | nested  | none                                        | Keep, no change         |
 | `/vision`      | `src/pages/vision/index.astro`      | nested  | none (uses `src/content/pages/vision.mdx`)  | Keep, no change         |
 
-### New routes USMR adds (do NOT create until USMR Phase 5 explicitly says so)
+### New routes USMR added (shipped status)
 
-- `/use-cases` (USMR adds; new-design has `use-cases.html`)
-- `/standards` (USMR adds; new-design has `standards.html`)
-- `/writing/[slug]` (USMR adds; uses `add-brand-assets-and-writing-pipeline` content collection)
-- `/writing/feed.xml` (USMR adds; use existing `@astrojs/sitemap` + custom endpoint)
-- `/bridge` (new-design has `bridge.html`; **USMR does NOT create this route — discard**)
-- `/blog` (new-design has `blog.html`; **superseded by `/writing/[slug]`**)
-- `/brand-icons` (new-design has `brand-icons.html`; **defer to brand-assets change**)
+The pre-pt241 instruction "do NOT create until USMR Phase 5 explicitly
+says so" is no longer load-bearing — USMR Phase 5.x has shipped or
+discarded each of these routes. Current status:
+
+- `/use-cases` — **SHIPPED** in Phase 5.3 (sourced from `new-design/extracted/src/pages/use-cases.html`).
+- `/standards` — **SHIPPED** in Phase 5.4 (sourced from `new-design/extracted/src/pages/standards.html`; data registry at `src/data/standards.ts`).
+- `/writing/[slug]` — **SHIPPED** in Phase 5.x (3 dynamic posts: welcome / bridge-strategy / compounding-trust-chain).
+- `/writing/feed.xml` — **SHIPPED** in Phase 5.x (RSS feed; auto-discovery wiring landed in pt197).
+- `/bridge` — **SHIPPED** as a real route (the pre-pt241 "USMR does NOT create — discard" instruction was reversed in Phase 5.2.8 when `/bridge` got its own dedicated landing).
+- `/blog` — **DISCARDED** as planned (superseded by `/writing/[slug]`).
+- `/brand-icons` — **DEFERRED** to `add-brand-assets-and-writing-pipeline` change as planned.
 
 ### BaseLayout.astro contract (verified line numbers)
 
