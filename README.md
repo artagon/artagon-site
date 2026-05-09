@@ -596,6 +596,42 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 3. Create GitHub release
 4. Attach `dist.zip` as release asset
 
+#### Playwright Tests (`playwright.yml`)
+
+**Trigger:** Push to `main` or `feature/*`, pull request to `main`, manual dispatch
+
+**Process:** Runs the Playwright cross-engine test matrix (5 shards × all projects) plus dedicated visual-regression and accessibility jobs (chromium / webkit / Mobile Safari). Uploads per-shard reports as artifacts (14-day retention). See `AGENTS.md` §"Testing" for the full project matrix and shard-distribution contract.
+
+#### Design.md Lint (`design-md-lint.yml`)
+
+**Trigger:** Push to `main` or `feature/*`, pull request to `main`, manual dispatch
+
+**Process:** Runs the design.md linter (`design.md lint DESIGN.md` per `@google/design.md@0.1.1`) plus the project's ast-grep token-citation gates. Fails the build on token drift, retired-alias use, or design.md format violations.
+
+#### Design.md PR Diff (`design-md-pr-diff.yml`)
+
+**Trigger:** Pull request to `main` modifying `DESIGN.md`
+
+**Process:** Posts a PR-scoped comment showing the design.md diff (added/removed/changed tokens, components, color contracts) so reviewers can see visual-identity changes inline.
+
+#### Design.md Drift Monitor (`design-md-drift.yml`)
+
+**Trigger:** Weekly cron (Mondays 06:00 LA time) or manual dispatch
+
+**Process:** Refreshes `openspec/.cache/design-md-spec.md` from `npx @google/design.md spec --format markdown`. Catches upstream spec changes that would invalidate our pinned `@google/design.md@0.1.1` adoption.
+
+#### PR Spec Compliance (`pr-spec-compliance.yml`)
+
+**Trigger:** Pull request
+
+**Process:** Validates every PR references a parent spec issue (label `spec`) AND aligns implementation with the OpenSpec change's acceptance criteria. Tags scope-creep PRs with `needs-spec` / `scope-creep` labels per `.github/labels.yml`.
+
+#### Spec Review Reminder (`spec-review-reminder.yml`)
+
+**Trigger:** GitHub issue labeled `spec` or closed
+
+**Process:** Drives the OpenSpec review cadence — pings reviewers when a spec is opened, closes the loop when a spec is implemented or rejected.
+
 ## OpenSpec Workflow
 
 This project uses **OpenSpec** for spec-driven development.
