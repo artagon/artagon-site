@@ -30,7 +30,7 @@ If this PR doesn't merge cleanly, the conversion plan needs revision before any 
 
 **Implication:** Copying mock HTML verbatim breaks runtime even if build passes.
 
-**Fix path (per USMR Phase 2):** Self-host fonts under `public/fonts/` and inline subsetted WOFF2. Translate React/JSX server-side at build time (Astro does this for `.astro` files automatically — but only if hooks are translated, see below).
+**Fix path (per USMR Phase 2):** Self-host fonts under `public/assets/fonts/` (canonical path per `self-host-woff2-fonts/specs/font-self-hosting/`) and inline subsetted WOFF2. Translate React/JSX server-side at build time (Astro does this for `.astro` files automatically — but only if hooks are translated, see below).
 
 ## Mandatory skills + tools (install before starting)
 
@@ -162,7 +162,7 @@ These React components contain hooks that DO NOT translate directly to Astro sta
 ### CSS budgets (verified 2026-05-04)
 
 - `public/assets/theme.css`: **28.8KB raw / 5.94KB gz** (28805 bytes raw / 5937 bytes gz). Budget ≤35KB raw / ≤7KB gz.
-- `public/assets/roadmap.css`: **4.27KB raw** (4268 bytes), loaded only on `/roadmap` via `head` slot.
+- The pre-USMR `public/assets/roadmap.css` (4.27KB raw, loaded only on `/roadmap` via the `head` slot) was absorbed into `src/components/RoadmapTimeline.astro` scoped styles during the 5.7 redesign — per-route CSS budget tracking has shifted to component-scoped styles.
 - ANY component conversion that pushes per-page CSS over budget must REVERT or split.
 
 ### Live route map (verified 16 routes)
@@ -268,7 +268,7 @@ These ship as React islands because rebuilding state machines + form validation 
 **Decision tree for any new-design React component**:
 
 1. **Cheapest path first** — try CSS-only state (`:checked`/`:has()`/`:hover`/`:focus-within`/`:target`) or native HTML elements (`<details>`/`<dialog>`/`<input type="radio|checkbox">`/`popover` API). If it works, ship that.
-2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/scripts/tweaks.ts` (custom element) or `src/scripts/tweaks-state.ts` (pure logic).
+2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/components/Tweaks.astro` (custom element via Astro `<script is:inline>`) or `src/scripts/tweaks-state.ts` (pure logic).
 3. **React island** — if the component has non-trivial state (e.g. carousel timing, multi-step form, focus-trap dialog), use a React island. Cost per island:
    - Add deps once: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (~120KB minified+gzipped for the React runtime, shared across all islands)
    - Add `react()` to `astro.config.mjs` integrations
