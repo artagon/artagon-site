@@ -115,7 +115,7 @@ artagon-site/
 
 - **Node.js** 22+ (per `.nvmrc` 22.12 and `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
 - **npm** - Package manager
-- **Prettier** 3.6.2 - Code formatting
+- **Prettier** 3.8.3 - Code formatting (per `package.json` `"prettier": "3.8.3"`)
 
 ### Security & Performance
 
