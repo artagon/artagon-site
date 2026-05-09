@@ -138,7 +138,7 @@ Test content
   test("should accept valid frontmatter", () => {
     const validContent = `---
 title: "Valid Title"
-description: "Valid description for this test page."
+description: "Valid description for this test page that satisfies the eighty-character minimum length constraint."
 eyebrow: "Valid Eyebrow"
 headline: "Valid Headline"
 lede: "Valid lede text that describes the page content."
@@ -172,7 +172,7 @@ This is valid markdown content.
   test("should accept frontmatter without optional ctas field", () => {
     const validContent = `---
 title: "Valid Title"
-description: "Valid description for this test page."
+description: "Valid description for this test page that satisfies the eighty-character minimum length constraint."
 eyebrow: "Valid Eyebrow"
 headline: "Valid Headline"
 lede: "Valid lede text that describes the page content."
