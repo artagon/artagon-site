@@ -304,12 +304,18 @@ theme.css` for the live offsets). Tokens are also defined under
 1. Before merging new-design `tokens.css`, sed-rename ALL its tokens to `--nd-` prefix in a copy: `--bg` → `--nd-bg`, `--accent` → `--nd-accent`, `--fg` → `--nd-fg`, etc.
 2. Append the renamed block to theme.css under a new comment `/* ===== NEW-DESIGN TOKENS (OKLCH) ===== */`.
 3. Per-converted-page, alias old tokens via `:root[data-theme="midnight"] { --bg: var(--nd-bg); }` AFTER visual verification that the new color matches DESIGN.md intent.
-4. Run `npm run build` after EACH alias. Verify the page in browser. Verify all 3 themes (midnight/twilight/slate) still work.
+4. Run `npm run build` after EACH alias. Verify the page in browser. Verify both shipped themes (twilight + midnight) still work — pre-pt167 there was a third `slate` theme; only twilight + midnight remain.
 5. Do NOT merge new-design `--bg` directly into a plain `:root` — it would shadow themed variants.
 
 ### 3. React interactivity — guidance
 
-This repo has **`@astrojs/react` NOT YET installed** but React islands are PERMITTED for components that genuinely need state. The Tweaks panel shipped as vanilla TS as an existence proof, not as a precedent that bans React for everything.
+This repo has **`@astrojs/react` installed** (per `package.json` —
+the integration was added during USMR Phase 5.x for the
+`TrustChainIsland` + `TweaksPanel` interactive surfaces). React
+islands are PERMITTED for components that genuinely need state.
+The Tweaks panel shipped initially as vanilla TS as an existence
+proof; the React migration came later. The vanilla version is not
+a precedent that bans React for everything.
 
 **Forward-looking use cases that justify React islands:**
 
@@ -326,8 +332,8 @@ These ship as React islands because rebuilding state machines + form validation 
 1. **Cheapest path first** — try CSS-only state (`:checked`/`:has()`/`:hover`/`:focus-within`/`:target`) or native HTML elements (`<details>`/`<dialog>`/`<input type="radio|checkbox">`/`popover` API). If it works, ship that.
 2. **Vanilla `<script>` block** in an `.astro` component — Astro auto-bundles inline scripts. Good for one-off DOM glue. Pattern: see `src/components/Tweaks.astro` (custom element via Astro `<script is:inline>`) or `src/scripts/tweaks-state.ts` (pure logic).
 3. **React island** — if the component has non-trivial state (e.g. carousel timing, multi-step form, focus-trap dialog), use a React island. Cost per island:
-   - Add deps once: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (~120KB minified+gzipped for the React runtime, shared across all islands)
-   - Add `react()` to `astro.config.ts` integrations
+   - Deps already installed: `@astrojs/react` + `react` + `react-dom` + `@types/react` + `@types/react-dom` (per `package.json`; ~120KB minified+gzipped for the React runtime, shared across all islands)
+   - `react()` is already in `astro.config.ts` integrations — no config edit needed for new islands
    - Each island re-runs CSP/SRI hash regen at build time — verify `scripts/csp.mjs` and `scripts/sri.mjs` postbuild succeed
    - Use `client:visible` (lazy hydration, IntersectionObserver-based) BEFORE `client:load` (eager) unless the island is above the fold
    - Document the cost in the conversion commit message — bundle delta and CSP changes
