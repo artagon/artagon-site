@@ -138,7 +138,7 @@ artagon-site/
 
 The four `@astrojs/*` integrations declared in `package.json` (versions accurate as of `package.json` lines 80-83):
 
-- **[@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/)** 5.0.4 - MDX content rendering for `src/content/pages/*.mdx` content collections + `/writing/[slug]` long-form posts
+- **[@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/)** 5.0.4 - MDX content rendering for the 3 content collections defined in `src/content.config.ts`: `pages` (`src/content/pages/*.mdx` for marketing-route bodies), `writing` (`src/content/writing/*.mdx` for `/writing/[slug]` long-form posts), and `authors` (`src/content/authors/*.mdx` for author entries referenced from writing frontmatter). Pre-pt394 the README mentioned only `pages` + `/writing/[slug]`, omitting the `authors` collection.
 - **[@astrojs/react](https://docs.astro.build/en/guides/integrations-guide/react/)** 5.0.4 - React island runtime for interactive components. Live islands: `TrustChainIsland`, `TweaksPanel`, `PillarsIsland`, `BridgeFlow`, `UseCasesIsland` (run `ls src/components/*Island.tsx src/components/BridgeFlow.tsx src/components/TweaksPanel.tsx` for the current set — pre-pt393 the README listed only `TrustChainIsland` + `TweaksPanel`, undercounting the 5 actual islands by 60%; the 3 omitted islands all landed under USMR Phase 5.x). USMR Phase 5.x added the integration.
 - **[@astrojs/rss](https://docs.astro.build/en/guides/integrations-guide/rss/)** 4.0.18 - RSS 2.0 feed generation for `/writing/feed.xml` (auto-discovery wiring landed in pt197)
 - **[@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/)** 3.7.2 - Automatic `sitemap-index.xml` generation
