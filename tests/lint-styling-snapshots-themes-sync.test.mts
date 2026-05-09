@@ -2,7 +2,7 @@
 // THEMES array vs `public/assets/theme.css` `data-theme` blocks
 // sync gate.
 //
-// `tests/styling-snapshots.spec.ts:32` iterates a fixed `THEMES`
+// `tests/styling-snapshots.spec.ts:39` iterates a fixed `THEMES`
 // const array, calls `document.documentElement.setAttribute(
 // "data-theme", t)` for each, and captures a baseline PNG per
 // (theme × viewport × surface) combination. When a theme is
