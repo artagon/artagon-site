@@ -3,7 +3,8 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * Styling-architecture visual reference suite.
  *
- * Captures /vision rendered across 3 themes × 3 breakpoints. These snapshots
+ * Captures /vision rendered across the THEMES array (currently 2 — twilight
+ * + midnight; pre-pt167 was 3 with slate) × 3 breakpoints. These snapshots
  * are NOT a refactor diff — the styling refactor already shipped, and no
  * pre-refactor baseline exists. This suite is a forward baseline: future
  * styling changes diff against these images. When intentional redesigns
@@ -43,7 +44,7 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
   }, theme);
 }
 
-test.describe("Home (/) - 3 themes × 3 breakpoints reference", () => {
+test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(
       !runVisualRegression,
@@ -120,7 +121,7 @@ test.describe("Home (/) - 3 themes × 3 breakpoints reference", () => {
   }
 });
 
-test.describe("Styling architecture - 3 themes × 3 breakpoints reference", () => {
+test.describe("Styling architecture - THEMES × 3 breakpoints reference", () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(
       !runVisualRegression,
