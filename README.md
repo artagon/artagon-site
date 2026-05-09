@@ -64,23 +64,40 @@ artagon-site/
                             # (sitemap-index.xml is GENERATED to
                             #  .build/dist/ at build time, NOT
                             #  pre-existing in public/)
-├── scripts/                # Build and asset generation scripts
-│   ├── csp.mjs             # Content Security Policy injection
+├── scripts/                # Build, lint, verify, and asset scripts (~14 .mjs + 8 .sh)
+│   ├── csp.mjs             # Content Security Policy injection (postbuild)
+│   ├── sri.mjs             # Subresource Integrity injection (postbuild)
 │   ├── lhci-serve.mjs      # LHCI local server with ready signal
-│   ├── sri.mjs             # Subresource Integrity injection
+│   ├── verify-prerequisites.mjs       # USMR Phase 0.5 archive-ordering gate
+│   ├── verify-design-prerequisites.mjs # adopt-design-md-format archive gate
+│   ├── verify-font-self-hosting.mjs   # font-src 'self' postbuild gate
+│   ├── lint-skip-link.mjs  # Skip-link first-tabbable postbuild gate
+│   ├── lint-taglines.mjs   # Single-source tagline gate
+│   ├── lint-tokens.mjs     # Raw color literal gate
+│   ├── sync-build-config.mjs # Generates lighthouserc.json + lychee.toml
 │   ├── make-og-from-template.sh  # OG image generation
 │   ├── make-favicon.sh     # Favicon generation
-│   └── icons/              # Icon generation utilities
+│   ├── icons/              # Icon generation utilities
+│   ├── lib/                # Internal helpers (e.g. openspec-archive.mjs)
+│   └── ...                 # Other helpers (oklch-to-hex, check-design-drift, etc.)
 ├── src/
-│   ├── components/         # Reusable Astro components
+│   ├── components/         # Reusable Astro components (~30 components)
 │   │   ├── Header.astro    # Main navigation
 │   │   ├── Footer.astro    # Site footer
 │   │   ├── SeoTags.astro   # SEO meta tags
 │   │   ├── FaqSearch.astro # FAQ search functionality
+│   │   ├── ui/             # UI primitives (Card, SectionHeader, FeatureList)
 │   │   └── ...
-│   ├── data/               # Structured data
-│   │   ├── faq.ts          # FAQ content with schema
-│   │   └── roadmap.ts      # Roadmap phases and timeline
+│   ├── data/               # Typed structured-data registries (~11 modules)
+│   │   ├── faq.ts          # FAQ entries
+│   │   ├── roadmap.ts      # Roadmap horizontal-timeline registry
+│   │   ├── pillars.ts      # Three-pillars taxonomy
+│   │   ├── standards.ts    # Standards / specs registry
+│   │   ├── glossary.ts     # Acronym/term glossary (consumed by Standard chips)
+│   │   └── ...             # Other registries (organization, affiliations, bridge, etc.)
+│   ├── lib/                # Pure helpers (charset, markdown, reading-time)
+│   ├── scripts/            # Browser-side TS (tweaks-state, etc.)
+│   ├── content/            # Astro Content Collections (pages/, writing/, taglines.json)
 │   ├── layouts/
 │   │   └── BaseLayout.astro  # Main layout template
 │   └── pages/              # File-based routing
