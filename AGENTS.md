@@ -167,10 +167,10 @@ The commit body lists which artifacts moved (task IDs · DESIGN.md sections · s
 **Precondition gates that backstop the discipline**:
 
 - `check:oklch-hex-parity` — fails on >1 LSB drift between DESIGN.md frontmatter palette and the prose-cited OKLCH triples (precondition of `lint:design`).
-- `lint:tokens` — fails on raw color literals in `src/` and on undefined `var(--…)` references; walks `git ls-files` (post-commit).
+- `lint:tokens` — fails on raw color literals (hex / rgb / rgba / hsl / hsla / oklch / oklab) in any tracked file walked via `git ls-files`. DESIGN.md is allowlisted (its frontmatter / prose carries the canonical OKLCH source-of-truth literals); `public/assets/theme.css` is scanned with a token-aware filter so raw colors on `--token:` declaration lines are allowed and raw colors elsewhere are violations (per pt76). Pre-pt384 the description claimed scope was `src/` (too narrow — .astro / .css / .ts across the whole repo are scanned, not just `src/`) and asserted an "undefined `var(--…)` references" check (the script has no such check; that's a phantom claim — `var()` resolution is not validated here).
 - `lint:design` — design.md format gate; runs as part of postbuild.
 - `lint:design-md-uniqueness` — guards against duplicate DESIGN.md files (must be exactly one at repo root; nested copies under `src/`, `new-design/`, etc. are forbidden because two design systems in flight defeat the precedence chain). Pre-pt383 the description here said "duplicate token names" — comment-as-code drift; the actual script (`scripts/verify-design-md-uniqueness.mjs`) checks file-path uniqueness, not token-name uniqueness.
-- `verify:design-prerequisites` — schema gate before lint runs.
+- `verify:design-prerequisites` — conditional in-flight gate: fails the build when `update-site-marketing-redesign` is IN FLIGHT (its directory exists at `openspec/changes/update-site-marketing-redesign/`, not archived) AND its live `tasks.md` still references `new-design/extracted/DESIGN.md` paths. Once USMR archives, the script exits 0 unconditionally because the redesign is no longer in flight. Pre-pt384 said "schema gate before lint runs" — wrong; it's a path-citation cleanliness gate, not a schema gate, and it short-circuits to no-op once USMR archives rather than always running.
 
 <!-- DESIGN-CONTRACT:END -->
 
