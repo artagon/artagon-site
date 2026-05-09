@@ -1,7 +1,12 @@
 #!/usr/bin/env sh
-# Pre-commit drift gate per `standardize-build-artifacts` spec.
+# Pre-commit drift gate per the build-config capability spec.
 # Aborts commit if generated configs (lighthouserc.json, lychee.toml) drift
 # from build.config.json + scripts/fixtures/lhci-assertions.json.
+#
+# Spec source: openspec/specs/build-config/spec.md `Pre-commit safety net`
+# Requirement (originally authored in the archived
+# openspec/changes/archive/2026-05-05-standardize-build-artifacts/ proposal;
+# its build-config capability is now the live spec).
 #
 # Bypass per-commit with `SKIP_BUILD_SYNC=1 git commit ...` (documented as
 # a hot-loop opt-out, not for landing PRs — CI re-runs the same check).
