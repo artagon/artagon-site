@@ -349,10 +349,15 @@ Playwright configuration: `playwright.config.ts`
 Key settings:
 
 - **testDir**: `./tests`
+- **testMatch**: `**/*.spec.ts` (Playwright owns spec.ts; vitest owns _.test.mts; node:test owns _.test.mjs — see "Test Structure" above for the disjoint-glob rationale)
 - **workers**: Parallel execution (1 on CI, unlimited locally)
 - **retries**: 2 on CI, 0 locally
-- **browsers**: Chromium, Firefox, WebKit, Mobile Chrome/Safari
-- **webServer**: Auto-starts preview server on http://localhost:4321
+- **projects** (15 device profiles per the AGENTS.md device matrix):
+  - Desktop: chromium · firefox · webkit · Edge (msedge channel) · Chrome (chrome channel)
+  - Mobile: Mobile Chrome (Pixel 5) · Mobile Chrome (Pixel 7) · Mobile Chrome (Galaxy S9+) · Mobile Safari (iPhone 12) · Mobile Safari (iPhone 14 Pro Max)
+  - Tablet: Tablet Safari (iPad Pro 11) · Tablet Safari (iPad Mini) · Tablet Chrome (Galaxy Tab S4)
+  - Large: TV (1920×1080) · TV 4K (3840×2160 HiDPI)
+- **webServer**: Auto-starts preview server on http://localhost:4321 (per `webServer` block; Astro `npm run preview` over `.build/dist/`)
 
 ## Troubleshooting
 
