@@ -49,9 +49,9 @@ BRAND_BG="#000000" MASK_BG="#111111" bash scripts/icons/make-icons.sh
 
 ### Available Variables
 
-- `LOGO_DIR` - Logo submodule directory (default: `public/assets/artagon-logo`)
-- `SVG_MARK` - SVG logo mark file (default: `public/assets/logo-mark.svg`)
-- `SRC` - Fallback PNG source (default: `$LOGO_DIR/artagon_D1A.png`)
+- `SVG_MARK` - **Primary source.** SVG logo mark file (default: `public/assets/logo-mark.svg` — currently shipped). The script uses this first if it exists; LOGO_DIR / SRC are PNG fallbacks for environments that have the upstream artagon-logo PNG submodule.
+- `LOGO_DIR` - Optional. Logo PNG-submodule directory (legacy default: `public/assets/artagon-logo`, **removed in USMR pt72** — set this explicitly only if you have a local clone of the upstream PNG submodule).
+- `SRC` - Optional. Fallback PNG source (default: `$LOGO_DIR/artagon_D1A.png` — only used when LOGO_DIR resolves).
 - `OUT` - Output directory (default: `public/icons`)
 - `BRAND_BG` - Brand background color (default: `#0B1220`)
 - `MASK_BG` - Maskable icon background (default: `#0B1220`)
