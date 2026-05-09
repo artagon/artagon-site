@@ -1,8 +1,26 @@
 # manage-site-links Specification
 
 ## Purpose
-TBD - created by archiving change update-site-quality-checks. Update Purpose after archive.
+
+This capability defines the contracts that govern how internal and
+external links / URLs / endpoint references are authored across
+the artagon-site marketing surfaces. Marketing CTAs MUST link to
+internal routes (`/docs`, `/play`, `/get-started`); code examples
+MUST use placeholder variables (`$TOKEN_ENDPOINT`,
+`$OPENID_CONFIGURATION_URL`) rather than hard-coded external URLs;
+public copy MUST avoid hard-coded external subdomain references in
+favor of internal routes or generic terms; the SeoTags JSON-LD
+output MUST omit the `WebSite SearchAction` block until a stable
+non-redirecting search endpoint exists. The capability was created
+by archiving the `update-site-quality-checks` change
+(`openspec/changes/archive/2025-12-29-update-site-quality-checks/`),
+which consolidated the link-hygiene contracts that the broader
+quality-checks scope first introduced. Lychee (the link checker
+configured at `lychee.toml`) operationalizes part of this contract
+at CI time.
+
 ## Requirements
+
 ### Requirement: Internal Product CTAs
 
 Marketing pages SHALL use internal routes for docs, playground, and onboarding calls to action.
@@ -47,4 +65,3 @@ SEO metadata SHALL omit the WebSite SearchAction JSON-LD block unless a stable n
 
 - **WHEN** `src/components/SeoTags.astro` renders JSON-LD
 - **THEN** it includes Organization and Service schemas without a SearchAction block
-
