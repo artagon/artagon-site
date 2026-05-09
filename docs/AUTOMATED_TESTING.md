@@ -218,24 +218,36 @@ Install [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?
 
 ## Test Coverage
 
+This section was originally a Phase-1-era snapshot (vision page only,
+22 total tests). The redesign + a11y-coverage work that landed across
+USMR Phase 5.x has expanded coverage substantially; the live tree in
+[`tests/README.md`](../tests/README.md) is the authoritative source.
+
 ### Pages Covered
 
-- ✅ `/vision/` - Full coverage (functional, visual, a11y, responsive)
-- 🔜 `/` - Homepage (to be added)
-- 🔜 `/platform/` - Platform page (to be added)
-- 🔜 `/roadmap/` - Roadmap page (to be added)
-- 🔜 `/faq/` - FAQ page (to be added)
+The full test suite now spans every live route (`/`, `/platform`,
+`/vision`, `/roadmap`, `/faq`, `/use-cases`, `/standards`,
+`/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`,
+`/status`, `/security`, `/privacy`, `/play`, `/bridge`, `/writing`,
+`/writing/[slug]`, `/writing/feed.xml`, `/404` per
+[`openspec/project.md`](../openspec/project.md)). Per-route Playwright
+specs live under `tests/`; structural / schema / token gates live in
+`tests/lint-*.test.mts` (vitest). Browser-engine breadth and the
+chromium-only visual-snapshot scope are documented in
+[`AGENTS.md`](../AGENTS.md) §Testing.
 
-### Test Types
+### Test Counts (authoritative)
 
-| Type              | Count  | Coverage                                     |
-| ----------------- | ------ | -------------------------------------------- |
-| Functional        | 12     | Vision page structure, content, interactions |
-| Visual Regression | 3      | Full page, hero, cards                       |
-| Accessibility     | 2      | Semantic HTML, heading hierarchy             |
-| Responsive        | 1      | Mobile viewport layout                       |
-| Schema Validation | 4      | Content Collections schema enforcement       |
-| **Total**         | **22** | **Vision page + Content Collections**        |
+Run the suites locally to get current counts:
+
+- `npm run test:vitest -- --run` — vitest unit + lint suite
+- `npm run test:ci` — Playwright suite under the canonical project
+  matrix (5 shards in CI)
+
+The Phase-1-era 22-test fixed table that previously appeared here was
+retired in pt233 because it drifted under every USMR-Phase increment;
+no static count survives the next iteration in the active redesign
+loop.
 
 ## Benefits
 
