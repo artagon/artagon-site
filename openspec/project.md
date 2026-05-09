@@ -32,7 +32,7 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 
 ## Project Structure
 
-- `src/pages/` route pages (Astro). Live routes (21 total post-USMR-Phase-5.x): `/`, `/platform`, `/vision`, `/roadmap`, `/faq`, `/use-cases`, `/standards`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/bridge`, `/writing`, `/writing/[slug]`, `/writing/feed.xml`, `/404`. The `/use-cases`, `/standards`, `/writing/[slug]`, `/writing/feed.xml` routes were added by USMR (live since Phase 5.x); the RSS feed gained auto-discovery wiring in pt197.
+- `src/pages/` route pages (Astro). Live routes (22 total post-USMR-Phase-5.x): `/`, `/platform`, `/vision`, `/roadmap`, `/faq`, `/use-cases`, `/standards`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/bridge`, `/writing`, `/writing/[slug]`, `/writing/feed.xml`, `/404`. The `/use-cases`, `/standards`, `/writing/[slug]`, `/writing/feed.xml` routes were added by USMR (live since Phase 5.x); the RSS feed gained auto-discovery wiring in pt197.
 - `src/layouts/BaseLayout.astro` shared layout, SEO tags, and inline theme/menu scripts. USMR adds named slots: `json-ld`, `indexation`, `branding`.
 - `src/components/` UI components, navigation, and SEO helpers.
 - `src/content/` MDX/JSON content collections (`pages/`, `pages/writing/`, `taglines.json`, `standards.json`).
