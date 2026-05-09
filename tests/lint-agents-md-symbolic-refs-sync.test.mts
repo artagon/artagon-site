@@ -193,4 +193,84 @@ describe("AGENTS.md Symbolic-references table vs disk (pt184)", () => {
     expect(inDocOnly.length).toBe(0);
     expect(onDiskOnly.length).toBe(0);
   });
+
+  // pt218 — `openspec/project.md` `Other in-flight changes:`
+  // line lists every active proposal except USMR (which is
+  // described separately at the line above). Pre-pt218 the
+  // line had 4 entries but disk had 6 active changes
+  // (`enhance-a11y-coverage` and the new
+  // `externalize-strings-and-add-i18n` were missing).
+  // Same drift-class as the active-changes row in AGENTS.md
+  // gated by the first sub-test above.
+  test("openspec/project.md `Other in-flight changes:` line matches openspec/changes/ (excl. USMR + archive)", () => {
+    const PROJECT_MD = AGENTS_MD.replace("AGENTS.md", "openspec/project.md");
+    expect(existsSync(PROJECT_MD), "openspec/project.md must exist").toBe(true);
+    const body = readFileSync(PROJECT_MD, "utf8");
+    const m = body.match(/^Other in-flight changes:\s*([\s\S]+?)\.\s*$/m);
+    if (!m) {
+      throw new Error(
+        "openspec/project.md must contain an `Other in-flight changes:` paragraph",
+      );
+    }
+    const cited = new Set<string>();
+    for (const tok of m[1]!.matchAll(/`([a-z][a-z0-9-]+)`/g)) {
+      // The line cites both change IDs and capability names.
+      // Filter to change-id-shaped tokens (kebab-case, multi-
+      // word). Capability names listed inline as
+      // ("NEW capability `cap-id`") would also match; we
+      // distinguish by whether the token corresponds to a real
+      // openspec/changes/ directory.
+      cited.add(tok[1]!);
+    }
+
+    const onDisk = listActiveChanges();
+    // Exclude USMR — it's described in the prior line.
+    onDisk.delete("update-site-marketing-redesign");
+
+    // Only flag drift for tokens that LOOK like change-ids
+    // (not capability names like `font-self-hosting`). Treat a
+    // token as a change-id if it appears as a directory under
+    // `openspec/changes/` OR is a known multi-word kebab.
+    const inDocOnly = [...cited]
+      .filter((n) => !onDisk.has(n))
+      .filter((n) => {
+        // Filter out non-change-id tokens (capability names that
+        // appear inline in the parenthetical descriptions).
+        // Heuristic: skip anything that's a directory under
+        // `openspec/specs/` (live capability) OR a name pattern
+        // that doesn't match the change-id convention.
+        const liveSpecs = listLiveSpecs();
+        if (liveSpecs.has(n)) return false;
+        // Capability names introduced by the in-flight changes
+        // (per the prose annotations) — these aren't change-ids.
+        const knownInlineCapabilities = new Set([
+          "font-self-hosting",
+          "cloudflare-pages-deployment",
+          "site-i18n",
+        ]);
+        if (knownInlineCapabilities.has(n)) return false;
+        return true;
+      })
+      .sort();
+    const onDiskOnly = [...onDisk].filter((n) => !cited.has(n)).sort();
+
+    if (inDocOnly.length || onDiskOnly.length) {
+      const lines: string[] = [];
+      if (onDiskOnly.length) {
+        lines.push(
+          `Active changes on disk but missing from openspec/project.md \`Other in-flight changes:\` line: ${onDiskOnly.join(", ")}`,
+        );
+      }
+      if (inDocOnly.length) {
+        lines.push(
+          `Change-id-shaped names in openspec/project.md with no openspec/changes/ directory: ${inDocOnly.join(", ")}`,
+        );
+      }
+      throw new Error(
+        `openspec/project.md \`Other in-flight changes:\` drift:\n${lines.join("\n")}\nFix: keep the line 1:1 with non-archive directories under openspec/changes/ (excluding update-site-marketing-redesign which is described separately in the line above).`,
+      );
+    }
+    expect(inDocOnly.length).toBe(0);
+    expect(onDiskOnly.length).toBe(0);
+  });
 });

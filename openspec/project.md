@@ -47,7 +47,7 @@ Live capabilities: `build-config`, `check-site-quality`, `configure-copilot-envi
 
 Capabilities introduced by `update-site-marketing-redesign` (deltas pending archive): `site-navigation`, `site-standards-registry`, `site-bridge-story`, `site-mobile-layout`, `site-structured-data`, `site-indexation`, `site-branding`. The change also MODIFIES `site-content` and `style-system`.
 
-Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive).
+Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive), `enhance-a11y-coverage` (NEW WCAG 2.1 AA contracts), `externalize-strings-and-add-i18n` (NEW capability `site-i18n` + MODIFIED `site-content`; authored as the parallel-track proposal during the USMR deep-audit ralph loop).
 
 ## Merge order
 
