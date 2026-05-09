@@ -31,7 +31,7 @@ Optional CI parity checks:
 
 ```bash
 # Lighthouse CI
-npx -y @lhci/cli@0.14.x autorun --config=lighthouserc.json
+npx -y @lhci/cli@0.15.x autorun --config=lighthouserc.json
 
 # Link checks (if lychee is available locally)
 lychee --config lychee.toml './**/*.md' './public/**/*.html' './src/**/*.astro'
