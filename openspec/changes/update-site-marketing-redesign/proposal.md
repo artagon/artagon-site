@@ -32,7 +32,7 @@ The current `artagon-site` communicates the product at a surface level but under
 **Out of Scope (declared explicitly with rationale):**
 
 - **Internationalization** — no `hreflang`, no `/en/` prefix, no locale-switching UI. Rationale: i18n requires content duplication, routing changes, and a translation pipeline not in scope here. Follow-up change: `externalize-strings-and-add-i18n` (scaffolded via pt302; earlier draft text named the follow-up `add-i18n-foundations` — that name was never authored, the live proposal at `openspec/changes/externalize-strings-and-add-i18n/` superseded it). The plan does add `<html lang="en">` and logical CSS properties (`padding-inline`, `margin-block`) so RTL is not blocked later.
-- **`/vision` styling** — owned by the in-flight `refactor-styling-architecture` change; this change consumes the outputs.
+- **`/vision` styling** — owned by the `refactor-styling-architecture` change (was in-flight at proposal-authoring time; archived 2026-05-04 to `openspec/changes/archive/2026-05-04-refactor-styling-architecture/`); this change consumes the outputs.
 - **Non-marketing routes** (`/faq`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/404`) — UNCHANGED. Exception: `/console`, `/search`, `/play`, `/404` get `noindex` meta via `site-indexation`.
 - **Docs-shell internal nav** and DocSearch config.
 - **Backend / console-app UI.**
