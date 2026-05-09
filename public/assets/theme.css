@@ -624,7 +624,8 @@ a {
  * and Footer.astro's `.footer-col a`. The pre-pt76 lint:tokens
  * allowlist of theme.css had been silently passing these violations;
  * pt76 extended the linter to scan theme.css with a token-aware filter
- * that flags raw colors outside `--token:` declarations. */
+ * that flags raw colors outside CSS custom-property (`--*:`)
+ * declarations. */
 /* USMR Phase 5.5.16-pt75 — removed pre-USMR `.cta` / `.cta::before`
  * / `.cta::after` / `.cta:hover` / `.cta:hover::before` /
  * `.cta:hover::after` / `.cta-large` / `.cta-section` (~80 lines).
