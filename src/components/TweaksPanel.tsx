@@ -65,7 +65,7 @@ function applyToDom(t: Tweaks): void {
   html.setAttribute("data-hero-font", t.heroFont);
   // pt108 + pt109 — writingWidget projected to data-writing-widget
   // on <html>; pt109 wired the per-variant rendering via :global()
-  // selectors in src/pages/index.astro:735+ that toggle visibility
+  // selectors in src/pages/index.astro:740+ that toggle visibility
   // of `.writing-strip` and `.hero__latest-strip`. Setting the
   // attribute here drives the live layout (no longer no-op).
   html.setAttribute("data-writing-widget", t.writingWidget);

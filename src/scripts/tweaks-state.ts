@@ -30,7 +30,7 @@ export type HeroFont = "grotesk" | "fraunces" | "dmserif" | "mono";
  *  (in-hero) + an "off" no-op variant. pt108 shipped the Tweaks
  *  panel control surface; pt109 wired the rendering switch via
  *  `:global([data-writing-widget="..."])` selectors in
- *  `src/pages/index.astro:735+` that toggle `.writing-strip` and
+ *  `src/pages/index.astro:740+` that toggle `.writing-strip` and
  *  `.hero__latest-strip` visibility per variant. */
 export type WritingWidget =
   | "in-hero"
