@@ -19,8 +19,9 @@ context: |
 
   Layout:
   - src/pages/ — Astro routes (USMR adds /use-cases, /standards, /writing/[slug], /writing/feed.xml)
-  - src/content/pages/ — MDX content (vision.mdx etc.) via Astro Content Collections + Zod
-  - src/content/pages/writing/ — long-form posts (USMR; rendered at /writing/[slug])
+  - src/content/pages/ — MDX content (vision.mdx, platform.mdx, use-cases.mdx, roadmap.mdx, standards.mdx, home.mdx) via Astro Content Collections + Zod
+  - src/content/writing/ — long-form posts (USMR; rendered at /writing/[slug]). Pre-pt413 cited as src/content/pages/writing/ — same path-nesting drift as pt401 fix in USMR proposal.md:73; the writing collection is a SIBLING of pages/, not nested under it.
+  - src/content/authors/ — author entries referenced from writing frontmatter
   - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts; USMR adds named slots: json-ld, indexation, branding
   - src/components/ui/ — Card, SectionHeader, FeatureList primitives
   - public/assets/theme.css — global tokens + ui-* utility classes; USMR adds @layer reset, tokens, utilities, components, overrides + OKLCH palette + theme packs (twilight/midnight; pre-pt167 there was a third `slate` pack, retired in that iter)
