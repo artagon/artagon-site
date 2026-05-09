@@ -126,7 +126,7 @@ The redesign's `pages/writing` Zod schema requires `title`, `description`, `eyeb
 
 ### 8. MDX component allowlist enforced via custom remark plugin (Astro built-in does NOT enforce)
 
-Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustChain`, `Diagram`, `Callout`. **Astro's MDX `components` config does NOT reject unknown JSX** — it falls through and renders unknown JSX as plain HTML/custom-element. Enforcement therefore requires a custom remark/rehype plugin (`remark-mdx-restrict-jsx`) wired into `astro.config.mjs`'s `markdown.remarkPlugins`. The plugin walks the MDX AST and throws on disallowed AST kinds: `mdxJsxFlowElement`, `mdxJsxTextElement`, `mdxFlowExpression`, `mdxTextExpression`, plus `mdxjsEsm` for posts where `entry.data.repo` is set (remote ESM imports rejected unconditionally). Documented in `docs/writing-pipeline.md`.
+Posts (local AND remote) MUST use only `StandardChip`, `StandardsRow`, `TrustChain`, `Diagram`, `Callout`. **Astro's MDX `components` config does NOT reject unknown JSX** — it falls through and renders unknown JSX as plain HTML/custom-element. Enforcement therefore requires a custom remark/rehype plugin (`remark-mdx-restrict-jsx`) wired into `astro.config.ts`'s `markdown.remarkPlugins` (file renamed from `astro.config.mjs` mid-USMR per pt342 archaeology). The plugin walks the MDX AST and throws on disallowed AST kinds: `mdxJsxFlowElement`, `mdxJsxTextElement`, `mdxFlowExpression`, `mdxTextExpression`, plus `mdxjsEsm` for posts where `entry.data.repo` is set (remote ESM imports rejected unconditionally). Documented in `docs/writing-pipeline.md`.
 
 ### 9. Coordination with prior changes
 
