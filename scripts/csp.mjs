@@ -27,13 +27,18 @@ function buildPolicy(hashes, extras = {}) {
     "img-src": ["'self'", "data:"],
     "style-src": ["'self'", "'unsafe-inline'"],
     // USMR Phase 2 (style-system §"CSP font-src is self-only"): self only,
-    // no data: URIs and no third-party CDNs. WOFF2 self-hosting (task 2.3)
-    // is deferred to a follow-up; until then there are no @font-face
-    // declarations, so this directive currently allows only the future
-    // self-hosted WOFF2 set under /assets/fonts/. The postbuild gate at
-    // scripts/verify-font-self-hosting.mjs fails the build if any
-    // dist/**/*.html or dist/**/*.css references a third-party font CDN
-    // (fonts.googleapis.com, etc.) that this CSP would block at runtime.
+    // no data: URIs and no third-party CDNs. The `self-host-woff2-fonts`
+    // proposal (in flight per openspec/changes/) will finish the
+    // self-hosted WOFF2 migration; until that change archives,
+    // BaseLayout.astro still loads `fonts.googleapis.com` /
+    // `fonts.gstatic.com` for the canonical 6-typeface set (via
+    // `<link rel="stylesheet">`, NOT project-source `@font-face`).
+    // The postbuild gate at scripts/verify-font-self-hosting.mjs fails
+    // the build if any dist/**/*.{html,css} references a third-party
+    // font CDN that this CSP would block at runtime — the gate's
+    // current findings (Google Fonts refs in dist/) are tracked under
+    // the `self-host-woff2-fonts` proposal as the open architectural
+    // tension, not as a CI regression to fix in isolation.
     "font-src": ["'self'"],
     "connect-src": ["'self'"],
     "object-src": ["'none'"],
