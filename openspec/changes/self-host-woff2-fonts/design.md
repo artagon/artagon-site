@@ -149,8 +149,8 @@ The `preloadFonts` prop uses the `"<family>/<weight>-<style>"` format — identi
 
 ### D8: Test strategy
 
-- **Unit (`node:test`)**: `tests/measure-font-payload.test.mjs`, `tests/verify-font-metrics.test.mjs`, `tests/verify-font-subset-coverage.test.mjs`. Flat layout matching today's `tests/*.test.{mjs,mts}` convention (see Prerequisites in proposal.md); migrates to `tests/unit/*.test.ts` when `modernize-unit-tests-with-vitest` archives. mkdtemp + synthetic `.build/dist/`. Fixtures: a tiny pre-canned WOFF2 (under 1 KB; just enough for parser to read head + OS/2).
-- **Integration (Playwright)**: NEW `tests/font-loading.spec.ts` (flat layout per Prerequisites; relocates to `tests/e2e/` later). Loads `/`, asserts `getComputedStyle(h1).fontFamily` resolves to "Space Grotesk", asserts the network request for `space-grotesk/500-normal.woff2` was made AND it was the only font request before LCP fired.
+- **Unit (`node:test`)**: `tests/measure-font-payload.test.mjs`, `tests/verify-font-metrics.test.mjs`, `tests/verify-font-subset-coverage.test.mjs`. Flat layout matching the live three-runner convention (`tests/*.test.mjs` for node:test, `tests/*.test.mts` for vitest, `tests/*.spec.ts` for Playwright; see Prerequisites in proposal.md). mkdtemp + synthetic `.build/dist/`. Fixtures: a tiny pre-canned WOFF2 (under 1 KB; just enough for parser to read head + OS/2).
+- **Integration (Playwright)**: NEW `tests/font-loading.spec.ts` (flat layout per Prerequisites). Loads `/`, asserts `getComputedStyle(h1).fontFamily` resolves to "Space Grotesk", asserts the network request for `space-grotesk/500-normal.woff2` was made AND it was the only font request before LCP fired.
 - **Visual regression**: existing `tests/styling-snapshots.spec.ts` baseline absorbs the WOFF2 typography change; baseline must be regenerated via `workflow_dispatch`.
 - **CLS gate**: USMR Phase 12.3 already specifies CLS < 0.1 via Playwright; the metrics-override work in this change keeps font-swap CLS well under that threshold.
 

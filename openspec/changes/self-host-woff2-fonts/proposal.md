@@ -55,9 +55,9 @@ This change is **host-agnostic** — it places WOFF2 binaries under `public/asse
 
 ## Prerequisites
 
-This change does NOT depend on `modernize-unit-tests-with-vitest` landing first. New unit tests added by this change ship as `tests/<name>.test.mjs` using the existing `node:test` umbrella (matches today's flat `tests/*.test.{mjs,mts}` layout). When `modernize-unit-tests-with-vitest` archives, those tests migrate to `tests/unit/<name>.test.ts` as part of that change's Phase 2 sweep.
+New unit tests added by this change ship as `tests/<name>.test.mjs` using the `node:test` runner. This matches today's three-runner test stack (per `AGENTS.md` §Testing): node:test owns `tests/**/*.test.mjs`, vitest owns `tests/**/*.test.mts`, Playwright owns `tests/**/*.spec.ts`. The flat `tests/` layout is the live convention — there is no nested `tests/unit/` or `tests/e2e/` split, and no in-flight proposal to introduce one. (Earlier draft text referenced a `modernize-unit-tests-with-vitest` change that was never authored; vitest is already in use today, so the deferred-migration framing is moot.)
 
-This means tasks below reference `tests/<name>.test.mjs` (flat layout), NOT `tests/unit/<name>.test.ts` (Vitest layout). Per multi-reviewer-r1 finding [M-1].
+Tasks below reference `tests/<name>.test.mjs` (flat layout) per the live convention. Per multi-reviewer-r1 finding [M-1].
 
 ## Out of Scope
 
