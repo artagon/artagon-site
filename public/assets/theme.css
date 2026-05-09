@@ -2026,9 +2026,17 @@ summary:focus-visible,
 }
 
 /* ============================================================
- * USMR Phase 5.1q.5 — Explore grid primitives (DESIGN.md §6.6).
- * Authors the CSS now; the <ExploreGrid> Astro component is
- * Planned for Phase 5.x. Ports new-design global.css:294-307.
+ * USMR Phase 5.1q.5 — Legacy Explore grid primitives (DESIGN.md
+ * §6.6). The shipped home-page component is `<HomeExplore>`
+ * (`src/components/HomeExplore.astro`, USMR Phase 5.5.2 + 5.5.7
+ * typed-data extraction) at `src/pages/index.astro:264`; it uses
+ * scoped `.home-explore__*` classes and does NOT consume the
+ * primitives below. These `.explore-grid` / `.explore-card` rules
+ * remain for surfaces wanting the grid pattern outside the home
+ * page. Ports new-design global.css:294-307. The earlier
+ * "<ExploreGrid> Planned for Phase 5.x" comment text predated the
+ * Phase 5.5.2 ship; corrected in pt326 (sibling of pt307 §6.6
+ * DESIGN.md update).
  * ============================================================ */
 
 .explore-grid {
