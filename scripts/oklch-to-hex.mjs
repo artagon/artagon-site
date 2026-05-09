@@ -2,7 +2,9 @@
 /**
  * oklch-to-hex.mjs
  *
- * Per `adopt-design-md-format` Phase 3.3:
+ * Per `adopt-design-md-format` Phase 3.3 (proposal archived
+ * 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+ * the live spec is `openspec/specs/design-system-format/spec.md`):
  *   Reads OKLCH triples cited in DESIGN.md prose, emits hex equivalents,
  *   regenerates the conversion table in docs/design-md.md.
  *

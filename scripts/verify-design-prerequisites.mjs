@@ -2,7 +2,9 @@
 /**
  * verify-design-prerequisites.mjs
  *
- * Per `adopt-design-md-format` Phase 0.6:
+ * Per `adopt-design-md-format` Phase 0.6 (proposal archived
+ * 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`;
+ * the live spec is `openspec/specs/design-system-format/spec.md`):
  *
  *   Fails the build only when `update-site-marketing-redesign` is IN FLIGHT
  *   (directory exists at openspec/changes/update-site-marketing-redesign/,
