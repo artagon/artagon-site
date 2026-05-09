@@ -152,5 +152,51 @@ describe("license-claim consistency (pt199)", () => {
           `Pick one: either both surfaces say "All rights reserved" (no LICENSE) or both cite the same specific license (with LICENSE file).`,
       );
     }
+
+    // pt210 — package.json `license` field MUST agree with
+    // Footer + README. Three legal SPDX states for this repo:
+    //   - "UNLICENSED" (proprietary; no LICENSE file): matches
+    //     "All rights reserved" Footer + README claim.
+    //   - A specific identifier ("Apache-2.0", "MIT", etc.):
+    //     requires LICENSE file + matching Footer + README.
+    //   - Absent: only acceptable if `private: true` AND every
+    //     other surface stays silent. Today the README + Footer
+    //     both cite "All rights reserved" so the field MUST
+    //     declare it explicitly.
+    const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+    const pkgLicense = pkg?.license;
+    const readmeAllRights = /\ball rights reserved\b/i.test(readmeFirstLine);
+
+    if (footerSpecific !== undefined) {
+      // Footer claims a specific license — package.json must
+      // match the SPDX form (allowing whitespace/dash variants).
+      if (typeof pkgLicense !== "string" || !pkgLicense) {
+        throw new Error(
+          `Footer claims "${footerSpecific}" but package.json has no \`license\` field.\n` +
+            `Add \`"license": "${footerSpecific.replace(/\s+/g, "-")}"\` (or the canonical SPDX form) to package.json.`,
+        );
+      }
+      const normalizedPkg = pkgLicense.replace(/[\s-]+/g, "").toLowerCase();
+      const normalizedFtr = footerSpecific.replace(/[\s-]+/g, "").toLowerCase();
+      if (normalizedPkg !== normalizedFtr) {
+        throw new Error(
+          `Footer claims "${footerSpecific}" but package.json declares \`"license": ${JSON.stringify(pkgLicense)}\`.\n` +
+            `Fix: align both surfaces (and the README + LICENSE file).`,
+        );
+      }
+    } else if (
+      readmeAllRights ||
+      /\ball rights reserved\b/i.test(footerStack)
+    ) {
+      // Footer / README state "All rights reserved" — package.json
+      // SHOULD declare `"license": "UNLICENSED"` (the SPDX
+      // identifier for proprietary / no-license code).
+      if (pkgLicense !== "UNLICENSED") {
+        throw new Error(
+          `Footer / README cite "All rights reserved" but package.json \`license\` field is ${JSON.stringify(pkgLicense)} (expected "UNLICENSED").\n` +
+            `Fix: set \`"license": "UNLICENSED"\` in package.json to match the public legal claim.`,
+        );
+      }
+    }
   });
 });
