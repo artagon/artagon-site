@@ -681,8 +681,17 @@ Other build-related scripts not in the postbuild chain:
   `astro build`).
 - `scripts/lhci-serve.mjs` — Lighthouse CI local server with
   `READY` signal (consumed by `lighthouserc.json`).
-- `scripts/check-design-drift.mjs` — design.md drift detection
-  (run by `design-md-drift.yml` weekly cron).
+- `scripts/check-design-drift.mjs` — orphan-token detection. Every
+  CSS custom property declared in `public/assets/theme.css` MUST
+  resolve to a token in `DESIGN.md` YAML frontmatter, OR appear on
+  the documented allow-list in `docs/design-md.md` §6. Wired into
+  `.github/workflows/design-md-lint.yml` (runs on every push +
+  pull_request, NOT weekly). Pre-pt389 cite said "run by
+  `design-md-drift.yml` weekly cron" — that's a different workflow:
+  `design-md-drift.yml` runs `spec:cache` + upstream-spec drift
+  checks (regenerates `openspec/.cache/design-md-spec.md` from the
+  npm package and verifies upstream repo health), NOT orphan-token
+  detection.
 - `scripts/check-oklch-hex-parity.mjs` + `scripts/oklch-to-hex.mjs`
   — design.md OKLCH↔hex hybrid policy gates (precondition of
   `lint:design`).
