@@ -12,10 +12,13 @@ exclude:
   - assets
   - package.json
   - package-lock.json
-  - astro.config.mjs
+  - astro.config.ts
+  - build.config.json
+  - build.config.ts
   - lighthouserc.json
   - lychee.toml
   - playwright.config.ts
+  - vitest.config.ts
   - README.md
   - AGENTS.md
   - COPILOT.md
