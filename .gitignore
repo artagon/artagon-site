@@ -75,7 +75,11 @@ new-design/
 # Ad-hoc browser screenshots saved by playwright MCP at the repo root
 # during interactive review (e.g. `home-final.png`, `platform2.png`).
 # These are throwaway capture artifacts; canonical regenerated baselines
-# live under `tests/__screenshots__/` and are ignored separately.
+# live under `tests/<spec-name>.spec.ts-snapshots/` (Playwright's default
+# colocation pattern — e.g., `tests/styling-snapshots.spec.ts-snapshots/`,
+# `tests/device-tour.spec.ts-snapshots/`, `tests/vision-page.spec.ts-snapshots/`).
+# Pre-pt412 the comment cited `tests/__screenshots__/` — phantom path; that
+# directory does not exist and Playwright doesn't write there.
 /*.png
 /*.jpg
 /*.jpeg
