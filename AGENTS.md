@@ -144,7 +144,7 @@ For project structure, capabilities, and merge ordering, read `openspec/project.
 
 openspec/specs/\* govern behavior; DESIGN.md governs visual presentation; implementation traces to both. On conflict, the spec wins and DESIGN.md is updated in the same change.
 
-DESIGN.md is at the repo root (governed by `adopt-design-md-format`).
+DESIGN.md is at the repo root (governed by `openspec/specs/design-system-format/spec.md` — the live capability spec; originally authored in the archived `openspec/changes/archive/2026-05-05-adopt-design-md-format/` proposal).
 
 - **DESIGN.md** — canonical visual identity contract per [google-labs-code/design.md](https://github.com/google-labs-code/design.md) format spec (alpha). Pinned to upstream commit `97b4df92901b9353fbc71cfe1b51dad1ece01708` and npm `@google/design.md@0.1.1`.
 - **`openspec/.cache/design-md-spec.md`** — committed mirror of `npx @google/design.md spec --format markdown`. Kept in sync via the weekly `design-md-drift.yml` workflow (Phase 2.7).
@@ -203,17 +203,17 @@ Direct binary (avoids npm script WouldBlock bug on macOS):
 
 ### Rules in force
 
-| Rule ID                    | Severity | What it catches                                                                                                           |
-| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `no-inner-html`            | error    | `innerHTML` / `outerHTML` assignment (XSS sink)                                                                           |
-| `no-set-html-directive`    | error    | Astro `set:html` XSS escape hatch                                                                                         |
-| `no-math-random-crypto`    | warning  | `Math.random()` used for security                                                                                         |
-| `no-weak-hash`             | error    | `crypto.createHash('md5'\|'sha1')` (CWE-327)                                                                              |
-| `no-jwt-decode-unverified` | error    | `jwt.decode()` without signature verification (CWE-347)                                                                   |
-| `no-console-log-sensitive` | warning  | `console.log` with token/secret/key/credential vars                                                                       |
-| `no-hardcoded-secrets`     | error    | API keys / JWTs hardcoded as string literals                                                                              |
-| `no-raw-color-literal`     | warning  | `rgb()` / `rgba()` / `hsl()` / `oklch()` / `oklab()` literals inside Astro `<style>` blocks (USMR Phase 2 token system)   |
-| `no-untraceable-token`     | warning  | Inline hex literals (`#0b1220`, `#22e3c5`) inside Astro `<style>` blocks (per `adopt-design-md-format` §6.3 traceability) |
+| Rule ID                    | Severity | What it catches                                                                                                                                                                                                                                                                                  |
+| -------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `no-inner-html`            | error    | `innerHTML` / `outerHTML` assignment (XSS sink)                                                                                                                                                                                                                                                  |
+| `no-set-html-directive`    | error    | Astro `set:html` XSS escape hatch                                                                                                                                                                                                                                                                |
+| `no-math-random-crypto`    | warning  | `Math.random()` used for security                                                                                                                                                                                                                                                                |
+| `no-weak-hash`             | error    | `crypto.createHash('md5'\|'sha1')` (CWE-327)                                                                                                                                                                                                                                                     |
+| `no-jwt-decode-unverified` | error    | `jwt.decode()` without signature verification (CWE-347)                                                                                                                                                                                                                                          |
+| `no-console-log-sensitive` | warning  | `console.log` with token/secret/key/credential vars                                                                                                                                                                                                                                              |
+| `no-hardcoded-secrets`     | error    | API keys / JWTs hardcoded as string literals                                                                                                                                                                                                                                                     |
+| `no-raw-color-literal`     | warning  | `rgb()` / `rgba()` / `hsl()` / `oklch()` / `oklab()` literals inside Astro `<style>` blocks (USMR Phase 2 token system)                                                                                                                                                                          |
+| `no-untraceable-token`     | warning  | Inline hex literals (`#0b1220`, `#22e3c5`) inside Astro `<style>` blocks (per `design-system-format` §6.3 traceability — live spec at `openspec/specs/design-system-format/spec.md`; originally authored in the archived `openspec/changes/archive/2026-05-05-adopt-design-md-format/` proposal) |
 
 ### When to run
 
