@@ -212,7 +212,7 @@ Cloudflare Pages serves from `<project>.pages.dev` AND any custom domain CNAMEd 
 The change applies in 7 phases over ~2 weeks total wall time. Cutover is the only manual step.
 
 1. **Phase 0 — Pre-flight (1 day):** create Cloudflare account + project; generate scoped API token; record account ID; run `wrangler pages project create artagon` + verify project healthy.
-2. **Phase 1 — Build `_headers` + `_redirects` generators (3 days):** extend `scripts/csp.mjs`; add `scripts/verify-headers.mjs`; `node:test` tests under flat `tests/*.test.mjs` layout (matching the existing `tests/README.md` convention; no Vitest in this repo).
+2. **Phase 1 — Build `_headers` + `_redirects` generators (3 days):** extend `scripts/csp.mjs`; add `scripts/verify-headers.mjs`; `node:test` tests under flat `tests/*.test.mjs` layout (matching the existing `tests/README.md` convention — the live three-runner stack is node:test for `*.test.mjs`, vitest for `*.test.mts`, Playwright for `*.spec.ts`; this Phase chooses node:test for parity with the existing CSP-test sibling at `tests/csp.test.mjs`).
 3. **Phase 2 — Cloudflare Pages deploy workflow (1 day):** new `.github/workflows/deploy.yml` (rewritten) + `deploy-cloudflare-pages-preview.yml` (new). PR-trigger preview deploys land here.
 4. **Phase 3 — Verify content parity locally (1 day):** `scripts/cutover/verify-content-parity.mjs` (cutover-only; lives under `scripts/cutover/` to mark it as not-part-of-postbuild). Run against GH Pages canonical + Cloudflare preview.
 5. **Phase 4 — Document cutover playbook (1 day):** `docs/deploy.md` with the 7-step procedure + rollback.
