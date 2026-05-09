@@ -63,7 +63,26 @@ interface Violation {
  * commented-out `// const X = safeJsonLd(p)` would otherwise add `X` to
  * `safeVars` (the comment-aware scanning gap flagged by the pt428 review).
  */
-function stripComments(src: string): string {
+/**
+ * pt445 — `stripComments(src, { stripStrings })` parameterized.
+ *
+ * Two callers want different scrub behavior:
+ *   - declRe scan needs string contents BLANKED so a literal
+ *     `\`const X = safeJsonLd(p)\`` inside a template literal can't
+ *     falsely whitelist `X`. (`stripStrings: true`)
+ *   - SET_HTML_RE scan needs string contents preserved so the
+ *     attribute value (`set:html={...}`) stays intact for matching.
+ *     (`stripStrings: false`)
+ *
+ * Both modes preserve newlines (inside comments and strings) so
+ * line numbers computed against the scrubbed source stay aligned
+ * with the raw source.
+ */
+function stripComments(
+  src: string,
+  opts: { stripStrings?: boolean } = {},
+): string {
+  const { stripStrings = false } = opts;
   let out = "";
   let i = 0;
   const n = src.length;
@@ -87,21 +106,46 @@ function stripComments(src: string): string {
       i += 2;
       continue;
     }
-    // String / template literal — copy verbatim, respect escapes
+    // String / template literal
     if (ch === '"' || ch === "'" || ch === "`") {
       const quote = ch;
-      out += ch;
-      i++;
-      while (i < n) {
-        const c = src[i];
-        out += c;
+      // When stripStrings is true, replace contents with spaces (and
+      // preserve newlines) so declRe can't be fooled by a literal-text
+      // declaration shape. When false, copy verbatim so SET_HTML_RE
+      // sees the attribute value intact.
+      if (stripStrings) {
+        out += " "; // placeholder for the open quote
         i++;
-        if (c === "\\" && i < n) {
-          out += src[i];
+        while (i < n) {
+          const c = src[i];
+          if (c === "\\" && i + 1 < n) {
+            // Skip escape pair without contributing to declRe.
+            out += "  ";
+            i += 2;
+            continue;
+          }
+          if (c === quote) {
+            out += " "; // placeholder for the close quote
+            i++;
+            break;
+          }
+          out += c === "\n" ? "\n" : " ";
           i++;
-          continue;
         }
-        if (c === quote) break;
+      } else {
+        out += ch;
+        i++;
+        while (i < n) {
+          const c = src[i];
+          out += c;
+          i++;
+          if (c === "\\" && i < n) {
+            out += src[i];
+            i++;
+            continue;
+          }
+          if (c === quote) break;
+        }
       }
       continue;
     }
@@ -111,14 +155,24 @@ function stripComments(src: string): string {
   return out;
 }
 
-function scanFile(rel: string): Violation[] {
-  const fullPath = join(REPO_ROOT, rel);
-  const rawSource = readFileSync(fullPath, "utf8");
-  // Strip comments before declaration scan so a misleading commented-out
-  // `// const X = safeJsonLd(p)` cannot whitelist a same-named real
-  // declaration as `let X = userInput`. Set:html scan still uses the raw
-  // source so violation line numbers are unaffected.
-  const source = stripComments(rawSource);
+/**
+ * pt445 — exposed for unit testing. `scanFile` reads from disk and
+ * delegates to `scanSource` which works on a string. The split lets
+ * the adversarial-input describe block exercise `scanSource` without
+ * touching the filesystem.
+ */
+function scanSource(rawSource: string, rel: string): Violation[] {
+  // pt445 — two scrubbed views, mirroring the two scans:
+  //   - `declSource` blanks comments AND string-literal contents so a
+  //     misleading `// const X = safeJsonLd(p)` (line comment) OR a
+  //     `\`const X = safeJsonLd(p)\`` (template-literal text) cannot
+  //     whitelist a same-named real `let X = userInput`.
+  //   - `htmlSource` blanks comments only, preserving string contents
+  //     so the SET_HTML_RE attribute scan sees the actual `set:html=
+  //     {...}` value (which is itself an expression, not a string).
+  // Both modes preserve newlines so line numbers stay aligned.
+  const declSource = stripComments(rawSource, { stripStrings: true });
+  const htmlSource = stripComments(rawSource);
   const violations: Violation[] = [];
 
   // Build the variable-assignment map. A variable `X` is considered
@@ -134,14 +188,14 @@ function scanFile(rel: string): Violation[] {
   // scripts.
   const safeVars = new Set<string>();
   const declRe = /\bconst\s+([a-zA-Z_$][\w$]*)\s*=/g;
-  for (const match of source.matchAll(declRe)) {
+  for (const match of declSource.matchAll(declRe)) {
     const name = match[1];
     if (typeof name !== "string" || name.length === 0) continue;
     const assignStart = (match.index ?? 0) + match[0].length;
     let depth = 0;
-    let end = source.length;
-    for (let i = assignStart; i < source.length; i++) {
-      const ch = source[i];
+    let end = declSource.length;
+    for (let i = assignStart; i < declSource.length; i++) {
+      const ch = declSource[i];
       if (ch === "(" || ch === "[" || ch === "{") depth++;
       else if (ch === ")" || ch === "]" || ch === "}") depth--;
       else if (ch === ";" && depth === 0) {
@@ -149,14 +203,14 @@ function scanFile(rel: string): Violation[] {
         break;
       }
     }
-    const body = source.slice(assignStart, end);
+    const body = declSource.slice(assignStart, end);
     if (SAFEJSONLD_CALL_RE.test(body)) safeVars.add(name);
   }
 
   let match: RegExpExecArray | null;
-  while ((match = SET_HTML_RE.exec(source)) !== null) {
+  while ((match = SET_HTML_RE.exec(htmlSource)) !== null) {
     const expression = (match[1] ?? "").trim();
-    const lineNumber = source.slice(0, match.index).split("\n").length;
+    const lineNumber = htmlSource.slice(0, match.index).split("\n").length;
     const snippet = match[0];
 
     // Path 1: inline `safeJsonLd(...)` call inside the attribute braces.
@@ -182,6 +236,12 @@ function scanFile(rel: string): Violation[] {
     });
   }
   return violations;
+}
+
+function scanFile(rel: string): Violation[] {
+  const fullPath = join(REPO_ROOT, rel);
+  const rawSource = readFileSync(fullPath, "utf8");
+  return scanSource(rawSource, rel);
 }
 
 describe("set:html → safeJsonLd gate (USMR pt428)", () => {
@@ -215,5 +275,116 @@ describe("set:html → safeJsonLd gate (USMR pt428)", () => {
         `ALLOW_LIST references untracked file: ${entry.file} — remove the stale entry.`,
       );
     }
+  });
+});
+
+// pt445 — adversarial unit tests. The integration test above only walks
+// real `.astro` files, so the gate could pass vacuously if `safeJsonLd`
+// were renamed tomorrow (zero callsites to scan). These cases exercise
+// `scanSource` against synthetic inputs so the documented bypasses
+// (commented decoy, let/var rebound, ternary mixed-safety, etc.) are
+// proven caught regardless of what the actual repo looks like.
+describe("scanSource adversarial inputs (USMR pt445)", () => {
+  it("flags `set:html={X}` when X is undeclared", () => {
+    const src = `---\nconst X = userInput;\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("accepts `set:html={safeJsonLd(payload)}` (direct inline call)", () => {
+    const src = `<script set:html={safeJsonLd(payload)}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 0);
+  });
+
+  it("accepts `set:html={X}` when X = safeJsonLd(...) (const direct)", () => {
+    const src = `---\nconst X = safeJsonLd(payload);\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 0);
+  });
+
+  it("accepts `set:html={X}` when X = cond ? safeJsonLd(...) : null (ternary)", () => {
+    const src = `---\nconst X = cond ? safeJsonLd(payload) : null;\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 0);
+  });
+
+  it("flags `set:html={X}` when X is `let`-bound even if first assigned via safeJsonLd", () => {
+    // pt429 hardening: const-only safe-vars. `let X` could be reassigned
+    // to userInput later in the file; the gate treats it as unsafe
+    // regardless of what the initializer looks like.
+    const src = `---\nlet X = safeJsonLd(payload);\nX = userInput;\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("flags `set:html={X}` when X declaration is inside a `//` line comment", () => {
+    // pt429 hardening: stripComments runs before declRe. A misleading
+    // `// const X = safeJsonLd(p)` doesn't whitelist a real
+    // `let X = userInput` later in the file.
+    const src = `---\n// const X = safeJsonLd(payload);\nlet X = userInput;\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("flags `set:html={X}` when X declaration is inside a `/* */` block comment", () => {
+    const src = `---\n/* const X = safeJsonLd(payload); */\nlet X = userInput;\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("preserves line numbers across block comments (regression: pt429 newline preservation)", () => {
+    // 4-line block comment then a violation on line 6. Without
+    // newline preservation in stripComments, the violation would
+    // be reported on line 2.
+    const src =
+      `---\n` +
+      `/* line 2\n` +
+      ` * line 3\n` +
+      ` * line 4\n` +
+      ` */\n` +
+      `<script set:html={X}></script>`;
+    const violations = scanSource(src, "fixture.astro");
+    assert.equal(violations.length, 1);
+    assert.equal(violations[0]!.line, 6);
+  });
+
+  it("accepts string-literal containing `// const X = safeJsonLd` as content (not declaration)", () => {
+    // String contents are preserved through stripComments so a real
+    // declaration inside a template literal isn't whitelisted (only
+    // top-level `const` declarations matter). Here the scan should
+    // not pick up the literal text as a real declaration.
+    const src =
+      `---\n` +
+      "const code = `// const X = safeJsonLd(p)`;\n" +
+      `let X = userInput;\n` +
+      `---\n` +
+      `<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("flags member-access expressions like `set:html={obj.lng}` (conservative-strict)", () => {
+    // Even if `obj` was assigned from safeJsonLd, the member-access
+    // expression doesn't match the bare-identifier regex. Strict-by-
+    // default is the correct posture for this gate (never a false
+    // negative; possible false positive that the dev resolves by
+    // hoisting to a const).
+    const src = `---\nconst obj = safeJsonLd(payload);\n---\n<script set:html={obj.lng}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("flags function-call expressions like `set:html={wrap(x)}` (no transitive trust)", () => {
+    // The gate doesn't model function-level taint; any non-bare-
+    // identifier expression that isn't an inline `safeJsonLd(` call
+    // is treated as unsafe. Same conservative-strict posture.
+    const src = `---\nfunction wrap(x) { return safeJsonLd(x); }\n---\n<script set:html={wrap(payload)}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("flags `var`-bound declarations the same as `let` (const-only safe-vars)", () => {
+    const src = `---\nvar X = safeJsonLd(payload);\n---\n<script set:html={X}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 1);
+  });
+
+  it("returns zero violations when the document has no set:html callsites", () => {
+    // Vacuous-pass detection. If a future rename of `safeJsonLd` causes
+    // every callsite to disappear AND the gate's regex still matches
+    // `set:html=`, it would only fail if there ARE still callsites.
+    // This case proves the absence-of-callsites path returns 0.
+    const src = `---\nconst foo = "bar";\n---\n<p>no set:html here</p>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 0);
   });
 });
