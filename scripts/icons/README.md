@@ -55,7 +55,7 @@ BRAND_BG="#000000" MASK_BG="#111111" bash scripts/icons/make-icons.sh
 - `OUT` - Output directory (default: `public/icons`)
 - `BRAND_BG` - Brand background color (default: `#0B1220`)
 - `MASK_BG` - Maskable icon background (default: `#0B1220`)
-- `PINNED_COLOR` - Safari pinned tab color (default: `#0EA5E9`)
+- `PINNED_COLOR` - Safari pinned tab color (default: `#0EA5E9` — note: pt107 caught that the canonical brand-teal pinned-tab color is `#3ceedd` (`oklch(0.86 0.14 185)`), not the pre-pt107 sky blue `#0EA5E9`; the canonical value lives at `src/layouts/BaseLayout.astro:37` `<SeoIcons pinnedColor="#3ceedd" />`. The variable is set in `scripts/icons/make-icons.sh:14` but is not currently consumed by the script — the Safari pinned-tab SVG is emitted via heredoc with hardcoded `currentColor`. Override at script invocation if you regenerate icons; the runtime canonical color is sourced from `BaseLayout.astro` regardless.)
 
 ## Requirements
 
