@@ -261,12 +261,41 @@ npm run dev
 
 ### Environment Variables
 
-Create `.env` file for local configuration (gitignored):
+`npm run dev` and `npm run build` work with no env vars set —
+no `.env` file is required for the basic local dev loop. The
+following env vars OPT IN to optional behaviors that
+contributors may encounter:
 
 ```bash
-# Currently no environment variables required
-# Add as needed for local development
+# Visual-regression suite (gated locally; CI runs in dedicated job)
+VISUAL_REGRESSION=1
+
+# Lighthouse CI local-server overrides
+LHCI_PORT=8081                      # Port for scripts/lhci-serve.mjs
+LHCI_DIR=.build/dist                # Dist directory to serve
+LHCI_READY_INTERVAL_MS=250          # Poll interval for READY signal
+LHCI_READY_REQUEST_TIMEOUT_MS=2000  # Per-request timeout
+
+# CI-only (set automatically by GitHub Actions; do not set locally)
+GITHUB_TOKEN=...                    # gh API auth for spec-validate / pr-spec-compliance
+GITHUB_REPOSITORY=owner/repo        # Auto-set by Actions
+GITHUB_EVENT_PATH=/path/to/event    # Auto-set by Actions
+GITHUB_SHA=...                      # Footer build-sha (falls back to git rev-parse locally)
+
+# Test override (do not set unless writing tests against verify-prerequisites.mjs)
+VERIFY_PREREQ_ARCHIVE_SHA=<sha>
+
+# pt264 archaeology — `AXE_AUDIT=1` was the pre-Phase-5.1p.8 opt-in
+# for the axe-core WCAG audit. The gate flipped to MANDATORY in
+# pt5.1p.8 after round-3 violations cleared; the env var no longer
+# gates anything (the test runs unconditionally on chromium /
+# webkit / Mobile Safari).
 ```
+
+If a `.env` file is created locally for any of the above, it is
+gitignored per `.gitignore`. The `GLOBAL_DOTENV=1` shell toggle
+(per the `~/.config/AGENTS.md` XDG contract) loads `~/.env` on
+startup; default off.
 
 ### Adding New Pages
 
