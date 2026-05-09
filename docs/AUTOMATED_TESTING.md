@@ -342,7 +342,7 @@ git commit -m "Update visual snapshots after design changes"
 
 ### Adding New Page Tests
 
-1. Create `tests/[page-name].spec.ts`
+1. Create `tests/<page-name>.spec.ts`
 2. Follow vision-page.spec.ts pattern
 3. Include functional, visual, and a11y tests
 4. Run `npm run test:update-snapshots` for initial baselines
