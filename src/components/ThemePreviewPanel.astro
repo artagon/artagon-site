@@ -1,8 +1,12 @@
 ---
 // USMR site-navigation §"Theme Toggle" allow-list is binary
-// (twilight ↔ midnight). The slate pack still exists in theme.css but
-// is no longer user-toggleable; drop it from the dev preview to match
-// __setTheme's allow-list (it would silently collapse to twilight).
+// (twilight ↔ midnight). The slate pack was retired in pt167 — its
+// `:root[data-theme="slate"]` block no longer exists in theme.css
+// (theme.css line 298 carries the removal narrative). Iterating
+// slate here would silently fall through to the unstyled default
+// cascade rather than render an alternate palette; the dev preview
+// matches the live cascade by enumerating only the two retained
+// user-toggleable variants.
 const THEMES = ['twilight', 'midnight'] as const;
 ---
 <div class="theme-panel" aria-label="Theme preview panel">
