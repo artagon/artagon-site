@@ -119,7 +119,7 @@ manually — run the script instead.
 
 As of the pinned version (`0.1.1`), the published npm `package.json` for `@google/design.md` does **not** carry a `"license": "Apache-2.0"` field. This means automated license-checker tools (e.g., `license-checker`, `licensee`) may report the package as having an unknown license.
 
-The LICENSE file in the upstream git repository (`15e431c225cf463f87a61f4e2a76dfb09e2bf849`) confirms the Apache-2.0 license. Filing an upstream issue requesting the field was deferred (Phase 0.5 of `adopt-design-md-format`) because agents cannot file issues on external organization repositories. The upstream LICENSE-file SHA above serves as the verified reference until the upstream fix lands.
+The LICENSE file in the upstream git repository (`15e431c225cf463f87a61f4e2a76dfb09e2bf849`) confirms the Apache-2.0 license. Filing an upstream issue requesting the field was deferred (Phase 0.5 of `adopt-design-md-format` — proposal archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; the live spec is `openspec/specs/design-system-format/spec.md`) because agents cannot file issues on external organization repositories. The upstream LICENSE-file SHA above serves as the verified reference until the upstream fix lands.
 
 ### Integrity verification
 
