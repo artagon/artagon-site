@@ -10,7 +10,7 @@ Automated testing ensures code quality, prevents regressions, and validates that
 
 ### 1. Playwright Test Framework
 
-**Package:** `@playwright/test@1.57.0`
+**Package:** `@playwright/test@1.59.1` (per `package.json`)
 
 Playwright provides:
 

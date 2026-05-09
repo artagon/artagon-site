@@ -161,7 +161,7 @@ Local usage:
 
 ```bash
 npm run build
-npx -y @lhci/cli@0.14.x autorun --config=lighthouserc.json
+npx -y @lhci/cli@0.15.x autorun --config=lighthouserc.json
 ```
 
 The LHCI config starts `scripts/lhci-serve.mjs`, which prints `READY` once the
