@@ -285,6 +285,13 @@ GITHUB_SHA=...                      # Footer build-sha (falls back to git rev-pa
 # Test override (do not set unless writing tests against verify-prerequisites.mjs)
 VERIFY_PREREQ_ARCHIVE_SHA=<sha>
 
+# Hot-loop opt-out for the sync:build-config drift gate. Used by .husky/
+# pre-commit:9 to bypass per-commit; also recognized by
+# scripts/sync-build-config.mjs:30 to short-circuit the prebuild/predev
+# sync. Per the openspec/specs/build-config/spec.md `Pre-commit safety
+# net` Requirement, opt-out applies only when explicitly set per-commit.
+SKIP_BUILD_SYNC=1
+
 # pt264 archaeology — `AXE_AUDIT=1` was the pre-Phase-5.1p.8 opt-in
 # for the axe-core WCAG audit. The gate flipped to MANDATORY in
 # pt5.1p.8 after round-3 violations cleared; the env var no longer
