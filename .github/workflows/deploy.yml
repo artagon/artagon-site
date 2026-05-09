@@ -37,3 +37,70 @@ jobs:
       - name: Deploy to Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+
+      # pt449 — Purge Cloudflare cache after every deploy.
+      #
+      # Why: artagon.com is fronted by Cloudflare proxy (orange-cloud
+      # DNS). Cloudflare caches HTML at the edge for the duration of
+      # the origin's `Cache-Control: max-age=600` (GitHub Pages
+      # default). After a deploy, users hitting Cloudflare's stale HTML
+      # for up to 10 minutes load asset URLs from a previous build —
+      # the new dist/ has different content-hashed filenames, so SRI
+      # rejects the mismatched assets and the page renders unstyled.
+      #
+      # The post-deploy purge tells Cloudflare to drop its edge cache
+      # for the zone, so the very next request fetches the fresh HTML
+      # with current asset hashes.
+      #
+      # GATING: this step runs ONLY when both secrets are present, so
+      # the deploy doesn't fail before the operator adds the credentials.
+      # Once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` land in
+      # repo secrets, the purge fires automatically on every deploy.
+      #
+      # Token scope: the API token MUST have the `Zone.Cache Purge`
+      # permission scoped to the `artagon.com` zone (and ONLY that
+      # zone). Use Cloudflare's "Custom token" template, NOT a
+      # global API key.
+      #
+      # The cf/api-token-action style integrates auth + curl in one
+      # step but introduces a third-party action dependency; using
+      # raw curl against the Cloudflare REST API is dependency-free
+      # and the token is masked by GitHub Actions automatically.
+      - name: Purge Cloudflare cache
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: |
+          set -euo pipefail
+          # GitHub Actions doesn't allow `secrets.*` directly in `if:`
+          # conditions (would risk leaking via expression-eval logs).
+          # Gate inside the script instead: skip-not-fail when either
+          # secret is missing, so the deploy stays green before the
+          # operator adds the credentials.
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ZONE_ID:-}" ]; then
+            echo "⚠ CLOUDFLARE_API_TOKEN or CLOUDFLARE_ZONE_ID not set; skipping cache purge."
+            echo "  Browsers may see stale HTML referencing prior-deploy asset hashes for up"
+            echo "  to 10 minutes (GH Pages default \`Cache-Control: max-age=600\`)."
+            echo "  To enable: \`gh secret set CLOUDFLARE_API_TOKEN\` and \`gh secret set"
+            echo "  CLOUDFLARE_ZONE_ID\` (token scope: Zone.Cache Purge on artagon.com)."
+            exit 0
+          fi
+          response=$(curl -sS -w "\n%{http_code}" \
+            -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"purge_everything":true}')
+          body=$(printf '%s\n' "$response" | sed '$d')
+          status=$(printf '%s\n' "$response" | tail -n1)
+          if [ "$status" != "200" ]; then
+            echo "✗ Cloudflare purge failed (HTTP $status):"
+            printf '%s\n' "$body"
+            exit 1
+          fi
+          if ! printf '%s' "$body" | grep -q '"success":true'; then
+            echo "✗ Cloudflare reports purge unsuccessful:"
+            printf '%s\n' "$body"
+            exit 1
+          fi
+          echo "✓ Cloudflare cache purged for zone ${CLOUDFLARE_ZONE_ID}"
