@@ -1,6 +1,8 @@
 // USMR Phase 5.1b — Organization-level metadata. Single source of truth for
 // the published contact addresses, location, and security-disclosure
-// footnote. Consumed by the home on-ramp card today; future routes
+// footnote. Consumed today by the home on-ramp card (`src/pages/index.astro`
+// pt5.1b) and the `/get-started` design-partner landing
+// (`src/pages/get-started/index.astro` pt87/pt93). Future routes
 // (`/security`, footer, JSON-LD structured data) should pull from the same
 // `ORG` const rather than hard-coding strings.
 
