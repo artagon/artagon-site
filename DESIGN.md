@@ -1238,7 +1238,7 @@ deliberately don't match the global breakpoints.
 | Nav            | Hamburger overlay, 18px links                                          | Inline links (may wrap)            | Inline links + CTAs                |
 | Hero           | Headline `clamp(40px,9vw,64px)`, single column, full-width primary CTA | 2-col reflows to 1-col below 1024  | 1.1fr 0.9fr split                  |
 | Trust chain    | Static vertical `<ol>`; animation off                                  | Horizontal, 5 stages, animation on | Horizontal, 5 stages, animation on |
-| Explore grid   | 1-up                                                                   | 2-up                               | 4-up                               |
+| Explore grid   | 2-up (collapses to 1-up at < 540px)                                    | 2-up                               | 4-up                               |
 | Footer         | Single column                                                          | 2-up                               | 1.4fr + 4×1fr                      |
 | Buttons        | Min 48px tap area, primary fills width                                 | 40px (primary)                     | 40px                               |
 | Body type      | 16px / 1.55                                                            | 16px / 1.55                        | 16px / 1.55                        |
