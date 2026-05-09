@@ -76,9 +76,19 @@ export default function TrustChainIsland() {
   const [pressedIdx, setPressedIdx] = useState<number | null>(null);
   // step = number of stages currently evaluating-or-settled. step=0 →
   // all stages pending; step=1 → stage 0 evaluating; step=2 → stage 0
-  // settled, stage 1 evaluating; etc. SSR default = STAGES.length so
-  // pre-hydration HTML matches the fully-resolved view (no FOUC).
-  const [step, setStep] = useState<number>(STAGES.length);
+  // settled, stage 1 evaluating; etc.
+  //
+  // USMR Phase 5.5.16-pt422: SSR initial value is 0 (all-pending), NOT
+  // STAGES.length. Pre-pt422 the SSR rendered all stages with their
+  // final outcome class (pass/fail), so the user briefly saw all 5
+  // stages glowing post-paint before React hydrated and reset to
+  // step=0 for the staggered animation. The "load flash all bars
+  // highlighted for a moment" bug. SSR=0 means no-JS visitors see
+  // a coherent pre-evaluation pending state matching the post-
+  // hydration animation start; users WITH JS see the same all-
+  // pending paint, then the staggered evaluation animation runs as
+  // intended (no flash).
+  const [step, setStep] = useState<number>(0);
   // Pause flag toggles when a user hovers/focuses anything inside the
   // chain OR clicks a scenario dot. The timer effect respects it.
   const [paused, setPaused] = useState(false);
@@ -272,12 +282,22 @@ export default function TrustChainIsland() {
   const C_PASS = "var(--accent)";
   const C_FAIL = "var(--bad)";
   const C_FAIL_DIM = "color-mix(in oklab, var(--bad) 60%, var(--bg))";
+  // USMR Phase 5.5.16-pt422 — outer halo spread reduced from 80px → 24px
+  // (DENY: 60px → 24px). Pre-pt422 the cardShellStyle painted a clearly-
+  // visible rounded rectangle OUTSIDE the trust-chain card boundary —
+  // the user reported it as "outer panel/box visibly visible". The
+  // canonical new-design/extracted reference doesn't apply the 80px
+  // accent halo at the card level; the per-stage glows
+  // (.trust-chain__stage.is-pass box-shadow at 18px in
+  // TrustChainIsland.css:264-270) are where the visual energy lives.
+  // Card-level halo is now an inset-only soft tint that hugs the
+  // border, not a 80px atmospheric bloom.
   const cardShellStyle: React.CSSProperties = {
     boxShadow: finalShown
       ? isDeny
-        ? `0 0 60px -20px ${C_FAIL}, inset 0 0 60px -30px ${C_FAIL}`
-        : `0 0 80px -12px ${C_PASS}, inset 0 0 40px -20px ${C_PASS}`
-      : `0 0 ${40 + glowIntensity * 60}px -20px ${C_PASS}`,
+        ? `0 0 24px -10px ${C_FAIL}, inset 0 0 60px -30px ${C_FAIL}`
+        : `0 0 24px -8px ${C_PASS}, inset 0 0 40px -20px ${C_PASS}`
+      : `0 0 ${12 + glowIntensity * 20}px -10px ${C_PASS}`,
     borderColor: finalShown && isDeny ? C_FAIL_DIM : "var(--line)",
     transition: "box-shadow .6s ease, border-color .4s ease",
   };

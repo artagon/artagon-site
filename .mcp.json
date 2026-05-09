@@ -7,13 +7,7 @@
     },
     "serena": {
       "command": "serena",
-      "args": [
-        "start-mcp-server",
-        "--context",
-        "claude-code",
-        "--project",
-        "."
-      ]
+      "args": ["start-mcp-server", "--context", "claude-code", "--project", "."]
     },
     "ast-grep": {
       "command": "ast-grep-mcp-server",
@@ -22,6 +16,10 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@0.0.73"]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
     }
   }
 }
