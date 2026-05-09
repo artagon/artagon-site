@@ -52,15 +52,18 @@ artagon-site/
 │   ├── specs/              # Current capability specifications
 │   ├── project.md          # Project conventions
 │   ├── contributing.md     # Contribution guidelines
-│   └── AGENTS.md          # AI agent instructions
+│   └── config.yaml         # OpenSpec CLI project descriptor
 ├── public/                 # Static assets (copied as-is to .build/dist/)
-│   ├── .well-known/        # Well-known URIs
-│   ├── assets/             # Images, logos, OG images
+│   ├── .well-known/        # Well-known URIs (security.txt, etc.)
+│   ├── assets/             # Images, logos, OG images, theme.css, fonts/
 │   │   └── logos/          # Logo variants and documentation
 │   ├── icons/              # Favicons and app icons
 │   ├── docsearch.json      # Algolia DocSearch config
 │   ├── robots.txt          # Search engine directives
-│   └── sitemap.xml         # Generated sitemap
+│   └── _redirects          # Cloudflare Pages redirect rules
+                            # (sitemap-index.xml is GENERATED to
+                            #  .build/dist/ at build time, NOT
+                            #  pre-existing in public/)
 ├── scripts/                # Build and asset generation scripts
 │   ├── csp.mjs             # Content Security Policy injection
 │   ├── lhci-serve.mjs      # LHCI local server with ready signal
