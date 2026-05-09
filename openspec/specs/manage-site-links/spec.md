@@ -19,6 +19,25 @@ quality-checks scope first introduced. Lychee (the link checker
 configured at `lychee.toml`) operationalizes part of this contract
 at CI time.
 
+**KNOWN SPEC DRIFT (pt395 archaeology — SearchAction now ships)**:
+The "Omit SearchAction JSON-LD" Requirement below mandates that
+the SeoTags output ship "without a SearchAction block" — that
+Scenario reflects the pre-USMR state when no `/search` route
+existed. Under USMR Phase 5.5.16-pt152 the `/search` route
+shipped (`src/pages/search/index.astro`) AND the SearchAction
+target was rewritten to `${SITE}/search?q={search_term_string}`
+(non-redirecting per `astro.config.ts` `trailingSlash: "never"`).
+The live `src/components/SeoTags.astro:179-194` correctly emits
+the SearchAction block under the Requirement's "unless" clause
+("unless a stable non-redirecting search endpoint is available").
+The Scenario at line 64-67 needs a follow-up amendment (separate
+OpenSpec proposal) to either add the `/search` route as a
+qualifier OR drop the unconditional "without a SearchAction"
+assertion. Per OpenSpec discipline, pt395 is doc-scope (Purpose
+backfill) only and does NOT modify the Requirement / Scenario
+text — Requirements changes go through proposals, not direct
+edits.
+
 ## Requirements
 
 ### Requirement: Internal Product CTAs
