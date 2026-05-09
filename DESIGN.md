@@ -466,12 +466,14 @@ The blog-hero variant (`.blog-hero__eyebrow`) intentionally **omits** the dash b
 
 **Anatomy.** Slot text · dotted underline (1 px, `var(--fg-3)`). On hover or `:focus-visible` the text and underline both flip to `var(--accent)`. No background fill, no badge — the chip is a typographic primitive that sits inline in body copy, not a button.
 
-**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 60+ entries covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Four consumers share the global `.standard-chip` contract (count grew from 2 → 4 across Phase 5.2.x — 5.4):
+**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 71 entries today (`tests/glossary-data.test.mts` floor is ≥ 50) covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Four consumers share the global `.standard-chip` contract (count grew from 2 → 4 across Phase 5.2.x — 5.4):
 
 - **`<Standard term="…">`** (`src/components/Standard.astro`) — token-only static Astro chip for `.astro` and `.mdx` content.
-- **React `StandardChip`** (`src/components/PillarsIsland.tsx` inner) — emits identical markup so the global `.standard-chip` style applies to both server-rendered prose and React-island content.
+- **React `StandardChip`** (`src/components/PillarsIsland.tsx` inner) — emits identical markup so the global `.standard-chip` style applies to React-island content.
+- **React `StandardChip`** (`src/components/BridgeFlow.tsx:40` inner) — second island-side instance that maps `term` LabelNodes (`src/data/bridge.ts`) to chips inline within the bridge-flow legend and prose body. Identical markup contract to the PillarsIsland instance.
+- **Direct `class="standard-chip"`** (`src/components/StandardsWall.astro:45`) — token-only static usage on the `/standards` page, where each row in `STANDARDS_GROUPS` maps to a chip without going through the `<Standard>` component (the `lookupGlossary` call happens inline in the Astro frontmatter).
 
-The two paths share one CSS rule (`public/assets/theme.css` `.standard-chip` block) — no per-component duplication. `tests/glossary-data.test.mts` enforces the registry shape (size floor ≥ 50, every `href` is absolute https, plural aliases like `DID/DIDs` resolve to identical canonical URLs).
+All four paths share one CSS rule (`public/assets/theme.css` `.standard-chip` block) — no per-component duplication. `tests/glossary-data.test.mts` enforces the registry shape (size floor ≥ 50, every `href` is absolute https, plural aliases like `DID/DIDs` resolve to identical canonical URLs).
 
 **A11y.** The chip is an `<a>` element when the term resolves — keyboard reachable, gets the site-wide `:focus-visible` outline. When the term is missing, the chip degrades to a plain `<span>` (no underline, no cursor change) AND a build-time `console.warn` fires so gaps are loud, not silent. Forced-colors mode swaps the underline to `CanvasText` and the hover state to `Highlight`.
 
