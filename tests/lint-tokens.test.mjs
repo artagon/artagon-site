@@ -154,9 +154,12 @@ test("theme.css class-rule with raw color DOES trip (pt76 regression)", () => {
 });
 
 test("theme.css var(--token, FALLBACK) hardcoded fallback is allowed", () => {
-  // Defensive `var(--text, #abc)` patterns are intentional — the
-  // fallback fires only when --text is unset, which shouldn't happen
+  // Defensive `var(--fg, #abc)` patterns are intentional — the
+  // fallback fires only when --fg is unset, which shouldn't happen
   // in well-formed themes but is a safety net for theme bootstrap.
+  // Pre-pt260 the example used `--text`; that alias was retired in
+  // pt86 / pt169 / pt170. Use canonical `--fg` per AGENTS.md
+  // §"Token source".
   const result = withFixture(
     (root) => {
       writeFile(
