@@ -541,7 +541,7 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs the followin
 3. `lint:tokens` — `scripts/lint-tokens.mjs` walks `git ls-files`
    for raw color literals outside DESIGN.md frontmatter; fails
    on hex/rgb/hsl/oklch literals not declared as tokens.
-4. `verify-font-self-hosting` — `scripts/verify-font-self-hosting.mjs`
+4. `verify-font-self-hosting.mjs` — `scripts/verify-font-self-hosting.mjs`
    asserts no third-party font CDN refs leak into `.build/dist/`
    (locks `font-src 'self'`).
 5. `sri.mjs` — Scans `.build/dist/*.html`, computes SHA-256 for
