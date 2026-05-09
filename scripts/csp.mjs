@@ -86,8 +86,18 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
   // browser tokenizer ignores the surrounding whitespace).
   const isForbidden = (tok) =>
     typeof tok === "string" && FORBIDDEN_KEYWORDS.has(tok.trim().toLowerCase());
+  // pt435 — drop non-string tokens entirely. Pre-pt435 a buggy caller
+  // passing `null` / `undefined` / numbers would have those values
+  // join-stringified into the rendered directive as invalid CSP
+  // source-expressions (browsers ignore them, but they pollute the
+  // policy text and would mask a real regression in CI logs and
+  // reviewer reads). Explicitly dropping non-strings means the
+  // emitted directive contains only well-formed source-expressions,
+  // regardless of caller correctness.
   for (const [k, v] of Object.entries(extras)) {
-    const filtered = v.filter((tok) => !isForbidden(tok));
+    const filtered = v.filter(
+      (tok) => typeof tok === "string" && !isForbidden(tok),
+    );
     directives[k] = [...(directives[k] || []), ...filtered];
   }
   return Object.entries(directives)

@@ -250,3 +250,30 @@ test("buildPolicy filter rejects non-string and falsy tokens safely", () => {
   assert.doesNotMatch(m[1], /'unsafe-inline'/);
   assert.match(m[1], /https:\/\/safe/);
 });
+
+// pt435 — non-string tokens dropped, not stringified. Pre-pt435 a
+// `null` / `undefined` / numeric token would have join-stringified
+// into the rendered directive as invalid CSP source-expressions
+// (browsers ignore but they pollute the policy text). Now those
+// tokens are silently dropped so the emitted directive contains
+// only well-formed source-expressions.
+test("buildPolicy drops non-string tokens entirely (no 'null' / 'undefined' / '42' in directive)", () => {
+  const policy = buildPolicy(
+    new Set(),
+    {
+      "script-src": [null, undefined, 42, true, {}, "https://safe.example"],
+    },
+    new Set(),
+  );
+  const m = /(?:^|;\s*)script-src\s+([^;]+)/.exec(policy);
+  assert.ok(m);
+  // None of the stringified non-string tokens should appear in the
+  // rendered directive.
+  assert.doesNotMatch(m[1], /\bnull\b/);
+  assert.doesNotMatch(m[1], /\bundefined\b/);
+  assert.doesNotMatch(m[1], /\b42\b/);
+  assert.doesNotMatch(m[1], /\btrue\b/);
+  assert.doesNotMatch(m[1], /\[object Object\]/);
+  // Legitimate string tokens still pass.
+  assert.match(m[1], /https:\/\/safe\.example/);
+});
