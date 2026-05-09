@@ -4,6 +4,7 @@ import SeoIcons from '../components/SeoIcons.astro';
 import SkipLink from '../components/SkipLink.astro';
 import ThemePreview from '../components/ThemePreviewPanel.astro';
 import Tweaks from '../components/Tweaks.astro';
+import { isNoindexRoute } from '../lib/indexation';
 const DEV = import.meta.env.DEV;
 // Re-export `SeoProps` so BaseLayout's prop contract tracks SeoTags
 // at compile time (USMR Phase 5.1q post-review fix). Drift between
@@ -13,6 +14,22 @@ const DEV = import.meta.env.DEV;
 export type Props = SeoProps;
 const passthrough = Astro.props as SeoProps;
 const path = passthrough.path ?? '/';
+// USMR Phase 10.2 / pt417: auto-derive `robots` from the
+// NOINDEX_ROUTES SSoT at `src/lib/indexation.ts` (per pt416). When
+// the route is in NOINDEX_ROUTES AND the caller hasn't set an
+// explicit `robots` prop, default to `"noindex, nofollow"`. Caller's
+// explicit `robots` always wins (e.g. a route that wants
+// `"noindex, follow"` or `"index, nofollow"` can still set it).
+//
+// Pre-pt417 the 10 noindex routes each carried an explicit
+// `robots="noindex, nofollow"` on `<Base ...>` — that worked but
+// duplicated the SSoT. With this auto-derivation, those per-page
+// props become redundant and have been removed in the same commit;
+// the SSoT in `src/lib/indexation.ts` is the single load-bearing
+// list.
+const effectiveRobots =
+  passthrough.robots ?? (isNoindexRoute(path) ? 'noindex, nofollow' : undefined);
+const seoProps: SeoProps = { ...passthrough, robots: effectiveRobots };
 ---
 <!doctype html>
 <html
@@ -25,7 +42,7 @@ const path = passthrough.path ?? '/';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Seo {...passthrough} />
+    <Seo {...seoProps} />
     {/* USMR Phase 5.5.16-pt107 — canonical brand colors:
         - pinnedColor: canonical brand-teal-rgb 60/238/221 = #3ceedd
           (Safari tints the pinned-tab mask-icon with this; canonical

@@ -10,8 +10,11 @@ import Tagline from '../../components/Tagline.astro';
       Docs" (brand-first), inconsistent with every other route. */}
   title="Docs — Artagon"
   description="Docs, APIs, SDKs, playground — coming with the design-partner program. Apply now to ship first."
-  robots="noindex, nofollow"
   {/* USMR Phase 5.5.16-pt147 — `path` for canonical URL. */}
+  {/* USMR Phase 10.2 / pt417 — `robots="noindex, nofollow"` is now
+      auto-derived by BaseLayout from `src/lib/indexation.ts`
+      NOINDEX_ROUTES; the per-page prop was removed as redundant
+      (the SSoT is the single load-bearing list). */}
   path="/docs"
 >
   <Fragment slot="header"><Header /></Fragment>
