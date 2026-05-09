@@ -33,9 +33,15 @@ playwright/.cache/
 # (*-chromium-linux.png) are committed; the .github/workflows/playwright.yml
 # workflow_dispatch job regenerates and auto-commits them on a Linux runner.
 # Local Darwin/Windows runs produce host-specific PNGs we don't track.
-tests/styling-snapshots.spec.ts-snapshots/*
+#
+# pt430 — narrowed from `*` to `*.png` so attacker-suffixed binaries
+# (e.g. `*-chromium-linux.png.exe`, `evil.png.bin`, or symlinks with
+# the `.png` infix on case-insensitive filesystems) cannot slip into
+# commits via the previously-too-broad wildcard. PR review still owns
+# the human-loop check, but the ignore is now extension-aware.
+tests/styling-snapshots.spec.ts-snapshots/*.png
 !tests/styling-snapshots.spec.ts-snapshots/*-chromium-linux.png
-tests/device-tour.spec.ts-snapshots/*
+tests/device-tour.spec.ts-snapshots/*.png
 !tests/device-tour.spec.ts-snapshots/*-linux.png
 
 # Lychee link-checker cache. The CI workflow now passes

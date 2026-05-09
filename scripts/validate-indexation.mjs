@@ -247,6 +247,14 @@ function checkC() {
     const parts = line.split(/\s+/);
     if (parts.length < 2) continue; // malformed — skip silently here; Cloudflare will reject at deploy
     const dest = parts[1];
+    // pt430 — additional same-origin guards beyond `://` / `//` / non-`/`.
+    // Pre-pt430 the gate accepted backslash-prefixed paths (`/\evil.com`,
+    // which some browsers normalize to `//evil.com`) and control-char
+    // injections (`\x00-\x1f` / `\x7f`) that could break out of the
+    // routing context on edge runtimes. Cloudflare Pages parses
+    // `_redirects` strictly so most edge cases fail closed today, but
+    // tightening upstream stops reliance on unspecified downstream
+    // parser behavior. See 2026-05-09 security review (blackhat lens).
     if (dest.includes("://")) {
       findings.push({
         line: lineno,
@@ -260,6 +268,20 @@ function checkC() {
         rule: line,
         issue: "protocol-relative",
         detail: `destination "${dest}" begins with "//" (protocol-relative); same-origin only`,
+      });
+    } else if (dest.startsWith("/\\") || dest.includes("\\")) {
+      findings.push({
+        line: lineno,
+        rule: line,
+        issue: "backslash",
+        detail: `destination "${dest}" contains a backslash; some browsers normalize "/\\foo" to "//foo" (protocol-relative pivot)`,
+      });
+    } else if (/[\x00-\x1f\x7f]/.test(dest)) {
+      findings.push({
+        line: lineno,
+        rule: line,
+        issue: "control-char",
+        detail: `destination "${dest}" contains a control character (U+0000-U+001F or U+007F); reject before any downstream parser sees it`,
       });
     } else if (!dest.startsWith("/")) {
       findings.push({
