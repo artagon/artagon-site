@@ -33,12 +33,17 @@ reference); the user-facing canonical is the 6-item index.html nav.
 ### Right-side container
 
 The header right slot per canonical
-`new-design/extracted/src/components/BaseLayout.jsx:220-238`:
+`new-design/extracted/src/layouts/BaseLayout.jsx:220-238` (note:
+canonical is in `layouts/`, not `components/`):
 
-- **Tagline pill** — motto / current-status indicator
 - **GitHub icon button** — 34×34 rounded-square outbound link
-  (`rel="noopener noreferrer"` + `target="_blank"`)
-- **Get Started CTA** — primary `/get-started` button
+  (`rel="noopener noreferrer"` + `target="_blank"`); shipped at
+  `src/components/Header.astro:61-87`
+- **Playground btn (ghost)** — `/#playground` anchor button;
+  shipped at `Header.astro:88`
+- **Request access btn (primary)** — `/#get-started` anchor primary
+  button (canonical "Request access" CTA); shipped at
+  `Header.astro:89-90`
 
 The original header **ThemeToggle** dropdown was removed in pt87 and
 the standalone `src/components/ThemeToggle.astro` component was
