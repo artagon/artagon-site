@@ -266,43 +266,54 @@ All components are Astro components (`.astro` files) with:
 
 **Key Components:**
 
-- `Header.astro` - Main navigation with theme toggle
-- `Footer.astro` - Site footer with links
-- `SeoTags.astro` - Meta tags, Open Graph, JSON-LD schema
-- `FaqSearch.astro` - Client-side FAQ search
-- `RoadmapPhaseCard.astro` - Roadmap timeline cards
+- `Header.astro` - Main navigation (six-link `NAV_LINKS` per pt87 canonical: Platform · Bridge · Use cases · Standards · Roadmap · Blog). The original header theme toggle was removed in pt87 and the standalone `ThemeToggle.astro` was deleted as orphan in pt166; theme switching is now exercised via the dev-only `Tweaks` panel.
+- `Footer.astro` - Site footer (4-column flat grid: Platform / Developers / Company / Legal × 5 links each per pt5.5.3 canonical)
+- `SeoTags.astro` - Meta tags, Open Graph, Twitter Card, JSON-LD `Organization` + `WebSite` schema, robots prop, canonical URLs
+- `FaqSearch.astro` - Client-side FAQ search (renders inside `/faq` route alongside `FaqItem.astro` per-entry markup)
+- `RoadmapTimeline.astro` - Roadmap horizontal-timeline cards (consumes the `src/data/roadmap.ts` typed registry)
 
 ### Structured Data
 
 **Location:** `src/data/`
 
-TypeScript files exporting structured content:
+TypeScript files exporting structured content. Each module ships an explicit `export type` for the row shape and a `readonly` array constant. The shapes shown below are the live shapes — they may evolve, and the canonical source of truth is the `.ts` file itself.
 
-**`faq.ts`** - FAQ with JSON-LD schema:
+**`faq.ts`** - FAQ entries (consumed by `/faq` route + `FaqItem.astro` per-entry markup):
 
 ```typescript
-export const faqData = {
-  title: "Frequently Asked Questions",
-  items: [
-    {
-      question: "What is Artagon?",
-      answer: "...",
-    },
-  ],
+export type FaqItem = {
+  id: string;
+  category: string;
+  question: string;
+  answer: string; // Markdown rendered via the Astro Markdown pipeline
 };
-```
 
-**`roadmap.ts`** - Product roadmap phases:
+export const FAQ_CATEGORIES = [
+  "Platform Overview",
+  "Authentication & Identity",
+  // ...
+] as const;
 
-```typescript
-export const roadmapPhases = [
+export const FAQS: FaqItem[] = [
   {
-    phase: "Foundation",
-    quarter: "Q1 2024",
-    status: "in-progress",
-    items: [...],
+    id: "what-is-artagon",
+    category: "Platform Overview",
+    question: "...",
+    answer: "...",
   },
 ];
+```
+
+**`roadmap.ts`** - Product roadmap horizontal-timeline registry (consumed by `RoadmapTimeline.astro` at `/roadmap` per the pt5.7 5-tuple shape that replaced the earlier 5.1c stub):
+
+```typescript
+export type RoadmapStatus = "shipping" | "in-build" | "design" | "planned";
+
+export interface RoadmapPhase {
+  id: "v1" | "v2" | "v3" | "v4" | "v5"; // anchor id for /roadmap#v3 deep links
+  version: "V1" | "V2" | "V3" | "V4" | "V5"; // mono prefix in the card header
+  // ... time band, scope items, ...
+}
 ```
 
 ## Build & Deployment
