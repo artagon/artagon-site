@@ -23,7 +23,7 @@ context: |
   - src/content/pages/writing/ — long-form posts (USMR; rendered at /writing/[slug])
   - src/layouts/BaseLayout.astro — shared layout, inline theme/menu scripts; USMR adds named slots: json-ld, indexation, branding
   - src/components/ui/ — Card, SectionHeader, FeatureList primitives
-  - public/assets/theme.css — global tokens + ui-* utility classes; USMR adds @layer reset, tokens, utilities, components, overrides + OKLCH palette + theme packs (twilight/midnight/slate)
+  - public/assets/theme.css — global tokens + ui-* utility classes; USMR adds @layer reset, tokens, utilities, components, overrides + OKLCH palette + theme packs (twilight/midnight; pre-pt167 there was a third `slate` pack, retired in that iter)
   - scripts/sri.mjs + scripts/csp.mjs + scripts/lint-tokens.mjs — postbuild security (SRI + CSP meta + token-literal lint). Build output is .build/dist/ per build.config.json.
   - openspec/ — spec-driven workflow (this directory)
 
