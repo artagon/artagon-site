@@ -717,22 +717,17 @@ Other build-related scripts not in the postbuild chain:
 
 #### Lighthouse CI (`lighthouse.yml`)
 
-**Trigger:** Push to `main`
+**Trigger:** `pull_request` (any branch) + push to `main` + `workflow_dispatch` (manual). Per `lighthouse.yml` lines 2-6 — pre-pt390 the README listed only "Push to `main`", which undercounted the live trigger set.
 
 **Process:**
 
 1. Build site
-2. Start HTTP server on port 8081
-3. Run Lighthouse audits (2 runs)
-4. Assert score thresholds
-5. Upload results to temporary storage
+2. Start HTTP server on port 8081 (via `scripts/lhci-serve.mjs`)
+3. Run Lighthouse audits
+4. Assert score thresholds against `lighthouserc.json` `assertMatrix`
+5. Upload results
 
-**Thresholds:**
-
-- Performance: ≥90% (warn)
-- Accessibility: ≥95% (error)
-- Best Practices: ≥90% (error)
-- SEO: ≥95% (error)
+**Thresholds:** declared in `lighthouserc.json` `assertMatrix` — TWO URL-pattern blocks today: one for `/brand` (performance 80% error, accessibility 95% error, best-practices 90% error, seo off), one default (`.*` — performance 85% warn, accessibility 90% error, best-practices 90% warn, seo 90% warn, plus LCP ≤ 4000 ms warn). Pre-pt390 the README listed a single threshold block (Performance ≥90% warn, Accessibility ≥95% error, etc.); none of those values matched the live `lighthouserc.json` shape. Live values shift over time as performance budgets evolve — read `lighthouserc.json` `assertMatrix` directly for the canonical contract; this section names the SSoT rather than freezing values that drift.
 
 #### Link Check (`link-check.yml`)
 
