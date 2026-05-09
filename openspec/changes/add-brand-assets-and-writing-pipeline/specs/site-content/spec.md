@@ -32,7 +32,7 @@ The `cover` field MUST match `^(\.\/assets\/|posts\/assets\/)[A-Za-z0-9._/-]+\.(
 
 #### Scenario: Local post omits remote-source fields
 
-- **WHEN** a contributor authors `src/content/pages/writing/welcome.mdx` without `repo`, `path`, or `commit` frontmatter
+- **WHEN** a contributor authors `src/content/writing/welcome.mdx` (pre-pt414 cited as `src/content/pages/writing/welcome.mdx` — path-nesting drift; sister to pt401/pt413) without `repo`, `path`, or `commit` frontmatter
 - **THEN** the build succeeds and the post is recorded as a local-source entry with `repo === undefined`.
 
 #### Scenario: Remote post declares all three

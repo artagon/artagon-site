@@ -41,13 +41,13 @@ git -C .cache/content-repo checkout FETCH_HEAD
 
 ### Requirement: Dual-Source Content Collection
 
-`src/content.config.ts` MUST configure the `pages/writing` collection with two glob loaders unified under one schema: (a) the local glob at `src/content/pages/writing/**/*.{md,mdx}`, (b) the remote glob at `.cache/content-repo/posts/**/*.{md,mdx}`. Both glob outputs MUST be validated by the same Zod schema (extended per `site-content`'s additive frontmatter requirement). Local and remote entries MUST coexist in the same collection without duplicate `id` collisions; CI MUST fail if duplicate ids are detected.
+`src/content.config.ts` MUST configure the `writing` collection (pre-pt414 cited as `pages/writing` — collection is named `writing`, not `pages/writing`; the `pages` and `writing` collections are SIBLINGS under `src/content/`. Verified: `src/content.config.ts:128` declares `const writing = defineCollection({...})` with `base: "./src/content/writing"` at line 131. Sister to pt401/pt413 path-nesting drift) with two glob loaders unified under one schema: (a) the local glob at `src/content/writing/**/*.{md,mdx}` (pre-pt414 cited as `src/content/pages/writing/**/*.{md,mdx}`), (b) the remote glob at `.cache/content-repo/posts/**/*.{md,mdx}`. Both glob outputs MUST be validated by the same Zod schema (extended per `site-content`'s additive frontmatter requirement). Local and remote entries MUST coexist in the same collection without duplicate `id` collisions; CI MUST fail if duplicate ids are detected.
 
 The collection's content-layer cache key MUST include `entry.data.commit` (for remote posts) and a SHA-256 hash of the file body (for local posts). Astro's default `.astro/` cache is path-mtime-keyed; with the SHA-pinned remote pipeline, the SAME path can hold DIFFERENT commits across rebuilds (force-push, rebase) → without commit-aware caching, stale parses serve while the build-sha meta tag updates, producing a desynced page where users see old content with a new SHA. The loader MUST therefore emit a `digest` in its `loader.load` callback that incorporates `entry.data.commit ?? sha256(fileContent)`; cache invalidation tracks content, not path.
 
 #### Scenario: Dual sources merge cleanly
 
-- **WHEN** `src/content/pages/writing/local.mdx` and `.cache/content-repo/posts/remote.mdx` both exist with distinct slugs
+- **WHEN** `src/content/writing/local.mdx` (pre-pt414 cited as `src/content/pages/writing/local.mdx` — sister path-nesting drift to pt401/pt413) and `.cache/content-repo/posts/remote.mdx` both exist with distinct slugs
 - **THEN** `getCollection('pages/writing')` returns both entries, validated under the same schema.
 
 #### Scenario: Duplicate id fails build

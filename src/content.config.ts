@@ -113,9 +113,12 @@ const pageBase = z.object({
 });
 
 // Astro 6 content layer: each collection declares its own loader so
-// collections can co-locate inside src/content/pages/ per the USMR spec
-// (which keeps writing posts at src/content/pages/writing/ rather than
-// at the conventional src/content/writing/ root).
+// pages, writing, and authors collections can be authored as siblings
+// under src/content/. Pre-pt414 the comment claimed writing posts
+// nested under src/content/pages/writing/ — that's INVERTED; the
+// actual `writing` loader (line 131 below) uses
+// `base: "./src/content/writing"` (the conventional root path), and
+// `src/content/pages/writing/` does not exist on disk.
 
 const pages = defineCollection({
   loader: glob({

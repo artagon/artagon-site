@@ -5,7 +5,7 @@ This change sequences AFTER `update-site-marketing-redesign` (the redesign estab
 The redesign change deferred two scopes:
 
 1. The brand-icon system documented in DESIGN.md §4.14 (7+ glyph variants, wordmark, favicon, OG cards). It currently lives inlined in `new-design/extracted/src/pages/brand-icons.html` as raw JS string constants.
-2. A GitHub-sourced writing pipeline. DESIGN.md §4.12 calls for "GitHub-sourced writing & docs" with build-time fetch from a content repo; the redesign shipped only the local `src/content/pages/writing/*.mdx` form.
+2. A GitHub-sourced writing pipeline. DESIGN.md §4.12 calls for "GitHub-sourced writing & docs" with build-time fetch from a content repo; the redesign shipped only the local `src/content/writing/*.mdx` form (pre-pt414 cited as `src/content/pages/writing/*.mdx` — path-nesting drift; the writing collection is a sibling of pages/, not nested. Sister to pt401/pt413 fixes.).
 
 Both gaps are now in scope.
 
