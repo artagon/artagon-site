@@ -44,13 +44,21 @@ context: |
   - update-site-marketing-redesign (USMR) — replaces marketing surface with new-design content;
     introduces 7 NEW capabilities (site-navigation, site-standards-registry, site-bridge-story,
     site-mobile-layout, site-structured-data, site-indexation, site-branding) and MODIFIES
-    site-content + style-system. Phase 2 foundations merged via PR #43.
-  - self-host-woff2-fonts — NEW capability font-self-hosting; MODIFIES style-system; merged via PR #44.
+    site-content + style-system. Phase 2 foundations merged via PR #43; Phase 5.x marketing
+    routes shipped via the pt-iter ralph loop; currently in late-stage 5.5.16-loop polish.
+  - self-host-woff2-fonts — NEW capability font-self-hosting; MODIFIES style-system. Proposal
+    scaffolded via PR #44; sequencing-independent of USMR (can land in either order).
   - migrate-deploy-to-cloudflare-pages — NEW capability cloudflare-pages-deployment;
-    MODIFIES github-pages-deployment + check-site-quality; merged via PR #45.
+    MODIFIES github-pages-deployment + check-site-quality. Proposal scaffolded via PR #45;
+    sequencing-independent of USMR.
   - add-brand-assets-and-writing-pipeline — blocked on USMR archive.
   - migrate-legacy-tokens-to-layer — stub; reconciles style-system "All token definitions in tokens layer"
     requirement against the ~150 grandfathered :root declarations. Depends on USMR archive.
+  - enhance-a11y-coverage — NEW WCAG 2.1 AA contracts (tap targets ≥ 44 px, focus rings,
+    color-contrast gates, axe-core CI gate flip from informational to mandatory).
+  - externalize-strings-and-add-i18n — NEW capability site-i18n + MODIFIED site-content
+    (per-locale string bundles routed through src/lib/charset.ts; authored as parallel-track
+    proposal during the USMR deep-audit ralph loop).
 
   Merge order: refactor-styling-architecture (archived 2026-05-04) →
   adopt-design-md-format (archived 2026-05-05) → update-site-marketing-redesign (in flight) →
