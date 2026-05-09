@@ -731,7 +731,7 @@ Other build-related scripts not in the postbuild chain:
 
 #### Link Check (`link-check.yml`)
 
-**Trigger:** Scheduled (weekly) or manual
+**Trigger:** `pull_request` (any branch) + push to `main` + `workflow_dispatch` (manual). Per `link-check.yml` lines 2-4 — there is NO schedule/cron trigger. Pre-pt392 the README said "Scheduled (weekly) or manual" — phantom-trigger drift; the workflow has never had a cron and runs per-commit, not weekly.
 
 **Process:**
 
