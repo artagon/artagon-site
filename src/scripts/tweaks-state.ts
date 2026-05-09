@@ -14,7 +14,9 @@
  * writes a `data-theme` value that the live CSS does not match, leaving
  * the page in a tokens-only state. This is a documented mid-flight
  * vocabulary gap, not a bug to fix here. See
- * `openspec/changes/add-tweaks-panel/proposal.md` Out-of-Scope §3.
+ * `openspec/changes/archive/2026-05-04-add-tweaks-panel/proposal.md`
+ * Out-of-Scope §3 (the change archived 2026-05-04; the live path
+ * for archaeology is the archive entry).
  */
 
 export type Accent = "cyan" | "violet" | "amber" | "lime";
