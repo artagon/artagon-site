@@ -19,6 +19,28 @@ and consolidates the styling-system contracts that the underlying
 and by `self-host-woff2-fonts` (font-payload budget + WOFF2
 metric-overrides, in flight).
 
+**KNOWN SPEC DRIFT (pt397 archaeology — token canonicalization)**:
+The "Global Theme Consistency" Requirement Scenario below (line
+64-67) uses `--brand-teal` as the example primary-color variable
+("WHEN the `--brand-teal` variable is updated in `theme.css`,
+THEN all 'Hero' sections and 'Buttons' across the site reflect
+the change immediately"). That Scenario reflects the pre-USMR
+state when `--brand-teal` was the canonical primary-color
+token. Under USMR pt86 the token system canonicalized to
+`--accent` and `--brand-teal` was demoted to a retained ALIAS
+(`public/assets/theme.css:276,285` declare
+`--brand-teal: var(--accent)`); updating `--brand-teal` today
+would NOT propagate the change because nothing downstream
+consumes the alias directly — components consume `--accent`. The
+canonical update site is now `--accent`. The Scenario at line
+64-67 needs a follow-up amendment (separate OpenSpec proposal)
+to either point at `--accent` directly OR document the alias
+chain. Per OpenSpec discipline, pt397 is doc-scope (Purpose
+backfill) only and does NOT modify the Requirement / Scenario
+text — Requirements changes go through proposals, not direct
+edits. Same pattern as pt395 SearchAction Purpose backfill in
+manage-site-links/spec.md.
+
 ## Requirements
 
 ### Requirement: Theme-Aware Fallback Tokens
