@@ -141,7 +141,7 @@ JSON-LD via `JsonLd.astro` — uses `JSON.stringify` then Astro's interpolation 
 
 ### 14. Sitemap + noindex + robots — single source
 
-`site-indexation` capability regenerates `sitemap.xml` on build with `<lastmod>` bound to MDX `updated`/`published` frontmatter (NOT CI checkout mtime — `@astrojs/sitemap`'s default would tell Google every page updated on every deploy). The list of non-indexable routes lives in `src/lib/indexation.ts` `NOINDEX_ROUTES` as a typed `as const` array consumed by sitemap filter, BaseLayout `indexable` prop, robots.txt generator, and `validate-indexation.mjs` — single source prevents drift. Excluded routes emit `<meta name="robots" content="noindex, nofollow">`. `robots.txt` managed under this capability. `/_drafts/` filter remains in `astro.config.mjs`. `_redirects` destinations MUST be same-origin (begin with `/`); validator rejects `://` and `//`.
+`site-indexation` capability regenerates `sitemap.xml` on build with `<lastmod>` bound to MDX `updated`/`published` frontmatter (NOT CI checkout mtime — `@astrojs/sitemap`'s default would tell Google every page updated on every deploy). The list of non-indexable routes lives in `src/lib/indexation.ts` `NOINDEX_ROUTES` as a typed `as const` array consumed by sitemap filter, BaseLayout `indexable` prop, robots.txt generator, and `validate-indexation.mjs` — single source prevents drift. Excluded routes emit `<meta name="robots" content="noindex, nofollow">`. `robots.txt` managed under this capability. `/_drafts/` filter remains in `astro.config.ts` (renamed from `astro.config.mjs` mid-USMR per pt342 archaeology). `_redirects` destinations MUST be same-origin (begin with `/`); validator rejects `://` and `//`.
 
 ### 15. Branding: favicons, theme-color, OG images
 

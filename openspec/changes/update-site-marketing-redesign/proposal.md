@@ -80,7 +80,7 @@ The current `artagon-site` communicates the product at a surface level but under
   - `src/lib/indexation.ts` (new) — `NOINDEX_ROUTES` single source consumed by sitemap filter, BaseLayout, robots.txt, validator.
   - `rules/security/*.yaml` — additions where the rule fits ast-grep (e.g. inline-wordmark ban, raw-hex literal in `.css`).
   - `package.json` build pipeline (lint + gen scripts wired into `postbuild`).
-  - `astro.config.mjs` (`@astrojs/sitemap` excludes).
+  - `astro.config.ts` (renamed from `astro.config.mjs` mid-USMR for typed `BUILD` import; `@astrojs/sitemap` excludes).
   - `openspec/project.md` and `openspec/config.yaml` (route list and capability inventory).
 
 - **Affected Docs:**
