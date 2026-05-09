@@ -85,7 +85,12 @@ artagon-site/
 │   ├── lib/                # Internal helpers (e.g. openspec-archive.mjs)
 │   └── ...                 # Other helpers (oklch-to-hex, check-design-drift, etc.)
 ├── src/
-│   ├── components/         # Reusable Astro components (~30 components)
+│   ├── components/         # Reusable Astro components
+│                           # (run `find src/components -maxdepth 2
+│                           #  -name '*.astro' -o -name '*.tsx' | wc -l`
+│                           #  for current count — pre-pt381 (~30) drifted
+│                           #  as the redesign added/retired surfaces;
+│                           #  SSoT is the dir tree)
 │   │   ├── Header.astro    # Main navigation
 │   │   ├── Footer.astro    # Site footer
 │   │   ├── SeoTags.astro   # SEO meta tags
