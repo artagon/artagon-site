@@ -77,8 +77,17 @@ async function processHtml(fp) {
   const hasDoc =
     $('script[src*="docsearch"]').length || $('link[href*="docsearch"]').length;
   if (hasDoc) {
-    extras["script-src"] = ["https://cdn.jsdelivr.net"];
-    extras["style-src"] = ["https://cdn.jsdelivr.net"];
+    // pt431 — path-pin the jsdelivr allow-list to /npm/@docsearch/.
+    // Pre-pt431 the entire `https://cdn.jsdelivr.net` host was added
+    // to script-src + style-src, so any package published on jsdelivr
+    // would have been a viable script-src origin if it ever loaded
+    // here. Path-prefix matching per CSP spec: the URL prefix must be
+    // a complete path segment, so `cdn.jsdelivr.net/npm/@docsearch/`
+    // matches `/npm/@docsearch/js@3.9.0` but rejects
+    // `/npm/something-else@x`. Bumps to a different DocSearch path
+    // require updating this too — kept atomic.
+    extras["script-src"] = ["https://cdn.jsdelivr.net/npm/@docsearch/"];
+    extras["style-src"] = ["https://cdn.jsdelivr.net/npm/@docsearch/"];
     extras["connect-src"] = [
       "https://*.algolia.net",
       "https://*.algolianet.com",

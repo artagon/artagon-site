@@ -59,8 +59,29 @@ import Footer from '../../components/Footer.astro';
       margin-top: 20px;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@docsearch/js@3"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
+  {/* pt431 — DocSearch CDN refs pinned to exact version + SRI. Pre-pt431
+       used the unpinned `@3` major-version range and shipped no integrity
+       attribute, so a future jsdelivr / Algolia compromise could ship
+       arbitrary code under the site's origin (CSP allowed
+       `https://cdn.jsdelivr.net` site-wide because of the conditional
+       allow-list in scripts/csp.mjs). The SHA-384 hashes were computed
+       against the bytes published at pin time:
+         js  sha384-f/IEhh8fvOc2ALU79emLlUqAYXyqlA/zYhM+g5GlWMk15QBjTXy05TtmfT1TbtV6
+         css sha384-XMwByx5w8uj/lIF/JzG5ifeDnUBe9BURWnnD/Hk81DBN5iGIbno8pG5acrUlEhoA
+       Bumping the version requires regenerating both hashes. The
+       crossorigin="anonymous" attribute is required for SRI to
+       evaluate on cross-origin requests. */}
+  <script
+    src="https://cdn.jsdelivr.net/npm/@docsearch/js@3.9.0"
+    integrity="sha384-f/IEhh8fvOc2ALU79emLlUqAYXyqlA/zYhM+g5GlWMk15QBjTXy05TtmfT1TbtV6"
+    crossorigin="anonymous"
+  ></script>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@docsearch/css@3.9.0"
+    integrity="sha384-XMwByx5w8uj/lIF/JzG5ifeDnUBe9BURWnnD/Hk81DBN5iGIbno8pG5acrUlEhoA"
+    crossorigin="anonymous"
+  />
   <script>
   (async function(){
     try{
