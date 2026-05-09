@@ -23,7 +23,7 @@ note: |
 
   TRACKING (deferred follow-up):
     - Promote severity: warning → error
-    - Tracker: openspec/changes/adopt-design-md-format/tasks.md Phase 6.3
+    - Tracker: openspec/changes/archive/2026-05-05-adopt-design-md-format/tasks.md Phase 6.3 (proposal archived 2026-05-05; live spec is openspec/specs/design-system-format/spec.md — promotion is now a follow-up to that capability spec)
     - Promotion gate: zero ast-grep `lint:sg:ci` warnings on this rule
       against current sources; verify via
       `npx sg scan --rule rules/security/no-untraceable-token.yml`.
