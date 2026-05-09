@@ -614,23 +614,22 @@ Page-specific styles use the page name as prefix and remain in page CSS file:
 
 ### 2. Test Across All Themes
 
-Artagon has 3 themes. Always verify visuals in:
+Artagon ships 2 themes (the original 3rd theme `Slate` was retired
+in pt167; only twilight + midnight remain in `public/assets/theme.css`
+and the `BaseLayout.astro` allow-list). Always verify visuals in:
 
-1. **Midnight** (default)
-2. **Twilight** (indigo variant)
-3. **Slate** (blue variant)
+1. **Twilight** (default per `BaseLayout.astro` and the
+   `__setTheme` allow-list `['twilight', 'midnight']`)
+2. **Midnight** (alternate)
 
 **How**: Use theme toggle in header, or manually add `data-theme` attribute:
 
 ```html
-<html data-theme="midnight">
+<html data-theme="twilight">
   <!-- Default -->
-  <html data-theme="twilight">
-    <!-- Alt 1 -->
-    <html data-theme="slate">
-      <!-- Alt 2 -->
-    </html>
-  </html>
+</html>
+<html data-theme="midnight">
+  <!-- Alternate -->
 </html>
 ```
 
@@ -668,7 +667,7 @@ All interactive components must have:
 
 - `npx lhci autorun --config=lighthouserc.json` — Lighthouse a11y audit incl. axe-core scan, color contrast, ARIA attributes. Asserts score ≥ 0.95 per route.
 - `npx playwright test tests/styling-a11y.spec.ts --project=chromium` — keyboard tab traversal + focus-ring presence on links and `.ui-card:focus-within`.
-- `VISUAL_REGRESSION=1 npx playwright test tests/styling-snapshots.spec.ts --project=chromium` — drift detection across 3 themes × 3 breakpoints.
+- `VISUAL_REGRESSION=1 npx playwright test tests/styling-snapshots.spec.ts --project=chromium` — drift detection across the THEMES array in the spec (currently 2 themes — twilight + midnight; pre-pt167 was 3 with slate) × 3 breakpoints.
 
 **Manual gate before release** (not automated): test the page with a screen reader (VoiceOver on macOS, NVDA on Windows). Verify logical reading order — section number → title → intro → body — and that decorative icons (`.ui-card-badge-icon` emojis) are skipped or labeled. The Playwright AT-SPI / NSAccessibility bridge is browser-specific and CI-flaky; SR testing stays manual until that situation improves upstream.
 
@@ -812,7 +811,7 @@ When refactoring existing pages:
 
 6. **Verify**
    - Visual regression (screenshots)
-   - All 3 themes
+   - Both shipped themes (twilight + midnight)
    - All breakpoints (mobile, tablet, desktop)
 
 ---
