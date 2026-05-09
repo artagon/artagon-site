@@ -81,24 +81,27 @@ Tests Content Collections schema enforcement:
 
 **Jobs:**
 
-1. **test** - Run all tests (3 shards for parallel execution)
-   - Installs dependencies
-   - Installs Playwright browsers
-   - Builds site
-   - Runs tests in parallel (1/3, 2/3, 3/3 shards)
-   - Uploads test reports and screenshots
+1. **test** - Run all tests (5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22`)
+   - Installs dependencies (`npm ci`, frozen lockfile)
+   - Installs Playwright browsers (chromium / firefox / webkit bundled in CI image; Edge + Chrome stable channels installed via `npx playwright install msedge` / `chrome`)
+   - Builds site (runs prebuild → astro build → 10-step postbuild)
+   - Runs tests in parallel (1/5, 2/5, 3/5, 4/5, 5/5 shards)
+   - Uploads per-shard test reports + screenshots on failure (14-day retention)
 
 2. **merge-reports** - Combines shard results
-   - Downloads all shard reports
+   - Downloads all 5 shard reports
    - Merges into single HTML report
    - Uploads merged report artifact
 
-3. **visual-regression** - Visual regression only
-   - Runs chromium-only visual tests
+3. **visual-regression** - Visual regression suite (`VISUAL_REGRESSION=1`)
+   - Workflow invokes `tests/vision-page.spec.ts` + `tests/styling-snapshots.spec.ts` on 3 projects (chromium · webkit · Mobile Safari) per `playwright.yml:249,256`
+   - The specs themselves currently skip non-chromium via `test.skip(testInfo.project.name !== "chromium", ...)` so net effect is chromium-only snapshot capture (the webkit / Mobile Safari Linux baselines do not exist yet — see AGENTS.md §Testing for the broader cross-engine guard via `tests/header.spec.ts` + `tests/home-axe.spec.ts`)
    - Uploads visual diffs on failure
+   - On `workflow_dispatch`: regenerates baselines via `--update-snapshots` and auto-commits
 
-4. **accessibility** - Accessibility tests only
-   - Runs chromium-only a11y tests
+4. **accessibility** - Accessibility audit
+   - Runs `--grep "accessibility"` on 3 engines: chromium · webkit · Mobile Safari (per `playwright.yml:321`)
+   - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; per pt264 archaeology in AGENTS.md §Accessibility)
    - Uploads failures for review
 
 **Triggers:**
