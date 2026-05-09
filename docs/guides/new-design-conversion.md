@@ -223,20 +223,29 @@ discarded each of these routes. Current status:
 - `/blog` — **DISCARDED** as planned (superseded by `/writing/[slug]`).
 - `/brand-icons` — **DEFERRED** to `add-brand-assets-and-writing-pipeline` change as planned.
 
-### BaseLayout.astro contract (verified line numbers)
+### BaseLayout.astro contract
 
-`src/layouts/BaseLayout.astro` (65 lines total):
+`src/layouts/BaseLayout.astro` (current size: run `wc -l src/layouts/
+BaseLayout.astro` — pre-USMR snapshot was 65 lines; the file grew
+through Phase 5.x additions including the canonical webfonts loader
+and the `[data-theme-toggle]` sync hook, current size ~142 lines as
+of pt243). Read the file directly for current line numbers — what
+follows is the LOGICAL structure, stable across versions:
 
-- Lines 11-14: `<meta>` charset/viewport, `<Seo>`, `<SeoIcons>`
-- **Lines 16-37: pre-paint theme persistence script** (`<script is:inline>`). DO NOT touch. This must execute before paint to avoid theme flash.
-- Line 38: `<link rel="stylesheet" href="/assets/theme.css" />`
-- Line 39: `<slot name="head" />` — for per-page CSS injection (used by `/roadmap`)
-- Line 40: legacy `toggleMenu` script — keep, not yours to refactor
-- Lines 41-52: `__setTheme` global helper — keep
-- Line 55: `<a class="skip-link">` — keep, route target is `#main`
-- Line 56: `<slot name="header" />` — header injection
-- Line 57: `<main id="main">` + line 58: default `<slot />` — page content
-- Line 60: `<slot name="footer" />` — footer injection
+- `<meta>` charset/viewport, `<Seo>`, `<SeoIcons>` block.
+- **Pre-paint theme persistence `<script is:inline>` block.** DO NOT
+  touch. This must execute before paint to avoid theme flash.
+- Webfonts loader (Google Fonts preconnect pair + 6-family stylesheet
+  link), site-wide `<link rel="stylesheet" href="/assets/theme.css">`,
+  named slots: `head` (per-page CSS injection), `json-ld`,
+  `indexation`, `branding`.
+- Legacy menu/script blocks (most retired in pt85; the surviving
+  `__setTheme` global helper synchronizes `aria-pressed` on every
+  `[data-theme-toggle]` button).
+- `<body>`: `<SkipLink>`, `<slot name="header">` (header injection),
+  `<main id="main-content">` + default `<slot />` (page content),
+  `<slot name="footer">` (footer injection), dev-only
+  `<ThemePreview>` + `<Tweaks />` panels.
 
 To merge new-design's `BaseLayout.jsx` content (Nav, Footer, GLOSSARY, ArtagonGlyph):
 
@@ -250,15 +259,24 @@ To merge new-design's `BaseLayout.jsx` content (Nav, Footer, GLOSSARY, ArtagonGl
 
 ## Critical constraints (consolidated from adversarial review)
 
-### 1. RSA prerequisite gate (verified)
+### 1. RSA prerequisite gate
 
-USMR depends on `refactor-styling-architecture` (RSA) being archive-ready. RSA is currently **65/83 tasks complete** (verified by `rtk rg -c '^\s*- \[x\]' openspec/changes/refactor-styling-architecture/tasks.md`).
+USMR depends on `refactor-styling-architecture` (RSA) being archive-
+ready. **RSA archived 2026-05-04** to
+`openspec/changes/archive/2026-05-04-refactor-styling-architecture/`.
+The pre-USMR snapshot recorded RSA at "65/83 tasks complete" with
+`scripts/verify-prerequisites.mjs` not yet authored — both
+conditions have since resolved.
 
-**The script `npm run verify:prerequisites` does NOT yet exist.** It is the deliverable of USMR task 0.5. So:
+The script `npm run verify:prerequisites` is now live
+(`scripts/verify-prerequisites.mjs` + npm script in `package.json`)
+and runs as part of the postbuild chain. Run it directly:
 
-- DO NOT run `npm run verify:prerequisites` (it errors with missing-script).
-- DO check RSA tasks.md by hand: `rtk rg -c '^\s*- \[ \]' openspec/changes/refactor-styling-architecture/tasks.md` should be ≤ small number of acceptable holdouts (browser-blocked tasks like Lighthouse, visual regression).
-- USMR task 0.5 itself is your FIRST conversion task: implement `scripts/verify-prerequisites.mjs`, add npm script, write tests, wire CI. Then use it from then on.
+```bash
+npm run verify:prerequisites
+```
+
+USMR task 0.5 (the deliverable that authored this script) is closed.
 
 ### 2. CSS token namespace collision (verified)
 
@@ -268,7 +286,11 @@ Live `theme.css` has these tokens that new-design ALSO defines with different va
 - `--bg-alt` (live: hex per theme; new: not defined as `--bg-alt`)
 - `--accent` (live: `#7c5cff`; new: `oklch(0.86 0.14 185)` per theme)
 
-There ARE plain `:root {}` blocks in theme.css (L2, L72, L475, L980 — verified). Tokens are also defined under `:root[data-theme="midnight|twilight|slate"]`.
+There ARE plain `:root {}` blocks in theme.css (current line numbers
+shift with each token addition; run `grep -n '^:root' public/assets/
+theme.css` for the live offsets). Tokens are also defined under
+`:root[data-theme="midnight|twilight"]`. The pre-pt167 third theme
+`slate` was retired (only twilight + midnight remain).
 
 **Token rename contract (mandatory):**
 
