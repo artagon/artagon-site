@@ -21,7 +21,7 @@ This phrasing is canonical and used verbatim in `README.md`, `AGENTS.md`, and `o
 
 ### Origin: promotion from `new-design/extracted/DESIGN.md`
 
-The repo-root `DESIGN.md` was promoted from `new-design/extracted/DESIGN.md` on 2026-05-04 per the `adopt-design-md-format` openspec change. The earlier copy at `new-design/extracted/DESIGN.md` is retained for diff history but is no longer authoritative — the root `DESIGN.md` supersedes it. Edits MUST go to the root file. The `new-design/extracted/` directory (including the historical `DESIGN.md` copy) is gitignored on `main` and slated for deletion by the `cleanup-new-design-extracted` follow-up change once `update-site-marketing-redesign` and `add-brand-assets-and-writing-pipeline` archive.
+The repo-root `DESIGN.md` was promoted from `new-design/extracted/DESIGN.md` on 2026-05-04 per the `adopt-design-md-format` openspec change (proposal archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/`; the live capability spec is `openspec/specs/design-system-format/spec.md`). The earlier copy at `new-design/extracted/DESIGN.md` is retained for diff history but is no longer authoritative — the root `DESIGN.md` supersedes it. Edits MUST go to the root file. The `new-design/extracted/` directory (including the historical `DESIGN.md` copy) is gitignored on `main` and slated for deletion by the `cleanup-new-design-extracted` follow-up change once `update-site-marketing-redesign` and `add-brand-assets-and-writing-pipeline` archive.
 
 ---
 
