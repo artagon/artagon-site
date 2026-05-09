@@ -16,7 +16,7 @@
 
 ### Requirement: StandardChip Primitive
 
-`StandardChip.astro` SHALL render a clickable pill linking to the registry entry's `href`. The link MUST use `target="_blank"` and `rel` containing both `noopener` and `noreferrer` tokens (order-independent). The chip MUST present a tap target of at least 44 × 44 CSS px (achieved via hit-area padding if visual size is smaller). The caption MUST be visible on `:hover` OR `:focus-visible` for desktop pointer/keyboard users, AND visible by default under `@media (hover: none)` for touch users; this satisfies WCAG 1.4.13 Content on Hover or Focus and WCAG 2.1.1 Keyboard (caption is dismissable, hoverable, and persistent).
+`Standard.astro` (pre-pt405 cited as `StandardChip.astro`; renamed to `Standard.astro` per proposal.md:75 — verified `ls src/components/Standard.astro ✓` / `StandardChip.astro` does not exist; the React-island variants `StandardChip` are inner components inside `PillarsIsland.tsx` and `BridgeFlow.tsx` per DESIGN.md §6.4) SHALL render a clickable pill linking to the registry entry's `href`. The link MUST use `target="_blank"` and `rel` containing both `noopener` and `noreferrer` tokens (order-independent). The chip MUST present a tap target of at least 44 × 44 CSS px (achieved via hit-area padding if visual size is smaller). The caption MUST be visible on `:hover` OR `:focus-visible` for desktop pointer/keyboard users, AND visible by default under `@media (hover: none)` for touch users; this satisfies WCAG 1.4.13 Content on Hover or Focus and WCAG 2.1.1 Keyboard (caption is dismissable, hoverable, and persistent).
 
 #### Scenario: External link is safe (rel enforced)
 
@@ -35,7 +35,7 @@
 
 ### Requirement: StandardsRow Primitive
 
-`StandardsRow.astro` SHALL render a list of `StandardChip` instances inside `<ul role="list">` with semantic list markup preserved (overrides the default Safari `list-style: none` removal of role). The component MUST accept a filter (e.g. `family="IETF"`) for rendering subsets.
+`StandardsWall.astro` (pre-pt405 cited as `StandardsRow.astro`; the planned `StandardsRow.astro` was rolled into `StandardsWall.astro` per proposal.md:75 — verified `ls src/components/StandardsWall.astro ✓` / `StandardsRow.astro` does not exist) SHALL render a list of `Standard` (pre-pt405 `StandardChip`) instances inside `<ul role="list">` with semantic list markup preserved (overrides the default Safari `list-style: none` removal of role). The component MUST accept a filter (e.g. `family="IETF"`) for rendering subsets.
 
 #### Scenario: Filter by family
 

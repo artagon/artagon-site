@@ -43,7 +43,7 @@ Each marketing route MUST emit an absolute-URL Open Graph image. Per-slug custom
 
 ### Requirement: Inline-Wordmark Ban
 
-The Artagon wordmark SVG MUST appear inline only inside `Nav.astro` and `Footer.astro`. Any other inline use is forbidden; alternatives are `<img src="/assets/brand/wordmark.svg">` or a referenced asset.
+The Artagon wordmark SVG MUST appear inline only inside `Header.astro` and `Footer.astro` (pre-pt405 cited `Nav.astro` for the header surface; `Nav.astro` was consolidated into `Header.astro` per proposal.md:75). Any other inline use is forbidden; alternatives are `<img src="/assets/brand/wordmark.svg">` or a referenced asset.
 
 #### Scenario: Lint catches inline wordmark elsewhere
 
