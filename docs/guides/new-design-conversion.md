@@ -117,8 +117,8 @@ If a skill conflicts with this guidance prompt, the skill wins for its domain (T
 ## Source of truth (precedence order)
 
 1. `openspec/specs/*` — live specs (highest authority for requirements)
-2. `openspec/changes/update-site-marketing-redesign/` (USMR, 100 tasks) — the change you're implementing
-3. `new-design/extracted/DESIGN.md` (39KB) — visual + content intent. Spec wins where they disagree (DESIGN.md:19-21, NOT line 18).
+2. `openspec/changes/update-site-marketing-redesign/` (USMR — task count grew through Phase 5.x ralph-loop iterations and now sits at ~375 lines in `tasks.md`; run `grep -c '^\s*- \[' openspec/changes/update-site-marketing-redesign/tasks.md` for current count) — the change you're implementing
+3. `new-design/extracted/DESIGN.md` (39KB) — visual + content intent. The repo-rooted `DESIGN.md` (per `openspec/specs/design-system-format`) is the canonical visual identity contract; the new-design copy is FROZEN reference material. Where the two disagree, the spec wins and the repo-rooted DESIGN.md is updated in the same change (per the precedence chain in `openspec/project.md` and `AGENTS.md`).
 4. `new-design/extracted/MIGRATION.md` — historical migration notes. **STALE — do not follow as roadmap.** Use only as visual reference.
 5. This guidance prompt.
 
