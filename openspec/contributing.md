@@ -66,7 +66,7 @@ lychee --config lychee.toml './**/*.md' './public/**/*.html' './src/**/*.astro'
 
 ## Pull Requests
 
-- Follow the checklist in `.github/pull_request_template.md`.
+- Follow the checklist in `.github/PULL_REQUEST_TEMPLATE.md` (the GitHub-canonical uppercase filename; case-sensitive Linux CI requires the exact case).
 - Review `.agents/policies/guardrails.md` and `.agents/policies/release-checklist.md` when applicable.
 - Keep PRs focused and include screenshots for UI changes.
 
