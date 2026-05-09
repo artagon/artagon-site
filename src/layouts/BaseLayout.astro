@@ -2,10 +2,8 @@
 import Seo, { type Props as SeoProps } from '../components/SeoTags.astro';
 import SeoIcons from '../components/SeoIcons.astro';
 import SkipLink from '../components/SkipLink.astro';
-import ThemePreview from '../components/ThemePreviewPanel.astro';
 import Tweaks from '../components/Tweaks.astro';
 import { isNoindexRoute } from '../lib/indexation';
-const DEV = import.meta.env.DEV;
 // Re-export `SeoProps` so BaseLayout's prop contract tracks SeoTags
 // at compile time (USMR Phase 5.1q post-review fix). Drift between
 // the two interfaces was flagged by the type-design lens — a future
@@ -153,7 +151,6 @@ window.__setTheme = function(t){
     </main>
     <slot name="footer" />
     <noscript>Your browser has JavaScript disabled. The site still works.</noscript>
-    {DEV && <ThemePreview />}
     <Tweaks />
   </body>
 </html>

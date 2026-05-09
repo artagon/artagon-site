@@ -219,14 +219,20 @@
 }
 
 /* USMR Phase 5.5.6 — density-variant overrides. Toggled via
- * `[data-density]` on `<body>` (or the Tweaks panel surface in the
- * canonical mock). Default is `comfortable` (32px gutter); `dense`
- * tightens to 20px, `roomy` opens to 44px. */
-[data-density="dense"] {
+ * `[data-density]` on `<html>` (Tweaks panel writes here). Default is
+ * `comfortable` (32px gutter, default radius/section-pad); `dense`
+ * tightens horizontal + vertical rhythm; `roomy` opens both. Scales
+ * three coupled tokens so the toggle is visibly different (pre-pt424
+ * only `--gutter` changed — too subtle to notice on most viewports). */
+:root[data-density="dense"] {
   --gutter: 20px;
+  --radius: 10px;
+  --section-pad: clamp(56px, 6vw, 88px);
 }
-[data-density="roomy"] {
+:root[data-density="roomy"] {
   --gutter: 44px;
+  --radius: 18px;
+  --section-pad: clamp(96px, 10vw, 160px);
 }
 
 /* ========= THEME PACKS =========
@@ -271,6 +277,29 @@
 /* Dark (canonical default — Tweaks panel writes data-theme="dark") */
 :root[data-theme="dark"] {
   --bg: oklch(0.14 0.008 260);
+  --surface: var(--bg-1);
+
+  --brand-teal: var(--accent);
+  --brand-teal-rgb: 60, 238, 221;
+}
+
+/* USMR Phase 5.5.16 — Light theme. Tweaks panel writes
+ * `data-theme="light"`. Pre-fix there was no matching CSS block, so
+ * selecting "Theme: light" left the page in dark mode. The palette
+ * inverts the dark foundation tokens (`--bg-*`, `--fg-*`, `--line*`)
+ * to near-white / near-black with cool-neutral hue 260 to match the
+ * dark side. Accent tokens cascade unchanged from the
+ * `[data-accent="…"]` block above. */
+:root[data-theme="light"] {
+  --bg: oklch(0.98 0.005 260);
+  --bg-1: oklch(0.96 0.005 260);
+  --bg-2: oklch(0.92 0.008 260);
+  --fg: oklch(0.2 0.012 260);
+  --fg-1: oklch(0.34 0.01 260);
+  --fg-2: oklch(0.52 0.008 260);
+  --fg-3: oklch(0.68 0.006 260);
+  --line: oklch(0.85 0.008 260);
+  --line-soft: oklch(0.92 0.006 260);
   --surface: var(--bg-1);
 
   --brand-teal: var(--accent);
@@ -1788,7 +1817,7 @@ header {
  * USMR Phase 5.1 — Hero-font + accent variants. Default tokens
  * live inside the `:root` block above; these attribute-scoped
  * overrides let pages switch the hero face or campaign accent
- * via `<html data-hero-font="fraunces" data-accent="violet">`.
+ * via `<html data-hero-font="fraunces" data-accent="blue">`.
  * Ports new-design global.css lines 38-41 + 61-63.
  * ============================================================ */
 
@@ -1866,9 +1895,9 @@ header {
   --accent-dim: oklch(0.5 0.1 185);
   --accent-ink: oklch(0.18 0.04 185);
 }
-[data-accent="violet"] {
-  --accent: oklch(0.78 0.16 300);
-  --accent-dim: oklch(0.48 0.12 300);
+[data-accent="blue"] {
+  --accent: oklch(0.72 0.17 245);
+  --accent-dim: oklch(0.46 0.12 245);
 }
 [data-accent="amber"] {
   --accent: oklch(0.84 0.14 75);
@@ -1877,6 +1906,35 @@ header {
 [data-accent="lime"] {
   --accent: oklch(0.88 0.18 135);
   --accent-dim: oklch(0.52 0.12 135);
+}
+
+/* USMR pt425 — Light-theme accent overrides. The default accent
+ * triples above (L≈0.84-0.88) are tuned for dark backgrounds; on
+ * light theme (bg L≈0.98) they wash out — pill borders, CTA
+ * surfaces, and chip text fail contrast. Drop lightness ~25 LSB
+ * to L≈0.55-0.62 so the accent reads on white. `--accent-ink`
+ * (text on accent surfaces) flips near-white because the accent
+ * itself is now dark. Specificity (0,3,0) wins against the bare
+ * `[data-accent]` block above. */
+:root[data-theme="light"][data-accent="cyan"] {
+  --accent: oklch(0.55 0.14 185);
+  --accent-dim: oklch(0.4 0.1 185);
+  --accent-ink: oklch(0.98 0.01 185);
+}
+:root[data-theme="light"][data-accent="blue"] {
+  --accent: oklch(0.55 0.17 245);
+  --accent-dim: oklch(0.4 0.12 245);
+  --accent-ink: oklch(0.98 0.01 245);
+}
+:root[data-theme="light"][data-accent="amber"] {
+  --accent: oklch(0.62 0.14 75);
+  --accent-dim: oklch(0.45 0.1 75);
+  --accent-ink: oklch(0.98 0.01 75);
+}
+:root[data-theme="light"][data-accent="lime"] {
+  --accent: oklch(0.6 0.18 135);
+  --accent-dim: oklch(0.45 0.12 135);
+  --accent-ink: oklch(0.98 0.01 135);
 }
 
 /* ============================================================

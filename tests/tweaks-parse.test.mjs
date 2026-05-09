@@ -22,7 +22,7 @@ test("parse returns DEFAULTS for non-object input", () => {
 
 test("parse accepts a valid full Tweaks object", () => {
   const input = {
-    accent: "violet",
+    accent: "blue",
     density: "dense",
     theme: "light",
     heroFont: "fraunces",
@@ -66,7 +66,7 @@ test("parse rejects prototype pollution attempts", () => {
 });
 
 test("parse accepts every valid accent", () => {
-  for (const accent of ["cyan", "violet", "amber", "lime"]) {
+  for (const accent of ["cyan", "blue", "amber", "lime"]) {
     assert.equal(parse({ accent }).accent, accent);
   }
 });

@@ -237,18 +237,16 @@ a screen.
 | `--accent-ink` | `oklch(0.18 0.04 185)` | Text on accent background  |
 
 Default accent is cyan-teal (`185°`). Alternate accents are available via
-`[data-accent]` attributes: `violet` (300°), `amber` (75°), `lime` (135°).
+`[data-accent]` attributes: `blue` (245°), `amber` (75°), `lime` (135°).
 **Never use more than one accent on a page.** The accent carries signal — use
 it for: primary CTAs, hover states, the trust-chain's current stage, chart
 series 1. Everything else is neutral.
 
-**Site-wide accent override**: USMR Phase 5.1o sets `data-accent="violet"`
-on `<html>` in `BaseLayout.astro` so every route renders with the violet
-accent (300°) per the new-design mock. The teal default is preserved as
-the fallback when `data-accent` is absent (e.g., embedded preview
-contexts that bypass `BaseLayout`). The trust-chain's `--ok` (PERMIT,
-green) and `--bad` (DENY, red) tokens stay constant across accent
-variants — only `--accent` and `--accent-dim` shift.
+**Site-wide accent**: `BaseLayout.astro` ships `data-accent="cyan"` on
+`<html>`; the dev-only Tweaks panel can override at runtime. The teal
+default reads on both dark and light themes. The trust-chain's `--ok`
+(PERMIT, green) and `--bad` (DENY, red) tokens stay constant across
+accent variants — only `--accent` and `--accent-dim` shift.
 
 ### 2.3 Semantic
 
@@ -494,12 +492,10 @@ All four paths share one CSS rule (`public/assets/theme.css` `.standard-chip` bl
 
 - Failing stage halts the chain (subsequent stages show `skip`, not `pass`).
 - Decision badge + stage outlines + decision card border all key off
-  `--accent` (the page's primary accent — **violet** for marketing
-  pages per the new-design rendered output, `oklch(0.78 0.16 300)`,
-  applied via `data-accent="violet"` on the `<html>` element in
-  `BaseLayout.astro`. The `:root` fallback in `tokens.css` is teal
-  `oklch(0.86 0.14 185)` for non-marketing surfaces).
-  `[data-accent="amber|lime"]` are optional palette overrides
+  `--accent` (the page's primary accent — **cyan-teal**
+  `oklch(0.86 0.14 185)`, applied via `data-accent="cyan"` on the
+  `<html>` element in `BaseLayout.astro`).
+  `[data-accent="blue|amber|lime"]` are optional palette overrides
   authored via the Tweaks panel. DENY / fail uses `--bad`
   (semantic red). The chain's visual cohesion comes
   from one accent rendering eyebrow + stages + decision; the

@@ -50,7 +50,7 @@ describe("parseTweaks", () => {
   });
 
   it("preserves valid accent value", () => {
-    assert.equal(parse({ accent: "violet" }).accent, "violet");
+    assert.equal(parse({ accent: "blue" }).accent, "blue");
   });
 
   it("falls back accent to default when invalid", () => {

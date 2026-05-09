@@ -48,18 +48,19 @@ test("oklchToHex — neutral mid-gray (L=0.5, C=0)", () => {
   assertHexClose(oklchToHex(0.5, 0, 0), "#636363", "mid-gray");
 });
 
-test("oklchToHex — violet accent reference (USMR Phase 5.1o)", () => {
-  // Approximate the violet shipping in `[data-accent="violet"]`
+test("oklchToHex — blue accent reference (USMR Phase 5.5.16)", () => {
+  // Approximate the blue shipping in `[data-accent="blue"]`
   // (theme.css). The exact OKLCH triple is project-internal; this
   // pins one canonical sample to gate against a math regression that
   // would silently shift accent paint by >1 LSB.
-  const hex = oklchToHex(0.66, 0.18, 290);
-  // Should be in the violet/purple band: red ≈ green-ish-blue, blue
-  // dominant, NOT red-dominant (would be amber) or green-dominant
-  // (would be teal).
+  const hex = oklchToHex(0.72, 0.17, 245);
+  // Should be in the blue band: blue dominant, NOT red-dominant
+  // (would be amber) or green-dominant (would be teal/lime).
   const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
-  assert.ok(b > r, `expected blue-dominant hex for violet; got ${hex}`);
+  assert.ok(b > r, `expected blue-dominant hex for blue; got ${hex}`);
+  assert.ok(b > g, `expected blue > green for blue accent; got ${hex}`);
 });
 
 test("oklchToHex — drift detection: 1-LSB shift in L is detectable", () => {

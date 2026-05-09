@@ -19,7 +19,7 @@
  * for archaeology is the archive entry).
  */
 
-export type Accent = "cyan" | "violet" | "amber" | "lime";
+export type Accent = "cyan" | "blue" | "amber" | "lime";
 export type Density = "dense" | "comfortable" | "roomy";
 export type Theme = "dark" | "light";
 export type HeroFont = "grotesk" | "fraunces" | "dmserif" | "mono";
@@ -62,7 +62,7 @@ export const STORAGE_KEY = "artagon.tweaks.v3";
 /** OKLCH swatch values for accent buttons (visual reference only — runtime CSS via data-accent). */
 export const ACCENT_SWATCH: Record<Accent, string> = {
   cyan: "oklch(0.86 0.14 185)",
-  violet: "oklch(0.78 0.16 300)",
+  blue: "oklch(0.72 0.17 245)",
   amber: "oklch(0.84 0.14 75)",
   lime: "oklch(0.88 0.18 135)",
 };
@@ -92,12 +92,7 @@ export function isWritingWidget(v: unknown): v is WritingWidget {
   );
 }
 
-export const ACCENTS: ReadonlyArray<Accent> = [
-  "cyan",
-  "violet",
-  "amber",
-  "lime",
-];
+export const ACCENTS: ReadonlyArray<Accent> = ["cyan", "blue", "amber", "lime"];
 export const DENSITIES: ReadonlyArray<Density> = [
   "dense",
   "comfortable",

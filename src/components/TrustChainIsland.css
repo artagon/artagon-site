@@ -6,7 +6,7 @@
  * Token mapping aligned with the new-design implementation
  * (new-design/extracted/src/pages/index.html line 1012 sets
  *  `const C_PASS = 'var(--accent)'`):
- *   pass / decision PERMIT → var(--accent)  (page accent — violet
+ *   pass / decision PERMIT → var(--accent)  (page accent — cyan
  *                                             site-wide per Phase
  *                                             5.1o, switchable via
  *                                             `[data-accent]`)
