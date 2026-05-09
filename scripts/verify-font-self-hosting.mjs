@@ -188,9 +188,36 @@ function main() {
     exit(0);
   }
 
+  // pt441 — conditional warn-only when `self-host-woff2-fonts` is
+  // in flight. Mirrors the `verify-design-prerequisites.mjs`
+  // pattern: while the migration proposal is open, the canonical
+  // Google Fonts loader in BaseLayout.astro is still expected to
+  // ship (the proposal's whole point is to replace it). Hard-
+  // failing on that during the migration would block every PR.
+  // Once `openspec/changes/self-host-woff2-fonts/` archives, the
+  // condition flips and this gate becomes load-bearing again.
+  const inFlightDir = join(
+    ROOT,
+    "openspec",
+    "changes",
+    "self-host-woff2-fonts",
+  );
+  let proposalInFlight = false;
+  try {
+    proposalInFlight = statSync(inFlightDir).isDirectory();
+  } catch (err) {
+    if (err.code !== "ENOENT") {
+      console.error(
+        `✗ verify-font-self-hosting: cannot stat ${inFlightDir}: ${err.code ?? "unknown"}`,
+      );
+      exit(2);
+    }
+  }
+  const severity = proposalInFlight ? "warn" : "error";
+  const sigil = proposalInFlight ? "⚠" : "✗";
   for (const v of violations) {
     console.error(
-      `✗ ${v.path}:${v.line} — third-party font CDN reference: ${v.host}`,
+      `${sigil} ${v.path}:${v.line} — third-party font CDN reference: ${v.host}`,
     );
   }
   console.error(
@@ -199,6 +226,13 @@ function main() {
   console.error(
     `  CSP font-src is locked to 'self' (scripts/csp.mjs). Self-host WOFF2 under public/assets/fonts/ (USMR Phase 2 task 2.3) before adding any third-party @font-face / <link> reference.`,
   );
+  if (severity === "warn") {
+    console.error(
+      `\n⚠ Severity downgraded to warn — \`self-host-woff2-fonts\` is in flight at ${relative(ROOT, inFlightDir)}/.`,
+    );
+    console.error(`  Hard-fail will resume once that proposal archives.`);
+    exit(0);
+  }
   exit(1);
 }
 
