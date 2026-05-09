@@ -454,37 +454,60 @@ Common causes:
 - Timing issues (use retries on CI)
 - Missing environment variables
 
-## Future Enhancements
+## Enhancements
 
-### Potential Additions
+The original Phase-1-era "Future Enhancements" list shipped several
+items that the doc was never re-narrated to reflect. Status as of
+pt297 (most items ✅ SHIPPED, some still partial):
 
-1. **Axe Accessibility Testing**
-   - Install `@axe-core/playwright`
-   - Add comprehensive a11y scans
+1. **Axe Accessibility Testing — ✅ SHIPPED**
+   - `@axe-core/playwright` installed.
+   - `tests/home-axe.spec.ts` runs WCAG 2.1 A + AA tags on
+     chromium · webkit · Mobile Safari — gate is MANDATORY
+     (flipped from opt-in in USMR Phase 5.1p.8 per pt264
+     archaeology in `AGENTS.md` §Accessibility).
 
-2. **Performance Testing**
-   - Add Lighthouse integration
-   - Test Core Web Vitals
-   - Monitor bundle sizes
+2. **Performance Testing — ✅ SHIPPED**
+   - Lighthouse CI configured at `lighthouserc.json` (generated from `build.config.json` + `scripts/fixtures/lhci-assertions.json` per `scripts/sync-build-config.mjs`).
+   - `scripts/lhci-serve.mjs` provides the LHCI local server with READY signal.
+   - `.github/workflows/lighthouse.yml` runs Lighthouse audits on push to `main` (per pt262 README CI/CD section).
+   - Thresholds: Performance ≥85% (warn), Accessibility ≥90% (error), Best Practices ≥90% (warn), SEO ≥90% (warn) per `scripts/fixtures/lhci-assertions.json`.
 
-3. **E2E User Flows**
-   - Test complete user journeys
-   - Form submissions
-   - Navigation flows
+3. **E2E User Flows — ✅ PARTIALLY SHIPPED**
+   - Header navigation: `tests/header.spec.ts` covers
+     desktop nav + mobile hamburger menu (touch + keyboard).
+   - Footer navigation: `tests/footer.spec.ts` covers 4×5
+     column structure + Legal placeholders + brand/glyph.
+   - Theme switching: `tests/canonical-typography.spec.ts`
+     covers cross-route consistency.
+   - Form-submission flows are out of scope today (the
+     marketing site has no live form submissions; the
+     `/get-started` design-partner page is a `mailto:` link).
 
-4. **API Testing**
-   - Test Content Collections API
-   - Validate data fetching
+4. **Content Collections Validation — ✅ SHIPPED**
+   - `tests/content-collections.spec.ts` validates the Zod
+     schema enforcement at build time (chromium-only because
+     it mutates `src/content/pages/*.mdx` and would race
+     across parallel browser projects per `tests/README.md`
+     gating notes).
+   - `tests/writing-collection.test.mts` (vitest) validates
+     writing post frontmatter + author references.
 
-5. **Cross-Device Testing**
-   - Add more mobile viewports
-   - Test touch interactions
-   - Test orientation changes
+5. **Cross-Device Testing — ✅ SHIPPED**
+   - 15-device matrix per `playwright.config.ts` `projects[]`
+     (5 desktop · 5 mobile · 3 tablet · 2 large) per pt276
+     `tests/README.md` device-matrix expansion.
+   - Touch interactions tested via `test.skip(({isMobile}) =>
+isMobile, ...)` patterns; the `enhance-a11y-coverage`
+     proposal (in flight) tracks the touch-affordance gap.
 
-6. **Visual Regression on All Pages**
-   - Extend to all site pages
-   - Automate baseline creation
-   - Track design system changes
+6. **Visual Regression on All Pages — ✅ PARTIALLY SHIPPED**
+   - `tests/styling-snapshots.spec.ts` covers the home (`/`)
+     and styling-architecture reference (`/vision`) on the
+     THEMES array (currently 2: twilight + midnight) × 3
+     breakpoints, chromium-only (per pt261 fix). The
+     `enhance-a11y-coverage` proposal Phase 4 broadens this
+     scope.
 
 ## Resources
 
