@@ -107,8 +107,13 @@ artagon-site/
 
 ### Integrations
 
-- **[@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/)** - Automatic sitemap.xml generation
-  - Filters out `/_drafts/` pages
+The four `@astrojs/*` integrations declared in `package.json` (versions accurate as of `package.json` lines 80-83):
+
+- **[@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/)** 5.0.4 - MDX content rendering for `src/content/pages/*.mdx` content collections + `/writing/[slug]` long-form posts
+- **[@astrojs/react](https://docs.astro.build/en/guides/integrations-guide/react/)** 5.0.4 - React island runtime for interactive components (`TrustChainIsland`, `TweaksPanel`); USMR Phase 5.x added the integration
+- **[@astrojs/rss](https://docs.astro.build/en/guides/integrations-guide/rss/)** 4.0.18 - RSS 2.0 feed generation for `/writing/feed.xml` (auto-discovery wiring landed in pt197)
+- **[@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/)** 3.7.2 - Automatic `sitemap-index.xml` generation
+  - Filters out `/_drafts/` pages AND every route in the `NOINDEX_ROUTES` allow-list (`astro.config.ts` per pt146)
   - Canonical domain: `https://artagon.com`
 
 ### Build Tools
