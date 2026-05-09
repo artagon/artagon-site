@@ -331,11 +331,10 @@ npm run build
 
 **Build Process:**
 
-1. **Prebuild:** `npm run sync:build-config` regenerates `lighthouserc.json` and `lychee.toml` from `build.config.json`
-2. Astro compiles pages, components, and assets to `.build/dist/`
-3. Sitemap generated at `.build/dist/sitemap.xml`
-4. **Postbuild:** SRI script adds integrity hashes to `<script>` and `<link>` tags
-5. **Postbuild:** CSP script injects Content Security Policy meta tag
+1. **Prebuild:** `npm run sync:build-config` regenerates `lighthouserc.json` and `lychee.toml` from `build.config.json`.
+2. Astro compiles pages, components, and assets to `.build/dist/`.
+3. Sitemap generated at `.build/dist/sitemap-index.xml` (filtered to indexable routes per the `NOINDEX_ROUTES` allow-list in `astro.config.ts`).
+4. **Postbuild:** the 10-step chain runs (per `package.json` `postbuild` script — see "Build Scripts" subsection below for the full ordered list). Highlights: SRI hashes (`sri.mjs`), CSP meta-tag injection (`csp.mjs`), skip-link gate, taglines gate, design.md format gate, font-self-hosting gate, etc.
 
 **Output:** `.build/dist/` directory with static HTML/CSS/JS
 
@@ -366,12 +365,14 @@ Serves `.build/dist/` on `http://localhost:4321` to test production build.
 **Workflow:** `.github/workflows/deploy.yml`
 
 ```yaml
-1. Checkout code
-2. Setup Node.js 22
-3. npm install
-4. npm run build
-5. Upload `.build/dist/` artifact
-6. Deploy to GitHub Pages
+build job:
+  1. Checkout code (actions/checkout, SHA-pinned per pt? CODEOWNERS rule)
+  2. Setup Node.js 22 (actions/setup-node)
+  3. Install deps with `npm ci` (frozen lockfile — NOT `npm install`)
+  4. `npm run build` (runs prebuild → astro build → postbuild chain)
+  5. Upload `.build/dist/` Pages artifact
+
+deploy job: 6. Deploy to GitHub Pages (actions/deploy-pages)
 ```
 
 **Required Pages setting:** set **Source** to **GitHub Actions** so deployments run from `.github/workflows/deploy.yml` (branch-based Jekyll builds are not supported).
