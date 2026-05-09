@@ -1,7 +1,7 @@
 ## 0. Pre-flight
 
 - [ ] 0.1 Run `npx openspec validate --strict enhance-a11y-coverage` and confirm zero errors. Files touched: none. Acceptance: command exits 0.
-- [ ] 0.2 Confirm `@axe-core/playwright` is in `devDependencies` of `package.json` (already shipped on the branch alongside this proposal). If absent, `npm install --save-dev @axe-core/playwright`. Acceptance: `node_modules/@axe-core/playwright/dist/index.js` exists.
+- [x] 0.2 Confirm `@axe-core/playwright` is in `devDependencies` of `package.json` (already shipped on the branch alongside this proposal). If absent, `npm install --save-dev @axe-core/playwright`. Acceptance: `node_modules/@axe-core/playwright/dist/index.js` exists. **CONFIRMED**: `package.json:92` declares `"@axe-core/playwright": "4.11.3"` inside the `devDependencies` block (starts at line 90); package is installed and in active use by `tests/home-axe.spec.ts` line 2 (`import { AxeBuilder } from "@axe-core/playwright"`). Task 0.2 was checked off in USMR pt399 retroactively after the disk-vs-tasks audit caught the drift (the dep shipped without the box being checked).
 - [ ] 0.3 Add `culori` (~12 KB, MIT) to `devDependencies` for OKLCH→sRGB→relative-luminance conversion in the contrast vitest. Files touched: `package.json`, `package-lock.json`. Acceptance: `npm run test:vitest` continues to pass with the dep installed (no behavioural change yet).
 
 ## 1. Touch tap-toggle on TrustChainIsland (gap 1)
