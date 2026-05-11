@@ -89,17 +89,17 @@
     "sharp": "0.34.5"
   },
   "devDependencies": {
-    "@ast-grep/cli": "0.42.1",
+    "@ast-grep/cli": "0.42.2",
     "@axe-core/playwright": "4.11.3",
     "@google/design.md": "0.1.1",
     "@lhci/cli": "0.15.1",
-    "@playwright/test": "1.59.1",
+    "@playwright/test": "1.60.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "cheerio": "1.2.0",
     "husky": "9.1.7",
     "prettier": "3.8.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.6"
   },
   "overrides": {
     "chrome-launcher": "1.2.1",
