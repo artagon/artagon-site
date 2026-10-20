@@ -560,7 +560,7 @@
 - [ ] 14.43 (`site-2m1.43`) CI spends ~80 runner-minutes per PR push; ~35 are avoidable without losing coverage
 - [x] 14.44 (`site-2m1.44`) Pre-commit drift gate and local sync skip hand-edited generated files
 - [x] 14.45 (`site-2m1.45`) Generated `lychee.toml` sets `root_dir = ".build"`; comment claims repo root, CI silently overrides
-- [ ] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
+- [x] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
 - [x] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
 - [x] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
 - [x] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
@@ -586,7 +586,7 @@
 - [x] 14.71 (`site-2m1.71`) The declared Node support range includes versions rejected by the locked Astro dependency
 - [x] 14.72 (`site-2m1.72`) Formatter hooks can resolve an executable outside the frozen dependency install
 - [x] 14.73 (`site-2m1.73`) pr-spec-compliance.yml redeclares the injected github-script `core` (same defect f1842d7 fixed elsewhere)
-- [ ] 14.73a (`site-2m1.73`) pr-spec-compliance.yml sets SPEC_VALIDATION_PATH at step scope; job-level `runner.temp` is not an allowed context
+- [x] 14.73a (`site-2m1.73`) pr-spec-compliance.yml sets SPEC_VALIDATION_PATH at step scope; job-level `runner.temp` is not an allowed context
 - [ ] 14.74 (`site-2m1.74`) Mobile Safari touch-toggle specs tap before the client:visible trust-chain island hydrates
 - [ ] 14.75 (`site-2m1.75`) The actionlint gate never runs in CI: the Playwright container lacks actionlint and shellcheck
 - [x] 14.76 (`site-2m1.76`) npm ci fails on CI's Node 22.18 (npm 10): typescript 6 conflicts with tsconfck's optional peer ^5
