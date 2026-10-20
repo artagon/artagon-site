@@ -21,7 +21,7 @@ const { title, description } = entry.data;
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       wraps the slot in <main id="main-content"> already. */}
-  <StandardsWall />
+  <StandardsWall copy={entry.data} />
 
   <Fragment slot="footer"><Footer /></Fragment>
 </Base>

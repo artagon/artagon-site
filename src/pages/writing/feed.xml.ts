@@ -1,9 +1,9 @@
 import rss from "@astrojs/rss";
-import { getCollection } from "astro:content";
+import { getPublishedPosts } from "../../lib/writing";
 import type { APIContext } from "astro";
 
 export async function GET(context: APIContext) {
-  const posts = (await getCollection("writing")).filter((p) => !p.data.draft);
+  const posts = await getPublishedPosts();
 
   return rss({
     title: "Artagon — Writing",
@@ -11,7 +11,6 @@ export async function GET(context: APIContext) {
       "Field notes, technical write-ups, and announcements from the team building the Artagon identity platform.",
     site: context.site ?? "https://artagon.com",
     items: posts
-      .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
       .map((post) => ({
         title: post.data.title,
         description: post.data.description,

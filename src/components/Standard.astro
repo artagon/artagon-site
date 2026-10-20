@@ -7,8 +7,8 @@
 // gaps are loud.
 //
 // Styles live in `public/assets/theme.css` under `.standard-chip`
-// so the React `PillarsIsland` can render the same markup with the
-// same hover behavior (5.2.4 requirement).
+// for every consumer. Inside buttons, interactive=false renders an abbr
+// with the same tooltip and styling, without nesting interactive content.
 //
 // Usage:
 //   <Standard term="OIDC 2.1" />
@@ -17,16 +17,20 @@ import { lookupGlossary } from '../data/glossary';
 
 export interface Props {
   term: string;
+  interactive?: boolean;
+  plainMissing?: boolean;
 }
 
-const { term } = Astro.props;
+const { term, interactive = true, plainMissing = false } = Astro.props;
 const def = lookupGlossary(term);
 
-if (!def && import.meta.env.DEV) {
+if (!def && !plainMissing && import.meta.env.DEV) {
   console.warn(`[Standard] glossary miss: "${term}"`);
 }
 ---
-{def ? (
+{def && !interactive ? (
+  <abbr class="standard-chip" title={def.name}><slot>{term}</slot></abbr>
+) : def ? (
   <a
     href={def.href}
     target={def.external ? '_blank' : undefined}
@@ -34,6 +38,6 @@ if (!def && import.meta.env.DEV) {
     title={def.name}
     class="standard-chip"
   ><slot>{term}</slot></a>
-) : (
+) : plainMissing ? <slot>{term}</slot> : (
   <span class="standard-chip standard-chip--missing"><slot>{term}</slot></span>
 )}

@@ -24,6 +24,35 @@ export interface GlossaryEntry {
 
 export type GlossaryTerm = keyof typeof GLOSSARY;
 
+// USMR 14.11 / 14.13: one closed token representation for prose,
+// pillar bullets, and bridge labels. Glossary lookups stay at build time.
+export type GlossaryNode =
+  | { readonly kind: "text"; readonly value: string }
+  | { readonly kind: "term"; readonly value: GlossaryTerm };
+export type GlossaryText = readonly GlossaryNode[];
+
+export const term = (value: GlossaryTerm): GlossaryNode => ({ kind: "term", value });
+export const text = (value: string): GlossaryNode => ({ kind: "text", value });
+
+export function isGlossaryTerm(value: string): value is GlossaryTerm {
+  return Object.hasOwn(GLOSSARY, value);
+}
+
+/** Frontmatter may mark inline glossary terms as [OIDC]. Unknown keys fail. */
+export function parseGlossaryText(value: string): GlossaryText {
+  const nodes: GlossaryNode[] = [];
+  let start = 0;
+  for (const match of value.matchAll(/\[([^\]]+)\]/g)) {
+    if (match.index > start) nodes.push(text(value.slice(start, match.index)));
+    const key = match[1]!;
+    if (!isGlossaryTerm(key)) throw new Error(`Unknown glossary term: ${key}`);
+    nodes.push(term(key));
+    start = match.index + match[0].length;
+  }
+  if (start < value.length) nodes.push(text(value.slice(start)));
+  return nodes;
+}
+
 /**
  * Canonical glossary. Ports the new-design GLOSSARY map and extends
  * it to cover every acronym surfaced on a marketing route — see the
@@ -403,5 +432,5 @@ export const GLOSSARY = {
  * loud (the JSX renders the literal text, not a broken chip).
  */
 export function lookupGlossary(term: string): GlossaryEntry | undefined {
-  return (GLOSSARY as Record<string, GlossaryEntry>)[term];
+  return isGlossaryTerm(term) ? GLOSSARY[term] : undefined;
 }

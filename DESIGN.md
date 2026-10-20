@@ -286,11 +286,13 @@ above-the-fold. The site **must not** ship more than four custom families.
 
 **Font-family token contract (USMR 5.5.16-pt56-57).** Every `font-family` declaration in the codebase relies on the **token's own fallback chain** rather than duplicating font names inline. The canonical pattern is `var(--f-display, var(--f-sans))` — token-to-token cascade — NOT `var(--f-display, "Space Grotesk", "Inter Tight", sans-serif)` (5.1-era duplication). Each `--f-*` token already declares its full fallback chain in `:root` (e.g. `--f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace`). When `--f-display` fails to resolve, `var(--f-sans)` provides Inter Tight as the fallback display face — a cohesive type system. The 7 surfaces migrated across pt56 (5) + pt57 (2): bare `h1`, `h2`, `h3`, `.display` (`var(--f-display, system-ui)` → `var(--f-display, var(--f-sans))` — 4 surfaces, pt56), `.serif` (drop `Georgia` since `--f-serif` already chains to it — pt56), `.glow-amp` (drop full chain duplication — pt57), `.hero h1.display` (canonical token-chain pattern — pt57).
 
-**H1 weight cascade (USMR 5.5.16-pt31, pt42).** Bare `<h1>` font-weight is **400** (regular) per canonical `global.css:229`; the catch-all `h1, h2, h3, h4 { font-weight: 500 }` is overridden by the h1-specific rule. The `.display` utility class deliberately **does NOT specify font-weight** — element-level rules drive weight per element (h1: 400, h2-h4: 500). Pre-fix the `.display` utility specified `font-weight: 500` which beat the canonical h1-specific 400 due to specificity (1 class vs 1 element); h1 consumers of `.display` (404, home index, writing index, post detail) all rendered at 500 — a noticeable thickness regression on Space Grotesk display.
+**H1 weight cascade.** Bare `<h1>` uses weight 400. The `.display` utility reads `var(--display-weight, 400)` so the chosen face controls its weight. Route title classes explicitly pin their existing weight and tracking fallbacks (USMR 14.4); the semantic heading level does not change their presentation.
 
 **Section ledes (USMR 5.5.16-pt27, pt34, pt45).** Every section lede consumes the canonical `.lead` contract: `font-size: 20px`, `color: var(--fg-1)`, `line-height: 1.5`. Section-specific overrides may set `max-width` (e.g. Pillars: 46ch, Bridge: 50ch, get-started: 52ch) or `justify-self`. Pre-fix scoped `*__lede` rules used `1.05rem` (≈16.8) on `var(--fg-2)` with `line-height: 1.55` — undersized by 3.2 px and dimmer than canonical. Total surfaces brought to canonical: 7 (Pillars, Bridge, Standards, Roadmap, HomeExplore, get-started, 404).
 
 ### 3.2 Type scale
+
+**Route headings (USMR 14.4 / 14.9).** `/platform`, `/bridge`, `/use-cases`, `/standards`, and `/roadmap` each render one `<h1>` at the former section scale: 36–60 px, line-height 1.02. Their title classes pin `var(--display-weight, 500)` and the existing `--display-tracking` fallbacks, so semantic promotion preserves presentation. Subsections use `<h2>` with their existing styles. Validated MDX supplies eyebrow, headline, and lede; headline newlines create breaks and `*text*` uses the existing emphasis face.
 
 ```
 h1    clamp(56px,  7.2vw, 108px)  line-height 0.94   tracking -0.035em
@@ -464,16 +466,15 @@ The blog-hero variant (`.blog-hero__eyebrow`) intentionally **omits** the dash b
 
 **Anatomy.** Slot text · dotted underline (1 px, `var(--fg-3)`). On hover or `:focus-visible` the text and underline both flip to `var(--accent)`. No background fill, no badge — the chip is a typographic primitive that sits inline in body copy, not a button.
 
-**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 71 entries today (`tests/glossary-data.test.mts` floor is ≥ 50) covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Four consumers share the global `.standard-chip` contract (count grew from 2 → 4 across Phase 5.2.x — 5.4):
+**Registry (USMR 14.11).** `src/data/glossary.ts` owns `{ name, href, external }`, the closed `GlossaryNode` / `GlossaryText` types, and `term()` / `text()` helpers. Pillars and bridge data share this representation. The render paths are:
 
 - **`<Standard term="…">`** (`src/components/Standard.astro`) — token-only static Astro chip for `.astro` and `.mdx` content.
-- **React `StandardChip`** (`src/components/PillarsIsland.tsx` inner) — emits identical markup so the global `.standard-chip` style applies to React-island content.
-- **React `StandardChip`** (`src/components/BridgeFlow.tsx:40` inner) — second island-side instance that maps `term` LabelNodes (`src/data/bridge.ts`) to chips inline within the bridge-flow legend and prose body. Identical markup contract to the PillarsIsland instance.
-- **Direct `class="standard-chip"`** (`src/components/StandardsWall.astro:45`) — token-only static usage on the `/standards` page, where each row in `STANDARDS_GROUPS` maps to a chip without going through the `<Standard>` component (the `lookupGlossary` call happens inline in the Astro frontmatter).
+- **`<GlossaryText>`** maps shared nodes to `<Standard>` for pillar prose and bridge labels. The five product-route headlines and ledes may mark terms as `[OIDC]`; unknown marked terms fail the build.
+- **Standards wall** uses `<Standard>` directly, with plain text for registry misses.
 
-All four paths share one CSS rule (`public/assets/theme.css` `.standard-chip` block) — no per-component duplication. `tests/glossary-data.test.mts` enforces the registry shape (size floor ≥ 50, every `href` is absolute https, plural aliases like `DID/DIDs` resolve to identical canonical URLs).
+Every path resolves at build time and shares the global `.standard-chip` CSS. These routes ship no glossary lookup table to the browser. `tests/glossary-data.test.mts` enforces registry shape and aliases.
 
-**A11y.** The chip is an `<a>` element when the term resolves — keyboard reachable, gets the site-wide `:focus-visible` outline. When the term is missing, the chip degrades to a plain `<span>` (no underline, no cursor change) AND a build-time `console.warn` fires so gaps are loud, not silent. Forced-colors mode swaps the underline to `CanvasText` and the hover state to `Highlight`.
+**A11y.** Resolved interactive chips are links with the site-wide focus outline. Inside bridge step buttons, `interactive={false}` renders `<abbr title>` with the same class, avoiding nested links. Missing dynamic terms render a plain span and warn in development; standards-wall labels may opt into plain text on a miss. Forced-colors mode swaps the underline to `CanvasText` and hover to `Highlight`.
 
 **Do** route every acronym through `<Standard>` — never hardcode a spec URL inline. Add new terms to `glossary.ts` with the canonical href before consuming them in copy.
 **Don't** hand-roll chip styles. Don't link to a standard without going through the registry (the URL will drift).
@@ -481,6 +482,8 @@ All four paths share one CSS rule (`public/assets/theme.css` `.standard-chip` bl
 **Status: shipped.**
 
 ### 6.5 Trust chain
+
+**Pause contract (USMR 14.2 / 14.53).** Stage hover/focus freezes evaluation and scenario rotation; resuming continues from that step. Pointer and focus state are independent, so pointer leave preserves a focused stage's pause and claim. Scenario-control hover/focus pauses only rotation: selecting a scenario resets progression and clears a pressed claim, and evaluation runs while its control retains hover or focus. Reduced motion and WebDriver settle immediately. A pressed stage claim keeps evaluation and rotation paused until released or the scenario changes.
 
 **Purpose.** The hero's centerpiece. Animated 5-stage decision that cycles through 6 real scenarios (some PERMIT, some DENY with specific, technical reasons).
 
@@ -840,7 +843,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - **Hero strip** — eyebrow (`Platform`) · `<h1>` from `platform.mdx` frontmatter · lede with positioning sentence.
 - **Tab strip** (`role="tablist"`) — three `<button role="tab">` elements above a 1px `var(--line-soft)` rule. Selected tab: 2px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 5%, transparent)` background tint.
 - **Active panel** (`role="tabpanel"`) — 2-column grid (1.1fr / 1fr at ≥ 1024 px, single-column below):
-  - Left: serif italic tagline (consumes `--f-emphasis`), body paragraph, mono bullet list with `→` accent arrows. Bullets render glossary chips inline via `<Standard>` / React `StandardChip`.
+  - Left: serif italic tagline (consumes `--f-emphasis`), body paragraph, mono bullet list with `→` accent arrows. Bullets render glossary chips via `<GlossaryText>` and `<Standard>`.
   - Right: `.pillar-specimen` code panel — mono header strip carries free-form per-kind content (5.5.2: JWK JSON literal for `kind: "jwt"`, sentence-case label for `"vc"`, mono filename for `"policy"`); CSS applies `text-transform: uppercase` so authored values stay in their natural case in source. Accent `● live` indicator on the right of the header. `<pre>` payload below with `white-space: pre-wrap`.
 
 **Rules.**
@@ -858,7 +861,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - `:focus-visible` outline (2 px `var(--accent)`) survives the active-tab background tint via `outline-offset: -2px`.
 - Reduced motion: tab strip has no animation. Forced-colors mode resolves selected-tab border to `Highlight` and code panel to system colors.
 
-**Status: shipped.** USMR Phase 5.2.5 — `src/components/PillarsIsland.tsx` + `src/components/PillarsIsland.css` + `src/data/pillars.ts` extension. Snapshot baselines for `/platform` on Tablet Safari + Mobile Chrome × 3 will need workflow_dispatch regen (task 5.2.x) — the mobile-fit shim from new-design platform.html:7-22 was deliberately NOT ported (resolved Open question 1) so the responsive layout diverges from the legacy 1280-fixed look on tablets.
+**Status: shipped.** USMR 14.6 — `src/components/PillarsIsland.astro`, existing CSS, and typed panel data. `src/lib/tablist.ts`, loaded by the shared marketing script, provides manual activation. SSR hides inactive panels so the first paint with scripting enabled matches the enhanced layout; initialization enables the controls. `@media (scripting: none)` exposes all panels with spacing while tab buttons remain disabled. Heading copy comes from validated MDX.
 
 ### 6.17 BridgeFlow (Bridge route)
 
@@ -866,7 +869,7 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`The bridge strategy`) · `<h2>` with serif-italic emphasis on "cryptographically verified." · 2-column lede.
+- **Hero strip** — MDX eyebrow (`The bridge strategy`) · `<h1>` with serif-italic emphasis on "cryptographically verified." · 2-column lede from `bridge.mdx`.
 - **Board** (`.bridge-flow__board`) — outer card (`var(--bg)` over `var(--bg-1)` page bg, 1 px `var(--line)`, 14 px radius) holding:
   - **Parties row** — 3 equal `<div>` cards: Relying party (`Your OIDC App`, unchanged) · Trust service (`Artagon`, verifier + bridge) · Holder (`User's Wallet`, holds VCs). Active card: 1 px `var(--accent-dim)` border + `color-mix(in oklab, var(--accent) 8%, var(--bg-1))` background. Inactive cards stay neutral.
   - **Steps strip** (`<ol>`) — 4 `<button role>`-elements separated by 1 px `var(--line-soft)` rules. Active step: 2 px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 4%, transparent)` tint. Past steps: 2 px `var(--accent-dim)` top border (visited indicator). Future steps: transparent border.
@@ -874,19 +877,19 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Rules.**
 
-- **Auto-cycle** every 2200 ms (matches canonical `setInterval(2200)`). Click any step jumps the cycle to that step but does NOT freeze the timer — the cycle continues from the user-clicked step. USMR Phase 5.5.5 removed the previously-shipped `userInteractedRef` permanent-freeze latch to match canonical Bridge.jsx:16-19 UX. Skipped under `prefers-reduced-motion: reduce` AND `navigator.webdriver` (Playwright deterministic E2E) — both render with `step = 2` (Verify highlighted, the canonical resting screenshot).
+- **Auto-cycle** every 2200 ms, paused during pointer inspection or focus within the step strip. Leaving resumes with a full interval. Reduced motion and WebDriver disable cycling and retain initial Verify state until manual selection.
 - **Data lives in `src/data/bridge.ts`** — `PARTIES` (3-tuple) + `STEPS` (4-tuple) with structured `LabelNode` tokens (text + glossary terms). The renderer maps `term` nodes to `<Standard>` chips inline.
 - **Each step's `nodeId` points at exactly one party**. The `tests/bridge-data.test.mts` invariant gate enforces (a) every nodeId resolves to a real party, (b) every party gets activated by at least one step.
-- **Click jumps the cycle to the chosen step** without freezing the timer (USMR 5.5.5 reversed the earlier "freeze for page lifetime" behavior). The auto-cycle continues from the user-clicked step, matching canonical Bridge.jsx:16-19.
+- **Click selects immediately** and restarts a full interval when unpaused. Step glossary terms are non-interactive abbreviations; party and lede terms remain links.
 
 **A11y.**
 
 - `<ol>` for steps + `<button>` per step. `aria-current="step"` on the active step (and the active party).
 - Steps are keyboard-reachable via Tab; `:focus-visible` outline (2 px `var(--accent)`) is preserved with `outline-offset: -2px` so it survives the active-step background tint.
-- Cycle pauses naturally on hover/focus only via the click-commit path — there's no separate pause-on-hover today (the cycle is brief enough that hovering rarely intersects with the timer).
+- Pointer and focus pauses are independent; leaving with one input does not release the other's pause.
 - Reduced-motion: cycle skipped, `step = 2` rendered. Forced-colors: party + step active states resolve to `Highlight` border, neutral states stay system-default.
 
-**Status: shipped.** USMR Phase 5.2.8 (page composition revised in 5.5.1) — `src/components/BridgeFlow.tsx` + `src/components/BridgeFlow.css` + `src/data/bridge.ts`. The `/bridge → /platform/#bridge 301` redirect from 5.1q.3 dropped in 5.2.8 (the route resolves directly); the `<section id="bridge">` anchor on `/platform` from 5.1q.4 also dropped in 5.5.1 after canonical-fidelity review confirmed `/platform.html` line 848 (`<App><Pillars/></App>`) renders Pillars only. `/bridge/index.astro` now mounts `<BridgeFlow client:visible />` directly with no surrounding page hero, matching `/bridge.html` line 768 (`<App><Bridge/></App>`).
+**Status: shipped.** USMR 14.6 / 14.54 — `src/components/BridgeFlow.astro`, existing CSS, typed step/party data, and `src/lib/bridge-cycle.ts` through the shared marketing script. No React runtime or glossary data hydrates on `/bridge`.
 
 ### 6.18 StandardsWall (Standards route)
 
@@ -894,20 +897,20 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`Standards & specs`) · `<h2>` with serif-italic emphasis on "We implement" · 2-column lede.
+- **Hero strip** — MDX eyebrow (`Standards & specs`) · `<h1>` with serif-italic emphasis on "We implement" · 2-column MDX lede.
 - **3-column wall** (`.standards-wall__columns`) — each column has a mono-uppercase header (the group label), then a vertical list of items. Each item is a 2-column row: `name` (mono, `--fg`, weight 500) on the left · `description` (mono, `--fg-2`, smaller) on the right. Rows are separated by 1 px `var(--line-soft)`.
 - **Affiliation badges** (`.standards-wall__badges`) — center-aligned row of 4 badges, each with a mono-uppercase eyebrow (`Certifying` / `Contributing` / `Member`) and a body label.
 
 **Rules.**
 
 - **Data lives in `src/data/standards.ts`** — `STANDARDS_GROUPS` (3-tuple) + `STANDARDS_BADGES` (4-tuple). Never hardcode standards copy in component bodies.
-- **Item names are glossary-linked at render time** — the StandardsWall renderer calls `lookupGlossary(item.name)`; matches turn into `.standard-chip` links to the canonical RFC / W3C TR / vendor docs. Misses render as plain text. The `tests/standards-data.test.mts` invariant gate enforces ≥ 70% link coverage so a glossary regression doesn't silently strip every item.
+- **Item names are glossary-linked at build time** — `<Standard term={item.name} plainMissing>` renders `.standard-chip` links to canonical RFC / W3C TR / vendor docs. Misses render as plain text. The `tests/standards-data.test.mts` invariant gate enforces ≥ 70% link coverage so a glossary regression doesn't silently strip every item.
 - **The canonical Pillars vocabulary is fully covered** — every term referenced on `/platform` (OIDC 2.1, GNAP, DPoP, etc.) appears here too. Tests gate this; the two pages stay in sync.
 - **Static-only** — no React island, no client interactivity. The wall is pure presentation.
 
 **A11y.**
 
-- `<section>` with `aria-labelledby` pointing at the `<h2>`. Each column is a `<div>` with an `<h3>` header and an `<ul>` of items.
+- `<section>` with `aria-labelledby` pointing at the `<h1>`. Each column is a `<div>` with an `<h2>` header and an `<ul>` of items.
 - Glossary chips inherit the site-wide `:focus-visible` outline. The dotted-underline + accent-on-hover pattern from Standard.astro applies.
 - Forced-colors override is inherited via the global `.standard-chip` rule (Phase 5.1).
 
@@ -919,15 +922,15 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`Roadmap`) · `<h2>` with serif-italic emphasis on "authority." · 2-column lede.
+- **Hero strip** — MDX eyebrow (`Roadmap`) · `<h1>` with serif-italic emphasis on "authority." · 2-column MDX lede.
 - **5-card grid** (`.roadmap-timeline__phases`) — equal-width columns separated by 1 px `var(--line-soft)`, all wrapped in a single 1 px `var(--line)` outer card. Each phase card is a `<li>` with header (`<span class="roadmap-phase__version">` mono prefix + `<span class="roadmap-phase__when">` time band right-aligned), status row (colored dot + uppercase mono label), title, and `<ul>` of scope items.
-- **Status dot** — 6 × 6 px `border-radius: 999px` colored token + matching `box-shadow: 0 0 10px <color>`. Status → token mapping documented in `src/data/roadmap.ts ROADMAP_STATUS`. Forced-colors mode swaps to system Highlight / Mark.
+- **Status dot** — 6 × 6 px `border-radius: 999px` colored token + matching `box-shadow: 0 0 10px <color>` (planned has no glow). Scoped status modifiers in `RoadmapTimeline.astro` map shipping → `--ok`, in-build → `--accent`, design → `--warn`, planned → `--fg-3` through a component-local CSS custom property. Forced-colors mode swaps to system Highlight / Mark.
 
 **Rules.**
 
 - **Data lives in `src/data/roadmap.ts`** — `ROADMAP_PHASES` (5-tuple) + `ROADMAP_STATUS` map. The status enumeration is exhaustive — `tests/roadmap-data.test.mts` gates that every phase resolves AND that the progression is monotonic (V1 ahead of V2 ahead of V3, etc.).
-- **`id` field preserved** for `/roadmap#v3`-style deep links carried over from the 5.1c-era stub. The card's anchor is `#roadmap-phase-<id>` if rendered with `id` props (no anchors today; track for 5.7.x if external links exist).
-- **Status drives appearance, not content** — the dot color and label come from `ROADMAP_STATUS[phase.status]`; the per-status BEM modifier (`.roadmap-phase--shipping` etc.) selects the color in CSS. Don't hardcode dot colors per phase.
+- **`id` field preserved** for `/roadmap#v3`-style deep links carried over from the 5.1c-era stub. Each card renders `id={phase.id}`, exposing stable `#v1` through `#v5` anchors.
+- **Status drives appearance, not content** — the label comes from `ROADMAP_STATUS[phase.status]`; the per-status BEM modifier (`.roadmap-phase--shipping` etc.) sets that custom property in scoped CSS. No per-card inline styles or color metadata are needed. `tests/roadmap-data.test.mts` asserts the CSS map.
 - **Static-only** — no React island. Future phases might add a "filter by status" dropdown; that would land as a separate sub-task (5.7.x).
 
 **A11y.**
@@ -945,7 +948,7 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`What you can build`) · `<h2>` with serif-italic emphasis on "— solved cleanly." · max-width 22 ch.
+- **Hero strip** — MDX eyebrow (`What you can build`) · `<h1>` with serif-italic emphasis on "— solved cleanly." · max-width 22 ch · MDX lede below.
 - **Board** (`.use-cases__board`) — 2-column grid: 260 px left rail + `1fr` panel. Collapses to 1-column < 720 px.
 - **Left rail** (`role="tablist" aria-orientation="vertical"`) — vertical column of `<button role="tab">` elements; selected tab gets a 2 px `var(--accent)` left border + `color-mix(in oklab, var(--accent) 6%, transparent)` background; the `short` eyebrow flips to `var(--accent)`. Inactive tabs show `var(--line-soft)` left border.
 - **Detail panel** (`role="tabpanel"`) — outer card (1 px `var(--line)`, 12 px radius, 36 px padding) holding: (a) eyebrow + serif title + body paragraph, (b) `.use-cases__metrics` 3-column divider strip with `--line-soft` separators, (c) `.use-cases__trace` ordered list rendered in `var(--f-mono)` 0.78 rem with right-aligned 2-digit numbering. The trace's last `<li>` carries `is-decision` and recolors text to `var(--accent)` — that's the PERMIT/DENIED line.
@@ -964,7 +967,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - Forced-colors override: active-tab border resolves to `Highlight`; the decision line falls back to `Highlight` (system-defined emphasis); panel + trace backgrounds collapse to `Canvas`.
 - The metrics grid is exposed as `role="list"` of `role="listitem"` so screen readers announce it as a discrete unit (the visual divider strip alone wouldn't convey list semantics).
 
-**Status: shipped.** USMR Phase 5.3 — `src/components/UseCasesIsland.tsx` + `src/components/UseCasesIsland.css` + `src/data/use-cases.ts`. Replaces the PageLayout stub from 5.1q.1.
+**Status: shipped.** USMR 14.6 — `src/components/UseCasesIsland.astro`, existing CSS, and typed scenario data. The shared tablist script handles vertical keys. SSR hides inactive panels and paints the rail beside the selected panel before enhancement; initialization enables the controls. Only `@media (scripting: none)` switches to the stacked layout and exposes all panels while controls remain disabled.
 
 ### 6.21 Writing index (Blog alias)
 
@@ -1261,7 +1264,7 @@ Inline event-handler attributes (`onclick="…"`, `onload="…"`, `onerror="…"
 
 **Astro footgun.** `<button onClick={…}>` in an `.astro` template is **not** the JSX programmatic-listener syntax — Astro emits it verbatim as `onclick="…"` in the rendered HTML. A contributor copying the React idiom into an `.astro` file silently introduces an inline-handler attr.
 
-**Canonical pattern.** Use a `data-*` attribute + a scoped `<script>` that calls `addEventListener`. Examples: `Header.astro` `[data-nav-toggle]`, `BaseLayout.astro` `[data-theme-toggle]` sync hook, `ThemePreviewPanel.astro` `[data-theme-target]` (USMR pt174). Gated by [`tests/lint-no-inline-event-handler.test.mts`](./tests/lint-no-inline-event-handler.test.mts) — per-line `<!-- lint-no-inline-event-handler: ok -->` allow-list for deliberate exceptions (none today). JSX/TSX `onClick={…}` is fine — React binds those programmatically; no inline-handler attribute is ever emitted to HTML.
+**Canonical pattern.** Use a `data-*` attribute + a scoped `<script>` that calls `addEventListener`. Examples: `Header.astro` `[data-nav-toggle]`, `BaseLayout.astro` `[data-theme-toggle]` sync hook, `src/scripts/marketing-interactions.ts` `[data-manual-tabs]` binding. Gated by [`tests/lint-no-inline-event-handler.test.mts`](./tests/lint-no-inline-event-handler.test.mts) — per-line `<!-- lint-no-inline-event-handler: ok -->` allow-list for deliberate exceptions (none today). JSX/TSX `onClick={…}` is fine — React binds those programmatically; no inline-handler attribute is ever emitted to HTML.
 
 ### 9.5 Opengraph & metadata
 

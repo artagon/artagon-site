@@ -80,7 +80,7 @@ Long-form content pages SHALL be implemented using Astro Content Collections to 
 
 ### Requirement: Type-Safe Content Schemas
 
-All content collections MUST have a defined Zod schema to validate frontmatter metadata. The `pages` schema MUST require `title`, `description`, `eyebrow`, `headline`, `lede`, and `ctas[]`. The `pages/writing` schema MUST additionally require `published` (ISO date), `tags[]`, and accept optional `updated`, `cover`, `accent`, `repo`. The `authors` schema MUST require `name`, `slug`, and accept optional `bio`, `avatar`, `links[]`.
+All content collections MUST have a defined Zod schema to validate frontmatter metadata. The `pages` schema MUST require `title`, `description`, `eyebrow`, `headline`, `lede`, and `ctas[]`. The `pages/writing` schema MUST additionally require `published` (ISO date), `tags[]`, and accept optional `updated`, `cover`, `author`, and `draft`. The `pages` and `pages/writing` schemas MUST reject undeclared fields, including `accent` and `repo`. The `authors` schema MUST require `name`, `slug`, and accept optional `bio`, `avatar`, `links[]`.
 
 #### Scenario: Missing Metadata
 

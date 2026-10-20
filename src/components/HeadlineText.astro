@@ -1,0 +1,10 @@
+---
+import { headlineParts } from '../lib/marketing-copy';
+import { parseGlossaryText } from '../data/glossary';
+import GlossaryText from './GlossaryText.astro';
+interface Props { text: string; emphasisClass: string; }
+const { text, emphasisClass } = Astro.props;
+---
+{headlineParts(text).map((part) => part.kind === 'break' ? <br /> :
+  part.kind === 'emphasis' ? <span class={emphasisClass}><GlossaryText nodes={parseGlossaryText(part.value)} /></span> :
+    <GlossaryText nodes={parseGlossaryText(part.value)} />)}

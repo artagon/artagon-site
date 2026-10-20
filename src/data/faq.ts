@@ -1,6 +1,6 @@
 export type FaqItem = {
   id: string;
-  category: string;
+  category: (typeof FAQ_CATEGORIES)[number];
   question: string;
   answer: string;
 };

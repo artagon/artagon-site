@@ -2,7 +2,8 @@
 import type { FaqItem } from '../data/faq';
 import { renderMarkdown } from '../lib/markdown';
 
-const item = Astro.props as FaqItem;
+interface Props extends FaqItem {}
+const item: Props = Astro.props;
 const renderedAnswer = await renderMarkdown(item.answer);
 ---
 
@@ -73,31 +74,31 @@ details[open] .faq-icon {
   font-size: 15px;
 }
 
-.faq-answer p {
+.faq-answer :global(p) {
   margin: 0;
 }
 
-.faq-answer p + p {
+.faq-answer :global(p + p) {
   margin-top: 12px;
 }
 
-.faq-answer ul,
-.faq-answer ol {
+.faq-answer :global(ul),
+.faq-answer :global(ol) {
   margin: 12px 0 0 20px;
   padding: 0;
 }
 
-.faq-answer li {
+.faq-answer :global(li) {
   margin: 6px 0;
 }
 
-.faq-answer a {
+.faq-answer :global(a) {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.faq-answer a:hover {
+.faq-answer :global(a:hover) {
   color: var(--accent);
 }
 
@@ -148,11 +149,11 @@ details[open] .faq-icon {
   .faq-question:hover {
     color: Highlight;
   }
-  .faq-answer a {
+  .faq-answer :global(a) {
     color: LinkText;
   }
-  .faq-answer a:hover,
-  .faq-answer a:focus-visible {
+  .faq-answer :global(a:hover),
+  .faq-answer :global(a:focus-visible) {
     color: Highlight;
   }
 }

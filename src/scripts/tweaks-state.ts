@@ -6,17 +6,10 @@
  *
  * Vocabulary contract: this module mirrors the upstream new-design state
  * shape verbatim (`new-design/extracted/src/layouts/BaseLayout.jsx`).
- * The `Theme` keyword set is `dark`/`light` to match upstream. NOTE: the
- * live `public/assets/theme.css` currently keys off
- * `:root[data-theme="midnight|twilight"]` — those selectors are
- * the pre-USMR theme system. Until USMR ports the upstream
- * `dark`/`light` token sheets, selecting "Theme: dark" in the dev panel
- * writes a `data-theme` value that the live CSS does not match, leaving
- * the page in a tokens-only state. This is a documented mid-flight
- * vocabulary gap, not a bug to fix here. See
- * `openspec/changes/archive/2026-05-04-add-tweaks-panel/proposal.md`
- * Out-of-Scope §3 (the change archived 2026-05-04; the live path
- * for archaeology is the archive entry).
+ * The `Theme` keyword set is `dark`/`light`; both have selectors in
+ * theme.css. The production bootstrap's twilight/midnight allow-list
+ * is a separate documented hook. Do not merge these vocabularies based
+ * on the former, stale claim that dark/light styles are missing.
  */
 
 export type Accent = "cyan" | "blue" | "amber" | "lime";

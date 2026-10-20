@@ -18,16 +18,16 @@
 //      classes the MDX posts can opt into.
 //   + Footer ribbon: `.post-footer` with tags + 3-card CTA row
 //      (Apply / Read docs / GitHub).
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPublishedPosts, getAuthorNames, formatPostDate } from '../../lib/writing';
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { readingMinutes } from '../../lib/reading-time.ts';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('writing');
+  const posts = await getPublishedPosts();
   return posts
-    .filter((p) => !p.data.draft)
     .map((post) => ({
       params: { slug: post.id },
       props: { post },
@@ -37,17 +37,9 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 
-// Author resolution — mirrors /writing/index.astro:35-36, 99.
-const authors = await getCollection('authors');
-const authorByName = new Map(authors.map((a) => [a.id, a.data.name]));
+const authorByName = await getAuthorNames();
 const authorName = post.data.author ? authorByName.get(post.data.author) : undefined;
 
-// Date format — short month form for the byline (canonical post-*.html shows "21 Apr 2026").
-const byleDateFmt = new Intl.DateTimeFormat('en-GB', {
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-});
 
 const minutes = readingMinutes(post.body);
 
@@ -105,14 +97,14 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
               </Fragment>
             )}
             <time datetime={post.data.published.toISOString()}>
-              {byleDateFmt.format(post.data.published)}
+              {formatPostDate(post.data.published)}
             </time>
             <span class="blog-hero__dot" aria-hidden="true" />
             <span>{minutes} min read</span>
             {post.data.updated && post.data.updated > post.data.published && (
               <Fragment>
                 <span class="blog-hero__dot" aria-hidden="true" />
-                <span>updated {byleDateFmt.format(post.data.updated)}</span>
+                <span>updated {formatPostDate(post.data.updated)}</span>
               </Fragment>
             )}
           </div>
@@ -133,7 +125,7 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
             </div>
           )}
           <div class="post-footer__cta-row">
-            <a class="post-footer__cta-card" href="#get-started">
+            <a class="post-footer__cta-card" href="/get-started">
               <div class="post-footer__cta-eyebrow">Design partners</div>
               <h3>Request access</h3>
               <p>Try Artagon in your own stack. Small cohort, hands-on.</p>
