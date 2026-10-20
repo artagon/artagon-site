@@ -133,8 +133,8 @@ describe("parseTweaks", () => {
       extra: "ignored",
     });
     assert.equal(result.accent, "cyan");
-    assert.equal((result as Record<string, unknown>).extra, undefined);
-    assert.equal((result as Record<string, unknown>).malicious, undefined);
+    assert.equal("extra" in result, false);
+    assert.equal("malicious" in result, false);
   });
 });
 

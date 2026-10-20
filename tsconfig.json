@@ -1,8 +1,6 @@
 {
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "target": "ES2022",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
@@ -13,6 +11,6 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": false
   },
-  "include": ["src/**/*", "tests/**/*", "scripts/**/*", "*.ts", "*.mjs"],
+  "include": [".astro/types.d.ts", "src/**/*", "tests/**/*", "scripts/**/*", "*.ts", "*.mjs"],
   "exclude": ["node_modules", ".build", "dist"]
 }
