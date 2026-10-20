@@ -46,11 +46,10 @@ tests/device-tour.spec.ts-snapshots/*.png
 tests/vision-page.spec.ts-snapshots/*.png
 !tests/vision-page.spec.ts-snapshots/*-chromium-linux.png
 
-# Lychee link-checker cache. The CI workflow now passes
-# `--cache-dir .build/cache/lychee` so the cache lives under the .build
-# umbrella, but lychee defaults to `.lycheecache/` at repo root if the
-# flag is dropped — keep this entry as defense-in-depth.
-.lycheecache/
+# Lychee cache file. `lychee.toml` enables caching and the link-check workflow
+# does not pass `--cache-dir`, so Lychee writes the default `.lycheecache`
+# file at the repo root. Keep it out of version control.
+.lycheecache
 
 # Working scratch — design handoff zip extracted at session start.
 # Tracked artifacts adopted into openspec/changes/add-brand-assets-and-writing-pipeline.

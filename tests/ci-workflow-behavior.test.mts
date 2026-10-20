@@ -22,7 +22,12 @@ type Step = {
   uses?: string;
   with?: Record<string, unknown>;
 };
-type Job = { if?: string; permissions?: Record<string, string>; steps: Step[] };
+type Job = {
+  env?: Record<string, string>;
+  if?: string;
+  permissions?: Record<string, string>;
+  steps: Step[];
+};
 function workflow(name: string): { jobs: Record<string, Job> } {
   return parse(
     readFileSync(
@@ -40,6 +45,7 @@ function step(name: string, job: Job): Step {
 const playwright = workflow("playwright");
 const deploy = workflow("deploy");
 const drift = workflow("design-md-drift");
+const specCompliance = workflow("pr-spec-compliance");
 const fixtures: string[] = [];
 function fixture() {
   const dir = mkdtempSync(join(tmpdir(), "site-ci-"));
@@ -130,6 +136,32 @@ describe("browser CI routing", () => {
     expect(merge.run).toContain("PLAYWRIGHT_HTML_OUTPUT_DIR");
     expect(merge.run).toContain("BUILD.reports.playwright.html");
     expect(merge.run).toContain("--no-install playwright merge-reports");
+  });
+});
+
+describe("spec compliance validation path", () => {
+  test("publishes the runner temp path before both workflow consumers", () => {
+    const job = specCompliance.jobs["spec-compliance"]!;
+    expect(job.env?.SPEC_VALIDATION_PATH).toBeUndefined();
+    const stepNames = job.steps.map(({ name }) => name);
+    const pathSetupIndex = stepNames.indexOf("Set spec validation output path");
+    expect(pathSetupIndex).toBeGreaterThanOrEqual(0);
+    expect(pathSetupIndex).toBeLessThan(
+      stepNames.indexOf("Validate spec reference"),
+    );
+    expect(pathSetupIndex).toBeLessThan(
+      stepNames.indexOf("Comment and enforce spec compliance"),
+    );
+    const pathSetup = step("Set spec validation output path", job).run!;
+    expect(pathSetup).toContain("SPEC_VALIDATION_PATH=%s/spec-validation.json");
+    expect(pathSetup).toContain('"$RUNNER_TEMP"');
+    expect(pathSetup).toContain('"$GITHUB_ENV"');
+    expect(step("Validate spec reference", job).run).toContain(
+      '"$SPEC_VALIDATION_PATH"',
+    );
+    expect(
+      String(step("Comment and enforce spec compliance", job).with?.script),
+    ).toContain("process.env.SPEC_VALIDATION_PATH");
   });
 });
 
