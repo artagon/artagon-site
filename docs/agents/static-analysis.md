@@ -49,11 +49,38 @@ Before trusting a rule:
 
 ## Known coverage gaps
 
-The 2026-10-20 review tested each rule against synthetic positives (beads under epic `site-2m1`):
+The 2026-10-20 review found gaps under epic `site-2m1`. Repairs
+were checked with the installed, pinned ast-grep 0.42.1 using unsafe
+positives and safe negatives; the earlier review used 0.50. Remaining limits:
 
-- `no-console-log-sensitive` misses `console.log(token)` and `console.log('label', secret)` (`site-2m1.68`).
-- `no-inner-html` misses `el['innerHTML'] = x` and `el.innerHTML += x`. `no-weak-hash` misses `createHash('MD5')` and `createHash('md5', {})`. `no-jwt-decode-unverified` misses `jwt.decode(token, { complete: true })` (`site-2m1.69`).
-- `no-set-html-directive` is documentation only. Enforcement lives in `tests/lint-set-html-safejsonld.test.mts`, which accepts unsafe concatenation or ternaries after a `safeJsonLd` call (`site-2m1.66`).
+- `no-console-log-sensitive` checks every direct argument to `console.log`,
+  including single arguments and sensitive expressions after a label
+  (`site-2m1.68`). It does not resolve aliases or perform dataflow analysis;
+  static string/template labels are excluded; template substitutions are checked.
+  Other console methods, including `console.error` and `console.warn`, are not
+  covered (`site-2m1.68`).
+- `no-inner-html` covers dot and literal computed properties with plain or
+  compound assignment. `no-weak-hash` covers case-insensitive weak algorithm
+  string literals and trailing options; `no-jwt-decode-unverified` covers
+  trailing decode options (`site-2m1.69`). Dynamic property/algorithm names
+  and aliased APIs remain outside these syntax-based checks.
+  Backtick literals in computed keys (``el[`innerHTML`] = x``) and algorithm
+  arguments (``crypto.createHash(`md5`)``) are also missed (`site-2m1.69`).
+- `no-set-html-directive` is documentation only. Enforcement lives in
+  `tests/lint-set-html-safejsonld.test.mts`: direct sanitizer results and
+  conditionals whose output branches are sanitized or null are accepted;
+  concatenation, comma expressions, and raw branches are rejected
+  (`site-2m1.66`). The scanner remains conservative and file-local; it is
+  not an Astro parser or a general taint analyzer.
+- `no-raw-color-style-object-ts` and `no-raw-color-style-object-tsx` check
+  literal hex and color-function values under CSS property keys in object
+  pairs, including React `style={{...}}` (`site-2m1.48`, rule portion).
+  They do not resolve dynamic styles, aliases, or named CSS colors. Hyphenated
+  keys other than `*-color` and `border-*`, including `"box-shadow"`,
+  `"text-shadow"`, and `"background-image"`, and the `filter` value
+  `"drop-shadow(... #fff)"` are not matched (`site-2m1.48`). A live alias
+  example is `ACCENT_SWATCH` in `src/scripts/tweaks-state.ts`, consumed through
+  `style={{ background: ACCENT_SWATCH[a] }}` in `src/components/TweaksPanel.tsx`;
+  the referenced literal swatches are outside these checks (`site-2m1.48`).
+  The coverage-gate test side of `site-2m1.48` is tracked separately.
 - `no-hardcoded-secrets` covers specific assignment and token formats, not every secret shape.
-
-These gaps were reproduced on ast-grep 0.50; the pinned engine was not available during the review.

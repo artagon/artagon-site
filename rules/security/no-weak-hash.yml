@@ -13,7 +13,11 @@ ignores:
   - "**/*.test.ts"
   - "tests/**"
 rule:
-  pattern: crypto.createHash($ALG)
+  # USMR 14.69 (site-2m1.69): options do not make weak algorithms safe.
+  any:
+    - pattern: crypto.createHash($ALG)
+    - pattern: crypto.createHash($ALG, $$$OPTIONS)
 constraints:
   ALG:
-    regex: "^['\"]?(md5|sha1|sha-1)['\"]?$"
+    kind: string
+    regex: '(?i)^[''"](md5|sha1|sha-1)[''"]$'

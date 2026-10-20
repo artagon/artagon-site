@@ -562,7 +562,7 @@
 - [x] 14.45 (`site-2m1.45`) Generated `lychee.toml` sets `root_dir = ".build"`; comment claims repo root, CI silently overrides
 - [ ] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
 - [x] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
-- [ ] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
+- [x] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
 - [ ] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
 - [ ] 14.51 (`site-2m1.51`) Cloudflare purge step: fragile success check, zone-wide blast radius, and silent skip
 - [ ] 14.52 (`site-2m1.52`) `design-md-drift.yml` opens an issue on any transient `gh api` failure and never de-duplicates
@@ -577,14 +577,14 @@
 - [x] 14.62 (`site-2m1.62`) `color-mix()` state/hover tints in `BridgeFlow.css`, `PillarsIsland.css`, `UseCasesIsland.css`, `writin...
 - [x] 14.63 (`site-2m1.63`) Staging `--nd-fg-2` token used in `--chip-bg-neutral`, unlayered `:root` raw hex literals shadowing `@l...
 - [x] 14.64 (`site-2m1.64`) Over-eager `client:load` on hidden `TweaksPanel`, unused `defaultOpen` prop, orphan `Standard.astro` &...
-- [ ] 14.65 (`site-2m1.65`) Codex's environment-file guard reads the wrong input and uses an unsupported denial
-- [ ] 14.66 (`site-2m1.66`) The load-bearing JSON-LD gate accepts unsanitized output
+- [x] 14.65 (`site-2m1.65`) Codex's environment-file guard reads the wrong input and uses an unsupported denial
+- [x] 14.66 (`site-2m1.66`) The load-bearing JSON-LD gate accepts unsanitized output
 - [ ] 14.67 (`site-2m1.67`) Snapshot comparison executes PR code with a repository-write credential
-- [ ] 14.68 (`site-2m1.68`) The sensitive-logging rule misses its simplest intended positives
-- [ ] 14.69 (`site-2m1.69`) Security rules omit ordinary equivalent call and assignment forms
+- [x] 14.68 (`site-2m1.68`) The sensitive-logging rule misses its simplest intended positives
+- [x] 14.69 (`site-2m1.69`) Security rules omit ordinary equivalent call and assignment forms
 - [x] 14.70 (`site-2m1.70`) The advertised anti-framing directive cannot work in a meta CSP
 - [ ] 14.71 (`site-2m1.71`) The declared Node support range includes versions rejected by the locked Astro dependency
-- [ ] 14.72 (`site-2m1.72`) Formatter hooks can resolve an executable outside the frozen dependency install
+- [x] 14.72 (`site-2m1.72`) Formatter hooks can resolve an executable outside the frozen dependency install
 - [ ] 14.73 (`site-2m1.73`) pr-spec-compliance.yml redeclares the injected github-script `core` (same defect f1842d7 fixed elsewhere)
 
 ## Parallelism notes
