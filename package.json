@@ -33,6 +33,7 @@
     "dev": "astro dev",
     "predev": "npm run build:prebuild-chain",
     "build": "astro build",
+    "check": "astro check",
     "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",

@@ -41,7 +41,7 @@ The entire `.build/` tree MUST be a single `.gitignore` entry. Nested entries fo
 
 A single `build.config.json` at the repo root MUST be the canonical source of truth for configured paths under `.build/`. A typed `build.config.ts` MUST load the JSON via `fs.readFileSync` + `JSON.parse` as `unknown`, validate required string leaves against `REQUIRED_SHAPE`, and validate every path before exporting `BUILD` as `DeepReadonly<BuildPaths>`. `BuildPaths` and `REQUIRED_SHAPE` MUST reflect active consumers. TS/JS configs (Astro, Playwright) MUST import `BUILD`; Lighthouse CI and Lychee MUST use generated configs. Hand-maintained workflow artifact paths MUST mirror the SSoT; workflow YAML is not regenerated today.
 
-The `tsconfig.json` at the repo root MUST set `"resolveJsonModule": true`, `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, and `"target": "ES2022"` (or stricter). Pre-build-config-change the project had no `tsconfig.json` at the repo root; the change-author created one, and the file now ships at `tsconfig.json` extending `astro/tsconfigs/strictest`. CI MUST run `astro check` post-rename to confirm typing.
+The `tsconfig.json` at the repo root MUST extend `astro/tsconfigs/strictest`, MUST set `"resolveJsonModule": true` and `"target": "ES2022"` (or stricter), and MUST inherit the preset's bundler resolution (`"module": "ESNext"`, `"moduleResolution": "Bundler"`). NodeNext resolution is not used because Vite bundles the project: under NodeNext, `astro check` reported 337 errors, mostly extension-required (TS2835) and resolution cascades (USMR 14.7). Node-executed TypeScript imports use explicit `.ts` extensions instead. Pre-build-config-change the project had no `tsconfig.json` at the repo root; the change-author created one, and the file now ships at `tsconfig.json` extending `astro/tsconfigs/strictest`. CI MUST run `astro check` post-rename to confirm typing.
 
 Path strings written to `build.config.json` MUST conform to the regex `^\.build/[a-z0-9/_-]+$`. The sync generator MUST validate every path string against this regex BEFORE writing any output file and MUST exit non-zero on violation. Paths containing `..`, newlines, backticks, `$()`, or absolute prefixes are rejected. This guards against path-traversal attacks where a malicious or typo'd path string is templated into committed workflow YAML.
 
@@ -63,7 +63,7 @@ Path strings written to `build.config.json` MUST conform to the regex `^\.build/
 #### Scenario: tsconfig.json supports JSON loading
 
 - **WHEN** `tsc --noEmit` runs against `build.config.ts`
-- **THEN** the type check passes; `tsconfig.json` declares `resolveJsonModule: true` and `module: "NodeNext"`; the `BUILD` export is typed as `DeepReadonly<BuildPaths>` (`string`-typed leaves, NOT literal-string types — `JSON.parse(...) as BuildPaths` widens to `string`; consumers MUST NOT depend on literal-string narrowing).
+- **THEN** the type check passes; `tsconfig.json` declares `resolveJsonModule: true` and inherits `moduleResolution: "Bundler"` from `astro/tsconfigs/strictest`; the `BUILD` export is typed as `DeepReadonly<BuildPaths>` (`string`-typed leaves, NOT literal-string types — `JSON.parse(...) as BuildPaths` widens to `string`; consumers MUST NOT depend on literal-string narrowing).
 
 #### Scenario: Path validator rejects traversal
 

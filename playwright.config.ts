@@ -27,7 +27,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
 
   // USMR 14.43: two workers per CI shard; benchmark on hosted runners.
-  workers: process.env.CI ? 2 : undefined,
+  ...(process.env.CI ? { workers: 2 } : {}),
 
   // USMR 14.39: shards upload blobs; merge-reports renders the combined HTML.
   reporter: process.env.CI

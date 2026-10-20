@@ -521,7 +521,7 @@
 - [x] 14.4 (`site-2m1.4`) Five of the six main-nav routes have no `<h1>` (violates a spec MUST)
 - [x] 14.5 (`site-2m1.5`) `theme.css` ships unminified and unhashed as render-blocking CSS on every route
 - [x] 14.6 (`site-2m1.6`) React runtime (≈61 KB gz) ships for three islands that are static tablists or timers
-- [ ] 14.7 (`site-2m1.7`) No type checker runs, but the code depends on compile-time contracts
+- [x] 14.7 (`site-2m1.7`) No type checker runs, but the code depends on compile-time contracts
 - [x] 14.8 (`site-2m1.8`) FAQ answer styles never apply (scoped CSS cannot reach markdown HTML)
 - [x] 14.9 (`site-2m1.9`) Content-collection vs component boundary: copy duplicated, entries dead, fields silently stripped
 - [ ] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch

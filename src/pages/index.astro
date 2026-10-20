@@ -23,6 +23,7 @@ const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
 // USMR Phase 5.1f — latest writing strip. Top N non-draft posts by
 // published desc; render the strip only when there's at least one post.
 const latestPosts = (await getPublishedPosts()).slice(0, 3);
+const latestPost = latestPosts[0];
 
 // USMR Phase 5.1j — eyebrow renders inside a .glow-tag pill. Splitting on
 // `&` lets the home.mdx string drive a serif-italic ampersand via the
@@ -155,20 +156,20 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
             standalone .writing-strip section is hidden in that variant
             (rule below). Closes task 5.8.in-hero. */}
         {
-          latestPosts.length > 0 && (
+          latestPost && (
             <a
               class="hero__latest-strip"
-              href={`/writing/${latestPosts[0].id}`}
+              href={`/writing/${latestPost.id}`}
             >
               <span class="hero__latest-strip-eyebrow">
                 <span class="hero__latest-strip-dot" aria-hidden="true" />
                 New
               </span>
               <span class="hero__latest-strip-title">
-                {latestPosts[0].data.headline}
+                {latestPost.data.headline}
               </span>
               <span class="hero__latest-strip-meta">
-                {formatPostDate(latestPosts[0].data.published, "card")}
+                {formatPostDate(latestPost.data.published, "card")}
                 {" · "}
                 Read{" "}
                 <span class="hero__latest-strip-arrow" aria-hidden="true">→</span>

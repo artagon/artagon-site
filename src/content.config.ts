@@ -10,7 +10,8 @@
 // MUST be updated in the same change that ships them through to a route
 // (Phase 4.2 / 5.x). vision.mdx is already migrated in this commit.
 
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
 import { glob } from "astro/loaders";
 
 /** Single call-to-action chip. */
@@ -26,7 +27,7 @@ const cta = z.object({
 /** External link on an author profile. */
 const authorLink = z.object({
   label: z.string().min(1),
-  href: z.string().url(),
+  href: z.url(),
 });
 
 /**
