@@ -38,8 +38,7 @@ to either point at `--accent` directly OR document the alias
 chain. Per OpenSpec discipline, pt397 is doc-scope (Purpose
 backfill) only and does NOT modify the Requirement / Scenario
 text — Requirements changes go through proposals, not direct
-edits. Same pattern as pt395 SearchAction Purpose backfill in
-manage-site-links/spec.md.
+edits.
 
 ## Requirements
 

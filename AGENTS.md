@@ -69,8 +69,22 @@ Project servers live in `.mcp.json` (Claude Code) and `.codex/config.toml` (Code
 | `context7`        | Current Astro, Playwright, and library docs. The project is on Astro 6, and Astro 5 → 6 changed real APIs, so check docs instead of memory. |
 | `serena`          | Semantic navigation and symbol edits (see above).                                                                                           |
 | `ast-grep`        | Structural search and rule testing: `dump_syntax_tree`, `test_match_code_rule`, `find_code`, `find_code_by_rule`.                           |
-| `playwright`      | Inspecting rendered pages and flows the suite does not cover. Global `playwright-mcp`, not pinned here.                                     |
+| `playwright`      | Exploratory browser work and long-running interactive flows. Global `playwright-mcp`, not pinned here.                                      |
 | `chrome-devtools` | Claude only: traces, Lighthouse, network and console. Global `chrome-devtools-mcp`, not pinned here.                                        |
+
+### Playwright lanes
+
+- Use `playwright-cli` for agent browser verification and generating new Playwright specs. Its repo config is `.playwright/cli.config.json`; it uses an isolated in-memory profile and saves output under `.build/reports/playwright-cli/`. Run it from the repo root: relative `--filename`, `state-save`, and video paths resolve against the repo root, and every explicit path must sit under `.build/reports/playwright-cli/`.
+- Use the `playwright` MCP server for exploratory work and long-running browser sessions.
+- Use the Playwright test runner (`npx playwright test`) for the test suite and CI.
+
+Playwright CLI rules:
+
+- Run `rtk npx --no-install playwright-cli` from the repo root.
+- Never pass `--config`, `--persistent`, `--profile`, `attach`, or `--extension`.
+- Never install `@latest` or run `npm init playwright`.
+- Serve pages with `npx astro preview --port 4400`.
+- Get user approval before `gh ... --attach` or any other external write.
 
 Do not hand-edit the `serena` entry or add controller-managed servers here. Re-run `sync-mcp.sh --project <repo-root> --include serena --agent claude --agent codex` (artagon-cli-mcp plugin), previewing with `--dry-run` first. Details: `docs/agents/mcp-servers.md`.
 

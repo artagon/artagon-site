@@ -515,7 +515,7 @@
 
 > Task `14.N` maps 1:1 to bead `site-2m1.N`. Each fix cites `14.N` in code comments where a comment is warranted and in its commit body (`Closes 14.N`). Full findings and round-2 verdicts are in `.beads/issues.jsonl`.
 
-- [ ] 14.1 (`site-2m1.1`) Integrate Playwright CLI (@playwright/cli) as the agent browser-verification lane
+- [x] 14.1 (`site-2m1.1`) Integrate Playwright CLI (@playwright/cli) as the agent browser-verification lane
 - [x] 14.2 (`site-2m1.2`) Trust-chain pause resets the chain to "pending" and restarts the animation
 - [x] 14.3 (`site-2m1.3`) Dead in-page anchors, including the main CTA on every blog post
 - [x] 14.4 (`site-2m1.4`) Five of the six main-nav routes have no `<h1>` (violates a spec MUST)
@@ -526,11 +526,11 @@
 - [x] 14.9 (`site-2m1.9`) Content-collection vs component boundary: copy duplicated, entries dead, fields silently stripped
 - [ ] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch
 - [x] 14.11 (`site-2m1.11`) Glossary chip implemented 3×, the "canonical" component is dead, and the client gets the whole glossary
-- [ ] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
+- [x] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
 - [ ] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree
 - [ ] 14.14 (`site-2m1.14`) Render-blocking Google Fonts CSS loads 3 families production cannot reach
 - [x] 14.15 (`site-2m1.15`) Mobile nav stays open after same-page anchor navigation and has no Escape close
-- [ ] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments
+- [x] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments
 - [x] 14.17 (`site-2m1.17`) Logo conversion recursively deletes a caller-owned temporary directory
 - [x] 14.18 (`site-2m1.18`) An unreadable run lock authorizes cleanup
 - [x] 14.19 (`site-2m1.19`) The indexation entry point cannot load on the pinned Node version

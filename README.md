@@ -58,7 +58,6 @@ artagon-site/
 │   ├── assets/             # Images, logos, OG images, theme.css, fonts/
 │   │   └── logos/          # Logo variants and documentation
 │   ├── icons/              # Favicons and app icons
-│   ├── docsearch.json      # Algolia DocSearch config
 │   ├── robots.txt          # Search engine directives
 │   └── _redirects          # Cloudflare Pages redirect rules
                             # (sitemap-index.xml is GENERATED to
@@ -527,7 +526,7 @@ Generates a strict CSP `<meta>` tag with the nine directives constructed by `bui
 
 Clickjacking protection uses `Content-Security-Policy: frame-ancestors 'none'` as an HTTP response header. Browsers do not enforce `frame-ancestors` from a CSP meta tag. The supplied Nginx and Caddy configs set this header; GitHub Pages and Cloudflare Pages deployments need an equivalent host or CDN response-header rule.
 
-All inline `<script>` tags are hashed and added to `script-src` automatically. DocSearch / Algolia origins are added as `extras` only when DocSearch is enabled.
+All inline `<script>` tags are hashed and added to `script-src` automatically. No third-party search origins are added to the policy.
 
 ### Performance Optimizations
 

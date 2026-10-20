@@ -80,16 +80,9 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
   // of `buildPolicy` (the function is exported for unit testing and
   // could be re-imported by other scripts) could pass
   // `extras["script-src"] = ["'unsafe-inline'"]` and the merge would
-  // silently include it. Today `processHtml` is the only callsite
-  // and `extras` is only populated by the hardcoded DocSearch branch
-  // (safe), but the runtime orphan-detection guard would still throw
-  // — making this a single-layer defense. Filtering here makes
-  // `buildPolicy` itself refuse the dangerous tokens regardless of
-  // what the caller passes, so a regression caused by adding a new
-  // `extras`-populator can't bypass the check by short-circuiting
-  // around `processHtml`. The 2026-05-09 pt432 verification (blackhat
-  // lens) flagged this as a defense-in-depth gap on the exported
-  // helper.
+  // silently include it. Filtering here makes `buildPolicy` refuse
+  // dangerous tokens regardless of what the caller passes. The
+  // production `processHtml` path supplies no extra origins.
   const FORBIDDEN_KEYWORDS = new Set([
     "'unsafe-inline'",
     "'unsafe-eval'",
@@ -165,27 +158,7 @@ async function processHtml(fp) {
     const css = $(el).html() || "";
     styleHashes.add(sha(Buffer.from(css)));
   }
-  const extras = {};
-  const hasDoc =
-    $('script[src*="docsearch"]').length || $('link[href*="docsearch"]').length;
-  if (hasDoc) {
-    // pt431 — path-pin the jsdelivr allow-list to /npm/@docsearch/.
-    // Pre-pt431 the entire `https://cdn.jsdelivr.net` host was added
-    // to script-src + style-src, so any package published on jsdelivr
-    // would have been a viable script-src origin if it ever loaded
-    // here. Path-prefix matching per CSP spec: the URL prefix must be
-    // a complete path segment, so `cdn.jsdelivr.net/npm/@docsearch/`
-    // matches `/npm/@docsearch/js@3.9.0` but rejects
-    // `/npm/something-else@x`. Bumps to a different DocSearch path
-    // require updating this too — kept atomic.
-    extras["script-src"] = ["https://cdn.jsdelivr.net/npm/@docsearch/"];
-    extras["style-src"] = ["https://cdn.jsdelivr.net/npm/@docsearch/"];
-    extras["connect-src"] = [
-      "https://*.algolia.net",
-      "https://*.algolianet.com",
-    ];
-  }
-  const policy = buildPolicy(hashes, extras, styleHashes);
+  const policy = buildPolicy(hashes, {}, styleHashes);
 
   // Orphan-hash detection (Phase 3.6): verify that the constructed script-src
   // covers every inline script and never contains 'unsafe-inline'.
@@ -293,7 +266,13 @@ function extractStyleSrcHashes(policy) {
   return set;
 }
 // Export helpers for unit testing (tests/csp.test.mjs).
-export { buildPolicy, extractScriptSrcHashes, extractStyleSrcHashes, sha };
+export {
+  buildPolicy,
+  extractScriptSrcHashes,
+  extractStyleSrcHashes,
+  processHtml,
+  sha,
+};
 
 const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 if (isMain) {

@@ -1,6 +1,6 @@
 # Project Skills
 
-Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.com/google-labs-code/design.md/tree/main/.agents/skills). Mandated by user for this project.
+Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.com/google-labs-code/design.md/tree/main/.agents/skills), plus `playwright-cli` from `@playwright/cli@0.1.22`. Mandated by user for this project.
 
 ## Installed
 
@@ -8,6 +8,7 @@ Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.
 | ----------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | [agent-dx-cli-scale](agent-dx-cli-scale/SKILL.md)           | Score CLI/npm scripts on agent-friendliness (0–21 scale, ≥18 required) | `package.json` scripts, any script in `scripts/`                       |
 | [design-md](design-md/SKILL.md)                             | Synthesize semantic design systems into `DESIGN.md`                    | DESIGN.md authoring, design-token reconciliation                       |
+| [playwright-cli](playwright-cli/SKILL.md)                   | Agent browser verification and spec codegen; sourced from `@playwright/cli@0.1.22` | Rendered page verification and new Playwright spec code                 |
 | `ink` (NOT installed)                                       | Ink terminal renderer for JSON specs                                   | N/A — terminal UI; site is web. Deliberately skipped.                  |
 | [tdd](tdd/SKILL.md)                                         | Red-Green-Refactor for TS/Node                                         | All component conversions, all `src/lib/*.ts` and `src/data/*.ts` work |
 | [typed-service-contracts](typed-service-contracts/SKILL.md) | Spec & Handler pattern with `Result<T, E>`                             | `src/data/*.ts`, `src/lib/*.ts`, any data parsing/validation           |
@@ -43,6 +44,9 @@ Pull latest from upstream:
 for s in agent-dx-cli-scale tdd typed-service-contracts; do
   curl -sf "https://raw.githubusercontent.com/google-labs-code/design.md/main/.agents/skills/$s/SKILL.md" -o ".agents/skills/$s/SKILL.md"
 done
+
+# Refresh the pinned Playwright CLI skill from the installed package.
+npx --no-install playwright-cli install --skills=agents
 ```
 
 ## Authority order

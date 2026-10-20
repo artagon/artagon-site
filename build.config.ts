@@ -11,6 +11,7 @@ export interface BuildPaths {
   };
   reports: {
     playwright: { results: string; blob: string; html: string };
+    playwrightCli: string;
     lhci: string;
     cloudflarePurge: string;
   };
@@ -69,6 +70,7 @@ const REQUIRED_SHAPE = {
   },
   reports: {
     playwright: { results: null, blob: null, html: null },
+    playwrightCli: null,
     lhci: null,
     cloudflarePurge: null,
   },

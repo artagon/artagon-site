@@ -114,7 +114,7 @@ filter (`NOINDEX_ROUTES` allowlist; see pt146 narrative).
 - `/bridge` — Dedicated landing for the VC↔OIDC bridge
 - `/get-started` — Design-partner program landing (per pt87 + pt93;
   was a stub linking to /console + /docs pre-USMR Phase 5.5.14)
-- `/search` — Algolia DocSearch UI
+- `/search` — Site search page
 - `/writing` + `/writing/[slug]` + `/writing/feed.xml` —
   Content-collection-driven blog
 - `/404` — Error page
