@@ -511,6 +511,82 @@
 - [ ] 13.4 File follow-up changes for: author public pages, changelog page, `/writing/tag/[tag]`, i18n, PWA installability.
 - [x] 13.5 (pt450) Split `AGENTS.md`: keep the every-task rules and the gated tables (Rules in force, Symbolic references) in the root file; move reference detail (testing, review, accessibility, design-contract gates, MCP, static analysis) to `docs/agents/`; add repo-local code-intelligence guidance (ripwire, Serena, ast-grep, tgrep, ripgrep), including ripwire's blindness to `.astro`; extend `tests/lint-agents-md-path-citations.test.mts` to scan `docs/agents/*.md`; gitignore `.tgrep/`.
 
+## Phase 14 — 2026-10-20 adversarial review fixes (epic `site-2m1`)
+
+> Task `14.N` maps 1:1 to bead `site-2m1.N`. Each fix cites `14.N` in code comments where a comment is warranted and in its commit body (`Closes 14.N`). Full findings and round-2 verdicts are in `.beads/issues.jsonl`.
+
+- [ ] 14.1 (`site-2m1.1`) Integrate Playwright CLI (@playwright/cli) as the agent browser-verification lane
+- [ ] 14.2 (`site-2m1.2`) Trust-chain pause resets the chain to "pending" and restarts the animation
+- [ ] 14.3 (`site-2m1.3`) Dead in-page anchors, including the main CTA on every blog post
+- [ ] 14.4 (`site-2m1.4`) Five of the six main-nav routes have no `<h1>` (violates a spec MUST)
+- [ ] 14.5 (`site-2m1.5`) `theme.css` ships unminified and unhashed as render-blocking CSS on every route
+- [ ] 14.6 (`site-2m1.6`) React runtime (≈61 KB gz) ships for three islands that are static tablists or timers
+- [ ] 14.7 (`site-2m1.7`) No type checker runs, but the code depends on compile-time contracts
+- [ ] 14.8 (`site-2m1.8`) FAQ answer styles never apply (scoped CSS cannot reach markdown HTML)
+- [ ] 14.9 (`site-2m1.9`) Content-collection vs component boundary: copy duplicated, entries dead, fields silently stripped
+- [ ] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch
+- [ ] 14.11 (`site-2m1.11`) Glossary chip implemented 3×, the "canonical" component is dead, and the client gets the whole glossary
+- [ ] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
+- [ ] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree
+- [ ] 14.14 (`site-2m1.14`) Render-blocking Google Fonts CSS loads 3 families production cannot reach
+- [ ] 14.15 (`site-2m1.15`) Mobile nav stays open after same-page anchor navigation and has no Escape close
+- [ ] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments
+- [ ] 14.17 (`site-2m1.17`) Logo conversion recursively deletes a caller-owned temporary directory
+- [ ] 14.18 (`site-2m1.18`) An unreadable run lock authorizes cleanup
+- [ ] 14.19 (`site-2m1.19`) The indexation entry point cannot load on the pinned Node version
+- [ ] 14.20 (`site-2m1.20`) Token lint reports success after failing to read a tracked input
+- [ ] 14.21 (`site-2m1.21`) SRI silently skips missing or inaccessible local assets
+- [ ] 14.22 (`site-2m1.22`) Skip-link target validation accepts data-id as a real target
+- [ ] 14.23 (`site-2m1.23`) Robots validation depends on attribute order and omits nofollow
+- [ ] 14.24 (`site-2m1.24`) Sitemap validation can pass without checking a single writing date
+- [ ] 14.25 (`site-2m1.25`) The Google Fonts migration exception exempts every forbidden font host
+- [ ] 14.26 (`site-2m1.26`) Editing the generator does not invalidate its fast path
+- [ ] 14.27 (`site-2m1.27`) Omitting the optional logo argument aborts OG generation
+- [ ] 14.28 (`site-2m1.28`) The uniqueness gate explicitly allows the duplicate location its spec forbids
+- [ ] 14.29 (`site-2m1.29`) Typography properties are never parsed, then a fallback masks missing properties
+- [ ] 14.30 (`site-2m1.30`) Two identical HTML walkers can share one implementation
+- [ ] 14.31 (`site-2m1.31`) Touch interaction coverage remains skipped after the tap path was recorded as shipped
+- [ ] 14.32 (`site-2m1.32`) Header dimension checks are globally marked fixme, and one target is below the project floor
+- [ ] 14.33 (`site-2m1.33`) Parallel schema tests overwrite the same content fixture
+- [ ] 14.34 (`site-2m1.34`) The hover test captures the changed border but never checks it
+- [ ] 14.35 (`site-2m1.35`) Screenshot tests add fixed waits and one duplicate navigation
+- [ ] 14.36 (`site-2m1.36`) Content-layer checks pin exact source formatting
+- [ ] 14.37 (`site-2m1.37`) Lint tests duplicate filesystem walkers and wildcard parsers
+- [ ] 14.38 (`site-2m1.38`) Visual-regression gate is non-functional end to end
+- [ ] 14.39 (`site-2m1.39`) `test:ci` discards the HTML report, so per-shard artifacts and `merge-reports` produce nothing
+- [ ] 14.40 (`site-2m1.40`) The `accessibility` job runs one structural test, not the axe-core audit
+- [ ] 14.41 (`site-2m1.41`) SRI on the stable-URL `/assets/theme.css` is the stale-HTML break; the `pt449` purge mitigates only the...
+- [ ] 14.42 (`site-2m1.42`) `pt449` reuses the secret name `CLOUDFLARE_API_TOKEN` that `migrate-deploy-to-cloudflare-pages` assigns...
+- [ ] 14.43 (`site-2m1.43`) CI spends ~80 runner-minutes per PR push; ~35 are avoidable without losing coverage
+- [ ] 14.44 (`site-2m1.44`) Pre-commit drift gate and local sync skip hand-edited generated files
+- [ ] 14.45 (`site-2m1.45`) Generated `lychee.toml` sets `root_dir = ".build"`; comment claims repo root, CI silently overrides
+- [ ] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
+- [ ] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
+- [ ] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
+- [ ] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
+- [ ] 14.51 (`site-2m1.51`) Cloudflare purge step: fragile success check, zone-wide blast radius, and silent skip
+- [ ] 14.52 (`site-2m1.52`) `design-md-drift.yml` opens an issue on any transient `gh api` failure and never de-duplicates
+- [ ] 14.53 (`site-2m1.53`) Hovering or focusing any trust-chain stage or tab resets settled state to `step = 0`, and `pressedIdx` l...
+- [ ] 14.54 (`site-2m1.54`) Interactive `<a class="standard-chip">` links nested inside `<button class="bridge-step">` violate HTML...
+- [ ] 14.56 (`site-2m1.56`) Active primary nav link has zero `:focus-visible` indicator in normal or `forced-colors` mode, and non-a...
+- [ ] 14.57 (`site-2m1.57`) `@keyframes glow-breathe` overrides light-theme `.glow-tag` `box-shadow` in the CSS cascade and hardcode...
+- [ ] 14.58 (`site-2m1.58`) `TweaksPanel.tsx` `Opt` calls `e.currentTarget.blur()` on `onClick`, dropping keyboard focus to `documen...
+- [ ] 14.59 (`site-2m1.59`) Duplicated `.site-nav .right .btn.primary` rule block in `Header.astro` outranks global `prefers-reduce...
+- [ ] 14.60 (`site-2m1.60`) Interactive controls in `Header.astro`, `FaqSearch.astro`, `TrustChainIsland.css`, and `Tweaks.astro` f...
+- [ ] 14.61 (`site-2m1.61`) `Tagline.astro` places `aria-label="Company motto"` on a generic `<span>`, masking the actual motto tex...
+- [ ] 14.62 (`site-2m1.62`) `color-mix()` state/hover tints in `BridgeFlow.css`, `PillarsIsland.css`, `UseCasesIsland.css`, `writin...
+- [ ] 14.63 (`site-2m1.63`) Staging `--nd-fg-2` token used in `--chip-bg-neutral`, unlayered `:root` raw hex literals shadowing `@l...
+- [ ] 14.64 (`site-2m1.64`) Over-eager `client:load` on hidden `TweaksPanel`, unused `defaultOpen` prop, orphan `Standard.astro` &...
+- [ ] 14.65 (`site-2m1.65`) Codex's environment-file guard reads the wrong input and uses an unsupported denial
+- [ ] 14.66 (`site-2m1.66`) The load-bearing JSON-LD gate accepts unsanitized output
+- [ ] 14.67 (`site-2m1.67`) Snapshot comparison executes PR code with a repository-write credential
+- [ ] 14.68 (`site-2m1.68`) The sensitive-logging rule misses its simplest intended positives
+- [ ] 14.69 (`site-2m1.69`) Security rules omit ordinary equivalent call and assignment forms
+- [ ] 14.70 (`site-2m1.70`) The advertised anti-framing directive cannot work in a meta CSP
+- [ ] 14.71 (`site-2m1.71`) The declared Node support range includes versions rejected by the locked Astro dependency
+- [ ] 14.72 (`site-2m1.72`) Formatter hooks can resolve an executable outside the frozen dependency install
+- [ ] 14.73 (`site-2m1.73`) pr-spec-compliance.yml redeclares the injected github-script `core` (same defect f1842d7 fixed elsewhere)
+
 ## Parallelism notes
 
 - Phases 2 + 4 can start in parallel; Phase 5 depends on both.
