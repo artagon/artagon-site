@@ -14,6 +14,14 @@ The globs must stay disjoint. Playwright's default glob (`**/*.@(spec|test).?(c|
 
 Adding a third kind of runner means every runner config gets an explicit `include` / `exclude`.
 
+## Agent browser verification
+
+The browser tools have three distinct lanes:
+
+- Use `playwright-cli` for agent verification of a rendered page and for generating new Playwright spec code. `.playwright/cli.config.json` uses an isolated in-memory Chromium profile through the installed Chrome channel and writes output under `.build/reports/playwright-cli/`.
+- Use the `playwright` MCP server for exploratory work and long-running browser sessions.
+- Use the Playwright test runner for the automated spec suite and CI.
+
 ## Browser-profile isolation
 
 Every Playwright project comes from `devices[...]` in `playwright.config.ts`, which creates an ephemeral context per test. Never call `chromium.launchPersistentContext` with a real profile path. That exposes the developer's browser keychain and cookies to the test run.

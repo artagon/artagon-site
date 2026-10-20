@@ -40,6 +40,7 @@ import { fileURLToPath } from "node:url";
 import { argv, exit } from "node:process";
 import * as cheerio from "cheerio";
 import { isNoindexRoute, NOINDEX_ROUTES } from "../src/lib/indexation.ts";
+import { readWritingLastmod } from "../src/lib/writing-lastmod.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
@@ -173,14 +174,6 @@ function parseSitemap(body) {
   return { urls, error: null };
 }
 
-function frontmatterDate(mdxBody, key) {
-  const re = new RegExp(`^${key}:\\s*(.+)$`, "m");
-  const m = mdxBody.match(re);
-  if (!m) return null;
-  // Strip surrounding quotes if present.
-  return m[1].trim().replace(/^['"]|['"]$/g, "");
-}
-
 function isPathWithin(root, candidate) {
   const contentRelative = relative(root, candidate);
   return (
@@ -259,28 +252,25 @@ function checkB() {
     }
     const contentBase = resolve(writingRoot, ...segments);
     const contentCandidates = isPathWithin(writingRoot, contentBase)
-      ? [`${contentBase}.mdx`, `${contentBase}.md`]
+      ? [`${contentBase}.md`, `${contentBase}.mdx`]
       : [];
-    const mdxPath = contentCandidates.find((candidate) => existsSync(candidate));
-    if (!mdxPath) {
+    const contentPath = contentCandidates.find((candidate) => existsSync(candidate));
+    if (!contentPath) {
       findings.push({
         loc,
-        issue: "sitemap-url-without-mdx",
+        issue: "sitemap-url-without-writing-content",
         detail: `sitemap cites <loc>${loc}</loc> but no .md or .mdx content file under ${relative(ROOT, writingRoot)}`,
       });
       continue;
     }
-    const mdxBody = readFileSync(mdxPath, "utf8");
-    const updated = frontmatterDate(mdxBody, "updated");
-    const published = frontmatterDate(mdxBody, "published");
-    const expected = updated ?? published;
+    const expected = readWritingLastmod(slug, writingRoot);
     if (!expected) {
       findings.push({
         loc,
-        issue: "mdx-without-date",
-        detail: `MDX at ${relative(
+        issue: "writing-content-without-date",
+        detail: `Writing content at ${relative(
           ROOT,
-          mdxPath,
+          contentPath,
         )} has neither \`updated\` nor \`published\` frontmatter`,
       });
       continue;
@@ -293,9 +283,7 @@ function checkB() {
       findings.push({
         loc,
         issue: "lastmod-parity",
-        detail: `sitemap <lastmod>${lastmod}</lastmod> does not match MDX frontmatter (${
-          updated ? "updated" : "published"
-        }=${expected})`,
+        detail: `sitemap <lastmod>${lastmod}</lastmod> does not match parsed writing frontmatter lastmod (${expected})`,
       });
     }
   }

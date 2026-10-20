@@ -284,6 +284,35 @@ describe("postbuild gate regressions", () => {
     expect(result.code, result.stderr).toBe(0);
   });
 
+  test("sitemap validation handles nested .mdx content with UTC-normalized dates", () => {
+    const root = tempRoot("postbuild-sitemap-nested-mdx-utc-");
+    setupIndexationRoot(
+      root,
+      sitemap(
+        '<url><loc>https://artagon.com/writing/series/post</loc><lastmod>2026-03-31T22:30:00.000Z</lastmod></url>',
+      ),
+    );
+    writeFile(
+      root,
+      "src/content/writing/series/post.mdx",
+      "---\npublished: 2026-04-01T00:30:00+02:00\n---\nPost body\n",
+    );
+
+    const normalized = runScript("validate-indexation.mjs", root, [root]);
+    expect(normalized.code, normalized.stderr).toBe(0);
+
+    writeFile(
+      root,
+      ".build/dist/sitemap-0.xml",
+      sitemap(
+        '<url><loc>https://artagon.com/writing/series/post</loc><lastmod>2026-04-01T00:30:00.000Z</lastmod></url>',
+      ),
+    );
+    const localTime = runScript("validate-indexation.mjs", root, [root]);
+    expect(localTime.code).toBe(1);
+    expect(localTime.stderr).toContain("[lastmod-parity]");
+  });
+
   test("sitemap validation rejects a lastmod mismatch", () => {
     const root = tempRoot("postbuild-sitemap-lastmod-mismatch-");
     setupIndexationRoot(
@@ -310,7 +339,7 @@ describe("postbuild gate regressions", () => {
 
     const result = runScript("validate-indexation.mjs", root, [root]);
     expect(result.code).toBe(1);
-    expect(result.stderr).toContain("[sitemap-url-without-mdx]");
+    expect(result.stderr).toContain("[sitemap-url-without-writing-content]");
   });
 
   test("sitemap validation rejects missing writing lastmod and empty parsed sitemaps", () => {

@@ -68,6 +68,7 @@ describe("AGENT_MANIFEST.yaml vs .agents/skills/ on-disk (pt192)", () => {
       mandatory.length,
       "AGENT_MANIFEST.yaml must declare a non-empty `mandatory:` skill list",
     ).toBeGreaterThan(0);
+    expect(mandatory).toContain("playwright-cli");
 
     const installed = new Set<string>();
     for (const entry of readdirSync(SKILLS_DIR, { withFileTypes: true })) {

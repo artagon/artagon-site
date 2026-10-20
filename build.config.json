@@ -9,6 +9,7 @@
       "blob": ".build/reports/playwright/blob",
       "html": ".build/reports/playwright/html"
     },
+    "playwrightCli": ".build/reports/playwright-cli",
     "lhci": ".build/reports/lhci",
     "cloudflarePurge": ".build/reports/cloudflare-purge"
   },

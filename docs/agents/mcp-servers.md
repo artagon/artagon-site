@@ -15,8 +15,14 @@ The `serena` entries are rendered by `sync-mcp.sh --project <repo-root> --includ
 | `context7`        | Current docs for Astro, MDN, Playwright, and other libraries   | Call `resolve-library-id`, then `query-docs` with the specific topic. Served from user-level config.                                                           |
 | `serena`          | LSP-backed symbol navigation and symbol-aware edits            | Named components, functions, hooks, types, references. Per-repo HTTP daemon at `http://127.0.0.1:9141/mcp`; if it refuses connections, re-run project sync.    |
 | `ast-grep`        | Tree-sitter structural search and rule testing                 | Syntactic patterns in Astro (as HTML), TS/TSX, JS, CSS, YAML, JSON, Bash.                                                                                      |
-| `playwright`      | Browser automation for rendered pages, screenshots, DOM        | Flows the test suite does not cover. Runs the globally installed `playwright-mcp` (version not pinned here); the project's Playwright test runner is separate. |
+| `playwright`      | Browser automation for rendered pages, screenshots, DOM        | Exploratory work and long-running browser sessions. Runs the globally installed `playwright-mcp` (version not pinned here).                                   |
 | `chrome-devtools` | Performance traces, Lighthouse, network and console inspection | Claude only. Runs the globally installed `chrome-devtools-mcp` (version not pinned here).                                                                      |
+
+## Playwright lanes
+
+- Use `playwright-cli` for agent browser verification and generating new Playwright specs. The repo pins its behavior through `.playwright/cli.config.json` and writes session output under `.build/reports/playwright-cli/`.
+- Use the `playwright` MCP server for exploratory work and long-running interactive sessions.
+- Use the Playwright test runner for the automated suite and CI.
 
 ## context7
 
