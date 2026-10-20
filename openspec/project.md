@@ -17,7 +17,7 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 ### Core
 
 - Astro 6 (ESM, static output; per `package.json` `"astro": "6.2.1"`)
-- Node 22+ and npm (per `.nvmrc` 22.12 and `package.json` engines.node `>=22.0.0`)
+- Node 22.18.0+ and npm (per `.nvmrc` 22.18.0 and `package.json` engines.node `>=22.18.0`; plain Node entry points import TypeScript without a loader flag)
 - @astrojs/sitemap, @astrojs/mdx, @astrojs/react (for interactive islands only), @astrojs/rss (for `/writing/feed.xml`)
 - Astro Content Collections + Zod schemas (`src/content/`)
 
