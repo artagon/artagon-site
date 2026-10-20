@@ -10,8 +10,6 @@
 // hover state.
 import { getPublishedPosts, getAuthorNames, postDateParts } from '../../lib/writing';
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 
 const posts = await getPublishedPosts();
 
@@ -38,13 +36,13 @@ function primaryTag(tags: string[]): string {
   description="Field notes, technical write-ups, and announcements from the team building the Artagon identity platform."
   path="/writing"
 >
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       provides <main id="main-content">. */}
     <section class="writing-hero" aria-labelledby="writing-hero-heading">
       <div class="writing-wrap">
-        <p class="writing-hero__eyebrow">Blog · Field notes from the Artagon team</p>
+      <p class="writing-hero__eyebrow eyebrow">Blog · Field notes from the Artagon team</p>
         <h1 id="writing-hero-heading" class="writing-hero__title display">
           Writing on <span class="writing-hero__emphasis">trust</span>, identity, and verifiable systems.
         </h1>
@@ -88,7 +86,7 @@ function primaryTag(tags: string[]): string {
       </section>
     )}
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>
 
 <style>
@@ -110,23 +108,9 @@ function primaryTag(tags: string[]): string {
    * 0.1em / margin-bottom 24 / 18 px accent dash via ::before.
    * Pre-fix the writing-hero used scoped 0.72rem / fg-3 / 0.12em /
    * 1.25rem margin without the dash. */
+  /* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
   .writing-hero__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    color: var(--fg-2);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
     margin: 0 0 24px;
-  }
-  .writing-hero__eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
   }
   /* Canonical blog.html:828 — `margin: '16px 0 20px'`. The 16 top
    * adds breathing room between eyebrow and h1 (eyebrow margin-bottom

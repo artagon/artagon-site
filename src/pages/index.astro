@@ -2,8 +2,6 @@
 import { getEntry } from "astro:content";
 import { getPublishedPosts, formatPostDate } from "../lib/writing";
 import Base from "../layouts/BaseLayout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
 import TrustChainIsland from "../components/TrustChainIsland";
 import { AFFILIATIONS, HERO_SPECS } from "../data/affiliations";
 import { ORG } from "../data/organization";
@@ -57,7 +55,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
 ---
 
 <Base title={title} description={description} path="/">
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt139 — aria-labelledby points at hero-h1 so
       AT announces the section landmark by its heading. Same pattern
@@ -323,7 +321,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     )
   }
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>
 
 <style>

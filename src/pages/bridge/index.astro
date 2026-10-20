@@ -10,8 +10,6 @@
 // — dropped in 5.5.1 after canonical-fidelity review flagged the
 // duplicate hero.
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import BridgeFlow from '../../components/BridgeFlow.astro';
 import { getEntry } from 'astro:content';
 const entry = await getEntry('pages', 'bridge');
@@ -22,7 +20,7 @@ if (!entry) throw new Error('bridge.mdx content entry not found');
   description={entry.data.description}
   path="/bridge"
 >
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — slot directly into BaseLayout's
       `<main id="main-content">` rather than wrapping in another
@@ -31,5 +29,5 @@ if (!entry) throw new Error('bridge.mdx content entry not found');
       invalid HTML AND a duplicate WCAG landmark. */}
   <BridgeFlow copy={entry.data} />
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

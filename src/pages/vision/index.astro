@@ -1,8 +1,6 @@
 ---
 import { getEntry, render } from 'astro:content';
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import '../../styles/vision.css';
 
 const entry = await getEntry('pages', 'vision');
@@ -15,12 +13,12 @@ const { title, description } = entry.data;
 ---
 
 <Base title={title} description={description} path="/vision">
-  <Fragment slot="header"><Header /></Fragment>
+
 
   <article class="vision-doc">
     <Content />
   </article>
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>
 

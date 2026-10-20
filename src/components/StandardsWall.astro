@@ -18,7 +18,7 @@ const { copy } = Astro.props;
 <section class="standards-wall" aria-labelledby="standards-wall-heading" id="standards-wall">
   <div class="standards-wall__head">
     <div>
-      <p class="standards-wall__eyebrow">{copy.eyebrow}</p>
+      <p class="standards-wall__eyebrow eyebrow">{copy.eyebrow}</p>
       <h1 id="standards-wall-heading" class="standards-wall__title display">
         <HeadlineText text={copy.headline} emphasisClass="standards-wall__title-emphasis" />
       </h1>
@@ -75,23 +75,9 @@ const { copy } = Astro.props;
   }
 
   /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+  /* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
   .standards-wall__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--fg-2);
     margin: 0 0 24px;
-  }
-  .standards-wall__eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
   }
 
   .standards-wall__title {

@@ -29,12 +29,15 @@
  * Toggle: `⌘.` (or `Ctrl+.` on non-mac), `Esc` to close.
  */
 import TweaksPanel from "./TweaksPanel.tsx";
+import { TWEAKS_FONT_STYLESHEET } from "../data/font-stylesheets";
 const isDev = import.meta.env.DEV;
 ---
 
 {
   isDev && (
     <>
+      {/* USMR 14.14: these alternate faces never load in production. */}
+      <link rel="stylesheet" href={TWEAKS_FONT_STYLESHEET} data-tweaks-fonts />
       {/* Pre-paint restore: synchronously apply persisted Tweaks state to
           the DOM before React hydrates. Mirrors BaseLayout.astro's
           theme-restore pattern. Dev-only — gated by `isDev`. */}
@@ -62,7 +65,7 @@ const isDev = import.meta.env.DEV;
               });
             }
           } catch (e) {
-            /* malformed localStorage — React island will fall back to DEFAULTS on hydrate */
+            /* Malformed storage leaves the page unchanged until a user edit. */
           }
         })();
       </script>
