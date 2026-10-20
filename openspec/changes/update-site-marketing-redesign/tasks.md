@@ -509,6 +509,7 @@
 - [ ] 13.2 Launch post under `/writing/` covering the redesign + theming + standards registry.
 - [ ] 13.3 `openspec archive update-site-marketing-redesign` after deploy verification (use `--yes` for non-interactive).
 - [ ] 13.4 File follow-up changes for: author public pages, changelog page, `/writing/tag/[tag]`, i18n, PWA installability.
+- [x] 13.5 (pt450) Split `AGENTS.md`: keep the every-task rules and the gated tables (Rules in force, Symbolic references) in the root file; move reference detail (testing, review, accessibility, design-contract gates, MCP, static analysis) to `docs/agents/`; add repo-local code-intelligence guidance (ripwire, Serena, ast-grep, tgrep, ripgrep), including ripwire's blindness to `.astro`; extend `tests/lint-agents-md-path-citations.test.mts` to scan `docs/agents/*.md`; gitignore `.tgrep/`.
 
 ## Parallelism notes
 

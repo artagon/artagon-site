@@ -78,6 +78,15 @@ new-design/
 # a parallel ignore layer; not tracked.
 .gitignore.local
 
+# tgrep trigram index (`tgrep index .`); a per-machine snapshot of the tree.
+# See docs/agents/code-intelligence.md.
+.tgrep/
+
+# NTM session state (pids, logs, summaries, human inbox). Created on the
+# first `ntm spawn`; per-machine runtime data, same as artagon-scripts.
+# Beads keeps its own ignore list in .beads/.gitignore.
+.ntm/
+
 # Ad-hoc browser screenshots saved by playwright MCP at the repo root
 # during interactive review (e.g. `home-final.png`, `platform2.png`).
 # These are throwaway capture artifacts; canonical regenerated baselines

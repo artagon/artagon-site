@@ -38,6 +38,12 @@
 // Sibling of the pt178 openspec-spec gate. Centered on AGENTS.md
 // because it's the multi-agent instruction surface — when its
 // citations rot, every agent loading the project lies to itself.
+//
+// pt450 — the AGENTS.md split moved reference detail (testing, review,
+// accessibility, design-contract gates, MCP, code intelligence) into
+// `docs/agents/*.md`. Those pages are the same instruction surface, so
+// this gate now scans them with the same rules instead of letting the
+// moved citations go unchecked.
 
 import { describe, expect, test } from "vitest";
 import {
@@ -51,6 +57,15 @@ import { join, dirname, basename } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const AGENTS_MD = join(ROOT, "AGENTS.md");
+const AGENT_DOCS_DIR = join(ROOT, "docs", "agents");
+
+function agentDocs(): string[] {
+  if (!existsSync(AGENT_DOCS_DIR)) return [];
+  return readdirSync(AGENT_DOCS_DIR)
+    .filter((name) => name.endsWith(".md"))
+    .sort()
+    .map((name) => join(AGENT_DOCS_DIR, name));
+}
 
 const PATH_PREFIXES = [
   "src/",
@@ -123,49 +138,53 @@ function resolveWildcard(literal: string): boolean {
   return readdirSync(dir).some((entry) => re.test(entry));
 }
 
-describe("AGENTS.md path citations vs disk (pt179)", () => {
-  test("every literal repo-rooted path in AGENTS.md prose resolves on disk", () => {
+describe("AGENTS.md + docs/agents path citations vs disk (pt179, pt450)", () => {
+  test("every literal repo-rooted path in AGENTS.md and docs/agents/*.md resolves on disk", () => {
     expect(existsSync(AGENTS_MD), "AGENTS.md must exist").toBe(true);
     // Resolve symlinks so the gate checks the canonical file even
     // if AGENTS.md is invoked via CLAUDE.md / GEMINI.md.
-    const real = realpathSync(AGENTS_MD);
-    const body = readFileSync(real, "utf8");
-
-    // Strip code fences — illustrative snippets aren't a contract.
-    const stripped = body.replace(/```[\s\S]*?```/g, "");
+    const sources = [realpathSync(AGENTS_MD), ...agentDocs()];
 
     const drifts: string[] = [];
-    for (const m of stripped.matchAll(/`([^`]+)`/g)) {
-      const raw = m[1]!.replace(/[,.;:)]+$/, "").trim();
-      if (!looksLikePath(raw)) continue;
-      // Skip brace-expansion alternations — they document a pattern.
-      if (/[{}]/.test(raw)) continue;
-      // Strip line-number suffix and the `@/` alias prefix (pt238).
-      const cleaned = stripAtPrefix(raw.split(":")[0]!);
-      if (HISTORICAL_ALLOW.has(cleaned)) continue;
-      if (HISTORICAL_ALLOW_PREFIXES.some((p) => cleaned.startsWith(p)))
-        continue;
-      // Recursive globs (`tests/**/*.spec.ts`) document discovery
-      // patterns (Playwright/vitest test-match contracts), not
-      // literal files. The pattern itself is the load-bearing
-      // citation — validating it would require re-implementing the
-      // runner's glob matcher.
-      if (cleaned.includes("**")) continue;
-      if (/[*?\[]/.test(cleaned)) {
-        if (!resolveWildcard(cleaned)) drifts.push(cleaned);
-        continue;
-      }
-      if (!existsSync(join(ROOT, cleaned))) {
-        drifts.push(cleaned);
+    for (const source of sources) {
+      const label = source.slice(ROOT.length);
+      const body = readFileSync(source, "utf8");
+
+      // Strip code fences — illustrative snippets aren't a contract.
+      const stripped = body.replace(/```[\s\S]*?```/g, "");
+
+      for (const m of stripped.matchAll(/`([^`]+)`/g)) {
+        const raw = m[1]!.replace(/[,.;:)]+$/, "").trim();
+        if (!looksLikePath(raw)) continue;
+        // Skip brace-expansion alternations — they document a pattern.
+        if (/[{}]/.test(raw)) continue;
+        // Strip line-number suffix and the `@/` alias prefix (pt238).
+        const cleaned = stripAtPrefix(raw.split(":")[0]!);
+        if (HISTORICAL_ALLOW.has(cleaned)) continue;
+        if (HISTORICAL_ALLOW_PREFIXES.some((p) => cleaned.startsWith(p)))
+          continue;
+        // Recursive globs (`tests/**/*.spec.ts`) document discovery
+        // patterns (Playwright/vitest test-match contracts), not
+        // literal files. The pattern itself is the load-bearing
+        // citation — validating it would require re-implementing the
+        // runner's glob matcher.
+        if (cleaned.includes("**")) continue;
+        if (/[*?\[]/.test(cleaned)) {
+          if (!resolveWildcard(cleaned)) drifts.push(`${label}: ${cleaned}`);
+          continue;
+        }
+        if (!existsSync(join(ROOT, cleaned))) {
+          drifts.push(`${label}: ${cleaned}`);
+        }
       }
     }
 
     if (drifts.length > 0) {
       throw new Error(
-        `AGENTS.md cites ${drifts.length} path(s) that do not exist on disk:\n` +
+        `Agent docs cite ${drifts.length} path(s) that do not exist on disk:\n` +
           drifts.map((d) => `  - ${d}`).join("\n") +
           `\n\nFix one of:\n` +
-          `  - Update AGENTS.md to cite the actual path on disk\n` +
+          `  - Update the doc to cite the actual path on disk\n` +
           `  - If the path is forthcoming, qualify the citation as planned (same shape as pt177's \`.num-h2\` qualification)\n` +
           `  - Restore the missing file (regression?)\n`,
       );

@@ -100,7 +100,7 @@ Tests Content Collections schema enforcement:
 
 4. **accessibility** - Accessibility audit
    - Runs `--grep "accessibility"` on 3 engines: chromium · webkit · Mobile Safari (per `playwright.yml:326`)
-   - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; per pt264 archaeology in AGENTS.md §Accessibility)
+   - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; contract in `docs/agents/accessibility.md`)
    - Uploads failures for review
 
 **Triggers:**

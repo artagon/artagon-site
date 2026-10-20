@@ -9,7 +9,7 @@
 //
 // Pre-pt212 three docs claimed "Astro 5" while package.json had
 // `astro@6.2.1`:
-//   - AGENTS.md:27 — context7 guidance
+//   - AGENTS.md "MCP servers" table — context7 row (pre-pt450 at line 27)
 //   - docs/guides/new-design-conversion.md:159 — build steps
 //   - docs/decisions/0001-no-tailwind.md:10 — ADR context
 //
