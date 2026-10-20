@@ -23,7 +23,7 @@ Use this checklist to verify that all icons are correctly integrated across diff
 - [ ] Favicon visible in browser tab
 - [ ] Manifest detected (DevTools → Application → Manifest)
 - [ ] All icon sizes listed in manifest
-- [ ] Theme color matches canonical neutral-dark `--bg` (#0a0d12; pre-pt107 was #0B1220 midnight)
+- [ ] Theme color matches canonical neutral-dark `--bg` (#07090c per DESIGN.md `bg`; was #0a0d12 until site-2m1.63, #0B1220 midnight before pt107)
 - [ ] "Install app" prompt available (if applicable)
 
 #### Firefox
@@ -76,7 +76,7 @@ Expected tags:
 - [x] `<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">`
 - [x] `<link rel="manifest" href="/site.webmanifest">`
 - [x] `<link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#3ceedd">` (pt107 canonical brand-teal; pre-pt107 was `#0EA5E9` sky blue)
-- [x] `<meta name="theme-color" content="#0a0d12">` (canonical neutral-dark `--bg` per `BaseLayout.astro:34` archaeology; pre-pt107 draft was `#0B1220` midnight)
+- [x] `<meta name="theme-color" content="#07090c">` (canonical neutral-dark `--bg`, DESIGN.md `bg`; #0a0d12 until site-2m1.63; pre-pt107 draft was `#0B1220` midnight)
 
 ### File Accessibility
 
