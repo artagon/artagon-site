@@ -16,7 +16,7 @@ if [ "${SKIP_BUILD_SYNC:-0}" = "1" ]; then
   exit 0
 fi
 
-npm run sync:build-config || {
+npm run sync:build-config -- --check || {
   echo "husky/pre-commit: sync-build-config failed"
   exit 1
 }

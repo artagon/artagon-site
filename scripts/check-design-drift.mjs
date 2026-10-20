@@ -123,6 +123,14 @@ function parseFrontmatterTokens(yaml) {
       typographyScale = null;
       continue;
     }
+    // 4-space typography properties must be parsed before the 2-space
+    // child matcher rejects their indentation.
+    const grand = raw.match(/^\s{4}([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.*)$/);
+    if (grand && group === "typography" && typographyScale) {
+      typography.add(`${typographyScale}.${grand[1]}`);
+      continue;
+    }
+
     // 2-space indented child.
     const child = raw.match(/^\s{2}([a-z0-9][a-z0-9-]*)\s*:\s*(.*)$/i);
     if (!child) continue;
@@ -136,12 +144,6 @@ function parseFrontmatterTokens(yaml) {
       typographyScale = key;
       typography.add(key);
       continue;
-    }
-
-    // 4-space grandchild (typography scale properties).
-    const grand = raw.match(/^\s{4}([a-zA-Z][a-zA-Z0-9]*)\s*:\s*(.*)$/);
-    if (grand && group === "typography" && typographyScale) {
-      typography.add(`${typographyScale}.${grand[1]}`);
     }
   }
 
@@ -199,8 +201,6 @@ function resolveToken(name, fm) {
     };
     const dotted = `${scale}.${propMap[propShort]}`;
     if (fm.typography.has(dotted)) return { ns: "typography", key: dotted };
-    // also accept `font-<scale>` → typography.<scale>
-    if (fm.typography.has(scale)) return { ns: "typography", key: scale };
   }
 
   return null;

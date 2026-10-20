@@ -531,19 +531,19 @@
 - [ ] 14.14 (`site-2m1.14`) Render-blocking Google Fonts CSS loads 3 families production cannot reach
 - [ ] 14.15 (`site-2m1.15`) Mobile nav stays open after same-page anchor navigation and has no Escape close
 - [ ] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments
-- [ ] 14.17 (`site-2m1.17`) Logo conversion recursively deletes a caller-owned temporary directory
-- [ ] 14.18 (`site-2m1.18`) An unreadable run lock authorizes cleanup
+- [x] 14.17 (`site-2m1.17`) Logo conversion recursively deletes a caller-owned temporary directory
+- [x] 14.18 (`site-2m1.18`) An unreadable run lock authorizes cleanup
 - [ ] 14.19 (`site-2m1.19`) The indexation entry point cannot load on the pinned Node version
-- [ ] 14.20 (`site-2m1.20`) Token lint reports success after failing to read a tracked input
+- [x] 14.20 (`site-2m1.20`) Token lint reports success after failing to read a tracked input
 - [ ] 14.21 (`site-2m1.21`) SRI silently skips missing or inaccessible local assets
 - [ ] 14.22 (`site-2m1.22`) Skip-link target validation accepts data-id as a real target
 - [ ] 14.23 (`site-2m1.23`) Robots validation depends on attribute order and omits nofollow
 - [ ] 14.24 (`site-2m1.24`) Sitemap validation can pass without checking a single writing date
-- [ ] 14.25 (`site-2m1.25`) The Google Fonts migration exception exempts every forbidden font host
-- [ ] 14.26 (`site-2m1.26`) Editing the generator does not invalidate its fast path
-- [ ] 14.27 (`site-2m1.27`) Omitting the optional logo argument aborts OG generation
-- [ ] 14.28 (`site-2m1.28`) The uniqueness gate explicitly allows the duplicate location its spec forbids
-- [ ] 14.29 (`site-2m1.29`) Typography properties are never parsed, then a fallback masks missing properties
+- [x] 14.25 (`site-2m1.25`) The Google Fonts migration exception exempts every forbidden font host
+- [x] 14.26 (`site-2m1.26`) Editing the generator does not invalidate its fast path
+- [x] 14.27 (`site-2m1.27`) Omitting the optional logo argument aborts OG generation
+- [x] 14.28 (`site-2m1.28`) The uniqueness gate explicitly allows the duplicate location its spec forbids
+- [x] 14.29 (`site-2m1.29`) Typography properties are never parsed, then a fallback masks missing properties
 - [ ] 14.30 (`site-2m1.30`) Two identical HTML walkers can share one implementation
 - [ ] 14.31 (`site-2m1.31`) Touch interaction coverage remains skipped after the tap path was recorded as shipped
 - [ ] 14.32 (`site-2m1.32`) Header dimension checks are globally marked fixme, and one target is below the project floor
@@ -558,8 +558,8 @@
 - [ ] 14.41 (`site-2m1.41`) SRI on the stable-URL `/assets/theme.css` is the stale-HTML break; the `pt449` purge mitigates only the...
 - [ ] 14.42 (`site-2m1.42`) `pt449` reuses the secret name `CLOUDFLARE_API_TOKEN` that `migrate-deploy-to-cloudflare-pages` assigns...
 - [ ] 14.43 (`site-2m1.43`) CI spends ~80 runner-minutes per PR push; ~35 are avoidable without losing coverage
-- [ ] 14.44 (`site-2m1.44`) Pre-commit drift gate and local sync skip hand-edited generated files
-- [ ] 14.45 (`site-2m1.45`) Generated `lychee.toml` sets `root_dir = ".build"`; comment claims repo root, CI silently overrides
+- [x] 14.44 (`site-2m1.44`) Pre-commit drift gate and local sync skip hand-edited generated files
+- [x] 14.45 (`site-2m1.45`) Generated `lychee.toml` sets `root_dir = ".build"`; comment claims repo root, CI silently overrides
 - [ ] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
 - [ ] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
 - [ ] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
