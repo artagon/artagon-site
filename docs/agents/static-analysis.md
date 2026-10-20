@@ -12,6 +12,7 @@ npm run lint:sg:ci    # CI mode; promotes findings with --error
 ```
 
 CI runs `npm run lint:sg:ci` in `.github/workflows/design-md-lint.yml`.
+`.github/workflows/actionlint.yml` runs actionlint 1.7.12 with ShellCheck when workflow files change and on pushes to `main`.
 
 ## Configuration
 
