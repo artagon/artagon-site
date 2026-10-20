@@ -36,7 +36,7 @@
     "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:skip-link && npm run lint:taglines && npm run lint:design && npm run lint:design-md-uniqueness && npm run verify:indexation",
+    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/minify-theme-css.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:skip-link && npm run lint:taglines && npm run lint:design && npm run lint:design-md-uniqueness && npm run verify:indexation",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
@@ -97,6 +97,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "cheerio": "1.2.0",
+    "esbuild": "0.27.7",
     "husky": "9.1.7",
     "prettier": "3.8.3",
     "vitest": "4.1.5"

@@ -6,6 +6,7 @@
 // `package.json:39` postbuild chain runs 10 ordered steps. The
 // pt266 fix expanded the section to a 10-step ordered list
 // matching the postbuild chain exactly.
+// The current postbuild chain has 12 ordered steps.
 //
 // pt267 ships the gate that prevents that drift from re-
 // occurring. The gate parses `package.json`'s `scripts.postbuild`

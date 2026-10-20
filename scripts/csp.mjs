@@ -4,6 +4,7 @@ import path from "path";
 import crypto from "crypto";
 import * as cheerio from "cheerio";
 import { fileURLToPath } from "url";
+import { walk } from "./lib/html-files.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const buildConfig = JSON.parse(
@@ -11,15 +12,6 @@ const buildConfig = JSON.parse(
 );
 const distDir = buildConfig.dist;
 const sha = (buf) => crypto.createHash("sha256").update(buf).digest("base64");
-async function walk(dir) {
-  const out = [];
-  for (const e of await fs.readdir(dir, { withFileTypes: true })) {
-    const p = path.join(dir, e.name);
-    if (e.isDirectory()) out.push(...(await walk(p)));
-    else if (p.endsWith(".html")) out.push(p);
-  }
-  return out;
-}
 function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
   const sHashes = [...hashes].map((h) => `'sha256-${h}'`);
   const stHashes = [...styleHashes].map((h) => `'sha256-${h}'`);
@@ -79,7 +71,8 @@ function buildPolicy(hashes, extras = {}, styleHashes = new Set()) {
     "connect-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'none'"],
-    "frame-ancestors": ["'none'"],
+    // USMR 14.70 (site-2m1.70): frame-ancestors is enforced only from an
+    // HTTP response header, so deployment configs provide it separately.
     "script-src": ["'self'", ...sHashes],
   };
   // pt433 — defense-in-depth: filter forbidden CSP keywords out of

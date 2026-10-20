@@ -70,7 +70,7 @@ The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
 
 ## Security and Performance
 
-- `scripts/sri.mjs` injects integrity hashes for local JS and CSS and writes `.build/dist/sri-manifest.json`.
+- `scripts/sri.mjs` injects integrity hashes for content-hashed local JS and CSS under `/_astro/` (stable-URL public assets such as `/assets/theme.css` are skipped so cached HTML cannot pin a stale hash), fails on a missing referenced asset, and writes `.build/dist/sri-manifest.json`.
 - `scripts/csp.mjs` inserts a CSP meta tag with hashes for inline scripts; it adds DocSearch origins when enabled.
 - CDN or origin minification must be disabled to avoid SRI mismatches.
 - Lighthouse CI enforces performance, accessibility, best practices, and SEO thresholds.
