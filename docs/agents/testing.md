@@ -2,6 +2,8 @@
 
 User-facing test docs are in `docs/AUTOMATED_TESTING.md`. This page holds the contracts agents must keep.
 
+Run `npm run check` (`astro check`) to type-check source, components, configuration, and included tests under `astro/tsconfigs/strictest`; `.github/workflows/design-md-lint.yml` runs it after `npm ci` (USMR 14.7).
+
 ## Three runners, disjoint by what they import
 
 | Runner                          | Owns                                                          | Config                                     | Discovery                                                                                             |

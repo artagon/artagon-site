@@ -154,7 +154,8 @@
   const categories = document.querySelectorAll('.faq-category');
   const items = document.querySelectorAll('.faq-item');
 
-  function search(query: string) {
+  // USMR 14.7: retain the checked DOM references in the search closure.
+  const search = (query: string) => {
     const q = query.toLowerCase().trim();
 
     if (!q) {
@@ -195,7 +196,7 @@
     } else {
       resultsDiv.textContent = `${visibleCount} results found`;
     }
-  }
+  };
 
   searchInput.addEventListener('input', (e) => {
     search((e.target as HTMLInputElement).value);

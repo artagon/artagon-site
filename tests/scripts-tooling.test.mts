@@ -76,7 +76,7 @@ function copyBuildGeneratorFixture(root: string) {
     [join(ROOT, "build.config.json"), join(root, "build.config.json")],
     [join(ROOT, "lighthouserc.json"), join(root, "lighthouserc.json")],
     [join(ROOT, "lychee.toml"), join(root, "lychee.toml")],
-  ]) {
+  ] as const) {
     copyFileSync(source, target);
   }
   return join(root, "scripts", "sync-build-config.mjs");

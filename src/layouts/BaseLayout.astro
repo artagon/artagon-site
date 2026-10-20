@@ -10,7 +10,7 @@ import { isNoindexRoute } from '../lib/indexation';
 // `'profile'` addition to SeoTags' `type` union now propagates here
 // automatically without a hand-mirrored update.
 export type Props = SeoProps;
-const passthrough = Astro.props as SeoProps;
+const passthrough = Astro.props;
 const path = passthrough.path ?? '/';
 // USMR Phase 10.2 / pt417: auto-derive `robots` from the
 // NOINDEX_ROUTES SSoT at `src/lib/indexation.ts` (per pt416). When
@@ -27,7 +27,10 @@ const path = passthrough.path ?? '/';
 // list.
 const effectiveRobots =
   passthrough.robots ?? (isNoindexRoute(path) ? 'noindex, nofollow' : undefined);
-const seoProps: SeoProps = { ...passthrough, robots: effectiveRobots };
+// USMR 14.7: omit an absent optional prop without widening the SEO union.
+const seoProps: SeoProps = effectiveRobots === undefined
+  ? passthrough
+  : { ...passthrough, robots: effectiveRobots };
 ---
 <!doctype html>
 <html
