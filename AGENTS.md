@@ -148,6 +148,7 @@ br sync --flush-only                                   # export the database to 
 
   ```bash
   git config filter.beads-relpath.clean "sed -E 's/\"source_repo_path\":\"[^\"]*\"/\"source_repo_path\":\".\"/'"
+  git config filter.beads-relpath.smudge cat   # required=true also needs a smudge, or checkouts fail
   git config filter.beads-relpath.required true
   ```
 
