@@ -6,6 +6,7 @@
 - [ ] 0.4 Add `secrets.CLOUDFLARE_API_TOKEN` and `secrets.CLOUDFLARE_ACCOUNT_ID` to GitHub repo secrets via `gh secret set`. Files: none committed. Acceptance: `gh secret list` shows both.
 - [ ] 0.5 Create the Cloudflare Pages project: `wrangler pages project create artagon`. Disable Auto-Minify in project settings. Files: none committed. Acceptance: `wrangler pages project list` shows `artagon` project.
 - [ ] 0.6 Create a quarterly token-rotation reminder workflow at `.github/workflows/cloudflare-token-rotation-reminder.yml`. Trigger: cron `0 0 1 */3 *` (1st of every 3rd month). Action: opens a GitHub issue with title `[CHORE] Rotate Cloudflare API token (quarterly)` + checklist body. Files: new workflow. Acceptance: workflow YAML lints clean; manual `workflow_dispatch` opens a real issue. Per multi-reviewer-r1 finding [M-6] (Dependabot doesn't rotate API tokens; this workflow does the reminder).
+- [ ] 0.7 Isolate the GitHub Pages soak-window purge with `CLOUDFLARE_CACHE_PURGE_TOKEN` (Zone.Cache Purge on the DNS-zone account) and `CLOUDFLARE_DNS_ZONE_ID`; reserve `CLOUDFLARE_API_TOKEN` for the dedicated Pages account. Preserve the purge only during parallel deployment and the seven-day soak, then remove the purge step and revoke its two credentials when the GitHub Pages workflow is retired. (USMR 14.42, site-2m1.42)
 
 ## 1. Phase 1 — Build the headers + redirects pipeline
 

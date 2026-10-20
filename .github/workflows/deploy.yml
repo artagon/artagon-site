@@ -14,18 +14,52 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
       - name: Setup Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
-        with: { node-version: 22 }
+        with: { node-version-file: .nvmrc, cache: "npm" }
       # Use the npm bundled with the runner's Node version (deterministic +
       # avoids unpinned `npm install -g npm@latest` supply-chain surface).
       - name: Install deps (frozen lockfile)
         run: npm ci
       - name: Build site
         run: npm run build
+      # USMR 14.51 R1: purge HTML plus non-content-hashed assets outside _astro/.
+      - name: Prepare cache purge URLs
+        run: |
+          node --input-type=module <<'NODE'
+          import { readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          import { BUILD } from './build.config.ts';
+          const urls = new Set();
+          let htmlCount = 0;
+          for (const file of readdirSync(BUILD.dist, { recursive: true })) {
+            if (file.startsWith('_astro/') || !statSync(join(BUILD.dist, file)).isFile()) continue;
+            if (file.endsWith('.html')) htmlCount++;
+            const path = file.split('/').map(encodeURIComponent).join('/');
+            urls.add(new URL(path, 'https://artagon.com/').href);
+            if (path === 'index.html' || path.endsWith('/index.html')) {
+              const route = path.slice(0, -'index.html'.length);
+              urls.add(new URL(route, 'https://artagon.com/').href);
+              if (route) urls.add(new URL(route.slice(0, -1), 'https://artagon.com/').href);
+            }
+          }
+          if (!htmlCount) throw new Error('No HTML URLs found for cache purge');
+          mkdirSync(BUILD.reports.cloudflarePurge, { recursive: true });
+          writeFileSync(join(BUILD.reports.cloudflarePurge, 'urls.json'), JSON.stringify([...urls].sort()));
+          NODE
+      - name: Upload cache purge URLs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cloudflare-purge-urls
+          path: .build/reports/cloudflare-purge/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with: { path: ./.build/dist }
   deploy:
     needs: build
+    # USMR 14.51 (site-2m1.51): bound API and deployment waits.
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -34,73 +68,49 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download cache purge URLs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: cloudflare-purge-urls
+          path: purge-urls
+
       - name: Deploy to Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
 
-      # pt449 — Purge Cloudflare cache after every deploy.
-      #
-      # Why: artagon.com is fronted by Cloudflare proxy (orange-cloud
-      # DNS). Cloudflare caches HTML at the edge for the duration of
-      # the origin's `Cache-Control: max-age=600` (GitHub Pages
-      # default). After a deploy, users hitting Cloudflare's stale HTML
-      # for up to 10 minutes load asset URLs from a previous build —
-      # the new dist/ has different content-hashed filenames, so SRI
-      # rejects the mismatched assets and the page renders unstyled.
-      #
-      # The post-deploy purge tells Cloudflare to drop its edge cache
-      # for the zone, so the very next request fetches the fresh HTML
-      # with current asset hashes.
-      #
-      # GATING: this step runs ONLY when both secrets are present, so
-      # the deploy doesn't fail before the operator adds the credentials.
-      # Once `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ZONE_ID` land in
-      # repo secrets, the purge fires automatically on every deploy.
-      #
-      # Token scope: the API token MUST have the `Zone.Cache Purge`
-      # permission scoped to the `artagon.com` zone (and ONLY that
-      # zone). Use Cloudflare's "Custom token" template, NOT a
-      # global API key.
-      #
-      # The cf/api-token-action style integrates auth + curl in one
-      # step but introduces a third-party action dependency; using
-      # raw curl against the Cloudflare REST API is dependency-free
-      # and the token is masked by GitHub Actions automatically.
+      # USMR 14.42 (site-2m1.42): GH Pages soak-window-only purge.
+      # Use CLOUDFLARE_CACHE_PURGE_TOKEN (Zone.Cache Purge on the DNS
+      # zone) and CLOUDFLARE_DNS_ZONE_ID. Keep these separate from the
+      # dedicated Pages account's CLOUDFLARE_API_TOKEN. Retire this step
+      # and its two secrets after the migration's seven-day soak window.
+      # A successful purge does not prove that origin HTML has propagated.
       - name: Purge Cloudflare cache
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_CACHE_PURGE_TOKEN: ${{ secrets.CLOUDFLARE_CACHE_PURGE_TOKEN }}
+          CLOUDFLARE_DNS_ZONE_ID: ${{ secrets.CLOUDFLARE_DNS_ZONE_ID }}
         run: |
           set -euo pipefail
-          # GitHub Actions doesn't allow `secrets.*` directly in `if:`
-          # conditions (would risk leaking via expression-eval logs).
-          # Gate inside the script instead: skip-not-fail when either
-          # secret is missing, so the deploy stays green before the
-          # operator adds the credentials.
-          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ZONE_ID:-}" ]; then
-            echo "⚠ CLOUDFLARE_API_TOKEN or CLOUDFLARE_ZONE_ID not set; skipping cache purge."
-            echo "  Browsers may see stale HTML referencing prior-deploy asset hashes for up"
-            echo "  to 10 minutes (GH Pages default \`Cache-Control: max-age=600\`)."
-            echo "  To enable: \`gh secret set CLOUDFLARE_API_TOKEN\` and \`gh secret set"
-            echo "  CLOUDFLARE_ZONE_ID\` (token scope: Zone.Cache Purge on artagon.com)."
+          if [ -z "${CLOUDFLARE_CACHE_PURGE_TOKEN:-}" ] || [ -z "${CLOUDFLARE_DNS_ZONE_ID:-}" ]; then
+            echo "::warning::Cloudflare cache purge skipped: soak-window purge secrets are missing."
+            echo "Cloudflare purge skipped; stale HTML may remain cached. Configure CLOUDFLARE_CACHE_PURGE_TOKEN and CLOUDFLARE_DNS_ZONE_ID." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          response=$(curl -sS -w "\n%{http_code}" \
-            -X POST \
-            "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache" \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data '{"purge_everything":true}')
-          body=$(printf '%s\n' "$response" | sed '$d')
-          status=$(printf '%s\n' "$response" | tail -n1)
-          if [ "$status" != "200" ]; then
-            echo "✗ Cloudflare purge failed (HTTP $status):"
-            printf '%s\n' "$body"
+          if ! jq -e 'type == "array" and length > 0 and all(.[]; type == "string" and startswith("https://artagon.com/"))' purge-urls/urls.json > /dev/null; then
+            echo "::error::Invalid cache purge manifest."
             exit 1
           fi
-          if ! printf '%s' "$body" | grep -q '"success":true'; then
-            echo "✗ Cloudflare reports purge unsuccessful:"
-            printf '%s\n' "$body"
-            exit 1
-          fi
-          echo "✓ Cloudflare cache purged for zone ${CLOUDFLARE_ZONE_ID}"
+          # Small batches keep each request bounded; jq also safely quotes URLs.
+          jq -c '[range(0; length; 10) as $i | {files: .[$i:$i+10]}][]' purge-urls/urls.json > purge-urls/batches.jsonl
+          while IFS= read -r payload; do
+            response=$(curl --silent --show-error --fail --connect-timeout 10 --max-time 60 \
+              -X POST \
+              "https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_DNS_ZONE_ID}/purge_cache" \
+              -H "Authorization: Bearer ${CLOUDFLARE_CACHE_PURGE_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data "$payload")
+            if ! printf '%s' "$response" | jq -e '.success == true' > /dev/null; then
+              echo "::error::Cloudflare rejected the cache purge."
+              exit 1
+            fi
+          done < purge-urls/batches.jsonl
+          echo "Cloudflare cache purge accepted." >> "$GITHUB_STEP_SUMMARY"

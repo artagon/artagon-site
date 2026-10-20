@@ -4,7 +4,7 @@ Thanks for helping improve the Artagon marketing site and docs shell. This guide
 
 ## Prerequisites
 
-- Node 22+ and npm (per `.nvmrc` 22.12 + `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
+- Node 22.18.0+ and npm (per `.nvmrc` 22.18.0 + `package.json` engines.node `>=22.18.0`; build/test workflows read `.nvmrc`). npm warns on unsupported engines; repository `engine-strict` is not enabled.
 - Git
 
 ## Quick Start

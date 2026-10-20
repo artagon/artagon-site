@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.18.0"
   },
   "description": "Artagon Identity Platform - The Unified Identity Platform: Trusted Identity for Machines and Humans. OIDC 2.1 Provider, GNAP Authorization Server, Verifiable Credentials (SD-JWT, BBS+), Passkeys, WebAuthn, Device Attestation, Zanzibar Policy Engine. Verified, Private, Attested.",
   "keywords": [
@@ -41,7 +41,7 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:update-snapshots": "playwright test --update-snapshots",
-    "test:ci": "playwright test --reporter=github",
+    "test:ci": "playwright test",
     "test:build-config": "node --test tests/build-config.test.mjs",
     "test:design-prerequisites": "node --test tests/verify-design-prerequisites.test.mjs",
     "test:design-fixtures": "node --test tests/design-md-fixtures.test.mjs",

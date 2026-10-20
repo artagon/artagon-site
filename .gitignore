@@ -43,6 +43,8 @@ tests/styling-snapshots.spec.ts-snapshots/*.png
 !tests/styling-snapshots.spec.ts-snapshots/*-chromium-linux.png
 tests/device-tour.spec.ts-snapshots/*.png
 !tests/device-tour.spec.ts-snapshots/*-linux.png
+tests/vision-page.spec.ts-snapshots/*.png
+!tests/vision-page.spec.ts-snapshots/*-chromium-linux.png
 
 # Lychee link-checker cache. The CI workflow now passes
 # `--cache-dir .build/cache/lychee` so the cache lives under the .build

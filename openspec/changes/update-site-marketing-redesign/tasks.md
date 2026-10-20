@@ -533,7 +533,7 @@
 - [ ] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments
 - [x] 14.17 (`site-2m1.17`) Logo conversion recursively deletes a caller-owned temporary directory
 - [x] 14.18 (`site-2m1.18`) An unreadable run lock authorizes cleanup
-- [ ] 14.19 (`site-2m1.19`) The indexation entry point cannot load on the pinned Node version
+- [x] 14.19 (`site-2m1.19`) The indexation entry point cannot load on the pinned Node version
 - [x] 14.20 (`site-2m1.20`) Token lint reports success after failing to read a tracked input
 - [x] 14.21 (`site-2m1.21`) SRI silently skips missing or inaccessible local assets
 - [x] 14.22 (`site-2m1.22`) Skip-link target validation accepts data-id as a real target
@@ -563,7 +563,7 @@
 - [ ] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
 - [x] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
 - [x] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
-- [ ] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
+- [x] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
 - [ ] 14.51 (`site-2m1.51`) Cloudflare purge step: fragile success check, zone-wide blast radius, and silent skip
 - [ ] 14.52 (`site-2m1.52`) `design-md-drift.yml` opens an issue on any transient `gh api` failure and never de-duplicates
 - [ ] 14.53 (`site-2m1.53`) Hovering or focusing any trust-chain stage or tab resets settled state to `step = 0`, and `pressedIdx` l...
@@ -583,9 +583,9 @@
 - [x] 14.68 (`site-2m1.68`) The sensitive-logging rule misses its simplest intended positives
 - [x] 14.69 (`site-2m1.69`) Security rules omit ordinary equivalent call and assignment forms
 - [x] 14.70 (`site-2m1.70`) The advertised anti-framing directive cannot work in a meta CSP
-- [ ] 14.71 (`site-2m1.71`) The declared Node support range includes versions rejected by the locked Astro dependency
+- [x] 14.71 (`site-2m1.71`) The declared Node support range includes versions rejected by the locked Astro dependency
 - [x] 14.72 (`site-2m1.72`) Formatter hooks can resolve an executable outside the frozen dependency install
-- [ ] 14.73 (`site-2m1.73`) pr-spec-compliance.yml redeclares the injected github-script `core` (same defect f1842d7 fixed elsewhere)
+- [x] 14.73 (`site-2m1.73`) pr-spec-compliance.yml redeclares the injected github-script `core` (same defect f1842d7 fixed elsewhere)
 
 ## Parallelism notes
 

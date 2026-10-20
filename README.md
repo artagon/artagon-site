@@ -148,7 +148,7 @@ The four `@astrojs/*` integrations declared in `package.json` (versions accurate
 
 ### Build Tools
 
-- **Node.js** 22+ (per `.nvmrc` 22.12 and `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
+- **Node.js** 22.18.0+ (per `.nvmrc` 22.18.0 and `package.json` engines.node `>=22.18.0`; this floor enables plain Node entry points to import TypeScript without a loader flag). npm warns on unsupported engines; this repository does not enable `engine-strict`.
 - **npm** - Package manager
 - **Prettier** 3.8.3 - Code formatting (per `package.json` `"prettier": "3.8.3"`)
 
@@ -449,7 +449,7 @@ build job:
      "per pt? CODEOWNERS rule" — stale TODO placeholder; CODEOWNERS
      doesn't enforce SHA-pinning, the security-audit + Dependabot pair
      does.)
-  2. Setup Node.js 22 (actions/setup-node)
+  2. Setup Node.js from `.nvmrc` (22.18.0, actions/setup-node)
   3. Install deps with `npm ci` (frozen lockfile — NOT `npm install`)
   4. `npm run build` (runs prebuild → astro build → postbuild chain)
   5. Upload `.build/dist/` Pages artifact
@@ -458,6 +458,8 @@ deploy job: 6. Deploy to GitHub Pages (actions/deploy-pages)
 ```
 
 **Required Pages setting:** set **Source** to **GitHub Actions** so deployments run from `.github/workflows/deploy.yml` (branch-based Jekyll builds are not supported).
+
+**Soak-window cache purge:** Configure `CLOUDFLARE_CACHE_PURGE_TOKEN` (Zone.Cache Purge on the DNS zone) and `CLOUDFLARE_DNS_ZONE_ID` separately from the dedicated Cloudflare Pages account's `CLOUDFLARE_API_TOKEN`. After a GitHub Pages deploy, the workflow purges HTML plus non-content-hashed assets (every emitted file outside `_astro/`, including `/assets/theme.css`) and HTML directory/index aliases on `https://artagon.com/`. Missing credentials produce a warning and run-summary entry; configured API failures fail the deploy job. A successful purge does not prove origin content propagation. Retire this purge step and its two secrets when the GitHub Pages workflow is retired after the migration's seven-day soak window.
 
 **Configuration:**
 
@@ -720,7 +722,7 @@ Other build-related scripts not in the postbuild chain:
 1. **Build** - Install deps, build site, upload artifact
 2. **Deploy** - Deploy to GitHub Pages
 
-**Node version:** 22
+**Node version:** 22.18.0 (from `.nvmrc`)
 
 #### Lighthouse CI (`lighthouse.yml`)
 
@@ -775,13 +777,13 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 
 #### Playwright Tests (`playwright.yml`)
 
-**Trigger:** Push to `main` or `feature/*`, pull request to `main`, manual dispatch
+**Trigger:** Push to `main`, pull request to `main`, manual dispatch
 
-**Process:** Runs the Playwright cross-engine test matrix (5 shards × all projects) plus dedicated visual-regression and accessibility jobs (chromium / webkit / Mobile Safari). Uploads per-shard reports as artifacts (14-day retention). See `AGENTS.md` §"Testing" for the full project matrix and shard-distribution contract.
+**Process:** Runs the full Playwright project matrix in five shards with two workers per shard. Each shard uploads a blob report; a lockfile-pinned merge job creates the combined HTML report (14-day retention). The accessibility job targets `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium / webkit / Mobile Safari. Visual comparison is read-only and Chromium-only, with non-blocking diffs until Linux baselines are seeded and verified. Manual dispatch on `main` runs a separate snapshot-update job with write permission; its verified pathspec stages only Chromium Linux PNGs and push failures fail the job. Hosted timing and baseline acceptance remain pending. See `playwright.config.ts` for the full project matrix.
 
 #### Design.md Lint (`design-md-lint.yml`)
 
-**Trigger:** Push to `main` or `feature/*`, pull request to `main`, manual dispatch
+**Trigger:** Push to `main`, pull request to `main`, manual dispatch
 
 **Process:** Runs the design.md linter (`design.md lint DESIGN.md` per `@google/design.md@0.1.1`) plus the project's ast-grep token-citation gates. Fails the build on token drift, retired-alias use, or design.md format violations.
 

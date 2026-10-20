@@ -40,13 +40,11 @@ Adding a device project means updating `projects[]` in `playwright.config.ts` an
 ## Gotchas
 
 - `lint:tokens` walks `git ls-files`, so a new untracked CSS file looks clean. Re-run the gate after `git add`.
-- Several vitest lint gates read `.build/dist`; run `npm run build` first or they skip with a warning (`tests/lint-rss-discovery.test.mts` fails instead).
+- Several vitest lint gates read `.build/dist`; run `npm --ignore-scripts=false run build` first so lifecycle hooks run even when npm globally ignores scripts, or they skip with a warning (`tests/lint-rss-discovery.test.mts` fails instead).
 
 ## Known CI issues
 
 From the 2026-10-20 review (beads under epic `site-2m1`):
 
-- No Linux snapshot baselines are tracked, and the visual-regression compare step is `continue-on-error`. Its auto-commit pathspec also matches nothing (`site-2m1.38`).
-- `test:ci` forces `--reporter=github`, which replaces the HTML reporter, so the per-shard artifacts and `merge-reports` produce nothing (`site-2m1.39`).
-- The `accessibility` job's `--grep accessibility` matches one vision-page test, not the axe audit. The axe gate still runs inside the sharded `test` job (`site-2m1.40`).
+- No Linux snapshot baselines are tracked, and visual comparison remains `continue-on-error`. The corrected updater is a separate trusted-main dispatch job with a verified Chromium Linux pathspec; baseline seeding, selector verification, and subsequent comparison hardening remain pending (`site-2m1.38`).
 - The header hit-area tests are `test.fixme`, and the GitHub icon is 34 × 34 px (`site-2m1.32`).
