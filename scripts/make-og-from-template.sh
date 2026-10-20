@@ -6,7 +6,7 @@ OUT=${3:-public/assets/og-image.png}
 LOGO=${5:-public/assets/logo-lockup.png}
 TEMPLATE_IMG="assets/og-template-image.svg"
 TEMPLATE_TXT="assets/og-template.svg"
-if [[ "$4" != "--logo" && -n "${4-}" ]]; then echo "Usage: $0 "Title" "Subtitle" out.png [--logo path]"; exit 1; fi
+if [[ "${4-}" != "--logo" && -n "${4-}" ]]; then echo "Usage: $0 \"Title\" \"Subtitle\" out.png [--logo path]"; exit 1; fi
 esc(){ printf '%s' "$1" | sed -e 's/[&/]/\\&/g'; }
 mkdir -p "$(dirname "$OUT")"
 TMP=$(mktemp /tmp/og.XXXXXX).svg

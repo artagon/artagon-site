@@ -54,6 +54,10 @@ const FONT_HOSTS = [
   "api.fontshare.com",
 ];
 const GENERIC_CDNS = ["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "unpkg.com"];
+const MIGRATION_FONT_HOSTS = new Set([
+  "fonts.googleapis.com",
+  "fonts.gstatic.com",
+]);
 
 // Match anything containing a forbidden host — we then do a per-match
 // font-shape check on the URL substring around the match. Case-insensitive
@@ -82,6 +86,25 @@ function urlAround(body, idx) {
   while (end < body.length && !STOP.test(body[end]) && body[end] !== "\n")
     end++;
   return body.slice(start, end);
+}
+
+function hostnameAround(body, idx) {
+  const url = urlAround(body, idx);
+  const authorityMatch = url.match(/(?:https?:)?\/\/([^/?#]+)/i);
+  if (authorityMatch) {
+    const authorityParts = authorityMatch[1].split("@");
+    const hostPort = authorityParts[authorityParts.length - 1];
+    const host = hostPort.startsWith("[")
+      ? hostPort.slice(1, hostPort.indexOf("]"))
+      : hostPort.split(":")[0];
+    if (host) return host.toLowerCase();
+  }
+
+  // Some generated CSS and documentation contain a bare CDN hostname.
+  // Include adjacent DNS labels so a lookalike suffix cannot masquerade as
+  // one of the exact migration hosts.
+  const bareHost = body.slice(idx).match(/^[a-z0-9.-]+/i)?.[0];
+  return bareHost?.toLowerCase() ?? null;
 }
 
 function listFilesRecursive(dir) {
@@ -159,12 +182,13 @@ function main() {
         const url = urlAround(body, m.index);
         if (!FONT_PATH_RE.test(url)) continue;
       }
+      const actualHost = hostnameAround(body, m.index) ?? host;
       const before = body.slice(0, m.index);
       const line = before.split("\n").length;
       violations.push({
         path: relative(DIST, abs),
         line,
-        host,
+        host: actualHost,
       });
     }
   }
@@ -223,8 +247,11 @@ function main() {
     // and the migration may already be complete. Treat as
     // loader-removed (hard-fail any remaining dist/ CDN refs).
   }
-  const severity = loaderStillInSource ? "warn" : "error";
-  const sigil = loaderStillInSource ? "⚠" : "✗";
+  const warnOnly =
+    loaderStillInSource &&
+    violations.every((v) => MIGRATION_FONT_HOSTS.has(v.host));
+  const severity = warnOnly ? "warn" : "error";
+  const sigil = warnOnly ? "⚠" : "✗";
   for (const v of violations) {
     console.error(
       `${sigil} ${v.path}:${v.line} — third-party font CDN reference: ${v.host}`,

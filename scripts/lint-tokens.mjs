@@ -197,10 +197,11 @@ function lintFile(absPath, relPath) {
   try {
     body = readFileSync(absPath, "utf8");
   } catch (err) {
+    if (err.code === "ENOENT") return [];
     console.error(
       `✗ lint-tokens: cannot read ${relPath}: ${err.code ?? "unknown"}`,
     );
-    return [];
+    exit(2);
   }
   const violations = [];
   // For .mdx, only lint inside ```css ... ``` fences and <style> blocks;
@@ -265,10 +266,11 @@ function main() {
       try {
         body = readFileSync(abs, "utf8");
       } catch (err) {
+        if (err.code === "ENOENT") continue;
         console.error(
           `✗ lint-tokens: cannot read ${rel}: ${err.code ?? "unknown"}`,
         );
-        continue;
+        exit(2);
       }
       all.push(...scanThemeCss(body, rel));
       continue;

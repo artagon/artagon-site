@@ -18,7 +18,7 @@ set -euo pipefail
 LOGO_DIR=${LOGO_DIR:-public/assets/artagon-logo}
 SRC_FULL=${SRC_FULL:-$LOGO_DIR/artagon_D1A.png}
 OUT_DIR=${OUT_DIR:-public/assets/logos}
-TEMP_DIR=${TEMP_DIR:-tmp/logo-conversion}
+TEMP_ROOT=${TEMP_DIR:-tmp/logo-conversion}
 
 echo "🎨 Artagon Logo Conversion Pipeline"
 echo "===================================="
@@ -29,7 +29,9 @@ if [[ ! -f "$SRC_FULL" ]]; then
   exit 1
 fi
 
-mkdir -p "$OUT_DIR" "$TEMP_DIR"
+mkdir -p "$OUT_DIR" "$TEMP_ROOT"
+TEMP_DIR=$(mktemp -d "$TEMP_ROOT/run.XXXXXX")
+trap 'rm -rf -- "$TEMP_DIR"' EXIT
 
 echo "✓ Source: $SRC_FULL"
 echo "✓ Output: $OUT_DIR"
@@ -155,9 +157,6 @@ echo "   Wordmark:      logo-wordmark-{800,400,200}.png"
 echo "   Square:        logo-square-{1200,512}.png"
 echo "   OG Image:      og-image.png (1200x630)"
 echo "   Horizontal:    logo-horizontal-800.png"
-
-# Cleanup
-rm -rf "$TEMP_DIR"
 
 echo ""
 echo "💡 Next steps:"
