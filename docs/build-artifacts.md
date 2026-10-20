@@ -16,7 +16,7 @@ Sub-paths emitted today:
 
 ```
 .build/cache/astro/
-.build/reports/{playwright/{results,blob,html},lhci,cloudflare-purge}/
+.build/reports/{playwright/{results,blob,html},playwright-cli,lhci,cloudflare-purge}/
 .build/dist/                 # astro build output, deployed to Pages
 .build/.run.lock             # optional cleanup sentinel (hostname:pid:ts)
 ```
@@ -66,6 +66,7 @@ Worked examples:
 | ------------------------ | ------------------------------------------- | ---------------------------------------------- | -------------------------------------- |
 | Astro                    | `BUILD.cache.astro`                         | —                                              | TS import in `astro.config.ts`         |
 | Playwright               | no configured cache                         | `BUILD.reports.playwright.{results,blob,html}` | TS import in `playwright.config.ts`    |
+| Playwright CLI           | —                                           | `BUILD.reports.playwrightCli`                 | Vitest assertion binds JSON config     |
 | Lighthouse CI            | CLI-managed `.lighthouseci/`                | `BUILD.reports.lhci`                           | Generated `lighthouserc.json`          |
 | Lychee                   | default `.lycheecache/`; not restored in CI | —                                              | Generated `lychee.toml`                |
 | Cloudflare soak purge    | —                                           | `BUILD.reports.cloudflarePurge` (`urls.json`)  | Inline workflow imports `BUILD`        |

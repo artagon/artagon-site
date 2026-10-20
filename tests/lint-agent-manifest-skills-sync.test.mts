@@ -29,12 +29,31 @@
 // skills are installed by tooling without manifest classification).
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { BUILD } from "../build.config.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const MANIFEST = join(ROOT, ".agents", "AGENT_MANIFEST.yaml");
 const SKILLS_DIR = join(ROOT, ".agents", "skills");
+const PLAYWRIGHT_CLI_SKILL = join(SKILLS_DIR, "playwright-cli", "SKILL.md");
+
+function assertNoAllowedTools(skillPath: string): void {
+  const skill = readFileSync(skillPath, "utf8");
+  const frontmatter = skill.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!frontmatter) throw new Error("Skill must have YAML frontmatter");
+  if (/^\s*allowed-tools\s*:/m.test(frontmatter[1]!)) {
+    throw new Error("playwright-cli SKILL.md must not define allowed-tools");
+  }
+}
 
 function parseList(yaml: string, key: string): string[] {
   // Find `<key>:` followed by indented `- foo` bullet lines (with
@@ -108,5 +127,37 @@ describe("AGENT_MANIFEST.yaml vs .agents/skills/ on-disk (pt192)", () => {
 
     expect(missingMandatory.length).toBe(0);
     expect(installedNotApplicable.length).toBe(0);
+  });
+
+  test("playwright-cli skill does not pre-approve tools", () => {
+    assertNoAllowedTools(PLAYWRIGHT_CLI_SKILL);
+  });
+
+  test("the allowed-tools guard rejects a scratch reinstall copy", () => {
+    const scratchRoot = mkdtempSync(join(tmpdir(), "playwright-cli-skill-"));
+    try {
+      const scratchSkill = join(scratchRoot, "SKILL.md");
+      const installedSkill = readFileSync(PLAYWRIGHT_CLI_SKILL, "utf8");
+      writeFileSync(
+        scratchSkill,
+        installedSkill.replace(
+          /^---\r?\n/,
+          "$&allowed-tools: Bash(playwright-cli:*)\n",
+        ),
+        "utf8",
+      );
+      expect(() => assertNoAllowedTools(scratchSkill)).toThrow(
+        "playwright-cli SKILL.md must not define allowed-tools",
+      );
+    } finally {
+      rmSync(scratchRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("Playwright CLI outputDir matches the build path source of truth", () => {
+    const config = JSON.parse(
+      readFileSync(join(ROOT, ".playwright", "cli.config.json"), "utf8"),
+    ) as { outputDir: string };
+    expect(config.outputDir).toBe(BUILD.reports.playwrightCli);
   });
 });

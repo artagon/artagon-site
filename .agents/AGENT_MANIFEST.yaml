@@ -2,6 +2,7 @@ skills:
   sources:
     - https://github.com/google-labs-code/design.md/tree/main/.agents/skills
     - https://github.com/google-labs-code/stitch-skills # design-md
+    - https://www.npmjs.com/package/@playwright/cli/v/0.1.22 # playwright-cli skill source, pinned package version
   installed: .agents/skills/
   lockfile: skills-lock.json
   mandatory:

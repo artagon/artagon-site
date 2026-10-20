@@ -100,5 +100,9 @@ new-design/
 /*.png
 /*.jpg
 /*.jpeg
+/*.webm
+/*.pdf
+/auth.json
+/*-state.json
 # Playwright CLI output (may contain credentials)
 .playwright-cli/

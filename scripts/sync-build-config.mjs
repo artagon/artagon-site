@@ -226,11 +226,6 @@ exclude = [
   "^https?://fonts\\\\.googleapis\\\\.com/?$",
   "^https?://fonts\\\\.gstatic\\\\.com/?$",
   "^https?://fonts\\\\.googleapis\\\\.com/css2\\\\?%E2%80%A6$",
-  # CDN path-prefix referenced in scripts/csp.mjs allow-list (pt431).
-  # The path-prefix \`/npm/@docsearch/\` is not a directory listing;
-  # bare GET 400s. Specific bundle URLs (/npm/@docsearch/js@3.9.0)
-  # are SRI-pinned and load fine.
-  "^https?://cdn\\\\.jsdelivr\\\\.net/npm/@docsearch/?$",
   # Astro RSS docs URL moved during a recent docs reorg. The README
   # reference is informational; the actual RSS integration is wired
   # via @astrojs/rss in src/pages/writing/feed.xml.ts.

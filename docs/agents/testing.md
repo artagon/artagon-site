@@ -20,9 +20,19 @@ Adding a third kind of runner means every runner config gets an explicit `includ
 
 The browser tools have three distinct lanes:
 
-- Use `playwright-cli` for agent verification of a rendered page and for generating new Playwright spec code. `.playwright/cli.config.json` uses an isolated in-memory Chromium profile through the installed Chrome channel and writes output under `.build/reports/playwright-cli/`.
+- Use `playwright-cli` for agent verification of a rendered page and for generating new Playwright spec code. `.playwright/cli.config.json` uses an isolated in-memory Chromium profile through the installed Chrome channel and writes output under `.build/reports/playwright-cli/`. Run it from the repo root: relative `--filename`, `state-save`, and video paths resolve against the repo root, and every explicit path must sit under `.build/reports/playwright-cli/`.
 - Use the `playwright` MCP server for exploratory work and long-running browser sessions.
 - Use the Playwright test runner for the automated spec suite and CI.
+
+Playwright CLI rules:
+
+- Run `rtk npx --no-install playwright-cli` from the repo root.
+- Never pass `--config`, `--persistent`, `--profile`, `attach`, or `--extension`.
+- Never install `@latest` or run `npm init playwright`.
+- Serve pages with `npx astro preview --port 4400`.
+- Get user approval before `gh ... --attach` or any other external write.
+
+The coordinator decided to keep the `playwright` MCP entry for exploratory work. The CLI nests Playwright `1.64.0-alpha` and drives system Chrome stable, while the test runner uses `@playwright/test` `1.59.1`; check CLI-generated spec code against the runner's API before adding it to the suite.
 
 ## Browser-profile isolation
 

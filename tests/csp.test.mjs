@@ -156,9 +156,9 @@ test("processHtml does not allow origins for unconfigured DocSearch assets", asy
     await processHtml(file);
 
     const $ = cheerio.load(readFileSync(file, "utf8"));
-    const policy = $(
-      'meta[http-equiv="Content-Security-Policy"]',
-    ).attr("content");
+    const policy = $('meta[http-equiv="Content-Security-Policy"]').attr(
+      "content",
+    );
     assert.ok(policy, "CSP meta should be added");
     assert.doesNotMatch(policy, /cdn\.jsdelivr\.net|algolia/);
   } finally {
