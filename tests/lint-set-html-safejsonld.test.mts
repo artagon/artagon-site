@@ -46,8 +46,66 @@ function listAstroFiles(): readonly string[] {
     .filter((s) => s.length > 0);
 }
 
-const SET_HTML_RE = /set:html\s*=\s*\{([^}]+)\}/g;
-const SAFEJSONLD_CALL_RE = /\bsafeJsonLd\s*\(/;
+const SET_HTML_RE = /set:html\s*=\s*\{/g;
+
+// USMR 14.66 (site-2m1.66): accept only sanitized return values and
+// conditionals whose output branches are sanitized or null. Arguments to
+// safeJsonLd are unrestricted because the helper sanitizes its whole result.
+function isSafeOutput(expression: string): boolean {
+  // Keep the accepted grammar deliberately small. Blanking quoted content
+  // prevents delimiters or sanitizer names in strings from granting trust.
+  const text = stripComments(expression, { stripStrings: true }).trim();
+  const stack: string[] = [];
+  const closes: Readonly<Record<string, string>> = {
+    ")": "(",
+    "]": "[",
+    "}": "{",
+  };
+  let firstClose = -1;
+  let question = -1;
+  let colon = -1;
+  let nestedQuestions = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]!;
+    if ("([{".includes(ch)) {
+      stack.push(ch);
+    } else if (")]}".includes(ch)) {
+      if (stack.pop() !== closes[ch]) return false;
+      if (stack.length === 0 && firstClose < 0) firstClose = i;
+    } else if (stack.length === 0) {
+      if (ch === "," || ch === ";") return false;
+      // Optional chaining and nullish coalescing aren't ternary operators.
+      if (
+        ch === "?" &&
+        text[i + 1] !== "." &&
+        text[i + 1] !== "?" &&
+        text[i - 1] !== "?"
+      ) {
+        if (question < 0) question = i;
+        else nestedQuestions++;
+      } else if (ch === ":" && question >= 0 && colon < 0) {
+        if (nestedQuestions === 0) colon = i;
+        else nestedQuestions--;
+      }
+    }
+  }
+  if (stack.length > 0) return false;
+  if (text.startsWith("(") && firstClose === text.length - 1) {
+    return isSafeOutput(text.slice(1, -1));
+  }
+  if (question >= 0) {
+    // Use the scrubbed view for branch offsets; both branches are scrubbed
+    // already, and therefore need no string or comment contents restored.
+    return (
+      question > 0 &&
+      colon > question &&
+      isSafeOutput(text.slice(question + 1, colon)) &&
+      isSafeOutput(text.slice(colon + 1))
+    );
+  }
+  if (text === "null") return true;
+  return /^safeJsonLd\s*\(/.test(text) && firstClose === text.length - 1;
+}
 
 interface Violation {
   readonly file: string;
@@ -57,7 +115,7 @@ interface Violation {
 }
 
 /**
- * Strip `//` line comments and `/* … *\/` block comments from JS/TS source.
+ * Blank `//` line comments and `/* … *\/` block comments from JS/TS source.
  * String / template-literal contents are preserved verbatim. Used to harden
  * the safe-vars scan against adversarial false-negatives where a misleading
  * commented-out `// const X = safeJsonLd(p)` would otherwise add `X` to
@@ -89,21 +147,29 @@ function stripComments(
   while (i < n) {
     const ch = src[i];
     const next = src[i + 1];
-    // Line comment
+    // Blank comments at their original width so independently scrubbed views
+    // and expression-local masks retain identical character offsets.
     if (ch === "/" && next === "/") {
-      while (i < n && src[i] !== "\n") i++;
+      while (i < n && src[i] !== "\n") {
+        out += " ";
+        i++;
+      }
       continue;
     }
     // Block comment — preserve interior newlines so line numbers
     // computed against the stripped source stay aligned with the raw
     // source.
     if (ch === "/" && next === "*") {
+      out += "  ";
       i += 2;
       while (i < n && !(src[i] === "*" && src[i + 1] === "/")) {
-        if (src[i] === "\n") out += "\n";
+        out += src[i] === "\n" ? "\n" : " ";
         i++;
       }
-      i += 2;
+      if (i < n) {
+        out += "  ";
+        i += 2;
+      }
       continue;
     }
     // String / template literal
@@ -120,7 +186,7 @@ function stripComments(
           const c = src[i];
           if (c === "\\" && i + 1 < n) {
             // Skip escape pair without contributing to declRe.
-            out += "  ";
+            out += src[i + 1] === "\n" ? " \n" : "  ";
             i += 2;
             continue;
           }
@@ -168,8 +234,8 @@ function scanSource(rawSource: string, rel: string): Violation[] {
   //     `\`const X = safeJsonLd(p)\`` (template-literal text) cannot
   //     whitelist a same-named real `let X = userInput`.
   //   - `htmlSource` blanks comments only, preserving string contents
-  //     so the SET_HTML_RE attribute scan sees the actual `set:html=
-  //     {...}` value (which is itself an expression, not a string).
+  //     so the attribute scan sees the actual expression. An expression-local
+  //     mask finds the closing brace without counting quoted argument braces.
   // Both modes preserve newlines so line numbers stay aligned.
   const declSource = stripComments(rawSource, { stripStrings: true });
   const htmlSource = stripComments(rawSource);
@@ -177,9 +243,9 @@ function scanSource(rawSource: string, rel: string): Violation[] {
 
   // Build the variable-assignment map. A variable `X` is considered
   // "safe" if it is declared with `const` (immutable binding) AND its
-  // declaration statement contains a `safeJsonLd(` call anywhere inside
-  // — covering direct assignments, conditional ternaries (`X = cond ?
-  // safeJsonLd(...) : null`), and chained expressions. `let` / `var`
+  // initializer returns a sanitized value on every permitted branch.
+  // Direct calls and sanitizer/null ternaries are supported; concatenation
+  // and comma expressions are rejected. `let` / `var`
   // are EXCLUDED because subsequent reassignment to unsafe input is
   // invisible at the declaration site (the reassignment-blind tracking
   // gap flagged by the pt428 review). Statement boundaries are tracked
@@ -203,22 +269,38 @@ function scanSource(rawSource: string, rel: string): Violation[] {
         break;
       }
     }
-    const body = declSource.slice(assignStart, end);
-    if (SAFEJSONLD_CALL_RE.test(body)) safeVars.add(name);
+    // The scrubbed view locates declarations and boundaries, but parse the
+    // corresponding string-preserving expression (object keys may be quoted).
+    const body = htmlSource.slice(assignStart, end);
+    if (isSafeOutput(body)) safeVars.add(name);
   }
 
   let match: RegExpExecArray | null;
   while ((match = SET_HTML_RE.exec(htmlSource)) !== null) {
-    const expression = (match[1] ?? "").trim();
+    // USMR 14.66: a regex ending at the first } truncates safe object
+    // arguments. Start the JS mask at the attribute expression: apostrophes
+    // in preceding Astro prose must not put the scanner into a JS string.
+    const start = match.index + match[0].length;
+    const mask = stripComments(htmlSource.slice(start), { stripStrings: true });
+    let end = start;
+    let depth = 1;
+    for (; end - start < mask.length; end++) {
+      if (mask[end - start] === "{") depth++;
+      else if (mask[end - start] === "}" && --depth === 0) break;
+    }
+    const closed = depth === 0;
+    const expression = htmlSource.slice(start, end).trim();
     const lineNumber = htmlSource.slice(0, match.index).split("\n").length;
-    const snippet = match[0];
+    const snippet = htmlSource.slice(match.index, end + 1);
+    SET_HTML_RE.lastIndex = end + 1;
 
-    // Path 1: inline `safeJsonLd(...)` call inside the attribute braces.
-    if (SAFEJSONLD_CALL_RE.test(expression)) continue;
+    // Path 1: an inline expression whose returned value is always safe.
+    if (closed && isSafeOutput(expression)) continue;
 
     // Path 2: bare identifier referencing a `safeJsonLd(...)` assignment.
     const identMatch = expression.match(/^([a-zA-Z_$][\w$]*)$/);
     if (
+      closed &&
       identMatch !== null &&
       typeof identMatch[1] === "string" &&
       safeVars.has(identMatch[1])
@@ -231,8 +313,9 @@ function scanSource(rawSource: string, rel: string): Violation[] {
       line: lineNumber,
       snippet,
       reason:
-        "set:html must wrap a `safeJsonLd(...)` call (either inline or via " +
-        "a `const X = safeJsonLd(...)` assignment in the same file).",
+        "set:html must return only safeJsonLd(...) or null (inline or via " +
+        "a const initializer in the same file); raw branches, concatenation, " +
+        "and comma expressions are forbidden.",
     });
   }
   return violations;
@@ -295,6 +378,26 @@ describe("scanSource adversarial inputs (USMR pt445)", () => {
     assert.equal(scanSource(src, "fixture.astro").length, 0);
   });
 
+  it.each([
+    "safeJsonLd({})",
+    'safeJsonLd({ name: "brace } inside a string" })',
+    "safeJsonLd(/* brace } inside a comment */ {})",
+    "flag ? safeJsonLd({}) : null",
+    "flag ? safeJsonLd(payload) : safeJsonLd(other)",
+    "(safeJsonLd(payload))",
+  ])("accepts the complete safe inline expression %s", (expression) => {
+    assert.equal(
+      scanSource(`<script set:html={${expression}}></script>`, "fixture.astro")
+        .length,
+      0,
+    );
+  });
+
+  it("accepts safe output after an apostrophe in Astro prose", () => {
+    const src = `<p>What's new?</p><script set:html={safeJsonLd({})}></script>`;
+    assert.equal(scanSource(src, "fixture.astro").length, 0);
+  });
+
   it("accepts `set:html={X}` when X = safeJsonLd(...) (const direct)", () => {
     const src = `---\nconst X = safeJsonLd(payload);\n---\n<script set:html={X}></script>`;
     assert.equal(scanSource(src, "fixture.astro").length, 0);
@@ -304,6 +407,32 @@ describe("scanSource adversarial inputs (USMR pt445)", () => {
     const src = `---\nconst X = cond ? safeJsonLd(payload) : null;\n---\n<script set:html={X}></script>`;
     assert.equal(scanSource(src, "fixture.astro").length, 0);
   });
+
+  // USMR 14.66 (site-2m1.66): trust the returned value, not sanitizer presence.
+  it.each([
+    "safeJsonLd(payload) + input",
+    "safeJsonLd({}) + input",
+    "flag ? safeJsonLd(payload) : input",
+    "(safeJsonLd(payload), input)",
+  ])(
+    "flags unsafe output expression %s inline and through a const",
+    (expression) => {
+      assert.equal(
+        scanSource(
+          `<script set:html={${expression}}></script>`,
+          "fixture.astro",
+        ).length,
+        1,
+      );
+      assert.equal(
+        scanSource(
+          `---\nconst X = ${expression};\n---\n<script set:html={X}></script>`,
+          "fixture.astro",
+        ).length,
+        1,
+      );
+    },
+  );
 
   it("flags `set:html={X}` when X is `let`-bound even if first assigned via safeJsonLd", () => {
     // pt429 hardening: const-only safe-vars. `let X` could be reassigned

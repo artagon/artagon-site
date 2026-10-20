@@ -165,17 +165,19 @@ ast-grep is the project linter (no ESLint). After writing `.ts`, `.mjs`, `.js`, 
 
 ### Rules in force
 
-| Rule ID                    | Severity | Catches                                                                                 |
-| -------------------------- | -------- | --------------------------------------------------------------------------------------- |
-| `no-inner-html`            | error    | `innerHTML` / `outerHTML` assignment (XSS sink)                                         |
-| `no-set-html-directive`    | error    | Astro `set:html` escape hatch (enforced by `tests/lint-set-html-safejsonld.test.mts`)   |
-| `no-math-random-crypto`    | warning  | `Math.random()` used for security                                                       |
-| `no-weak-hash`             | error    | `crypto.createHash('md5'\|'sha1')` (CWE-327)                                            |
-| `no-jwt-decode-unverified` | error    | `jwt.decode()` without signature verification (CWE-347)                                 |
-| `no-console-log-sensitive` | warning  | `console.log` with token, secret, key, or credential variables                          |
-| `no-hardcoded-secrets`     | error    | API keys and JWTs hardcoded as string literals                                          |
-| `no-raw-color-literal`     | warning  | `rgb()` / `rgba()` / `hsl()` / `oklch()` / `oklab()` literals in Astro `<style>` blocks |
-| `no-untraceable-token`     | warning  | Inline hex literals (`#0b1220`) in Astro `<style>` blocks (`design-system-format` §6.3) |
+| Rule ID                         | Severity | Catches                                                                                             |
+| ------------------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `no-inner-html`                 | error    | `innerHTML` / `outerHTML` assignment (XSS sink)                                                     |
+| `no-set-html-directive`         | error    | Astro `set:html` escape hatch (enforced by `tests/lint-set-html-safejsonld.test.mts`)               |
+| `no-math-random-crypto`         | warning  | `Math.random()` used for security                                                                   |
+| `no-weak-hash`                  | error    | `crypto.createHash('md5'\|'sha1')` (CWE-327)                                                        |
+| `no-jwt-decode-unverified`      | error    | `jwt.decode()` without signature verification (CWE-347)                                             |
+| `no-console-log-sensitive`      | warning  | `console.log` with token, secret, key, or credential variables                                      |
+| `no-hardcoded-secrets`          | error    | API keys and JWTs hardcoded as string literals                                                      |
+| `no-raw-color-literal`          | warning  | `rgb()` / `rgba()` / `hsl()` / `oklch()` / `oklab()` literals in Astro `<style>` blocks             |
+| `no-raw-color-style-object-ts`  | warning  | Hex and color-function literals in TypeScript CSS property/value object pairs                       |
+| `no-raw-color-style-object-tsx` | warning  | Hex and color-function literals in TSX CSS property/value object pairs, including JSX style objects |
+| `no-untraceable-token`          | warning  | Inline hex literals (`#0b1220`) in Astro `<style>` blocks (`design-system-format` §6.3)             |
 
 ### Rule authoring and coverage gaps
 

@@ -12,7 +12,23 @@ ignores:
   - "**/*.test.ts"
   - "tests/**"
 rule:
-  pattern: console.log($$$BEFORE, $VAR, $$$AFTER)
-constraints:
-  VAR:
-    regex: "(?i)(token|secret|credential|password|key|assertion|challenge|privateKey|jwk|dpop)"
+  # USMR 14.68 (site-2m1.68): inspect every argument, regardless of position.
+  all:
+    - pattern: console.log($$$ARGS)
+    - has:
+        kind: arguments
+        has:
+          all:
+            - pattern: $VAR
+            - not:
+                kind: string
+            - any:
+                - all:
+                    - not:
+                        kind: template_string
+                    - regex: "(?i)(token|secret|credential|password|key|assertion|challenge|privateKey|jwk|dpop)"
+                - all:
+                    - kind: template_string
+                    - has:
+                        kind: template_substitution
+                        regex: "(?i)(token|secret|credential|password|key|assertion|challenge|privateKey|jwk|dpop)"
