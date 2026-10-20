@@ -11,8 +11,6 @@
 // the island's own header, and /bridge now exists as a real route
 // (5.2.8) so the anchor stub is no longer needed.
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import PillarsIsland from '../../components/PillarsIsland.astro';
 import { getEntry } from 'astro:content';
 const entry = await getEntry('pages', 'platform');
@@ -23,11 +21,11 @@ if (!entry) throw new Error('platform.mdx content entry not found');
   description={entry.data.description}
   path="/platform"
 >
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       wraps the slot in <main id="main-content"> already. */}
   <PillarsIsland copy={entry.data} />
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

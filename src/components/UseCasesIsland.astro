@@ -11,7 +11,7 @@ const { copy } = Astro.props;
 ---
 <section class="use-cases" aria-labelledby="use-cases-heading" id="use-cases-island" data-manual-tabs>
   <header class="use-cases__head">
-    <p class="use-cases__eyebrow">{copy.eyebrow}</p>
+      <p class="use-cases__eyebrow eyebrow">{copy.eyebrow}</p>
     <h1 id="use-cases-heading" class="use-cases__title display"><HeadlineText text={copy.headline} emphasisClass="use-cases__title-emphasis" /></h1>
     <p class="use-cases__lede lead"><GlossaryText nodes={parseGlossaryText(copy.lede)} /></p>
   </header>

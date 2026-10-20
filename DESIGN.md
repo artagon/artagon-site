@@ -274,15 +274,16 @@ Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
 | Family               | Role           | Weight     | Notes                                                                   |
 | -------------------- | -------------- | ---------- | ----------------------------------------------------------------------- |
 | **Inter Tight**      | Body sans      | 400, 500   | `--f-sans`. Optical spacing via `font-feature-settings: "ss01", "cv11"` |
-| **Space Grotesk**    | Display        | 400, 500   | `--f-display`. Default hero + h1/h2. Geometric, high x-height.          |
-| **Fraunces**         | Serif accent   | 400 italic | `--f-serif`. Emphasis within eyebrows; optional display alt.            |
-| **Instrument Serif** | Serif fallback | 400        | Fallback for Fraunces in certain contexts.                              |
+| **Space Grotesk**    | Dev display    | 400, 500   | Tweaks `grotesk` alternative. Geometric, high x-height.                   |
+| **Fraunces**         | Display/serif  | 400, 500; 400 italic | Production hero + h1/h2 default and `--f-serif` emphasis.         |
+| **Instrument Serif** | Dev fallback   | 400        | Retained in the serif stack; only the dev loader requests this face.     |
+| **DM Serif Display** | Dev display    | 400        | Tweaks `dmserif` alternative.                                            |
 | **JetBrains Mono**   | Mono           | 400, 500   | `--f-mono`. Code, eyebrows, standards chips, log lines.                 |
 
 Each family loads with `font-display: swap`. Preload the display face used
-above-the-fold. The site **must not** ship more than four custom families.
+above-the-fold. Production **must not** ship more than four custom families.
 
-**Webfont loading (USMR 5.5.16).** `BaseLayout.astro` ships the canonical Google-Fonts loader: `<link rel="preconnect">` to `fonts.googleapis.com` + `fonts.gstatic.com`, then a single `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?…">` request that pulls all 6 families above (`Inter Tight` 300-700, `JetBrains Mono` 300-600, `Instrument Serif` ital 0;1, `Fraunces` ital,opsz,wght variable, `DM Serif Display` ital 0;1, `Space Grotesk` 400-600). The `tests/webfonts.spec.ts` Playwright spec gates the loader's existence and verifies `h1.display` resolves to Space Grotesk + `body` to Inter Tight after `document.fonts.ready` settles. Without this loader every `--f-*` token silently fell back to system-ui (San Francisco on macOS, Segoe UI on Windows) and the hero rendered in a completely different typeface than the canonical mock — caught only when a user A/B-compared screenshots. The `self-host-woff2-fonts` OpenSpec change tracks the eventual move to self-hosted woff2; the CDN gets us pixel parity in the meantime.
+**Webfont loading (USMR 14.14).** `BaseLayout.astro` preconnects to `fonts.googleapis.com` and `fonts.gstatic.com`, then requests only the three families used across all 23 production routes: Inter Tight 300–700, JetBrains Mono 300–600, and Fraunces ital/opsz/wght. Chrome probes at 390px and 1280px confirmed those three loaded families and unchanged heading/body font stacks. Instrument Serif, Space Grotesk, and DM Serif Display load through `Tweaks.astro` only in development. Fallback token lists remain intact. `tests/webfonts.spec.ts` checks the production request and default Fraunces/Inter Tight faces; `tests/hero-font-matrix.spec.ts` injects the dev stylesheet when testing alternate faces against a built site. The runtime swap UI remains dev-only, as scoped by `self-host-woff2-fonts`; that change still owns the future self-hosted WOFF2 migration. With empty Tweaks storage, hydration preserves BaseLayout's attributes; defaults apply only after an explicit user edit (USMR 14.13).
 
 **Font-family token contract (USMR 5.5.16-pt56-57).** Every `font-family` declaration in the codebase relies on the **token's own fallback chain** rather than duplicating font names inline. The canonical pattern is `var(--f-display, var(--f-sans))` — token-to-token cascade — NOT `var(--f-display, "Space Grotesk", "Inter Tight", sans-serif)` (5.1-era duplication). Each `--f-*` token already declares its full fallback chain in `:root` (e.g. `--f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace`). When `--f-display` fails to resolve, `var(--f-sans)` provides Inter Tight as the fallback display face — a cohesive type system. The 7 surfaces migrated across pt56 (5) + pt57 (2): bare `h1`, `h2`, `h3`, `.display` (`var(--f-display, system-ui)` → `var(--f-display, var(--f-sans))` — 4 surfaces, pt56), `.serif` (drop `Georgia` since `--f-serif` already chains to it — pt56), `.glow-amp` (drop full chain duplication — pt57), `.hero h1.display` (canonical token-chain pattern — pt57).
 
@@ -348,6 +349,8 @@ for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 `[data-density]`).
 
 `.wrap` caps content at `--maxw: 1240px` and matches the canonical `new-design global.css:212` shape (`max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1`). Never nest `.wrap` inside `.wrap`. `.container` is an alias kept for legacy 5.1q components — new components should author against `.wrap`.
+
+**Page chrome (USMR 14.10).** BaseLayout renders Header and Footer by default. `chrome={false}` opts out for an embedded surface. Route templates supply content and metadata without repeating chrome imports or slots.
 
 **Density variants** (USMR Phase 5.5.6). The `--gutter` token defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Toggle via `<body data-density="dense">` (or the canonical Tweaks panel surface). Pre-5.5.6 the attribute was documented but inert — no override blocks shipped.
 
@@ -1032,6 +1035,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - **External cards** open in a new tab with `rel="noopener noreferrer"` (matches Footer convention 5.5.4).
 - **Hover tint** uses `color-mix(in oklab, var(--accent) 4%, var(--bg-1))` per canonical `global.css:303`. Border darkens to `var(--accent-dim)`. Card lifts via `transform: translateY(-2px)` on a 220 ms ease.
 - **The section is the canonical `#playground` anchor** (5.5.6) — the hero secondary CTA `Open the playground` jumps here, mirroring canonical `Hero.jsx:167`.
+- **Gutter alignment (USMR 14.10).** HomeExplore consumes `--gutter` for inline padding. This intentional visible correction replaces its former `clamp(24px, 4vw, 40px)`: comfortable padding becomes 32px, including an 8px reduction at desktop and an 8px increase at 390px. Dense/roomy now follow the shared 20px/44px tokens. Its other layout rules remain unchanged.
 
 **A11y.**
 

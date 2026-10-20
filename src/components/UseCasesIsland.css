@@ -16,23 +16,9 @@
 }
 
 /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+/* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
 .use-cases__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-2);
   margin: 0 0 24px;
-}
-.use-cases__eyebrow::before {
-  content: "";
-  display: inline-block;
-  width: 18px;
-  height: 1px;
-  background: var(--accent);
 }
 
 .use-cases__title {
