@@ -1,75 +1,110 @@
-// USMR Phase 5.5.16-pt125 — forced-colors mode coverage gate.
-//
-// DESIGN.md §11.7 "Forced colors mode" (line 1343) mandates that any
-// component shipping a brand-OKLCH color (var(--accent), the legacy
-// retained alias var(--brand-teal), color-mix() with the accent, etc.)
-// MUST also provide a `@media (forced-colors: active)` override that
-// maps to the OS-system palette (Canvas / CanvasText / Highlight /
-// GrayText / etc.). Without this, Windows High Contrast users see
-// flat gray on every interactive surface — the brand-color signal
-// disappears. Pre-pt378 the gate cited DESIGN.md §7 — incorrect; §7
-// is "Do's and Don'ts" (writing voice + visual aesthetic) and does
-// not mandate forced-colors palette remapping. The forced-colors
-// mappings table lives in §11.7.
-//
-// pt125 added forced-colors blocks to Header.astro + Footer.astro
-// (the two components rendered on EVERY page). This gate asserts
-// the contract holds for those two surfaces; future high-traffic
-// surfaces should be added here as they're audited.
-//
-// Allow-list (intentional NO forced-colors): pure dev surfaces that
-// don't ship to production HTML (e.g. Tweaks.astro is gated by
-// `import.meta.env.DEV`). React-only `.tsx` files have no scoped
-// CSS in the same file so they aren't directly checkable here.
+// Forced-colors coverage follows CSS-bearing production sources instead of
+// maintaining a list that can drift when components or pages are added.
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import {
+  discoverStyleSources,
+  stripCssComments,
+} from "./helpers/lint-discovery.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
-
-const REQUIRED_FORCED_COLORS_FILES = [
+const STYLE_ROOTS = [
+  "src/components",
+  "src/pages",
+  "src/styles",
+  "public/assets",
+] as const;
+const HISTORICALLY_REQUIRED = [
   "src/components/Header.astro",
   "src/components/Footer.astro",
-  // USMR Phase 5.5.16-pt126 — added FAQ components. /faq is a high-
-  // traffic landing route off the marketing nav; the search input's
-  // focus chrome and the question-hover affordance both consumed
-  // var(--accent) without forced-colors fallback.
   "src/components/FaqItem.astro",
   "src/components/FaqSearch.astro",
-  // USMR Phase 5.5.16-pt127 — added /standards island + /faq page
-  // route. StandardsWall.astro's eyebrow accent dash and the FAQ
-  // page's `.faq-category-title` (accent fg + accent-tinted border)
-  // both consumed --accent without a forced-colors fallback.
   "src/components/StandardsWall.astro",
   "src/pages/faq/index.astro",
-  // USMR Phase 5.5.16-pt128 — closed the home page (the largest
-  // remaining surface). ~14 var(--accent) consumers across the hero
-  // meta strip, hero affiliations, hero latest-strip, writing strip,
-  // and the writing-strip CTAs. This entry closes the production
-  // surface ratchet started in pt125; remaining pt125-deferred
-  // files were dev-only or no-scoped-CSS.
   "src/pages/index.astro",
 ] as const;
+const FORCED_COLORS = /@media\s*\(\s*forced-colors\s*:\s*active\s*\)/i;
+const BRANDED_COLOR = /--(?:accent|brand-teal)(?:-[\w-]+)?\b/i;
+
+function isDevelopmentOnly(source: string): boolean {
+  return /\bimport\.meta\.env\.DEV\b/.test(source) && /\bisDev\s*&&/.test(source);
+}
+
+function requiresForcedColors(source: string, css: string): boolean {
+  return (
+    !isDevelopmentOnly(source) &&
+    (BRANDED_COLOR.test(css) || FORCED_COLORS.test(css))
+  );
+}
+
+const REQUIRED_SOURCES = discoverStyleSources(ROOT, STYLE_ROOTS)
+  .map((source) => ({ ...source, css: stripCssComments(source.css) }))
+  .filter(({ source, css }) => requiresForcedColors(source, css));
+const GLOBAL_THEME = REQUIRED_SOURCES.find(
+  (source) => source.relativePath === "public/assets/theme.css",
+);
+
+function hasGlobalAccentMapping(css: string): boolean {
+  const query = /@media\s*\(\s*forced-colors\s*:\s*active\s*\)/gi;
+  for (const match of css.matchAll(query)) {
+    const openBrace = css.indexOf("{", match.index! + match[0].length);
+    if (openBrace < 0) continue;
+
+    let depth = 0;
+    for (let index = openBrace; index < css.length; index += 1) {
+      if (css[index] === "{") depth += 1;
+      if (css[index] === "}") depth -= 1;
+      if (depth === 0) {
+        const block = css.slice(openBrace + 1, index);
+        if (/--accent\s*:\s*Highlight\s*;/i.test(block)) return true;
+        break;
+      }
+    }
+  }
+  return false;
+}
+
+const HAS_GLOBAL_ACCENT_MAPPING = GLOBAL_THEME
+  ? hasGlobalAccentMapping(GLOBAL_THEME.css)
+  : false;
+
+function hasForcedColorsCoverage(source: string, css: string): boolean {
+  return (
+    FORCED_COLORS.test(css) ||
+    (source.startsWith("src/styles/") && HAS_GLOBAL_ACCENT_MAPPING)
+  );
+}
 
 describe("forced-colors mode coverage", () => {
-  for (const rel of REQUIRED_FORCED_COLORS_FILES) {
-    test(`${rel} ships @media (forced-colors: active) override`, () => {
-      const full = join(ROOT, rel);
-      expect(existsSync(full), `${rel} must exist`).toBe(true);
-      const body = readFileSync(full, "utf8");
-      // Strip block comments so a comment mention doesn't satisfy the
-      // gate. Astro frontmatter (between --- ... ---) is also out of
-      // scope — the assertion is about the <style> block.
-      const stripped = body.replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const source of REQUIRED_SOURCES) {
+    test(`${source.relativePath} has forced-colors coverage`, () => {
       expect(
-        /@media\s*\(\s*forced-colors\s*:\s*active\s*\)/.test(stripped),
-        `${rel} must include @media (forced-colors: active) — DESIGN.md §11.7`,
+        hasForcedColorsCoverage(source.relativePath, source.css),
+        `${source.relativePath} must include a forced-colors override or inherit the global accent mapping — DESIGN.md §11.7`,
       ).toBe(true);
     });
   }
 
-  test("walker discovered the required files", () => {
-    expect(REQUIRED_FORCED_COLORS_FILES.length).toBeGreaterThan(0);
+  test("discovers branded colors and existing forced-colors contracts", () => {
+    expect(REQUIRED_SOURCES.length).toBeGreaterThan(0);
+  });
+
+  test("retains every historically required production surface", () => {
+    const discovered = new Set(REQUIRED_SOURCES.map((source) => source.relativePath));
+    const missing = HISTORICALLY_REQUIRED.filter((path) => !discovered.has(path));
+    expect(missing, "historically required forced-colors sources must be discovered").toEqual([]);
+  });
+
+  test("keeps an accent-only source required if its override is removed", () => {
+    const accentOnlyCss = ".accent-label { color: var(--accent); }";
+
+    expect(requiresForcedColors("src/components/AccentOnly.astro", accentOnlyCss))
+      .toBe(true);
+    expect(hasForcedColorsCoverage("src/components/AccentOnly.astro", accentOnlyCss))
+      .toBe(false);
+  });
+
+  test("the global stylesheet maps branded accents to system colors", () => {
+    expect(HAS_GLOBAL_ACCENT_MAPPING).toBe(true);
   });
 });

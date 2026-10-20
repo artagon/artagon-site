@@ -13,37 +13,15 @@
 // length tokens but is NOT inside a calc() wrapper.
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { walkFiles } from "./helpers/lint-discovery.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
-
-function walk(dir: string, out: string[] = []): string[] {
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    const st = statSync(full);
-    if (st.isDirectory()) {
-      if (
-        entry === "node_modules" ||
-        entry === ".build" ||
-        entry === ".git" ||
-        entry === "new-design"
-      ) {
-        continue;
-      }
-      walk(full, out);
-    } else if (
-      entry.endsWith(".css") ||
-      entry.endsWith(".astro") ||
-      entry.endsWith(".mdx") ||
-      entry.endsWith(".tsx") ||
-      entry.endsWith(".jsx")
-    ) {
-      out.push(full);
-    }
-  }
-  return out;
-}
+const supportedSource = (file: string): boolean =>
+  /\.(css|astro|mdx|tsx|jsx)$/.test(file);
+const excludedDirectory = (_directory: string, name: string): boolean =>
+  ["node_modules", ".build", ".git", "new-design"].includes(name);
 
 interface Finding {
   file: string;
@@ -91,8 +69,10 @@ function findInvalidClamps(body: string, rel: string): Finding[] {
 }
 
 describe("Invalid clamp() syntax detection", () => {
-  const files = walk(join(ROOT, "src"));
-  walk(join(ROOT, "public"), files);
+  const files = [
+    ...walkFiles(join(ROOT, "src"), supportedSource, excludedDirectory),
+    ...walkFiles(join(ROOT, "public"), supportedSource, excludedDirectory),
+  ];
 
   test("walker discovered files", () => {
     expect(files.length).toBeGreaterThan(20);

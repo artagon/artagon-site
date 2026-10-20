@@ -63,7 +63,6 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
         await page.goto("/");
         await setTheme(page, theme);
         await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(200);
         // Hero (above-the-fold) — covers USMR Phase 5.1a content.
         await expect(page).toHaveScreenshot(
           `home-hero-${theme}-${bp.name}.png`,
@@ -79,7 +78,6 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
         // Scroll the on-ramp section into view, then snapshot the viewport.
         // Covers USMR Phase 5.1b content (design-partner card + contacts).
         await page.locator("#get-started").scrollIntoViewIfNeeded();
-        await page.waitForTimeout(200);
         await expect(page).toHaveScreenshot(
           `home-onramp-${theme}-${bp.name}.png`,
           { fullPage: false, animations: "disabled" },
@@ -95,7 +93,6 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
         // Phase 5.1c content (3-card pillar overview sourced from
         // src/data/pillars.ts).
         await page.locator("#platform").scrollIntoViewIfNeeded();
-        await page.waitForTimeout(200);
         await expect(page).toHaveScreenshot(
           `home-pillars-${theme}-${bp.name}.png`,
           { fullPage: false, animations: "disabled" },
@@ -111,7 +108,6 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
         // Phase 5.1f content (3-up grid sourced from the writing
         // collection).
         await page.locator("#writing").scrollIntoViewIfNeeded();
-        await page.waitForTimeout(200);
         await expect(page).toHaveScreenshot(
           `home-writing-strip-${theme}-${bp.name}.png`,
           { fullPage: false, animations: "disabled" },
@@ -140,7 +136,6 @@ test.describe("Styling architecture - THEMES × 3 breakpoints reference", () => 
         await page.goto("/vision");
         await setTheme(page, theme);
         await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(200);
         // Capture above-the-fold only. fullPage screenshots of the long-form
         // /vision document produced 4 MB PNGs each (36 MB × 9 permutations);
         // most styling regressions surface in the hero + first section of

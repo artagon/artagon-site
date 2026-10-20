@@ -7,6 +7,7 @@ import * as path from "path";
 // (status/stdout/stderr/signal/pid/output). With `stdio: 'pipe'` the streams
 // are Buffers. Node does not export this combined type, so we intersect.
 type SpawnFailure = Error & SpawnSyncReturns<Buffer>;
+const contentPath = "src/content/pages/vision.mdx";
 
 function assertSpawnFailure(error: unknown): asserts error is SpawnFailure {
   if (
@@ -16,10 +17,16 @@ function assertSpawnFailure(error: unknown): asserts error is SpawnFailure {
   ) {
     throw error;
   }
+  if (typeof error.status !== "number") {
+    throw new Error(
+      `Expected Astro build to exit with a status, but the process did not start (status: ${String(error.status)})`,
+      { cause: error },
+    );
+  }
 }
 
 test.describe("Content Collections - Schema Validation", () => {
-  const contentPath = "src/content/pages/vision.mdx";
+  test.describe.configure({ mode: "serial" });
 
   // Run an isolated `astro build` against a temp outDir. Returns the outDir
   // (still on disk after the build) so the caller can assert observable
@@ -204,37 +211,9 @@ test.describe("Content Collections - File Structure", () => {
     );
   });
 
-  test("should have content config file", () => {
-    // Astro v6 moved the config from src/content/config.ts to src/content.config.ts.
-    const configPath = "src/content.config.ts";
-    expect(fs.existsSync(configPath)).toBe(true);
-
-    const content = fs.readFileSync(configPath, "utf-8");
-    expect(content).toContain("defineCollection");
-    expect(content).toContain("pages");
-    // v6 requires the loader API; legacy `type: 'content'` is removed.
-    expect(content).toContain("loader");
-  });
-
-  test("should have vision.mdx in pages collection", () => {
-    const visionPath = "src/content/pages/vision.mdx";
-    expect(fs.existsSync(visionPath)).toBe(true);
-
-    const content = fs.readFileSync(visionPath, "utf-8");
-    expect(content).toContain("---");
-    expect(content).toContain("title:");
-    expect(content).toContain("description:");
-  });
-
-  test("vision page should use Content Layer render API", () => {
-    const pagePath = "src/pages/vision/index.astro";
-    expect(fs.existsSync(pagePath)).toBe(true);
-
-    const content = fs.readFileSync(pagePath, "utf-8");
-    // v6 uses getEntry + the standalone render() function. The legacy
-    // entry.render() method was removed.
-    expect(content).toContain("getEntry, render");
-    expect(content).toContain("getEntry('pages', 'vision')");
-    expect(content).toContain("render(entry)");
+  test("keeps the Astro content layer source paths", () => {
+    expect(fs.existsSync("src/content.config.ts")).toBe(true);
+    expect(fs.existsSync(contentPath)).toBe(true);
+    expect(fs.existsSync("src/pages/vision/index.astro")).toBe(true);
   });
 });

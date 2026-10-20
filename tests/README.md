@@ -35,7 +35,8 @@ regenerate via the `workflow_dispatch` path in
 
 - **Visual regression** specs are gated on `VISUAL_REGRESSION=1`; test bodies are skipped without it. CI runs them in a dedicated job under `.github/workflows/playwright.yml`. Baselines are Linux-pinned; local darwin runs produce non-authoritative `*-darwin.png` files (do not commit).
 - **a11y / focus-visible specs** are chromium-only when the behavior under test is browser-engine-dependent but the rules under test are not.
-- **content-collection schema specs** that mutate `src/content/pages/*.mdx` are chromium-only because they would race across parallel browser projects.
+- **content-collection schema specs** that mutate `src/content/pages/*.mdx` are Chromium-only and serial within their describe block to protect the shared fixture and Astro build cache.
+- **Documentation path-citation checks** use the policy table in `tests/helpers/lint-discovery.ts`, exercised by `lint-agents-md-path-citations.test.mts`; the `docs/build-artifacts.md` row has its own wrapper because `.github/CODEOWNERS` cites that test filename. The AGENTS row scans `AGENTS.md` and every `docs/agents/*.md` page.
 - **node:test + vitest files** are NOT run by `npm test` (which runs Playwright). CI invokes `test:node` and `test:vitest` once on shard 1 of the playwright workflow (`.github/workflows/playwright.yml`); individual files have per-file scripts for targeted runs (see `package.json` `scripts` section).
 
 ## Running Tests Locally
