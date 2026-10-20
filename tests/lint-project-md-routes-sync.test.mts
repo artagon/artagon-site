@@ -23,25 +23,13 @@
 // than `package.json` / `.nvmrc`.
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { walkFiles } from "./helpers/lint-discovery.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const PROJECT_MD = join(ROOT, "openspec", "project.md");
 const PAGES_DIR = join(ROOT, "src", "pages");
-
-function walk(dir: string, out: string[]) {
-  if (!existsSync(dir)) return;
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, entry.name);
-    if (entry.isDirectory()) walk(p, out);
-    // Astro routes: .astro files generate HTML pages; .xml.ts /
-    // .json.ts / etc. generate API endpoints.
-    else if (/\.(astro|xml\.ts|json\.ts)$/.test(entry.name)) {
-      out.push(p);
-    }
-  }
-}
 
 function fileToRoute(fileAbs: string): string {
   let r = fileAbs.replace(PAGES_DIR, "");
@@ -79,8 +67,11 @@ describe("openspec/project.md live-routes vs src/pages/ (pt216)", () => {
     }
 
     // Enumerate live routes from filesystem.
-    const files: string[] = [];
-    walk(PAGES_DIR, files);
+    // Astro files generate HTML routes; .xml.ts / .json.ts and similar
+    // endpoint files retain their extension in the generated URL.
+    const files = walkFiles(PAGES_DIR, (file) =>
+      /\.(astro|xml\.ts|json\.ts)$/.test(file),
+    );
     const onDisk = new Set<string>(files.map((f) => fileToRoute(f)));
 
     // Bidirectional comparison.

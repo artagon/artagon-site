@@ -137,22 +137,11 @@ test.describe("Vision Page - Content Collections", () => {
     // Hover over card
     await firstCard.hover();
 
-    // Wait for transition
-    await page.waitForTimeout(500);
-
-    // Border should change on hover (this is a rough check)
-    const hoverBorder = await firstCard.evaluate(
-      (el) => window.getComputedStyle(el).borderColor,
-    );
-
-    // Just verify transitions are enabled
-    const transitionDuration = await firstCard.evaluate(
-      (el) => window.getComputedStyle(el).transitionDuration,
-    );
-    const durations = transitionDuration
-      .split(",")
-      .map((value) => value.trim());
-    expect(durations.some((value) => value !== "0s")).toBe(true);
+    await expect
+      .poll(() =>
+        firstCard.evaluate((el) => window.getComputedStyle(el).borderColor),
+      )
+      .not.toBe(initialBorder);
   });
 
   test("should be responsive on mobile viewport", async ({ page }) => {
@@ -266,11 +255,7 @@ test.describe("Vision Page - Content Collections", () => {
       "Visual regression runs in a dedicated job.",
     );
     // Take full page screenshot for visual regression
-    await page.goto("/vision");
     await page.waitForLoadState("networkidle");
-
-    // Wait for any animations to complete
-    await page.waitForTimeout(1000);
 
     // Take screenshot
     await expect(page).toHaveScreenshot("vision-page-full.png", {

@@ -551,7 +551,7 @@
 - [ ] 14.34 (`site-2m1.34`) The hover test captures the changed border but never checks it
 - [ ] 14.35 (`site-2m1.35`) Screenshot tests add fixed waits and one duplicate navigation
 - [ ] 14.36 (`site-2m1.36`) Content-layer checks pin exact source formatting
-- [ ] 14.37 (`site-2m1.37`) Lint tests duplicate filesystem walkers and wildcard parsers
+- [x] 14.37 (`site-2m1.37`) Lint tests duplicate filesystem walkers and wildcard parsers
 - [ ] 14.38 (`site-2m1.38`) Visual-regression gate is non-functional end to end
 - [ ] 14.39 (`site-2m1.39`) `test:ci` discards the HTML report, so per-shard artifacts and `merge-reports` produce nothing
 - [ ] 14.40 (`site-2m1.40`) The `accessibility` job runs one structural test, not the axe-core audit
@@ -561,7 +561,7 @@
 - [x] 14.44 (`site-2m1.44`) Pre-commit drift gate and local sync skip hand-edited generated files
 - [x] 14.45 (`site-2m1.45`) Generated `lychee.toml` sets `root_dir = ".build"`; comment claims repo root, CI silently overrides
 - [ ] 14.46 (`site-2m1.46`) build.config.json / generated configs / docs have drifted in nine places
-- [ ] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
+- [x] 14.47 (`site-2m1.47`) 29 of 69 vitest meta-lints police prose; 12 are byte-identical copies that have drifted, and no helper...
 - [ ] 14.48 (`site-2m1.48`) Coverage gates with hard-coded file lists and unscanned file types pass while the property is broken
 - [ ] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
 - [ ] 14.51 (`site-2m1.51`) Cloudflare purge step: fragile success check, zone-wide blast radius, and silent skip
