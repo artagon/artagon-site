@@ -1691,6 +1691,17 @@ header {
   }
 }
 
+/* USMR 14.78 — Pause all glow effects while their pill is offscreen. */
+.glow-tag[data-glow-paused],
+.glow-tag[data-glow-paused]::before,
+.glow-tag[data-glow-paused]::after,
+.glow-tag[data-glow-paused] .glow-dot,
+.glow-tag[data-glow-paused] .glow-dot::before,
+.glow-tag[data-glow-paused] .glow-dot::after,
+.glow-tag[data-glow-paused] .glow-text {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .glow-tag,
   .glow-tag::before,
