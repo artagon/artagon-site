@@ -90,9 +90,11 @@
   },
   "devDependencies": {
     "@ast-grep/cli": "0.42.1",
+    "@astrojs/check": "0.9.11",
     "@axe-core/playwright": "4.11.3",
     "@google/design.md": "0.1.1",
     "@lhci/cli": "0.15.1",
+    "@playwright/cli": "0.1.22",
     "@playwright/test": "1.59.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
@@ -100,6 +102,7 @@
     "esbuild": "0.27.7",
     "husky": "9.1.7",
     "prettier": "3.8.3",
+    "typescript": "6.0.3",
     "vitest": "4.1.5"
   },
   "overrides": {
