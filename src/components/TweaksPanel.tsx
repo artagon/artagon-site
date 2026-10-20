@@ -252,19 +252,11 @@ function Opt({
   onClick: () => void;
   children: ReactNode;
 }) {
-  // USMR Phase 5.5.16-pt422 — blur the button after a pointer click so
-  // Safari's `:focus-visible` heuristic doesn't leave a violet outline
-  // on the previously-clicked button (Safari applies `:focus-visible`
-  // on pointer clicks more aggressively than Chrome/Firefox; combined
-  // with the global `button:focus-visible { outline: 2px solid
-  // var(--accent) }` in theme.css, the residual outline on a
-  // not-active button looks like a stuck selection — the bug the
-  // user reported as "selection stays"). Keyboard users still get
-  // visible focus because Tab/Arrow nav re-applies `:focus-visible`
-  // before they release the key.
+  // site-2m1.58 — suppress Safari's residual pointer-focus outline,
+  // but keep keyboard focus after Enter or Space activation.
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
     onClick();
-    e.currentTarget.blur();
+    if (e.detail > 0) e.currentTarget.blur();
   }
   return (
     <button

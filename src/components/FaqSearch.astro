@@ -80,12 +80,14 @@
 
 .faq-clear-btn {
   position: absolute;
-  right: 12px;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  padding: 8px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   cursor: pointer;
   color: var(--fg-2);
   display: flex;
@@ -211,7 +213,10 @@
     const targetEl = document.getElementById(targetId);
     if (targetEl && targetEl.tagName === 'DETAILS') {
       (targetEl as HTMLDetailsElement).open = true;
-      setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth';
+      setTimeout(() => targetEl.scrollIntoView({ behavior, block: 'start' }), 100);
     }
   }
 })();

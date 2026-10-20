@@ -115,13 +115,30 @@ const NAV_LINKS = [
 
 <script>
   // USMR Phase 5.5.11 — bind the hamburger toggle. Toggles
-  // body.nav-open + the button's aria-expanded. Non-recurring;
-  // safe across HMR re-mounts since we attach via dataset key.
+  // body.nav-open + the button's aria-expanded.
   const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
   if (toggle) {
     toggle.addEventListener("click", () => {
       const open = document.body.classList.toggle("nav-open");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+
+    // site-2m1.15 — close the mobile menu on link activation; Escape
+    // also returns focus to the toggle below.
+    const siteNav = document.querySelector<HTMLElement>(".site-nav");
+    siteNav?.addEventListener("click", (event) => {
+      if (!document.body.classList.contains("nav-open")) return;
+      if (event.target instanceof Element && event.target.closest("a")) {
+        document.body.classList.remove("nav-open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !document.body.classList.contains("nav-open")) return;
+      document.body.classList.remove("nav-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.focus();
     });
   }
 </script>
@@ -182,15 +199,14 @@ const NAV_LINKS = [
     border-color: var(--accent);
     color: var(--fg);
   }
-  /* USMR Phase 5.5.16-pt79 — override the global `:focus-visible
-   * { outline: 2px solid var(--ring); border-radius: 8px }` for nav
-   * links. Canonical Hero.jsx + index.html uses the same border-bottom
-   * underline for hover / focus / active (no rectangular outline).
-   * Pre-fix the global rule painted a rounded teal rectangle around
-   * the Platform link after the user navigated to /platform and back,
-   * mismatching the canonical underline-only nav. */
   .site-nav .links a:focus-visible {
     outline: none;
+  }
+  /* site-2m1.56 — the active underline is already present before focus,
+   * so its current-page link also gets the canonical visible outline. */
+  .site-nav .links a.active:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
   .site-nav .right {
     margin-left: auto;
@@ -201,27 +217,39 @@ const NAV_LINKS = [
   /* Canonical GitHub icon button — new-design BaseLayout.jsx:220-238.
    * 34×34 rounded square, currentColor svg, hover lifts border + text. */
   .site-nav__github {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    border: 1px solid var(--line);
+    width: 44px;
+    height: 44px;
+    margin: -5px;
     color: var(--fg-1);
     transition:
       color 0.18s,
-      border-color 0.18s,
       background 0.18s;
+  }
+  .site-nav__github::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    pointer-events: none;
+    transition: border-color 0.18s;
   }
   .site-nav__github:hover,
   .site-nav__github:focus-visible {
     color: var(--fg);
+  }
+  .site-nav__github:hover::before,
+  .site-nav__github:focus-visible::before {
     border-color: var(--fg-3);
   }
   .site-nav__github:focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: -3px;
+    border-radius: 10px;
   }
   .site-nav .right .btn {
     /* Header CTAs are slightly more compact than the global .btn
@@ -232,22 +260,6 @@ const NAV_LINKS = [
     padding: 8px 14px;
     font-size: 13px;
   }
-  /* Force `.btn.primary` to render solid-filled per new-design
-   * global.css line 245. The legacy theme.css `.btn` rule paints a
-   * translucent-teal background with a faint border, which reads as
-   * a "ghost" button — wrong for the primary "Request access" CTA. */
-  .site-nav .right .btn.primary {
-    background: var(--accent);
-    color: var(--accent-ink);
-    border-color: transparent;
-  }
-  .site-nav .right .btn.primary:hover {
-    background: color-mix(in oklab, var(--accent) 90%, white);
-    color: var(--accent-ink);
-    border-color: transparent;
-    transform: translateY(-1px);
-  }
-
   .site-nav__brand {
     display: inline-flex;
     align-items: center;
@@ -350,6 +362,10 @@ const NAV_LINKS = [
       padding: 12px 0;
       border-bottom: 1px solid var(--line-soft);
     }
+    :global(body.nav-open) .site-nav .links a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     /* Hamburger animation — middle bar fades, top + bottom rotate
      * into an X (canonical index.html:418-420). */
     :global(body.nav-open) .nav-toggle span:nth-child(1) {
@@ -387,7 +403,19 @@ const NAV_LINKS = [
    * here). */
   @media (forced-colors: active) {
     .site-nav .links a[aria-current="page"],
-    .site-nav .links a:hover {
+    .site-nav .links a:hover,
+    .site-nav .links a:focus-visible {
+      border-color: Highlight;
+    }
+    .site-nav .links a.active:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+    :global(body.nav-open) .site-nav .links a:focus-visible {
+      outline-color: Highlight;
+    }
+    .site-nav__github:hover::before,
+    .site-nav__github:focus-visible::before {
       border-color: Highlight;
     }
     .nav-toggle:focus-visible,

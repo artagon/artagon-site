@@ -404,7 +404,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **CTA routing (USMR 5.5.16-pt5).** The Playground ghost CTA points at `/#playground` (the live HomeExplore section) and the Request access primary CTA points at `/#get-started` (the on-home onRamp card) per canonical BaseLayout.jsx:239-240. Both anchors land on the home page and scroll to the matching section; from non-home routes the browser navigates first then scrolls. The earlier 5.1l routing (Playground → `/play` shim, Request access → `/get-started` route) bypassed the canonical anchor pattern; `/play` is a noindex shim and surfaces a "Placeholder page" landing if reached directly.
 
-**A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus rings visible in both themes. Each link's hit target is ≥ 44 × 44 CSS px per WCAG 2.5.5 (`min-height: 44px` on `.site-nav .links a` since 5.5.11; visible underline still tracks the original 6px baseline). **Forced-colors override (USMR 5.5.16-pt125)**: active-link border + nav-toggle focus outline → `Highlight`; nav-toggle bars → `CanvasText`. Without these the OS palette remap drops the brand-accent signal entirely.
+**A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus indicators remain visible in both themes: nav links use an underline, the active link also gets an outline, and mobile-menu links get an outline while focused. Primary nav links have a 44px minimum hit-area height; the GitHub link has a 44 × 44 CSS px hit area around its visible 34 × 34 chip. **Forced-colors override (USMR 5.5.16-pt125)**: focused nav-link borders and focus outlines → `Highlight`; nav-toggle focus outline → `Highlight`; nav-toggle bars → `CanvasText`.
 
 **Mobile menu (USMR Phase 5.5.11).** Below 720px viewport the link list and right cluster collapse. A 44×44 hamburger button (`<button class="nav-toggle">`) appears; clicking toggles `body.nav-open`. Open-state slides the link panel below the sticky bar (`top: 64px`) and docks the CTA cluster at the viewport bottom (`top: auto; bottom: 0`). Hamburger spans rotate into an `X` via `translate + rotate(±45deg)`; `prefers-reduced-motion: reduce` zeros the transition. Inline `<script>` binds the click handler and toggles the button's `aria-expanded`. Replaces the 5.1-era `.menu` / `.menu-btn` block deleted in 5.5.11.
 
@@ -439,7 +439,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Tokens.** `--accent` (drives `--g-accent`) · `--bg-1` / `--bg` (gradient fill) · backdrop-blur.
 
-**A11y.** All animations disabled under `prefers-reduced-motion`. Text contrast verified on both themes.
+**A11y.** All animations disabled under `prefers-reduced-motion`. In the light theme, the glow-tag uses its static per-instance accent shadow; the breathing animation runs only on dark themes. Text contrast verified on both themes.
 
 **Do** use for the positioning line, section breakpoints, and "new" announcements.
 **Don't** use more than one per viewport. Don't stack two glow-tags.
@@ -537,9 +537,9 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 
 **Rules.** Always 4 cards, always in this order: Platform · Bridge · Use cases · Standards. Cards hover with a subtle accent tint and 2px lift.
 
-**Status: shipped.** USMR Phase 5.5.2 (extracted to typed data in 5.5.7) — `src/components/HomeExplore.astro` + `src/data/home-explore.ts`. Mounted at `src/pages/index.astro:264` (`<HomeExplore />`). The component renders a 4-up primary grid (Platform / Bridge / Use cases / Standards — described here) plus a 2-up secondary "wide" grid (Roadmap / GitHub external); see §6.23 "HomeExplore" for the full anatomy/rules of the shipped composition (this §6.6 documents only the primary 4-up sub-grid as a generic pattern). Classes are component-scoped (`.home-explore__grid` / `.home-explore__card` etc.). The earlier `.explore-grid` / `.explore-card` primitives in `public/assets/theme.css` (USMR Phase 5.1q.5) remain for surfaces that want the grid pattern outside the home page; the shipped `<HomeExplore>` does not consume them.
+**Status: shipped.** USMR Phase 5.5.2 (extracted to typed data in 5.5.7) — `src/components/HomeExplore.astro` + `src/data/home-explore.ts`. Mounted at `src/pages/index.astro:264` (`<HomeExplore />`). The component renders a 4-up primary grid (Platform / Bridge / Use cases / Standards — described here) plus a 2-up secondary "wide" grid (Roadmap / GitHub external); see §6.23 "HomeExplore" for the full anatomy and rules of the shipped composition. Classes are component-scoped (`.home-explore__grid` / `.home-explore__card` etc.). Earlier global grid primitives were removed after source search confirmed the shipped component uses its own styles and no other surface consumes them.
 
-**Sizing (USMR 5.5.16).** Both the legacy `.explore-card` (theme.css) and the shipped `.home-explore__card` (HomeExplore.astro:175-176) consume canonical (new-design global.css:296-303) `padding: 28px 24px 24px` (top inflated to clear the idx label), `gap: 14px` between rows, and `min-height: 220px` so cards align across the row even when the title text wraps. The pre-canonical 20 px / 12 px / no min-height arrangement gave shorter cards an inconsistent visual baseline on the home grid.
+**Sizing (USMR 5.5.16).** The shipped `.home-explore__card` (`HomeExplore.astro:175-176`) uses canonical (new-design global.css:296-303) `padding: 28px 24px 24px` (top inflated to clear the idx label), `gap: 14px` between rows, and `min-height: 220px` so cards align across the row even when the title text wraps. The pre-canonical 20 px / 12 px / no min-height arrangement gave shorter cards an inconsistent visual baseline on the home grid.
 
 ### 6.7 Numbered section heading
 
@@ -555,9 +555,9 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 | -------------- | ---------------------------------- | -------------------------------- |
 | `.btn.primary` | Accent background, accent-ink text | Single primary action per view   |
 | `.btn`         | Bordered, neutral                  | Secondary actions, footer CTAs   |
-| Icon button    | 34×34, bordered square             | GitHub icon, theme toggle, close |
+| Icon button    | 34×34 visible square; 44×44 hit area | GitHub icon, theme toggle, close |
 
-Height: 40px (primary) · 38px (secondary) · 34px (icon). Minimum tap target: 44×44 via hit-area padding. Never place two primary buttons adjacent.
+Height: 40px (primary) · 38px (secondary) · 34px (icon). Minimum tap target: 44×44 via hit-area padding. The GitHub chip keeps its 34×34 visible border inside a 44×44 link, and the FAQ clear button has a 44×44 hit area around its 16×16 icon. Never place two primary buttons adjacent.
 
 **Token contract (USMR 5.5.16).** Canonical `.btn` (new-design global.css:236-244): `padding: 12px 18px`, `gap: 10px`, `border-radius: 8px`, `font-size: 14px`, `font-weight: 500`, `transition: background .18s ease, border-color .18s ease, transform .18s ease`. Pre-canonical `0.5rem 0.85rem` / `border-radius: 10px` / `gap: 0.4rem` undersized every CTA against the mock; the FAQ-page `btn solid` non-canonical class was renamed to `btn primary` in the same diff. Wrapper `.wrap` consumes the density-aware `--gutter` token (`padding: 0 var(--gutter)`) instead of a hard 20 px so density toggles (`[data-density="dense" | "comfortable" | "roomy"]`) actually flow through.
 
@@ -1174,7 +1174,8 @@ for spinners only.
    covers the contract; the
    [`lint:reduced-motion-coverage`](./tests/lint-reduced-motion-coverage.test.mts)
    gate enforces it on the components that ship transform-based hover
-   chrome (USMR pt130). Test with the OS toggle on.
+   chrome (USMR pt130). Programmatic smooth scrolling also switches to
+   immediate scrolling. Test with the OS toggle on.
 3. **No parallax.** No scroll-hijacking. No scroll-triggered animations that
    block reading.
 4. **No `transition: all`.** Always enumerate the animated properties
@@ -1321,7 +1322,7 @@ Every interactive element reachable via Tab in source order. Focus rings are 2px
 
 ### 11.4 Reduced motion
 
-All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled under `prefers-reduced-motion: reduce`. The trust chain renders statically with the current scenario visible.
+All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled under `prefers-reduced-motion: reduce`. Programmatic FAQ anchor scrolling uses immediate behavior under reduced motion. The trust chain renders statically with the current scenario visible.
 
 ### 11.5 Screen readers
 
@@ -1332,9 +1333,9 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 
 ### 11.6 Tap targets (WCAG 2.5.5 / 2.5.8)
 
-- **Minimum**: 44 × 44 CSS px hit area for every interactive control. Visible target may be smaller — invisible padding extends the hit area (e.g. trust-chain scenario dots are 9 × 9 px visually with 44 × 44 px parent button).
+- **Minimum**: 44 × 44 CSS px hit area for every interactive control. Visible target may be smaller — invisible padding extends the hit area (e.g. the GitHub chip is 34 × 34 px, and trust-chain scenario dots are 9 × 9 px visually with 44 × 44 px parent buttons).
 - Implementation pattern: outer `<button>` with `padding`, inner `::before` pseudo-element renders the visible dot.
-- Consumed by: scenario picker (`.trust-chain__scenario-dot`), site-nav `.btn` CTAs, footer link list (single-line per row), theme toggle.
+- Consumed by: GitHub link, FAQ clear button, scenario picker (`.trust-chain__scenario-dot`), site-nav `.btn` CTAs, footer link list (single-line per row), theme toggle.
 
 ### 11.7 Forced colors mode
 
@@ -1357,7 +1358,7 @@ Hover-only affordances are mirrored to a touch-friendly press state. Trust-chain
 
 ### 11.9 Focus indicators
 
-Site-wide rule in `public/assets/theme.css`: every `<a>`, `<button>`, `<input>`, `<select>`, `<textarea>`, `<summary>`, and `[tabindex]:not([tabindex="-1"])` gains `outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px` on `:focus-visible`. Forced-colors mode swaps the outline to `Highlight`. Component-scoped overrides may tighten the outline (e.g. `.trust-chain__scenario-dot` uses 6 px radius to match the dot's rounding).
+Site-wide rule in `public/assets/theme.css`: every `<a>`, `<button>`, `<input>`, `<select>`, `<textarea>`, `<summary>`, and `[tabindex]:not([tabindex="-1"])` gains `outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px` on `:focus-visible`. Component overrides may replace that outline when another visible focus treatment is provided. Site-nav links use the underline for focus; the active link also gets an outline because its underline is already present, and focused mobile-menu links get an outline. Forced-colors mode maps every focused nav-link border to `Highlight`, along with the active-link outline and mobile-menu focus outlines. Component-scoped overrides may tighten the outline (e.g. `.trust-chain__scenario-dot` uses 6 px radius to match the dot's rounding).
 
 ### 11.10 Automated CI gate
 

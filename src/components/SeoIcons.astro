@@ -9,10 +9,8 @@
  * - pinnedColor: Safari pinned tab color (default: canonical brand
  *   teal `#3ceedd` — sRGB of the OKLCH `--accent` token; this is the
  *   color Safari tints the pinned-tab mask-icon with)
- * - themeColor: Browser theme color (default: canonical
- *   `[data-theme="dark"]` --bg = oklch(0.14 0.008 260) ≈ #0a0d12;
- *   this is what Chrome / Safari paint their UI chrome — address
- *   bar, status bar — with when the tab is active)
+ * - themeColor: Browser theme color (default: DESIGN.md `bg` value
+ *   `#07090c`; Chrome / Safari use it for active browser UI chrome)
  *
  * USMR Phase 5.5.16-pt155 — defaults updated to canonical values.
  * Pre-pt155 the defaults were `#0EA5E9` (legacy sky-blue accent
@@ -30,7 +28,7 @@ interface Props {
 
 const {
   pinnedColor = '#3ceedd',
-  themeColor = '#0a0d12'
+  themeColor = '#07090c'
 } = Astro.props;
 ---
 
