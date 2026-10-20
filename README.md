@@ -71,6 +71,7 @@ artagon-site/
                             #  as new scripts landed; SSoT is the dir)
 │   ├── csp.mjs             # Content Security Policy injection (postbuild)
 │   ├── sri.mjs             # Subresource Integrity injection (postbuild)
+│   ├── minify-theme-css.mjs # Minifies the dist copy of the public theme stylesheet
 │   ├── lhci-serve.mjs      # LHCI local server with ready signal
 │   ├── verify-prerequisites.mjs       # USMR Phase 0.5 archive-ordering gate
 │   ├── verify-design-prerequisites.mjs # adopt-design-md-format archive gate
@@ -232,7 +233,7 @@ timeout = 20
 
 The `dev` and `build` scripts both run a `prebuild`/`predev` chain
 that regenerates `lighthouserc.json` + `lychee.toml` from
-`build.config.json` SSoT. The `build` script runs a 10-step
+`build.config.json` SSoT. The `build` script runs a 12-step
 `postbuild` chain (per the "Build Scripts" subsection below for
 the full ordered list — gated structurally by the pt267
 `lint-readme-postbuild-chain-sync` test).
@@ -245,7 +246,7 @@ the full ordered list — gated structurally by the pt267
   "prebuild": "npm run build:prebuild-chain", // Sync configs
   "preview": "astro preview", // Preview production build
   "format": "prettier --write .", // Format all files
-  "postbuild": "<10-step chain — see Build Scripts below>"
+  "postbuild": "<12-step chain — see Build Scripts below>"
 }
 ```
 
@@ -254,7 +255,7 @@ the full ordered list — gated structurally by the pt267
 1. `prebuild` / `predev` run `npm run build:prebuild-chain` (regenerates the JSON/YAML/TOML configs that derive from `build.config.json`).
 2. `astro build` compiles pages, components, and assets to `.build/dist/`.
 3. `@astrojs/sitemap` emits `sitemap-index.xml` (filtered to indexable routes per `NOINDEX_ROUTES` allow-list).
-4. `postbuild` runs the 10-step chain (verify-prereqs → verify-design-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness — the canonical ordered list lives in the "Build Scripts" subsection below).
+4. `postbuild` runs the 12-step chain (verify-prereqs → verify-design-prereqs → lint-tokens → font-self-hosting → minify-theme-css → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness → indexation — the canonical ordered list lives in the "Build Scripts" subsection below).
 
 ## Development
 
@@ -409,7 +410,7 @@ npm run build
 1. **Prebuild:** `npm run sync:build-config` regenerates `lighthouserc.json` and `lychee.toml` from `build.config.json`.
 2. Astro compiles pages, components, and assets to `.build/dist/`.
 3. Sitemap generated at `.build/dist/sitemap-index.xml` (filtered to indexable routes per the `NOINDEX_ROUTES` allow-list in `astro.config.ts`).
-4. **Postbuild:** the 10-step chain runs (per `package.json` `postbuild` script — see "Build Scripts" subsection below for the full ordered list). Highlights: SRI hashes (`sri.mjs`), CSP meta-tag injection (`csp.mjs`), skip-link gate, taglines gate, design.md format gate, font-self-hosting gate, etc.
+4. **Postbuild:** the 12-step chain runs (per `package.json` `postbuild` script — see "Build Scripts" subsection below for the full ordered list). Highlights: theme CSS minification, SRI hashes (`sri.mjs`), CSP meta-tag injection (`csp.mjs`), skip-link gate, taglines gate, design.md format gate, font-self-hosting gate, and indexation validation.
 
 **Output:** `.build/dist/` directory with static HTML/CSS/JS
 
@@ -490,15 +491,15 @@ The `npm run lint:design` gate runs in `postbuild` and on every PR that touches 
 
 **Script:** `scripts/sri.mjs`
 
-Automatically adds cryptographic hashes to local JS/CSS resources:
+Automatically adds cryptographic hashes to content-addressed `/_astro/` JS/CSS resources. Stable-URL public assets such as `/assets/theme.css` are checked for readability but do not receive generated SRI.
 
 ```html
 <!-- Before -->
-<script src="/assets/app.js"></script>
+<script src="/_astro/app.js"></script>
 
 <!-- After -->
 <script
-  src="/assets/app.js"
+  src="/_astro/app.js"
   integrity="sha256-..."
   crossorigin="anonymous"
 ></script>
@@ -510,17 +511,19 @@ Automatically adds cryptographic hashes to local JS/CSS resources:
 
 **Script:** `scripts/csp.mjs`
 
-Generates strict CSP as `<meta>` tag with the 9 directives constructed by `buildPolicy()` in `scripts/csp.mjs`:
+Generates a strict CSP `<meta>` tag with the nine directives constructed by `buildPolicy()` in `scripts/csp.mjs`:
 
 - `default-src 'self'` - Only same-origin resources
 - `script-src 'self' 'sha256-...'` - Inline scripts hashed; orphan-hash detection in `csp.mjs` fails the build if any emitted hash is not present in the final `script-src` directive
-- `style-src 'self' 'unsafe-inline'` - Styles allowed (Astro scoped styles)
+- `style-src 'self' https://fonts.googleapis.com 'sha256-...'` - Same-origin stylesheets, Google Fonts CSS, and hashes for inline `<style>` blocks; the `https://fonts.googleapis.com` allow-list is the pt444 interim exception until `self-host-woff2-fonts` archives.
+- `style-src-attr 'unsafe-inline'` - Allows inline style attributes used by Astro and MDX components
 - `img-src 'self' data:` - Images from same origin + data URIs
 - `font-src 'self'` - Fonts from same origin only (no third-party CDNs); the `verify-font-self-hosting.mjs` postbuild gate fails the build if any `dist/**/*.{html,css}` references `fonts.googleapis.com` or similar
 - `connect-src 'self'` - XHR / fetch / WebSocket targets locked to same origin
 - `object-src 'none'` - No plugins
 - `base-uri 'none'` - Prevent base tag injection
-- `frame-ancestors 'none'` - Prevent clickjacking
+
+Clickjacking protection uses `Content-Security-Policy: frame-ancestors 'none'` as an HTTP response header. Browsers do not enforce `frame-ancestors` from a CSP meta tag. The supplied Nginx and Caddy configs set this header; GitHub Pages and Cloudflare Pages deployments need an equivalent host or CDN response-header rule.
 
 All inline `<script>` tags are hashed and added to `script-src` automatically. DocSearch / Algolia origins are added as `extras` only when DocSearch is enabled.
 
@@ -629,7 +632,7 @@ Quick OG image renderer (1200×630, ImageMagick). Distinct from `make-og-from-te
 
 ### Build Scripts
 
-The postbuild pipeline (per `package.json` `postbuild` script) runs the following steps in order after `astro build`:
+The postbuild pipeline (per `package.json` `postbuild` script) runs these 12 steps in order after `astro build`:
 
 1. `verify:prerequisites` — `scripts/verify-prerequisites.mjs`
    asserts the `refactor-styling-architecture` change is archived
@@ -646,38 +649,32 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs the followin
 4. `verify-font-self-hosting.mjs` — `scripts/verify-font-self-hosting.mjs`
    asserts no third-party font CDN refs leak into `.build/dist/`
    (locks `font-src 'self'`).
-5. `sri.mjs` — Scans `.build/dist/*.html`, computes SHA-256 for
-   local JS/CSS, adds `integrity` + `crossorigin` attributes,
-   writes `.build/dist/sri-manifest.json`.
-6. `csp.mjs` — Extracts inline script SHA-256 hashes, builds
-   `script-src` directive, injects
-   `<meta http-equiv="Content-Security-Policy">` into every
-   `.build/dist/*.html`. Includes orphan-hash detection
-   (every emitted hash MUST be present in script-src).
-7. `lint:skip-link` — `scripts/lint-skip-link.mjs` asserts every
+5. `minify-theme-css.mjs` — Minifies only the `.build/dist/assets/theme.css` copy; the source and `/assets/theme.css` URL remain unchanged.
+6. `sri.mjs` — Scans `.build/dist/*.html`, resolves local resource URLs against each deployed document URL, fails with page/resource context for unreadable local assets, adds SHA-256 `integrity` + `crossorigin` only for `/_astro/` assets, and writes `.build/dist/sri-manifest.json`.
+7. `csp.mjs` — Extracts inline script and style SHA-256 hashes, builds the meta-delivered CSP, and injects `<meta http-equiv="Content-Security-Policy">` into every `.build/dist/*.html`. Includes orphan-hash detection. `frame-ancestors` is supplied separately as an HTTP response header by supported deployment configs.
+8. `lint:skip-link` — `scripts/lint-skip-link.mjs` asserts every
    built page in `.build/dist/` has a skip-link as the first
    focusable element with a valid `href="#<id>"` target.
-8. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
+9. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
    source for tagline strings via `src/content/taglines.json`.
-9. `lint:design` — `design.md lint DESIGN.md` per
+10. `lint:design` — `design.md lint DESIGN.md` per
    `@google/design.md@0.1.1`.
-10. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
+11. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
     guards against duplicate DESIGN.md FILES — exactly one at the
     repo root, none under `src/`, `new-design/`, or any other
     tracked path (two design systems in flight would defeat the
     precedence chain). Pre-pt383 said "duplicate token names" —
     comment-as-code drift; the script checks file-path uniqueness,
     not token-name uniqueness.
-11. `verify:indexation` — `scripts/validate-indexation.mjs`
+12. `verify:indexation` — `scripts/validate-indexation.mjs`
     (USMR Phase 10.7 / pt418) runs three checks against the built
-    output: (A) meta-robots parity — every `.build/dist/*.html`
-    page MUST have `<meta name="robots" content="noindex, nofollow">`
-    iff its route is in `NOINDEX_ROUTES` (per `src/lib/indexation.ts`
-    SSoT, pt416); (B) sitemap `<lastmod>` parity vs MDX
-    `updated`/`published` frontmatter (vacuously satisfied today;
-    becomes load-bearing once Phase 10.1 wires the sitemap
-    `serialize` hook); (C) `public/_redirects` destinations are
-    same-origin (start with `/`, no `://`, no `//`).
+    output: (A) robots meta parity — every noindex route includes
+    `noindex`, and `/console`, `/search`, `/play`, and `/404` also
+    include `nofollow` per the spec; (B) sitemap XML parsing rejects
+    empty output and requires each writing URL's `<lastmod>` to match
+    its `.md` or `.mdx` `updated`/`published` frontmatter; (C)
+    `public/_redirects` destinations are same-origin (start with `/`,
+    no `://`, no `//`).
 
 The chain is **lock-aware**: `clean.mjs` uses `.build/.run.lock`
 to coordinate cleanup across parallel runs (exit code 73 if the

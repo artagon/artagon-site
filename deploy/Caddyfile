@@ -8,6 +8,7 @@ artagon.com, www.artagon.com {
     Strict-Transport-Security "max-age=31536000; includeSubDomains"
     X-Content-Type-Options "nosniff"
     Referrer-Policy "strict-origin-when-cross-origin"
+    Content-Security-Policy "frame-ancestors 'none'"
   }
   root * /var/www/artagon-web/dist
   file_server

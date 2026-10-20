@@ -39,6 +39,9 @@ test("buildPolicy emits all expected directives with hashes", () => {
   assert.match(m[1], /'sha256-def456'/);
   // safety: never 'unsafe-inline' in script-src
   assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  // CSP's frame-ancestors directive is supplied by the HTTP response
+  // header; meta-delivered policies cannot enforce it.
+  assert.doesNotMatch(policy, /(?:^|;\s*)frame-ancestors\s/);
 });
 
 test("buildPolicy never emits 'unsafe-inline' in script-src even with extras", () => {
