@@ -76,7 +76,7 @@ jobs:
           PUSHED_AT=$(echo "$REPO_INFO" | jq -r '.pushed_at // ""')
 
           if [ "$ARCHIVED" = "true" ]; then
-            echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
+            echo "UPSTREAM_DRIFTED=true" >> "$GITHUB_ENV"
             echo "Repository is archived"
             exit 1
           fi
@@ -84,10 +84,10 @@ jobs:
           if [ -n "$PUSHED_AT" ]; then
             PUSH_DATE=$(date -d "$PUSHED_AT" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$PUSHED_AT" +%s)
             NOW=$(date +%s)
-            DAYS_SINCE=$((($NOW - $PUSH_DATE) / 86400))
+            DAYS_SINCE=$(((NOW - PUSH_DATE) / 86400))
             
             if [ "$DAYS_SINCE" -gt 90 ]; then
-              echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
+              echo "UPSTREAM_DRIFTED=true" >> "$GITHUB_ENV"
               echo "Last push was $DAYS_SINCE days ago (threshold: 90)"
               exit 1
             fi
@@ -97,7 +97,7 @@ jobs:
       - name: "(2.7c) Run design.md fixture snapshot tests"
         id: fixture-tests
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: npm run test:design-fixtures || echo "FIXTURE_TESTS_FAILED=true" >> $GITHUB_ENV
+        run: npm run test:design-fixtures || echo "FIXTURE_TESTS_FAILED=true" >> "$GITHUB_ENV"
 
       - name: Collect drift findings
         id: drift-findings
@@ -117,9 +117,11 @@ jobs:
             exit 0
           fi
 
-          echo "DRIFT_FINDINGS<<EOF" >> $GITHUB_ENV
-          echo -e "$FINDINGS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          {
+            echo "DRIFT_FINDINGS<<EOF"
+            echo -e "$FINDINGS"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
           exit 1
 
       - name: Open tracking issue on drift

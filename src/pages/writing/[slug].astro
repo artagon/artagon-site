@@ -21,8 +21,6 @@
 import { render } from 'astro:content';
 import { getPublishedPosts, getAuthorNames, formatPostDate } from '../../lib/writing';
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import { readingMinutes } from '../../lib/reading-time.ts';
 
 export async function getStaticPaths() {
@@ -74,7 +72,7 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
       author-attribution rich-results contract. */}
   {...(authorName === undefined ? {} : { author: authorName })}
 >
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       provides <main id="main-content">. <article> below remains as
@@ -153,7 +151,7 @@ const articleImage = post.data.cover ?? '/assets/logos/og-image.png';
       </section>
     </article>
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>
 
 <style>

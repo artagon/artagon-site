@@ -1,7 +1,5 @@
 ---
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import Tagline from '../../components/Tagline.astro';
 ---
 <Base
@@ -17,7 +15,7 @@ import Tagline from '../../components/Tagline.astro';
       (the SSoT is the single load-bearing list). */}
   path="/docs"
 >
-  <Fragment slot="header"><Header /></Fragment>
+
   {/* USMR Phase 5.5.16-pt118 — pre-pt118 had TWO <h1> elements
       (a11y violation: only one h1 per page) AND both rendered at 102 px
       hero size (`var(--fs-h1)` default with no scoped sizing). pt117
@@ -98,5 +96,5 @@ import Tagline from '../../components/Tagline.astro';
       margin-top: 0;
     }
   </style>
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

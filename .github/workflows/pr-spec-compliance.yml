@@ -32,9 +32,11 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
-    env:
-      SPEC_VALIDATION_PATH: ${{ runner.temp }}/spec-validation.json
     steps:
+      # USMR 14.73 (site-2m1.73): runner.temp is not available at job scope.
+      - name: Set spec validation output path
+        run: printf 'SPEC_VALIDATION_PATH=%s/spec-validation.json\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
       # Checkout for local scripts
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0

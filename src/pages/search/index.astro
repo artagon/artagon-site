@@ -1,7 +1,5 @@
 ---
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 ---
 {/* USMR Phase 5.5.16-pt144 — extended Base meta description to
     canonical 150-160 char range per DESIGN.md §9.5. */}
@@ -13,7 +11,7 @@ import Footer from '../../components/Footer.astro';
     static — but the `noindex` keeps the SERPs clean if someone
     deep-links to /search?q=foo. */}
 <Base title="Search — Artagon" description="Browse Artagon documentation, writing, standards, and platform pages while site search is being prepared. Explore the identity platform from these routes." path="/search">
-  <Fragment slot="header"><Header /></Fragment>
+
   {/* USMR Phase 5.5.16-pt119 — same canonical sizing pattern as
       pt117/pt118 — bare <h1>Search</h1> would render at 102 px
       hero size. Scoped to .display + clamp(40, 5vw, 64). */}
@@ -50,5 +48,5 @@ import Footer from '../../components/Footer.astro';
     }
   </style>
   {/* USMR 14.16: defer DocSearch assets until a working index ships. */}
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

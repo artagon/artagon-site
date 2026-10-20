@@ -1,8 +1,7 @@
 // USMR 5.5.16 — webfont-loading gate. Confirms BaseLayout.astro
-// preconnects + loads the 6 canonical typefaces (Inter Tight,
-// Space Grotesk, JetBrains Mono, Fraunces, Instrument Serif,
-// DM Serif Display) per new-design index.html, and that the live h1
-// resolves to Space Grotesk after document.fonts.ready settles.
+// preconnects + loads the three production typefaces (Inter Tight,
+// JetBrains Mono, Fraunces), and that the live h1 resolves to Fraunces.
+// USMR 14.14: alternate faces belong to the dev-only Tweaks loader.
 //
 // Pre-fix the site loaded zero webfonts and every --f-* token fell
 // back to system-ui (San Francisco on macOS, Segoe UI on Windows).
@@ -53,20 +52,20 @@ test.describe("webfont loading", () => {
         l.href.startsWith("https://fonts.googleapis.com/css2"),
     );
     expect(fontsCss).toBeDefined();
-    // Each canonical family must appear in the css2 query string.
+    // This head stylesheet is the production request, even in dev.
     for (const family of [
       "Inter+Tight",
       "JetBrains+Mono",
-      "Instrument+Serif",
       "Fraunces",
-      "DM+Serif+Display",
-      "Space+Grotesk",
     ]) {
       expect(fontsCss!.href).toContain(family);
     }
+    for (const family of ["Instrument+Serif", "DM+Serif+Display", "Space+Grotesk"]) {
+      expect(fontsCss!.href).not.toContain(family);
+    }
   });
 
-  test("h1 resolves to Space Grotesk after fonts.ready", async ({ page }) => {
+  test("default h1 resolves to Fraunces after fonts.ready", async ({ page }) => {
     // `domcontentloaded` instead of the default `load` — webkit blocks
     // load on the Google Fonts CSS roundtrip and times out at 30 s on
     // the dev server, even though the head <link> is already present
@@ -88,26 +87,12 @@ test.describe("webfont loading", () => {
         }),
     );
 
-    // pt447 — `h1.display` is the `data-hero-font`-controlled
-    // heading on the home page. The SSR default in
-    // `BaseLayout.astro:38` is `data-hero-font="fraunces"` (per the
-    // USMR marketing-redesign visual identity choice). Pre-pt447 this
-    // assertion expected `/Space Grotesk/` from the pre-USMR default;
-    // it conflicted directly with `tests/home.spec.ts:288-303` which
-    // explicitly asserts the fraunces stack on the same element.
-    // Match the documented Tweaks ACCENTS (cyan/blue/amber/lime) +
-    // HERO_FONTS (grotesk/fraunces/dmserif/mono): ANY of those four
-    // canonical display faces is acceptable here. The webfonts gate
-    // is about pipeline correctness (FontFaceSet flushing,
-    // cross-engine load behavior), not which font the marketing team
-    // picked as the default.
+    // Empty-storage dev hydration and production use the same face.
     const h1Family = await page.$eval(
       "h1.display",
       (el) => getComputedStyle(el).fontFamily,
     );
-    expect(h1Family).toMatch(
-      /Space Grotesk|Fraunces|DM Serif Display|JetBrains Mono/,
-    );
+    expect(h1Family).toMatch(/^Fraunces/);
 
     const bodyFamily = await page.$eval(
       "body",
@@ -115,11 +100,9 @@ test.describe("webfont loading", () => {
     );
     expect(bodyFamily).toMatch(/Inter Tight/);
 
-    const monoLoaded = await page.evaluate(() =>
-      [...document.fonts].some(
-        (f) => f.family === "JetBrains Mono" && f.status === "loaded",
-      ),
+    const loaded = await page.evaluate(() =>
+      [...document.fonts].filter(f => f.status === "loaded").map(f => f.family),
     );
-    expect(monoLoaded).toBe(true);
+    expect(loaded).toEqual(expect.arrayContaining(["Fraunces", "Inter Tight", "JetBrains Mono"]));
   });
 });

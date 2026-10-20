@@ -7,8 +7,6 @@
 // manual-tablist script enhances the 260px rail; all panels work without JS.
 import { getEntry } from 'astro:content';
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import UseCasesIsland from '../../components/UseCasesIsland.astro';
 
 const entry = await getEntry('pages', 'use-cases');
@@ -20,11 +18,11 @@ if (!entry) {
 const { title, description } = entry.data;
 ---
 <Base title={title} description={description} path="/use-cases">
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       wraps the slot in <main id="main-content"> already. */}
   <UseCasesIsland copy={entry.data} />
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

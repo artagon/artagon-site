@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { TWEAKS_FONT_STYLESHEET } from "../src/data/font-stylesheets";
 
 // USMR Phase 5.5.15 — Hero-font matrix gate. DESIGN.md §3.4 lists a
 // 4-row matrix of `[data-hero-font]` variants (`grotesk` / `fraunces`
@@ -64,14 +65,21 @@ const VARIANTS: readonly Variant[] = [
 
 for (const variant of VARIANTS) {
   test.describe(`[data-hero-font="${variant.attr}"]`, () => {
-    test("resolves --f-display, --display-tracking, --display-weight per DESIGN.md §3.4", async ({
-      page,
-    }) => {
+    test.beforeEach(async ({ page }) => {
       await page.goto("/");
+      // USMR 14.14: runtime font swapping is a dev tool. Inject its
+      // loader for the alternate-face fixture when testing a built site.
+      if (await page.locator("link[data-tweaks-fonts]").count() === 0) {
+        await page.addStyleTag({ url: TWEAKS_FONT_STYLESHEET });
+      }
       await page.evaluate((attr) => {
         document.documentElement.setAttribute("data-hero-font", attr);
       }, variant.attr);
-
+      await page.evaluate(() => document.fonts.ready);
+    });
+    test("resolves --f-display, --display-tracking, --display-weight per DESIGN.md §3.4", async ({
+      page,
+    }) => {
       // Resolve the cascading tokens off the document element. Using
       // getComputedStyle is more reliable than reading the inline rule
       // — it captures the actual cascade.
@@ -117,15 +125,14 @@ for (const variant of VARIANTS) {
     test("hero <h1> renders with the resolved face on the home page", async ({
       page,
     }) => {
-      await page.goto("/");
-      await page.evaluate((attr) => {
-        document.documentElement.setAttribute("data-hero-font", attr);
-      }, variant.attr);
-
       const h1FontFamily = await page
         .locator("h1#hero-h1")
         .evaluate((el) => getComputedStyle(el).fontFamily);
       expect(h1FontFamily).toMatch(variant.expectedFamilyHead);
+      const loaded = await page.evaluate(() =>
+        [...document.fonts].filter(f => f.status === "loaded").map(f => f.family),
+      );
+      expect(loaded.some(f => variant.expectedFamilyHead.test(f))).toBe(true);
     });
   });
 }

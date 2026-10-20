@@ -89,12 +89,6 @@ export default function TweaksPanel() {
   const [tweaks, setTweaks] = useState<Tweaks>(loadInitial);
   const [open, setOpen] = useState(false);
 
-  // Apply + persist whenever state changes.
-  useEffect(() => {
-    applyToDom(tweaks);
-    persist(tweaks);
-  }, [tweaks]);
-
   // Keyboard: Esc closes; ⌘. / Ctrl+. toggles.
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -109,7 +103,12 @@ export default function TweaksPanel() {
   }, [open]);
 
   const setTweak = <K extends keyof Tweaks>(key: K, value: Tweaks[K]): void => {
-    setTweaks((prev) => ({ ...prev, [key]: value }));
+    // USMR 14.13: defaults belong to an explicit edit, never hydration.
+    // Tweaks.astro already restores saved choices before hydration.
+    const next = { ...tweaks, [key]: value };
+    setTweaks(next);
+    applyToDom(next);
+    persist(next);
   };
 
   return (
