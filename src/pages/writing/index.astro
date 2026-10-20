@@ -8,49 +8,23 @@
 // (title + lede + meta strip). Hover tints with `color-mix(in oklab,
 // var(--accent) 4%, transparent)` matching the canonical .post-card
 // hover state.
-import { getCollection } from 'astro:content';
+import { getPublishedPosts, getAuthorNames, postDateParts } from '../../lib/writing';
 import Base from '../../layouts/BaseLayout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 
-interface PostMeta {
-  id: string;
-  data: {
-    headline: string;
-    lede: string;
-    published: Date;
-    tags: string[];
-    author?: string;
-  };
-  body: string | undefined;
-}
-
-const posts = (await getCollection('writing'))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime()) as readonly PostMeta[];
+const posts = await getPublishedPosts();
 
 // Resolve authors lazily — a missing slug renders the post without a
 // byline rather than crashing the index. (Schema marks `author`
 // optional already, so bypassing the resolution is safe.)
-const authors = await getCollection('authors');
-const authorByName = new Map(authors.map((a) => [a.id, a.data.name]));
+const authorByName = await getAuthorNames();
 
 // USMR Phase 5.5.11 Task #30 — readingMinutes hoisted to
 // `src/lib/reading-time.ts` so the index card + detail byline
 // share one implementation and cannot drift.
 import { readingMinutes } from '../../lib/reading-time.ts';
 
-interface DateParts {
-  year: string;
-  monthDay: string;
-  iso: string;
-}
-function dateParts(d: Date): DateParts {
-  const year = String(d.getFullYear());
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return { year, monthDay: `${month} · ${day}`, iso: d.toISOString() };
-}
 
 // "Strategy" / "Engineering" / "Launch" — first tag as the meta-line
 // eyebrow. Matches the canonical "Strategy · 4 min read · Author"
@@ -90,7 +64,7 @@ function primaryTag(tags: string[]): string {
       <section class="writing-list" aria-label="Posts">
         <div class="writing-wrap">
           {posts.map((post) => {
-            const parts = dateParts(post.data.published);
+            const parts = postDateParts(post.data.published);
             const minutes = readingMinutes(post.body);
             const tag = primaryTag(post.data.tags);
             const byline = post.data.author ? authorByName.get(post.data.author) : undefined;

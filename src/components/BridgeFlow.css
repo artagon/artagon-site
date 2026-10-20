@@ -53,6 +53,9 @@
  * undersized the heading by ~13 % at the 60 px ceiling. */
 .bridge-flow__title {
   font-family: var(--f-display);
+  /* USMR 14.4: pin the former h2 scale when the route title is h1. */
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
   letter-spacing: var(--display-tracking, -0.02em);
   font-weight: var(--display-weight, 500);
   color: var(--fg);

@@ -110,7 +110,7 @@ const pageBase = z.object({
    * near the bottom of `/` as a design-partner CTA with a contact mini-card.
    */
   onRamp: onRamp.optional(),
-});
+}).strict();
 
 // Astro 6 content layer: each collection declares its own loader so
 // pages, writing, and authors collections can be authored as siblings

@@ -32,7 +32,6 @@ const seoProps: SeoProps = { ...passthrough, robots: effectiveRobots };
 <!doctype html>
 <html
   lang="en"
-  class="no-js"
   data-theme="twilight"
   data-accent="cyan"
   data-hero-font="fraunces"
@@ -100,7 +99,6 @@ const seoProps: SeoProps = { ...passthrough, robots: effectiveRobots };
     <slot name="json-ld" />
     <slot name="indexation" />
     <slot name="branding" />
-    <script>document.documentElement.classList.remove('no-js');</script>
     <!-- USMR Phase 5.5.16-pt85 — removed dead toggleMenu() function.
          It targeted `#menu-btn` and `#menu` IDs that don't exist in
          the markup. Mobile menu is owned by Header.astro's
@@ -126,10 +124,8 @@ window.__setTheme = function(t){
   // The standalone `ThemeToggle` component was deleted as orphan
   // in pt166 and the header lost its toggle in pt87, so this
   // querySelectorAll currently returns 0 matches every call.
-  // Kept as defense-in-depth for any future component / external
-  // embed that opts into the `data-theme-toggle` contract — the
-  // ThemePreviewPanel.astro JSDoc already documents this hook as
-  // the canonical attachment point.
+  // Documented hook for future components and external embeds that
+  // opt into data-theme-toggle (docs/guides/new-design-conversion.md).
   var pressed = safe === 'midnight';
   document.querySelectorAll('[data-theme-toggle]').forEach(function(btn){
     btn.setAttribute('aria-pressed', String(pressed));

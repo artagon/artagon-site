@@ -1,5 +1,6 @@
 ---
-import { getCollection, getEntry } from "astro:content";
+import { getEntry } from "astro:content";
+import { getPublishedPosts, formatPostDate } from "../lib/writing";
 import Base from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -21,16 +22,7 @@ const { eyebrow, headline, lede, ctas, title, description, onRamp } = home.data;
 
 // USMR Phase 5.1f — latest writing strip. Top N non-draft posts by
 // published desc; render the strip only when there's at least one post.
-const latestPosts = (await getCollection("writing"))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => b.data.published.getTime() - a.data.published.getTime())
-  .slice(0, 3);
-
-const dateFmt = new Intl.DateTimeFormat("en", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
+const latestPosts = (await getPublishedPosts()).slice(0, 3);
 
 // USMR Phase 5.1j — eyebrow renders inside a .glow-tag pill. Splitting on
 // `&` lets the home.mdx string drive a serif-italic ampersand via the
@@ -176,7 +168,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
                 {latestPosts[0].data.headline}
               </span>
               <span class="hero__latest-strip-meta">
-                {dateFmt.format(latestPosts[0].data.published)}
+                {formatPostDate(latestPosts[0].data.published, "card")}
                 {" · "}
                 Read{" "}
                 <span class="hero__latest-strip-arrow" aria-hidden="true">→</span>
@@ -242,7 +234,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
                     class="writing-strip__date"
                     datetime={post.data.published.toISOString()}
                   >
-                    {dateFmt.format(post.data.published)}
+                    {formatPostDate(post.data.published, "card")}
                   </time>
                   <h3 class="writing-strip__post-title">{post.data.headline}</h3>
                   <p class="writing-strip__lede">{post.data.lede}</p>
@@ -698,8 +690,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
    * The pre-canonical layout consumed `--line` border / 0.15s transition
    * / `--accent` hover / smaller title; the canonical card-on-canvas
    * variant uses `--line-soft` (subtler frame), 0.22s transition (less
-   * snappy), `--accent-dim` hover (deeper teal), and a 22 px title that
-   * lines up with the explore-grid card title size. */
+   * snappy), `--accent-dim` hover (deeper teal), and a 22 px title. */
   .writing-strip__list {
     list-style: none;
     padding: 0;

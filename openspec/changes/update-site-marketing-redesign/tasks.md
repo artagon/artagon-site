@@ -516,16 +516,16 @@
 > Task `14.N` maps 1:1 to bead `site-2m1.N`. Each fix cites `14.N` in code comments where a comment is warranted and in its commit body (`Closes 14.N`). Full findings and round-2 verdicts are in `.beads/issues.jsonl`.
 
 - [ ] 14.1 (`site-2m1.1`) Integrate Playwright CLI (@playwright/cli) as the agent browser-verification lane
-- [ ] 14.2 (`site-2m1.2`) Trust-chain pause resets the chain to "pending" and restarts the animation
-- [ ] 14.3 (`site-2m1.3`) Dead in-page anchors, including the main CTA on every blog post
-- [ ] 14.4 (`site-2m1.4`) Five of the six main-nav routes have no `<h1>` (violates a spec MUST)
+- [x] 14.2 (`site-2m1.2`) Trust-chain pause resets the chain to "pending" and restarts the animation
+- [x] 14.3 (`site-2m1.3`) Dead in-page anchors, including the main CTA on every blog post
+- [x] 14.4 (`site-2m1.4`) Five of the six main-nav routes have no `<h1>` (violates a spec MUST)
 - [x] 14.5 (`site-2m1.5`) `theme.css` ships unminified and unhashed as render-blocking CSS on every route
-- [ ] 14.6 (`site-2m1.6`) React runtime (≈61 KB gz) ships for three islands that are static tablists or timers
+- [x] 14.6 (`site-2m1.6`) React runtime (≈61 KB gz) ships for three islands that are static tablists or timers
 - [ ] 14.7 (`site-2m1.7`) No type checker runs, but the code depends on compile-time contracts
-- [ ] 14.8 (`site-2m1.8`) FAQ answer styles never apply (scoped CSS cannot reach markdown HTML)
-- [ ] 14.9 (`site-2m1.9`) Content-collection vs component boundary: copy duplicated, entries dead, fields silently stripped
+- [x] 14.8 (`site-2m1.8`) FAQ answer styles never apply (scoped CSS cannot reach markdown HTML)
+- [x] 14.9 (`site-2m1.9`) Content-collection vs component boundary: copy duplicated, entries dead, fields silently stripped
 - [ ] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch
-- [ ] 14.11 (`site-2m1.11`) Glossary chip implemented 3×, the "canonical" component is dead, and the client gets the whole glossary
+- [x] 14.11 (`site-2m1.11`) Glossary chip implemented 3×, the "canonical" component is dead, and the client gets the whole glossary
 - [ ] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
 - [ ] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree
 - [ ] 14.14 (`site-2m1.14`) Render-blocking Google Fonts CSS loads 3 families production cannot reach
@@ -566,8 +566,8 @@
 - [x] 14.50 (`site-2m1.50`) `.nvmrc` pins 22.12, on which `test:node` / `test:tweaks` cannot load `tests/tweaks-state.test.mts`
 - [ ] 14.51 (`site-2m1.51`) Cloudflare purge step: fragile success check, zone-wide blast radius, and silent skip
 - [ ] 14.52 (`site-2m1.52`) `design-md-drift.yml` opens an issue on any transient `gh api` failure and never de-duplicates
-- [ ] 14.53 (`site-2m1.53`) Hovering or focusing any trust-chain stage or tab resets settled state to `step = 0`, and `pressedIdx` l...
-- [ ] 14.54 (`site-2m1.54`) Interactive `<a class="standard-chip">` links nested inside `<button class="bridge-step">` violate HTML...
+- [x] 14.53 (`site-2m1.53`) Hovering or focusing any trust-chain stage or tab resets settled state to `step = 0`, and `pressedIdx` l...
+- [x] 14.54 (`site-2m1.54`) Interactive `<a class="standard-chip">` links nested inside `<button class="bridge-step">` violate HTML...
 - [x] 14.56 (`site-2m1.56`) Active primary nav link has zero `:focus-visible` indicator in normal or `forced-colors` mode, and non-a...
 - [x] 14.57 (`site-2m1.57`) `@keyframes glow-breathe` overrides light-theme `.glow-tag` `box-shadow` in the CSS cascade and hardcode...
 - [x] 14.58 (`site-2m1.58`) `TweaksPanel.tsx` `Opt` calls `e.currentTarget.blur()` on `onClick`, dropping keyboard focus to `documen...

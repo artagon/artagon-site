@@ -1,7 +1,7 @@
 /*
  * USMR Phase 5.2.4 — /platform pillars tablist styling.
  * Token-only port of new-design/extracted/src/components/Pillars.jsx
- * inline styles. The React island ships these via the Vite/Astro
+ * inline styles. The Astro component ships these via the Vite/Astro
  * bundle alongside the JS chunk, mirroring TrustChainIsland's
  * pattern.
  */
@@ -183,6 +183,16 @@
 }
 .pillars__panel[hidden] {
   display: none;
+}
+
+/* USMR 14.6 review R2: JS users paint only the selected panel from SSR. */
+@media (scripting: none) {
+  .pillars__panel[hidden] {
+    display: grid;
+  }
+  .pillars__panel + .pillars__panel {
+    margin-top: 32px;
+  }
 }
 
 /* Canonical Pillars.jsx:132 — left column is just `<div>` with no

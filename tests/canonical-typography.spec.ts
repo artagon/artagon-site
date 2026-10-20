@@ -128,9 +128,13 @@ test.describe("Canonical typography + rhythm gates", () => {
     // 102 px hero default. Only the marketing home Hero should
     // render that big; every other route is content-sized.
     //
-    // Walks 7 representative routes and asserts h1 < 80 px except
+    // Walks representative routes and asserts h1 < 80 px except
     // for "/" which gets the canonical hero-size pass.
-    const routes: Array<{ path: string; allowHero: boolean }> = [
+    const routes: Array<{
+      path: string;
+      allowHero: boolean;
+      checkDisplay?: boolean;
+    }> = [
       { path: "/", allowHero: true },
       { path: "/writing", allowHero: false },
       { path: "/writing/welcome", allowHero: false },
@@ -138,6 +142,11 @@ test.describe("Canonical typography + rhythm gates", () => {
       { path: "/how", allowHero: false },
       { path: "/docs", allowHero: false },
       { path: "/console", allowHero: false },
+      { path: "/platform", allowHero: false, checkDisplay: true },
+      { path: "/bridge", allowHero: false, checkDisplay: true },
+      { path: "/use-cases", allowHero: false, checkDisplay: true },
+      { path: "/standards", allowHero: false, checkDisplay: true },
+      { path: "/roadmap", allowHero: false, checkDisplay: true },
     ];
     await page.setViewportSize({ width: 1422, height: 800 });
     for (const route of routes) {
@@ -161,6 +170,32 @@ test.describe("Canonical typography + rhythm gates", () => {
         h1Sizes.length,
         `${route.path} must have at most one h1; found ${h1Sizes.length}: ${JSON.stringify(h1Texts)}`,
       ).toBeLessThanOrEqual(1);
+      if (route.checkDisplay) {
+        // USMR 14.4 review R3: semantic promotion must preserve the
+        // display-token weight and tracking, as in pt100 / pt102.
+        const probe = await page.$eval("main h1", (el) => {
+          const cs = getComputedStyle(el);
+          const root = getComputedStyle(document.documentElement);
+          const tracking = root.getPropertyValue("--display-tracking").trim();
+          return {
+            weight: cs.fontWeight,
+            weightToken: root.getPropertyValue("--display-weight").trim(),
+            tracking,
+            actualPx: parseFloat(cs.letterSpacing),
+            expectedPx: parseFloat(tracking) * parseFloat(cs.fontSize),
+          };
+        });
+        expect(probe.weight, `${route.path} display weight`).toBe(
+          probe.weightToken || "500",
+        );
+        expect(probe.tracking, `${route.path} display tracking token`).not.toBe(
+          "",
+        );
+        expect(
+          Math.abs(probe.actualPx - probe.expectedPx),
+          `${route.path} display tracking in px`,
+        ).toBeLessThan(0.05);
+      }
       const maxSize = Math.max(...h1Sizes);
       if (route.allowHero) {
         // Home Hero h1 SHOULD render at hero size at desktop.

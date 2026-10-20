@@ -51,6 +51,11 @@
   font-style: italic;
 }
 
+.use-cases__lede {
+  max-width: 64ch;
+  margin: 24px 0 0;
+}
+
 .use-cases__board {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -145,6 +150,19 @@
   display: none;
 }
 
+/* USMR 14.6 review R2: no-script stacking never affects a JS first paint. */
+@media (scripting: none) {
+  .use-cases__board {
+    display: block;
+  }
+  .use-cases__panel[hidden] {
+    display: flex;
+  }
+  .use-cases__panel {
+    margin-top: 32px;
+  }
+}
+
 @media (max-width: 720px) {
   .use-cases__panel {
     padding: 24px;
@@ -178,6 +196,7 @@
   font-size: clamp(24px, 3vw, 30px);
   letter-spacing: -0.02em;
   line-height: 1.1;
+  font-weight: 500;
   margin: 0 0 14px;
   max-width: 24ch;
   color: var(--fg);
