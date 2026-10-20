@@ -529,7 +529,7 @@
 - [ ] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
 - [ ] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree
 - [ ] 14.14 (`site-2m1.14`) Render-blocking Google Fonts CSS loads 3 families production cannot reach
-- [ ] 14.15 (`site-2m1.15`) Mobile nav stays open after same-page anchor navigation and has no Escape close
+- [x] 14.15 (`site-2m1.15`) Mobile nav stays open after same-page anchor navigation and has no Escape close
 - [ ] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments
 - [x] 14.17 (`site-2m1.17`) Logo conversion recursively deletes a caller-owned temporary directory
 - [x] 14.18 (`site-2m1.18`) An unreadable run lock authorizes cleanup
@@ -545,12 +545,12 @@
 - [x] 14.28 (`site-2m1.28`) The uniqueness gate explicitly allows the duplicate location its spec forbids
 - [x] 14.29 (`site-2m1.29`) Typography properties are never parsed, then a fallback masks missing properties
 - [x] 14.30 (`site-2m1.30`) Two identical HTML walkers can share one implementation
-- [ ] 14.31 (`site-2m1.31`) Touch interaction coverage remains skipped after the tap path was recorded as shipped
-- [ ] 14.32 (`site-2m1.32`) Header dimension checks are globally marked fixme, and one target is below the project floor
-- [ ] 14.33 (`site-2m1.33`) Parallel schema tests overwrite the same content fixture
-- [ ] 14.34 (`site-2m1.34`) The hover test captures the changed border but never checks it
-- [ ] 14.35 (`site-2m1.35`) Screenshot tests add fixed waits and one duplicate navigation
-- [ ] 14.36 (`site-2m1.36`) Content-layer checks pin exact source formatting
+- [x] 14.31 (`site-2m1.31`) Touch interaction coverage remains skipped after the tap path was recorded as shipped
+- [x] 14.32 (`site-2m1.32`) Header dimension checks are globally marked fixme, and one target is below the project floor
+- [x] 14.33 (`site-2m1.33`) Parallel schema tests overwrite the same content fixture
+- [x] 14.34 (`site-2m1.34`) The hover test captures the changed border but never checks it
+- [x] 14.35 (`site-2m1.35`) Screenshot tests add fixed waits and one duplicate navigation
+- [x] 14.36 (`site-2m1.36`) Content-layer checks pin exact source formatting
 - [x] 14.37 (`site-2m1.37`) Lint tests duplicate filesystem walkers and wildcard parsers
 - [ ] 14.38 (`site-2m1.38`) Visual-regression gate is non-functional end to end
 - [ ] 14.39 (`site-2m1.39`) `test:ci` discards the HTML report, so per-shard artifacts and `merge-reports` produce nothing

@@ -51,6 +51,9 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    // USMR 14.31: the island hydrates client:visible; on phone viewports it
+    // sits below the fold, so scroll it in before asserting hydrated state.
+    await page.locator(".trust-chain__decision-claim").scrollIntoViewIfNeeded();
     // Default scenarioIdx=0 is the healthy PERMIT scenario (SSR state).
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
       "decision=PERMIT",
@@ -64,12 +67,14 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
       }),
     );
     for (const [index, hitArea] of hitAreas.entries()) {
-      expect(hitArea.width, `scenario button ${index} width`).toBeGreaterThanOrEqual(
-        44,
-      );
-      expect(hitArea.height, `scenario button ${index} height`).toBeGreaterThanOrEqual(
-        44,
-      );
+      expect(
+        hitArea.width,
+        `scenario button ${index} width`,
+      ).toBeGreaterThanOrEqual(44);
+      expect(
+        hitArea.height,
+        `scenario button ${index} height`,
+      ).toBeGreaterThanOrEqual(44);
     }
     await dots.nth(1).click();
     // Wait for the picker state to flip first (proves the React handler
@@ -85,7 +90,10 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
     page,
     isMobile,
   }) => {
-    test.skip(isMobile, "Stage-row hover interactions are mouse-only; tap behavior is covered separately.");
+    test.skip(
+      isMobile,
+      "Stage-row hover interactions are mouse-only; tap behavior is covered separately.",
+    );
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await page.locator("#trust-chain-passkey").hover();
@@ -111,6 +119,8 @@ test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
 
     const stage0 = page.locator(".trust-chain__stage").nth(0);
     const claim = page.locator(".trust-chain__decision-claim");
+    // USMR 14.31: client:visible hydration needs the island in view.
+    await claim.scrollIntoViewIfNeeded();
     await expect(claim).toContainText("decision=PERMIT");
 
     await stage0.click();
@@ -150,6 +160,8 @@ test.describe("Home (/) — TrustChainIsland touch toggle", () => {
 
     const stage0 = page.locator(".trust-chain__stage").nth(0);
     const claim = page.locator(".trust-chain__decision-claim");
+    // USMR 14.31: client:visible hydration needs the island in view.
+    await claim.scrollIntoViewIfNeeded();
     await expect(claim).toContainText("decision=PERMIT");
 
     await stage0.tap();
@@ -391,9 +403,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
     expect(heroFont.toLowerCase()).not.toMatch(/inter\s*tight/);
   });
 
-  test("primary CTA paints the accent color as a solid", async ({
-    page,
-  }) => {
+  test("primary CTA paints the accent color as a solid", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     const cta = page.locator(".site-nav .right .btn.primary").first();

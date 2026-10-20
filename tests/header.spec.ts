@@ -118,8 +118,10 @@ test.describe("Header — mobile hamburger menu", () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(toggle).toBeVisible();
     const box = await toggle.boundingBox();
-    expect(box?.width).toBeGreaterThanOrEqual(44);
-    expect(box?.height).toBeGreaterThanOrEqual(44);
+    // USMR 14.32: device emulation reports sub-pixel boxes (43.999996 on
+    // Pixel 5 at DPR 2.75) for a 44 CSS px element; compare rounded px.
+    expect(Math.round(box?.width ?? 0)).toBeGreaterThanOrEqual(44);
+    expect(Math.round(box?.height ?? 0)).toBeGreaterThanOrEqual(44);
   });
 
   test("clicking toggle opens menu, swaps aria-expanded, fixed-positions panels", async ({
@@ -238,17 +240,17 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/platform");
-    const active = page.locator('.site-nav .links a.active[aria-current="page"]');
+    const active = page.locator(
+      '.site-nav .links a.active[aria-current="page"]',
+    );
     await expect(active).toBeVisible();
-    const outlineBefore = await active.evaluate((el) =>
-      getComputedStyle(el).outlineStyle,
+    const outlineBefore = await active.evaluate(
+      (el) => getComputedStyle(el).outlineStyle,
     );
 
     for (let tab = 0; tab < 10; tab += 1) {
       await page.keyboard.press("Tab");
-      if (
-        await active.evaluate((el) => document.activeElement === el)
-      ) {
+      if (await active.evaluate((el) => document.activeElement === el)) {
         break;
       }
     }
