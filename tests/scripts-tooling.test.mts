@@ -133,7 +133,7 @@ describe("developer tooling script regressions", () => {
     withTempDir("font-hosts-", (root) => {
       const dist = join(root, "dist");
       writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="preconnect" href="https://fonts.googleapis.com">\n');
-      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const PRODUCTION_FONT_STYLESHEET = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2 https://fonts.gstatic.com/font.woff2\n");
       const result = runNode(
         join(SCRIPTS, "verify-font-self-hosting.mjs"),
@@ -147,7 +147,7 @@ describe("developer tooling script regressions", () => {
 
     withTempDir("font-host-mixed-", (root) => {
       const dist = join(root, "dist");
-      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const PRODUCTION_FONT_STYLESHEET = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2 https://use.typekit.net/abc.css\n");
       const result = runNode(
         join(SCRIPTS, "verify-font-self-hosting.mjs"),
@@ -161,7 +161,7 @@ describe("developer tooling script regressions", () => {
 
     withTempDir("font-host-lookalike-", (root) => {
       const dist = join(root, "dist");
-      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const PRODUCTION_FONT_STYLESHEET = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com.attacker.invalid/fonts/a.woff2\n");
       const result = runNode(
         join(SCRIPTS, "verify-font-self-hosting.mjs"),
@@ -182,11 +182,12 @@ describe("developer tooling script regressions", () => {
       expect(source).toContain(newPath);
       const withoutNewPath = writeFile(root, "probe-without-module.mjs", source.replace(newPath, ""));
       writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="preconnect" href="https://fonts.googleapis.com">\n');
-      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const PRODUCTION_FONT_STYLESHEET = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       const dist = join(root, "dist");
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2?family=Fraunces\n");
       const negative = runNode(withoutNewPath, [root, dist], root);
       expect(negative.code).toBe(1);
+      expect(negative.stderr).toContain("third-party font CDN reference");
       expect(negative.stderr).not.toContain("Severity downgraded to warn");
       const positive = runNode(script, [root, dist], root);
       expect(positive.code).toBe(0);
@@ -201,6 +202,29 @@ describe("developer tooling script regressions", () => {
       const result = runNode(join(SCRIPTS, "verify-font-self-hosting.mjs"), [root, join(root, "dist")], root);
       expect(result.code).toBe(1);
       expect(result.stderr).not.toContain("Severity downgraded to warn");
+    });
+  });
+
+  // USMR 14.10 review R1: dev-only font swapping cannot defer the production gate.
+  it("fails on built CDN references when only the dev Tweaks css2 loader remains", () => {
+    withTempDir("font-loader-dev-only-", (root) => {
+      writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="preconnect" href="https://fonts.googleapis.com">\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const TWEAKS_FONT_STYLESHEET = "https://fonts.googleapis.com/css2?family=Instrument+Serif";\n');
+      writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2?family=Fraunces\n");
+      const result = runNode(join(SCRIPTS, "verify-font-self-hosting.mjs"), [root, join(root, "dist")], root);
+      expect(result.code).toBe(1);
+      expect(result.stderr).toContain("third-party font CDN reference");
+      expect(result.stderr).not.toContain("Severity downgraded to warn");
+    });
+  });
+
+  it("keeps the legacy BaseLayout css2 href as a production loader signal", () => {
+    withTempDir("font-loader-legacy-", (root) => {
+      writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces">\n');
+      writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2?family=Fraunces\n");
+      const result = runNode(join(SCRIPTS, "verify-font-self-hosting.mjs"), [root, join(root, "dist")], root);
+      expect(result.code).toBe(0);
+      expect(result.stderr).toContain("loader still present in src/layouts/BaseLayout.astro");
     });
   });
 

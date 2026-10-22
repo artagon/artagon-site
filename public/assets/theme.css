@@ -683,7 +683,7 @@ a {
  * (`Implements & contributes to`) breathe before the next section. */
 .hero {
   /* USMR 14.10: preserve vertical rhythm without erasing .container's gutter. */
-  padding: 80px var(--gutter) 120px;
+  padding-block: 80px 120px;
 }
 /* USMR Phase 5.5.16-pt123 — bring the hero h1 fallback rule to
  * canonical size (global.css:229 — clamp(56, 7.2vw, 108)) but DO

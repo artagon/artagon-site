@@ -224,8 +224,8 @@ function main() {
   // any *new* CDN reference, but during the migration window it
   // shouldn't.
   //
-  // USMR 14.10 review R3: inspect both the legacy inline location and
-  // the extracted URL module. Preconnect hints alone are not a loader.
+  // USMR 14.10 review R1: only the production loader defers this gate;
+  // the dev-only Tweaks URL and preconnect hints do not count.
   const loaderSourcePaths = [
     join(ROOT, "src", "layouts", "BaseLayout.astro"),
     join(ROOT, "src", "data", "font-stylesheets.ts"),
@@ -234,7 +234,10 @@ function main() {
   for (const sourcePath of loaderSourcePaths) {
     try {
       const source = readFileSync(sourcePath, "utf8");
-      if (/https?:\/\/fonts\.googleapis\.com\/css2(?:\?|["'\s]|$)/i.test(source)) {
+      const loaderPattern = sourcePath.endsWith("BaseLayout.astro")
+        ? /\bhref\s*=\s*["']https?:\/\/fonts\.googleapis\.com\/css2(?:\?|["'])/i
+        : /^\s*export\s+const\s+PRODUCTION_FONT_STYLESHEET\s*=\s*["']https?:\/\/fonts\.googleapis\.com\/css2(?:\?|["'])/m;
+      if (loaderPattern.test(source)) {
         loaderLocations.push(relative(ROOT, sourcePath));
       }
     } catch (err) {
@@ -245,7 +248,7 @@ function main() {
         exit(2);
       }
       // Missing loader sources mean migration may be complete; fail closed
-      // on remaining built CDN references unless another source has css2.
+      // on remaining built CDN references unless another production loader remains.
     }
   }
   const loaderStillInSource = loaderLocations.length > 0;

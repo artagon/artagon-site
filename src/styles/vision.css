@@ -11,7 +11,8 @@
 .vision-doc .vision-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 20px 60px;
+  /* USMR 14.10 review R3: .container owns the density-aware inline gutter. */
+  padding-block: 0 60px;
 }
 .vision-doc .hero-section {
   background: var(--gradient-hero-fallback);
