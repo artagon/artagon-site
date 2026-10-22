@@ -1,4 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
+// USMR 14.13: snapshot every production theme from the same typed tuple as Tweaks.
+import { THEMES } from "../src/scripts/tweaks-state.ts";
 
 /**
  * Styling-architecture visual reference suite.
@@ -29,14 +31,6 @@ const BREAKPOINTS = [
   { name: "tablet", width: 768, height: 1024 },
   { name: "mobile", width: 375, height: 812 },
 ] as const;
-
-// USMR Phase 5.5.16-pt207 — `slate` removed from THEMES array.
-// The slate theme variant was retired in pt167 (theme.css no
-// longer ships a `:root[data-theme="slate"]` block — see pt188's
-// glossary sync gate for the wider drift fix). Iterating slate
-// here generated 15 orphan baseline PNGs that fall through to
-// the unstyled default cascade.
-const THEMES = ["midnight", "twilight"] as const;
 
 async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
   await page.evaluate((t) => {

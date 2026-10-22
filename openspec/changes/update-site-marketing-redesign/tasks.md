@@ -527,7 +527,7 @@
 - [x] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch
 - [x] 14.11 (`site-2m1.11`) Glossary chip implemented 3×, the "canonical" component is dead, and the client gets the whole glossary
 - [x] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
-- [ ] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree
+- [x] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree
 - [x] 14.14 (`site-2m1.14`) Render-blocking Google Fonts CSS loads 3 families production cannot reach
 - [x] 14.15 (`site-2m1.15`) Mobile nav stays open after same-page anchor navigation and has no Escape close
 - [x] 14.16 (`site-2m1.16`) Dead inline code, a non-functional search surface, and stale architecture comments

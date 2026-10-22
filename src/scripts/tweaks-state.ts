@@ -4,17 +4,15 @@
  * and the node:test suite (`tests/tweaks-state.test.mts`,
  * `tests/tweaks-parse.test.mjs`).
  *
- * Vocabulary contract: this module mirrors the upstream new-design state
- * shape verbatim (`new-design/extracted/src/layouts/BaseLayout.jsx`).
- * The `Theme` keyword set is `dark`/`light`; both have selectors in
- * theme.css. The production bootstrap's twilight/midnight allow-list
- * is a separate documented hook. Do not merge these vocabularies based
- * on the former, stale claim that dark/light styles are missing.
+ * USMR 14.13: production and dev share the twilight/midnight vocabulary.
+ * The inline pre-paint copies in BaseLayout.astro and Tweaks.astro are
+ * checked against THEMES by lint-tweaks-allowlist-sync.test.mts.
  */
 
 export type Accent = "cyan" | "blue" | "amber" | "lime";
 export type Density = "dense" | "comfortable" | "roomy";
-export type Theme = "dark" | "light";
+export const THEMES = ["twilight", "midnight"] as const;
+export type Theme = (typeof THEMES)[number];
 export type HeroFont = "grotesk" | "fraunces" | "dmserif" | "mono";
 
 /** USMR Phase 5.5.16-pt108 + pt109 — Writing widget layout variants
@@ -63,7 +61,7 @@ export const ACCENT_SWATCH: Record<Accent, string> = {
 export const DEFAULTS: Tweaks = {
   accent: "cyan",
   density: "comfortable",
-  theme: "dark",
+  theme: THEMES[0],
   heroFont: "grotesk",
   showGrid: true,
   writingWidget: "B · 3-up",
@@ -91,7 +89,6 @@ export const DENSITIES: ReadonlyArray<Density> = [
   "comfortable",
   "roomy",
 ];
-export const THEMES: ReadonlyArray<Theme> = ["dark", "light"];
 export const HERO_FONTS: ReadonlyArray<HeroFont> = [
   "grotesk",
   "fraunces",
@@ -118,14 +115,15 @@ export function isHeroFont(v: unknown): v is HeroFont {
   );
 }
 
-/** Parse an unknown value into a valid Tweaks, falling back per-field to DEFAULTS. */
-export function parse(raw: unknown): Tweaks {
-  if (typeof raw !== "object" || raw === null) return { ...DEFAULTS };
+/** Parse unknown state; the dev caller supplies the validated page theme as fallback. */
+export function parse(raw: unknown, fallbackTheme: Theme = DEFAULTS.theme): Tweaks {
+  if (typeof raw !== "object" || raw === null) return { ...DEFAULTS, theme: fallbackTheme };
   const r = raw as Record<string, unknown>;
   return {
     accent: isAccent(r.accent) ? r.accent : DEFAULTS.accent,
     density: isDensity(r.density) ? r.density : DEFAULTS.density,
-    theme: isTheme(r.theme) ? r.theme : DEFAULTS.theme,
+    // USMR 14.13 R1: invalid or legacy themes preserve the caller's page theme.
+    theme: isTheme(r.theme) ? r.theme : fallbackTheme,
     heroFont: isHeroFont(r.heroFont) ? r.heroFont : DEFAULTS.heroFont,
     showGrid: typeof r.showGrid === "boolean" ? r.showGrid : DEFAULTS.showGrid,
     writingWidget: isWritingWidget(r.writingWidget)

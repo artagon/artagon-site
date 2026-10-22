@@ -1,6 +1,7 @@
 /**
- * Tweaks panel — React island faithful to upstream
+ * Tweaks panel — React island based on upstream
  * `new-design/extracted/src/layouts/BaseLayout.jsx:312-359`.
+ * USMR 14.13: theme choices use the production vocabulary from THEMES.
  *
  * Mounts only in dev (gated by `import.meta.env.DEV` in `Tweaks.astro`).
  * State is persisted to localStorage and projected onto `data-*` attributes
@@ -22,6 +23,7 @@ import {
   STORAGE_KEY,
   THEMES,
   WRITING_WIDGETS,
+  isTheme,
   parse,
   type Tweaks,
 } from "../scripts/tweaks-state.ts";
@@ -43,17 +45,20 @@ function isExpectedStorageError(err: unknown): boolean {
 
 function loadInitial(): Tweaks {
   if (typeof window === "undefined") return { ...DEFAULTS };
+  // USMR 14.13 R1: pre-paint has already resolved the production choice.
+  // Invalid or absent Tweaks themes must highlight and retain that choice.
+  const pageTheme = document.documentElement.dataset.theme;
+  const fallbackTheme = isTheme(pageTheme) ? pageTheme : THEMES[0];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...DEFAULTS };
-    return parse(JSON.parse(raw));
+    return parse(raw ? JSON.parse(raw) : undefined, fallbackTheme);
   } catch (err) {
     // Dev-only panel: surface failures so a maintainer can tell
     // "JSON corrupted" from "storage blocked" from "parse() bug".
     if (!isExpectedStorageError(err)) {
-      console.warn("[TweaksPanel] loadInitial fell back to DEFAULTS:", err);
+      console.warn("[TweaksPanel] loadInitial fell back to the page theme:", err);
     }
-    return { ...DEFAULTS };
+    return parse(undefined, fallbackTheme);
   }
 }
 
@@ -86,8 +91,15 @@ function persist(t: Tweaks): void {
 }
 
 export default function TweaksPanel() {
-  const [tweaks, setTweaks] = useState<Tweaks>(loadInitial);
+  // USMR 14.13 R1: hydration starts with the same hidden panel markup as SSR.
+  // Restore after mount so React updates the selected radio instead of leaving
+  // mismatched server attributes in place. This never applies state to the page.
+  const [tweaks, setTweaks] = useState<Tweaks>(() => ({ ...DEFAULTS }));
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setTweaks(loadInitial());
+  }, []);
 
   // Keyboard: Esc closes; ⌘. / Ctrl+. toggles.
   useEffect(() => {
