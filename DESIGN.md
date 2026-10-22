@@ -244,7 +244,7 @@ series 1. Everything else is neutral.
 
 **Site-wide accent**: `BaseLayout.astro` ships `data-accent="cyan"` on
 `<html>`; the dev-only Tweaks panel can override at runtime. The teal
-default reads on both dark and light themes. The trust-chain's `--ok`
+default reads on both `twilight` and `midnight` (USMR 14.13). The trust-chain's `--ok`
 (PERMIT, green) and `--bad` (DENY, red) tokens stay constant across
 accent variants — only `--accent` and `--accent-dim` shift.
 
@@ -259,11 +259,22 @@ accent variants — only `--accent` and `--accent-dim` shift.
 Semantic colors appear in the trust chain, logs, and status badges. They are
 **never** used for decoration.
 
-### 2.4 Light theme
+### 2.4 Theme vocabulary (USMR 14.13)
 
-Activated via `[data-theme="light"]`. All `--bg-*` and `--fg-*` swap; accent
-and semantic tokens stay constant (they are designed to read on both themes).
-Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
+Production and the dev-only Tweaks panel offer exactly `twilight` and
+`midnight`, with `twilight` as the default. The typed `THEMES` tuple in
+`src/scripts/tweaks-state.ts` owns this vocabulary; the inline pre-paint
+allow-lists are checked against it. Both themes retain the §2.1 base palette.
+Only a valid stored Tweaks theme overrides the production pre-paint choice.
+Missing, legacy (`dark`/`light`), or invalid Tweaks themes leave the page theme
+untouched. The panel uses that page theme if it is in `THEMES`, otherwise
+`THEMES[0]`. Its selected option and first edit to an unrelated field retain
+and persist that resolved theme (USMR 14.13 R1).
+
+The retired `[data-theme="dark"]` and `[data-theme="light"]` blocks,
+including light-only glow and accent overrides, are removed. Frontmatter
+palette values and production theme styles are unchanged. The paper variants
+in §6.14 are standalone brand assets, separate from page theme selection.
 
 ---
 
@@ -448,7 +459,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Tokens.** `--accent` (drives `--g-accent`) · `--bg-1` / `--bg` (gradient fill) · backdrop-blur.
 
-**A11y.** All animations disabled under `prefers-reduced-motion`. In the light theme, the glow-tag uses its static per-instance accent shadow; the breathing animation runs only on dark themes. Text contrast verified on both themes.
+**A11y.** All animations disabled under `prefers-reduced-motion`. The glow-tag uses the same glow primitives in `twilight` and `midnight` (USMR 14.13).
 
 **Offscreen pause (USMR 14.78).** Offscreen pausing is opt-in: a page that renders a `.glow-tag` marks a container with `data-glow-pause-root` and calls `pauseOffscreenGlows` from a processed `<script>`. Today this is wired only on the home hero. The script observes each `.glow-tag` host in that container and marks it with `data-glow-paused` while it is outside the viewport; the glow CSS pauses animation on the host, its pseudo-elements, and its `.glow-dot` and `.glow-text` descendants. Re-entering the viewport removes the attribute and resumes animation. If `IntersectionObserver` is unavailable, the animations continue to run.
 
@@ -758,8 +769,8 @@ Footer
 
 **Code blocks (the load-bearing requirement).**
 
-- **Highlighter:** Shiki (build-time, themed). Two themes registered: a
-  dark `artagon-dark` and light `artagon-light` derived from §2 tokens.
+- **Highlighter:** Shiki (build-time, themed). Use §2 tokens for both
+  `twilight` and `midnight` (USMR 14.13).
   Never use Prism or Highlight.js — Shiki produces no runtime JS.
 - **Per-block frame:** mono caption strip (language · filename · "copy"),
   scrollable body, line numbers optional, line-highlight via `{2,5-7}` syntax.
@@ -781,7 +792,8 @@ Footer
   4. **PNG/WebP screenshots** with intrinsic `width`/`height` attrs and `alt`. Last resort.
 - **No client-side diagram libraries.** Anything that requires runtime JS to render is rejected — it inflates bundles and breaks under reduced-motion and `prefers-color-scheme`.
 - **Caption.** Every diagram has a `<figcaption>` in mono, max 1 line, format: `Fig. <n> · <description>`. Numbering is per-article.
-- **Dark/light parity.** SVG diagrams must use the §2 token names via
+- **Theme parity (USMR 14.13).** SVG diagrams must work in `twilight` and
+  `midnight` using the §2 token names via
   `currentColor` and CSS variables, not hardcoded hex. The diagram's
   background should be transparent — the article surface provides it.
 

@@ -2,11 +2,9 @@
 
 ## Theme System
 
-- **dark**: Canonical default theme (the value the Tweaks panel writes via `data-theme="dark"`)
-- **light**: Light theme — near-white surface, dark text. Tweaks panel writes via `data-theme="light"`. Added in USMR pt423; pre-pt423 the panel wrote `light` but no matching CSS block existed so the page stayed dark.
+- **twilight**: Twilight Indigo, the default production and Tweaks theme (USMR 14.13)
 - **midnight**: Midnight Teal theme variant
-- **twilight**: Twilight Indigo theme variant
-- **data-theme**: HTML attribute controlling active theme pack (live values: `dark`, `light`, `midnight`, `twilight`; the 5.1-era `slate` variant was removed in USMR pt167)
+- **data-theme**: HTML attribute controlling the active theme (live values: `twilight`, `midnight`). USMR 14.13 removes legacy CSS blocks; missing, legacy, or invalid Tweaks themes preserve the production page theme. A valid stored Tweaks theme still takes precedence.
 - **--brand-teal**: Retained alias of `--accent` (per `theme.css` pt86 — internal `--teal-*` token defs still consume it; component code should use `--accent` directly)
 
 ## Navigation System

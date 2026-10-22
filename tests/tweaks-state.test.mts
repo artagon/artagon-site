@@ -71,11 +71,31 @@ describe("parseTweaks", () => {
   });
 
   it("preserves valid theme value", () => {
-    assert.equal(parse({ theme: "light" }).theme, "light");
+    assert.deepEqual(THEMES, ["twilight", "midnight"]);
+    for (const theme of THEMES) assert.equal(parse({ theme }).theme, theme);
   });
 
   it("falls back theme when invalid", () => {
-    assert.equal(parse({ theme: "midnight" }).theme, DEFAULTS.theme);
+    assert.equal(parse({ theme: "auto" }).theme, DEFAULTS.theme);
+  });
+
+  it("uses the tuple default for legacy themes when no page theme is supplied (USMR 14.13)", () => {
+    for (const theme of ["dark", "light"]) {
+      assert.equal(parse({ theme, accent: "lime" }).theme, "twilight");
+      assert.equal(parse({ theme, accent: "lime" }).accent, "lime");
+    }
+  });
+
+  it("preserves a supplied production midnight fallback for missing, legacy, or invalid themes", () => {
+    for (const raw of [undefined, null, "bad", {}, { theme: "dark" }, { theme: "light" }, { theme: "solar" }, { theme: 42 }]) {
+      assert.equal(parse(raw, "midnight").theme, "midnight");
+    }
+    assert.equal(parse({ theme: "light", accent: "lime" }, "midnight").accent, "lime");
+  });
+
+  it("a valid stored Tweaks theme wins over the supplied page fallback", () => {
+    assert.equal(parse({ theme: "twilight" }, "midnight").theme, "twilight");
+    assert.equal(parse({ theme: "midnight" }, "twilight").theme, "midnight");
   });
 
   it("preserves valid heroFont value", () => {
@@ -103,7 +123,7 @@ describe("parseTweaks", () => {
     const input: Tweaks = {
       accent: "lime",
       density: "roomy",
-      theme: "light",
+      theme: "midnight",
       heroFont: "fraunces",
       showGrid: false,
       writingWidget: "C · split",
@@ -115,13 +135,13 @@ describe("parseTweaks", () => {
     const result = parse({
       accent: "lime",
       density: "wrong",
-      theme: "dark",
+      theme: "twilight",
       heroFont: "wrong",
       showGrid: true,
     });
     assert.equal(result.accent, "lime");
     assert.equal(result.density, DEFAULTS.density);
-    assert.equal(result.theme, "dark");
+    assert.equal(result.theme, "twilight");
     assert.equal(result.heroFont, DEFAULTS.heroFont);
     assert.equal(result.showGrid, true);
   });
@@ -154,9 +174,10 @@ describe("type guards", () => {
     assert.equal(isDensity(null), false);
   });
 
-  it("isTheme accepts only dark/light", () => {
+  it("isTheme accepts only twilight/midnight", () => {
     for (const t of THEMES) assert.ok(isTheme(t));
-    assert.equal(isTheme("midnight"), false);
+    assert.equal(isTheme("dark"), false);
+    assert.equal(isTheme("light"), false);
     assert.equal(isTheme("auto"), false);
   });
 
@@ -183,6 +204,9 @@ describe("ACCENT_SWATCH", () => {
 });
 
 describe("DEFAULTS shape", () => {
+  it("uses the production theme default", () => {
+    assert.equal(DEFAULTS.theme, "twilight");
+  });
   it("DEFAULTS pass all type guards (round-trip)", () => {
     const round = parse(DEFAULTS);
     assert.deepEqual(round, DEFAULTS);
@@ -201,7 +225,7 @@ describe("DEFAULTS shape", () => {
 // Compile-time assertions — these will fail tsc if the imported types drift.
 const _typeCheckAccent: Accent = "cyan";
 const _typeCheckDensity: Density = "comfortable";
-const _typeCheckTheme: Theme = "dark";
+const _typeCheckTheme: Theme = "twilight";
 const _typeCheckHeroFont: HeroFont = "grotesk";
 void _typeCheckAccent;
 void _typeCheckDensity;

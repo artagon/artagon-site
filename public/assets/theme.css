@@ -256,47 +256,8 @@
  * twilight distinction now lives in --bg-1 / accent / surface tints
  * rather than the page bg itself. */
 
-/* USMR Phase 5.5.16-pt90 — Tweaks panel writes `data-theme="dark"`
- * (per its dark/light switcher) but pre-pt90 there was no
- * `[data-theme="dark"]` block in CSS — `--bg` fell through to the
- * unlayered :root default `#0a0f1e` (the OG blue navy). pt87's
- * canonical neutral-dark fix only landed on `[data-theme="midnight"]`
- * and `[data-theme="twilight"]`, neither of which the Tweaks panel
- * actually writes. The "dark" block is the one that matches the
- * Tweaks `Theme: dark/light` vocabulary AND the canonical reference
- * defaults. */
-
-/* Dark (canonical default — Tweaks panel writes data-theme="dark") */
-:root[data-theme="dark"] {
-  --bg: oklch(0.14 0.008 260);
-  --surface: var(--bg-1);
-
-  --brand-teal: var(--accent);
-  --brand-teal-rgb: 60, 238, 221;
-}
-
-/* USMR Phase 5.5.16 — Light theme. Tweaks panel writes
- * `data-theme="light"`. Pre-fix there was no matching CSS block, so
- * selecting "Theme: light" left the page in dark mode. The palette
- * inverts the dark foundation tokens (`--bg-*`, `--fg-*`, `--line*`)
- * to near-white / near-black with cool-neutral hue 260 to match the
- * dark side. Accent tokens cascade unchanged from the
- * `[data-accent="…"]` block above. */
-:root[data-theme="light"] {
-  --bg: oklch(0.98 0.005 260);
-  --bg-1: oklch(0.96 0.005 260);
-  --bg-2: oklch(0.92 0.008 260);
-  --fg: oklch(0.2 0.012 260);
-  --fg-1: oklch(0.34 0.01 260);
-  --fg-2: oklch(0.52 0.008 260);
-  --fg-3: oklch(0.68 0.006 260);
-  --line: oklch(0.85 0.008 260);
-  --line-soft: oklch(0.92 0.006 260);
-  --surface: var(--bg-1);
-
-  --brand-teal: var(--accent);
-  --brand-teal-rgb: 60, 238, 221;
-}
+/* USMR 14.13: production and Tweaks select twilight/midnight only.
+ * Retired dark/light blocks and their light-only descendants are removed. */
 
 /* Midnight Teal */
 :root[data-theme="midnight"] {
@@ -470,8 +431,8 @@ body {
   /* USMR Phase 5.5.9 — flattened to canonical body surface per
    * `new-design/extracted/src/styles/global.css:68-75` (`body { background:
    * var(--bg); }`). pt91 also dropped the #0b1220 hardcoded fallback
-   * — `--bg` now resolves canonical-neutral via the unlayered :root
-   * default OR the [data-theme="dark"] override (pt90). */
+   * — `--bg` now resolves canonical-neutral via the unlayered :root default
+   * or the twilight/midnight block (USMR 14.13). */
   background: var(--bg);
 }
 
@@ -1728,46 +1689,6 @@ header {
   }
 }
 
-/* USMR pt427 — Light-theme polish for hero glow primitives. The
- * canonical glow-tag halo + glow-text white shimmer were tuned for
- * dark-mode specular pop. On near-white surfaces:
- *   1. `.glow-tag::after` (radial blur 14px reaching 20px past the
- *      pill) bleeds an amber wash into adjacent UI (visible smear
- *      across the trust-card top-left). Killed entirely; the chip
- *      keeps its border + ::before inset highlight.
- *   2. `.glow-text` shimmer keyframes pass through pure `#fff` at
- *      45% / 55% — on white bg the headline letters dissolve mid-
- *      cycle. Override with a fg ↔ accent gradient (no white peak)
- *      so the shimmer modulates between dark text and accent tint
- *      instead of vanishing into the page.
- *   3. `.glow-tag` outer drop-shadow tuned for dark-mode specular —
- *      flatten on light theme to keep the chip readable. */
-:root[data-theme="light"] .glow-tag::after {
-  display: none;
-}
-:root[data-theme="light"] .glow-tag {
-  /* Keep the static light-theme shadow instead of the animated bloom. */
-  animation: none;
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
-    0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
-    0 0 12px -4px color-mix(in oklab, var(--g-accent) 25%, transparent);
-}
-:root[data-theme="light"] .glow-text {
-  background: linear-gradient(
-    100deg,
-    var(--fg) 0%,
-    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 35%,
-    var(--g-accent) 50%,
-    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 65%,
-    var(--fg) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  filter: none;
-}
-
 /* USMR Phase 5.5.16-pt131 — global reduced-motion override for the
  * canonical interactive primitives (.btn / .btn.primary / .btn .arr /
  * .ui-card--hover) that ship on every CTA + hoverable card across
@@ -1890,35 +1811,6 @@ header {
 [data-accent="lime"] {
   --accent: oklch(0.88 0.18 135);
   --accent-dim: oklch(0.52 0.12 135);
-}
-
-/* USMR pt425 — Light-theme accent overrides. The default accent
- * triples above (L≈0.84-0.88) are tuned for dark backgrounds; on
- * light theme (bg L≈0.98) they wash out — pill borders, CTA
- * surfaces, and chip text fail contrast. Drop lightness ~25 LSB
- * to L≈0.55-0.62 so the accent reads on white. `--accent-ink`
- * (text on accent surfaces) flips near-white because the accent
- * itself is now dark. Specificity (0,3,0) wins against the bare
- * `[data-accent]` block above. */
-:root[data-theme="light"][data-accent="cyan"] {
-  --accent: oklch(0.55 0.14 185);
-  --accent-dim: oklch(0.4 0.1 185);
-  --accent-ink: oklch(0.98 0.01 185);
-}
-:root[data-theme="light"][data-accent="blue"] {
-  --accent: oklch(0.55 0.17 245);
-  --accent-dim: oklch(0.4 0.12 245);
-  --accent-ink: oklch(0.98 0.01 245);
-}
-:root[data-theme="light"][data-accent="amber"] {
-  --accent: oklch(0.62 0.14 75);
-  --accent-dim: oklch(0.45 0.1 75);
-  --accent-ink: oklch(0.98 0.01 75);
-}
-:root[data-theme="light"][data-accent="lime"] {
-  --accent: oklch(0.6 0.18 135);
-  --accent-dim: oklch(0.45 0.12 135);
-  --accent-ink: oklch(0.98 0.01 135);
 }
 
 /* ============================================================
