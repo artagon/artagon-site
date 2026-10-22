@@ -278,7 +278,11 @@ test.describe("Vision Page - Content Collections", () => {
       !runVisualRegression,
       "Visual regression runs in a dedicated job.",
     );
-    const domainsSection = page.locator(".three-domains");
+    const domainsSection = page.locator(
+      "#executive-summary .ui-grid:has(.ui-card--domain)",
+    );
+    await expect(domainsSection).toHaveCount(1);
+    await expect(domainsSection.locator(".ui-card--domain")).toHaveCount(3);
     await expect(domainsSection).toHaveScreenshot("vision-domain-cards.png");
   });
 });

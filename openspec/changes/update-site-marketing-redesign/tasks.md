@@ -553,6 +553,7 @@
 - [x] 14.36 (`site-2m1.36`) Content-layer checks pin exact source formatting
 - [x] 14.37 (`site-2m1.37`) Lint tests duplicate filesystem walkers and wildcard parsers
 - [ ] 14.38 (`site-2m1.38`) Visual-regression gate is non-functional end to end
+- [x] 14.38a (`site-2m1.38`) Visual-regression specs target dead selectors (#platform on /, .three-domains on /vision); a built-page guard prevents recurrence
 - [ ] 14.39 (`site-2m1.39`) `test:ci` discards the HTML report, so per-shard artifacts and `merge-reports` produce nothing
 - [ ] 14.40 (`site-2m1.40`) The `accessibility` job runs one structural test, not the axe-core audit
 - [x] 14.41 (`site-2m1.41`) SRI on the stable-URL `/assets/theme.css` is the stale-HTML break; the `pt449` purge mitigates only the...

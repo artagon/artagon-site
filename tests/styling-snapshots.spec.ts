@@ -5,8 +5,9 @@ import { THEMES } from "../src/scripts/tweaks-state.ts";
 /**
  * Styling-architecture visual reference suite.
  *
- * Captures /vision rendered across the THEMES array (currently 2 — twilight
- * + midnight; pre-pt167 was 3 with slate) × 3 breakpoints. These snapshots
+ * Captures home sections, /platform pillars, and /vision rendered across the
+ * THEMES array (currently 2 — twilight + midnight; pre-pt167 was 3 with slate)
+ * × 3 breakpoints. These snapshots
  * are NOT a refactor diff — the styling refactor already shipped, and no
  * pre-refactor baseline exists. This suite is a forward baseline: future
  * styling changes diff against these images. When intentional redesigns
@@ -78,17 +79,16 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
         );
       });
 
-      test(`pillars — ${theme} @ ${bp.name}`, async ({ page }) => {
+      test(`explore — ${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
         await page.goto("/");
         await setTheme(page, theme);
         await page.waitForLoadState("networkidle");
-        // Scroll the #platform pillar grid into view. Covers USMR
-        // Phase 5.1c content (3-card pillar overview sourced from
-        // src/data/pillars.ts).
-        await page.locator("#platform").scrollIntoViewIfNeeded();
+        // Scroll the current home explore grid into view. The former
+        // #platform pillar section has moved to /platform.
+        await page.locator("#playground").scrollIntoViewIfNeeded();
         await expect(page).toHaveScreenshot(
-          `home-pillars-${theme}-${bp.name}.png`,
+          `home-explore-${theme}-${bp.name}.png`,
           { fullPage: false, animations: "disabled" },
         );
       });
@@ -105,6 +105,37 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
         await expect(page).toHaveScreenshot(
           `home-writing-strip-${theme}-${bp.name}.png`,
           { fullPage: false, animations: "disabled" },
+        );
+      });
+    }
+  }
+});
+
+test.describe("/platform pillars - THEMES × 3 breakpoints reference", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(
+      !runVisualRegression,
+      "Visual regression runs only when VISUAL_REGRESSION=1.",
+    );
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Snapshots are captured in chromium only to keep the baseline set bounded.",
+    );
+  });
+
+  for (const theme of THEMES) {
+    for (const bp of BREAKPOINTS) {
+      test("pillars — " + theme + " @ " + bp.name, async ({ page }) => {
+        await page.setViewportSize({ width: bp.width, height: bp.height });
+        await page.goto("/platform");
+        await setTheme(page, theme);
+        await page.waitForLoadState("networkidle");
+        const pillars = page.locator("#pillars");
+        await pillars.scrollIntoViewIfNeeded();
+        await expect(pillars).toBeVisible();
+        await expect(pillars).toHaveScreenshot(
+          "platform-pillars-" + theme + "-" + bp.name + ".png",
+          { animations: "disabled" },
         );
       });
     }
