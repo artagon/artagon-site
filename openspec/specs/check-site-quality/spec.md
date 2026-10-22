@@ -31,12 +31,12 @@ This Requirement governs ONLY paths and the ready-signal contract. Assertion sha
 
 ### Requirement: Lychee Configuration Compatibility
 
-The link checker SHALL use a Lychee configuration with numeric `timeout` and `retry_wait_time`, accepted status codes, and local-build exclusions. The generated `lychee.toml` SHALL enable caching with `cache = true` and derive `root_dir` and build exclusions from `build.config.json`. It SHALL NOT emit the removed `cache_path` field. The workflow does not pass `--cache-dir` or restore a cache; Lychee's default `.lycheecache/` location remains ignored.
+The link checker SHALL use a Lychee configuration with numeric `timeout` and `retry_wait_time`, accepted status codes, and local-build exclusions. The generated `lychee.toml` SHALL enable caching with `cache = true` and derive the build-output entries of `exclude_path` from `build.config.json`; it SHALL NOT emit a `root_dir` or the removed `cache_path` field. The link-check workflow SHALL pass the checkout path with `--root-dir` when invoking Lychee. The workflow does not pass `--cache-dir` or restore a cache; Lychee's default `.lycheecache` file remains ignored.
 
 #### Scenario: Lychee loads config and checks sources
 
-- **WHEN** running `lychee --config lychee.toml './**/*.md' './public/**/*.html' './src/**/*.astro'`
-- **THEN** Lychee parses the configuration successfully and checks links while excluding `.build/`, `node_modules`, and localhost URLs
+- **WHEN** `.github/workflows/link-check.yml` runs Lychee with `--root-dir <checkout>`, `--config lychee.toml`, and the Markdown, public HTML, and Astro source globs
+- **THEN** Lychee parses the configuration, resolves root-relative paths against the checkout, and checks links while excluding `.build/`, `node_modules`, and localhost URLs
 
 #### Scenario: Lychee cache configuration matches the workflow
 

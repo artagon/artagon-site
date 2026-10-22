@@ -194,7 +194,8 @@ jobs:
       - name: Merge reports
         # The CLI defaults to playwright-report/ unless this env is set.
         run: |
-          export PLAYWRIGHT_HTML_OUTPUT_DIR="$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.playwright.html)')"
+          PLAYWRIGHT_HTML_OUTPUT_DIR="$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.playwright.html)')"
+          export PLAYWRIGHT_HTML_OUTPUT_DIR
           BLOB_DIR="$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.playwright.blob)')"
           npx --no-install playwright merge-reports --reporter html "$BLOB_DIR"
 

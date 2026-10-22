@@ -757,6 +757,12 @@ Other build-related scripts not in the postbuild chain:
 
 **Process:** Asserts 4 specific agent-config files exist (the workflow's only step is a `test -f` chain): `.agents/AGENT_MANIFEST.yaml`, `.agents/llm-config.json`, `.agents/policies/guardrails.md`, `.agents/context/vision-and-roadmap-full.md`. Pre-pt391 the README described it as "Validates AI agent configuration" — vague; the gate only file-exists-checks the 4 named paths, not the contents.
 
+#### Actionlint (`actionlint.yml`)
+
+**Trigger:** Pull requests and pushes to `main` that change workflow files
+
+**Process:** Runs actionlint 1.7.12 with ShellCheck after verifying the release archive checksum.
+
 #### Copilot Setup Steps (`copilot-setup-steps.yml`)
 
 **Trigger:** Manual dispatch or changes to the workflow file

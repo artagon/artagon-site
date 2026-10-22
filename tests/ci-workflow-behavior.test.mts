@@ -22,8 +22,17 @@ type Step = {
   uses?: string;
   with?: Record<string, unknown>;
 };
-type Job = { if?: string; permissions?: Record<string, string>; steps: Step[] };
-function workflow(name: string): { jobs: Record<string, Job> } {
+type Job = {
+  env?: Record<string, string>;
+  if?: string;
+  permissions?: Record<string, string>;
+  steps: Step[];
+};
+type Workflow = {
+  jobs: Record<string, Job>;
+  permissions?: Record<string, string>;
+};
+function workflow(name: string): Workflow {
   return parse(
     readFileSync(
       new URL(`../.github/workflows/${name}.yml`, import.meta.url),
@@ -40,6 +49,8 @@ function step(name: string, job: Job): Step {
 const playwright = workflow("playwright");
 const deploy = workflow("deploy");
 const drift = workflow("design-md-drift");
+const specCompliance = workflow("pr-spec-compliance");
+const actionlintWorkflow = workflow("actionlint");
 const fixtures: string[] = [];
 function fixture() {
   const dir = mkdtempSync(join(tmpdir(), "site-ci-"));
@@ -130,6 +141,73 @@ describe("browser CI routing", () => {
     expect(merge.run).toContain("PLAYWRIGHT_HTML_OUTPUT_DIR");
     expect(merge.run).toContain("BUILD.reports.playwright.html");
     expect(merge.run).toContain("--no-install playwright merge-reports");
+  });
+});
+
+describe("spec compliance validation path", () => {
+  test("publishes the runner temp path before both workflow consumers", () => {
+    const job = specCompliance.jobs["spec-compliance"]!;
+    expect(job.env?.SPEC_VALIDATION_PATH).toBeUndefined();
+    const stepNames = job.steps.map(({ name }) => name);
+    const pathSetupIndex = stepNames.indexOf("Set spec validation output path");
+    expect(pathSetupIndex).toBeGreaterThanOrEqual(0);
+    expect(pathSetupIndex).toBeLessThan(
+      stepNames.indexOf("Validate spec reference"),
+    );
+    expect(pathSetupIndex).toBeLessThan(
+      stepNames.indexOf("Comment and enforce spec compliance"),
+    );
+    const pathSetup = step("Set spec validation output path", job).run!;
+    expect(pathSetup).toContain("SPEC_VALIDATION_PATH=%s/spec-validation.json");
+    expect(pathSetup).toContain('"$RUNNER_TEMP"');
+    expect(pathSetup).toContain('"$GITHUB_ENV"');
+    expect(step("Validate spec reference", job).run).toContain(
+      '"$SPEC_VALIDATION_PATH"',
+    );
+    expect(
+      String(step("Comment and enforce spec compliance", job).with?.script),
+    ).toContain("process.env.SPEC_VALIDATION_PATH");
+  });
+});
+
+describe("actionlint CI lane", () => {
+  const job = actionlintWorkflow.jobs.actionlint!;
+
+  test("uses read-only permissions and pins every action by full SHA", () => {
+    expect(actionlintWorkflow.permissions).toEqual({ contents: "read" });
+    expect(job.permissions).toEqual({ contents: "read" });
+    expect(step("Checkout", job).with?.["persist-credentials"]).toBe(false);
+    const actionRefs = job.steps
+      .filter(({ uses }) => uses !== undefined)
+      .map(({ uses }) => uses!);
+    expect(actionRefs).toHaveLength(1);
+    expect(actionRefs[0]).toMatch(/^actions\/checkout@[0-9a-f]{40}$/);
+  });
+
+  test("checks ShellCheck and verifies the pinned release before extraction", () => {
+    expect(step("Verify ShellCheck", job).run).toContain("shellcheck --version");
+    expect(job.env?.ACTIONLINT_VERSION).toBe("1.7.12");
+    expect(step("Download actionlint archive", job).run).toContain(
+      "releases/download/v${ACTIONLINT_VERSION}/",
+    );
+
+    const stepNames = job.steps.map(({ name }) => name);
+    const checksumIndex = stepNames.indexOf(
+      "Verify actionlint archive checksum",
+    );
+    const extractIndex = stepNames.indexOf("Extract actionlint");
+    expect(checksumIndex).toBeGreaterThanOrEqual(0);
+    expect(extractIndex).toBeGreaterThan(checksumIndex);
+    expect(step("Verify actionlint archive checksum", job).run).toContain(
+      "sha256sum --check",
+    );
+    expect(step("Verify actionlint archive checksum", job).run).toContain(
+      "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+    );
+    expect(step("Extract actionlint", job).run).toContain("tar -xzf");
+    expect(step("Lint workflows", job).run).toBe(
+      "actionlint -no-color .github/workflows/*.yml",
+    );
   });
 });
 

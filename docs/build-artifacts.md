@@ -39,7 +39,7 @@ Every path string above is declared once, in `build.config.json`. Two consumer s
 | Generated file      | Source                                                                                  |
 | ------------------- | --------------------------------------------------------------------------------------- |
 | `lighthouserc.json` | `build.config.json` (paths) + `scripts/fixtures/lhci-assertions.json` (assertion shape) |
-| `lychee.toml`       | `build.config.json` (`exclude_path`, `root_dir`); caching enabled by `cache = true`     |
+| `lychee.toml`       | `build.config.json` (build-output entries of `exclude_path`); caching enabled by `cache = true`; checkout root passed by the workflow via `--root-dir` |
 
 GitHub workflows are hand-edited. Their artifact paths mirror `build.config.json`; they are not generator outputs. Workflow YAML mutation is a future design, with no scaffold wired into sync today.
 
@@ -68,7 +68,7 @@ Worked examples:
 | Playwright               | no configured cache                         | `BUILD.reports.playwright.{results,blob,html}` | TS import in `playwright.config.ts`    |
 | Playwright CLI           | —                                           | `BUILD.reports.playwrightCli`                 | Vitest assertion binds JSON config     |
 | Lighthouse CI            | CLI-managed `.lighthouseci/`                | `BUILD.reports.lhci`                           | Generated `lighthouserc.json`          |
-| Lychee                   | default `.lycheecache/`; not restored in CI | —                                              | Generated `lychee.toml`                |
+| Lychee                   | default `.lycheecache` file; not restored in CI | —                                              | Generated `lychee.toml`                |
 | Cloudflare soak purge    | —                                           | `BUILD.reports.cloudflarePurge` (`urls.json`)  | Inline workflow imports `BUILD`        |
 | Vitest (hypothetical)    | `BUILD.cache.vitest`                        | `BUILD.reports.vitest`                         | TS import in `vitest.config.ts`        |
 | Storybook (hypothetical) | `BUILD.cache.storybook`                     | —                                              | Generated `.storybook/main.ts` partial |
