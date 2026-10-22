@@ -592,6 +592,9 @@
 - [x] 14.76 (`site-2m1.76`) npm ci fails on CI's Node 22.18 (npm 10): typescript 6 conflicts with tsconfck's optional peer ^5
 - [x] 14.77 (`site-2m1.77`) hero-font-matrix loaded-face check races document.fonts.ready on WebKit
 - [x] 14.78 (`site-2m1.78`) Offscreen hero glow animations starve WebKit rendering (3 fps after scrolling past the hero)
+- [x] 14.79 (`site-2m1.79`) Link check fails on PR #82: the WP-H cleanup dropped the jsdelivr @docsearch/ lychee exclude
+- [x] 14.80 (`site-2m1.80`) vitest purge-workflow tests need jq, which the Playwright CI container lacks
+- [x] 14.81 (`site-2m1.81`) Token --fs-page-title fails the CI design-drift gate; check:design-drift never runs locally
 
 ## Parallelism notes
 

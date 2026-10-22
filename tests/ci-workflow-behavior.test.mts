@@ -20,6 +20,7 @@ type Step = {
   run?: string;
   if?: string;
   uses?: string;
+  "timeout-minutes"?: number;
   with?: Record<string, unknown>;
 };
 type Job = {
@@ -84,6 +85,42 @@ function runShell(
     },
   });
 }
+
+function workflowJqGateFor(jqAvailable: boolean, isCI: boolean) {
+  if (jqAvailable) return { kind: "run" as const };
+  if (isCI) {
+    return {
+      kind: "fail" as const,
+      message:
+        "CI requires jq for workflow jq cases; install jq before running Vitest.",
+    };
+  }
+  return {
+    kind: "skip" as const,
+    message:
+      "SKIP locally: jq is unavailable, so workflow jq cases are skipped. Install jq to run them.",
+  };
+}
+
+function requireWorkflowJq(jqAvailable: boolean, isCI: boolean) {
+  const gate = workflowJqGateFor(jqAvailable, isCI);
+  if (gate.kind === "fail") throw new Error(gate.message);
+  return gate;
+}
+
+const jqAvailable =
+  spawnSync("jq", ["--version"], { stdio: "ignore" }).status === 0;
+const workflowJqGate = requireWorkflowJq(jqAvailable, Boolean(process.env.CI));
+const workflowJqTest = workflowJqGate.kind === "skip" ? test.skip : test;
+const workflowJqResponseTitle =
+  workflowJqGate.kind === "skip"
+    ? "response=%s curl-exit=%s (skipped locally: jq unavailable)"
+    : "response=%s curl-exit=%s";
+
+if (workflowJqGate.kind === "skip") {
+  console.warn(`[skip] ${workflowJqGate.message}`);
+}
+
 afterEach(() => {
   vi.unstubAllEnvs();
   for (const dir of fixtures.splice(0))
@@ -123,6 +160,25 @@ describe("browser CI routing", () => {
       "tests/home-axe.spec.ts tests/styling-a11y.spec.ts",
     );
     expect(command).not.toContain("--grep");
+  });
+
+  test("installs jq on shard 1 before the Vitest suites", () => {
+    const job = playwright.jobs.test!;
+    const stepNames = job.steps.map(({ name }) => name);
+    const installJqIndex = stepNames.indexOf(
+      "Install jq for Vitest (shard 1 only)",
+    );
+    const vitestIndex = stepNames.indexOf("Run vitest suites (shard 1 only)");
+    const installJq = step("Install jq for Vitest (shard 1 only)", job);
+
+    expect(installJq.if).toBe("matrix.shard == 1");
+    expect(installJq.run).toContain("apt-get update");
+    expect(installJq.run).toContain(
+      "apt-get install -y --no-install-recommends jq",
+    );
+    expect(installJq["timeout-minutes"]).toBe(3);
+    expect(installJqIndex).toBeGreaterThanOrEqual(0);
+    expect(vitestIndex).toBeGreaterThan(installJqIndex);
   });
 
   test("blob upload/download and merged HTML output agree with BUILD", () => {
@@ -296,6 +352,7 @@ describe("cache purge manifest", () => {
 
 describe("purge workflow response handling (stubbed curl, no network)", () => {
   const script = step("Purge Cloudflare cache", deploy.jobs.deploy!).run!;
+
   test("missing credentials emit a workflow warning and summary", () => {
     const dir = fixture();
     const result = runShell(script, dir, {
@@ -309,13 +366,29 @@ describe("purge workflow response handling (stubbed curl, no network)", () => {
     );
   });
 
-  test.each([
+  test("fails clearly when CI has no jq (negative control)", () => {
+    expect(() => requireWorkflowJq(false, true)).toThrow(
+      /^CI requires jq for workflow jq cases/,
+    );
+  });
+
+  test("annotates a local skip when jq is unavailable", () => {
+    const missingJq = workflowJqGateFor(false, false);
+    expect(missingJq.kind).toBe("skip");
+    if (missingJq.kind === "skip") {
+      expect(missingJq.message).toMatch(
+        /^SKIP locally: jq is unavailable, so workflow jq cases are skipped/,
+      );
+    }
+  });
+
+  workflowJqTest.each([
     ['{"success": true}', "0", true],
     ['{"success":true}', "0", true],
     ['{"success":false}', "0", false],
     ["invalid-json", "0", false],
     ['{"success":true}', "22", false],
-  ])("response=%s curl-exit=%s", (response, status, succeeds) => {
+  ])(workflowJqResponseTitle, (response, status, succeeds) => {
     const dir = fixture();
     mkdirSync(join(dir, "purge-urls"));
     writeFileSync(
@@ -337,6 +410,54 @@ describe("purge workflow response handling (stubbed curl, no network)", () => {
 });
 
 describe("design drift detection (stubbed GitHub API, no network)", () => {
+  test("design drift gate rejects an unlisted CSS token (negative control)", () => {
+    const dir = fixture();
+    mkdirSync(join(dir, "scripts"), { recursive: true });
+    mkdirSync(join(dir, "public", "assets"), { recursive: true });
+    mkdirSync(join(dir, "docs"), { recursive: true });
+    writeFileSync(
+      join(dir, "scripts", "check-design-drift.mjs"),
+      readFileSync(
+        new URL("../scripts/check-design-drift.mjs", import.meta.url),
+        "utf8",
+      ),
+    );
+    writeFileSync(
+      join(dir, "DESIGN.md"),
+      "---\ncolors:\n  bg: '#000000'\ntypography:\nspacing:\nrounded:\n---\n",
+    );
+    writeFileSync(
+      join(dir, "public", "assets", "theme.css"),
+      ":root { --unlisted-fixture-token: 1px; }\n",
+    );
+    writeFileSync(
+      join(dir, "docs", "design-md.md"),
+      "## 6 · Allow-list for `check:design-drift`\n\n## 7 · Other\n",
+    );
+
+    const result = spawnSync(
+      "node",
+      [join(dir, "scripts", "check-design-drift.mjs")],
+      { cwd: dir, encoding: "utf8" },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("--unlisted-fixture-token");
+  });
+
+  test("pre-commit checks design drift when any input is staged", () => {
+    const hook = readFileSync(
+      new URL("../.husky/pre-commit", import.meta.url),
+      "utf8",
+    );
+    expect(hook).toContain(
+      "grep -Eq '^(DESIGN[.]md|public/assets/theme[.]css|docs/design-md[.]md)$'",
+    );
+    expect(hook).toContain(
+      "DESIGN.md/theme.css/docs/design-md.md staged — running check:design-drift",
+    );
+    expect(hook).toContain("npm run check:design-drift");
+  });
+
   test("fixture checks require a successful install before reporting drift", () => {
     const job = drift.jobs["drift-check"]!;
     expect(step("Install dependencies", job).id).toBe("install");
@@ -350,17 +471,12 @@ describe("design drift detection (stubbed GitHub API, no network)", () => {
   const health = drift.jobs["drift-check"]!.steps.find((item) =>
     item.name.includes("Check upstream"),
   )!.run!;
-  test.each([
-    ["unavailable", "1", false, "transport error"],
-    ["healthy", "0", false, ""],
-    ["archived", "0", true, ""],
-    ["missing", "1", true, "gh: Not Found (HTTP 404)"],
-    ["gone", "1", true, "gh: Gone (HTTP 410)"],
-    ["server error", "1", false, "gh: Internal Server Error (HTTP 500)"],
-    ["service unavailable", "1", false, "gh: Service Unavailable (HTTP 503)"],
-    ["rate limited 403", "1", false, "gh: API rate limit exceeded (HTTP 403)"],
-    ["rate limited 429", "1", false, "gh: Too Many Requests (HTTP 429)"],
-  ])("upstream %s", (state, exit, drifted, stderr) => {
+  const runUpstreamCase = (
+    state: string,
+    exit: string,
+    drifted: boolean,
+    stderr: string,
+  ) => {
     const dir = fixture();
     const result = runShell(health, dir, {
       MOCK_RESPONSE: JSON.stringify({
@@ -384,7 +500,22 @@ describe("design drift detection (stubbed GitHub API, no network)", () => {
       );
     if (state === "healthy")
       expect(result.stdout).not.toContain("Repository is archived");
-  });
+  };
+
+  workflowJqTest.each([
+    ["healthy", "0", false, ""],
+    ["archived", "0", true, ""],
+  ])("upstream %s", runUpstreamCase);
+
+  test.each([
+    ["unavailable", "1", false, "transport error"],
+    ["missing", "1", true, "gh: Not Found (HTTP 404)"],
+    ["gone", "1", true, "gh: Gone (HTTP 410)"],
+    ["server error", "1", false, "gh: Internal Server Error (HTTP 500)"],
+    ["service unavailable", "1", false, "gh: Service Unavailable (HTTP 503)"],
+    ["rate limited 403", "1", false, "gh: API rate limit exceeded (HTTP 403)"],
+    ["rate limited 429", "1", false, "gh: Too Many Requests (HTTP 429)"],
+  ])("upstream %s", runUpstreamCase);
 
   test.each([true, false])("existing drift issue=%s", async (exists) => {
     const issueStep = step(

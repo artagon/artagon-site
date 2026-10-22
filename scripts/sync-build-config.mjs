@@ -230,6 +230,10 @@ exclude = [
   # reference is informational; the actual RSS integration is wired
   # via @astrojs/rss in src/pages/writing/feed.xml.ts.
   "^https?://docs\\\\.astro\\\\.build/en/guides/integrations-guide/rss/?$",
+  # The DocSearch CSP allow-list entry is gone, but historical OpenSpec task
+  # text still cites this bare path-prefix. jsDelivr returns 400 because it
+  # is not a directory listing.
+  "^https?://cdn\\\\.jsdelivr\\\\.net/npm/@docsearch/?$",
   # USMR rolling tasks.md narrative occasionally references
   # relative paths in backticks that lychee resolves to bogus
   # file:// URLs (e.g. \`writing/feed.xml\`, \`ink/SKILL.md\`, \`url\`).

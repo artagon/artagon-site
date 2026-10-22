@@ -303,6 +303,12 @@ Token: `` `--gutter` ``.
 
 USMR Phase 5.5.6 layout-density token, paired with the `[data-density]` attribute on `<body>`. Defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Mirrors the canonical `new-design/extracted/src/styles/{tokens.css:24-25,global.css:64-65}` shape exactly. Consumed by `.wrap` (DESIGN.md §4) for horizontal page padding; the canonical Tweaks panel surface (out-of-scope per project decision) toggles the attribute at runtime. Lives here on the allow-list rather than in DESIGN.md frontmatter because the upstream `tokens.spacing` namespace models a single base step (4 px / 8 px / etc.) and has no slot for an attribute-driven layout-padding variant. Promoting would require schema extension; same precedent as §6.24/§6.25. Companion test gate: `tests/contrast-tokens.test.mts` is unaffected (gutter is a layout token, not a contrast surface).
 
+### 6.27 Responsive small-page-title font size
+
+Token: `` `--fs-page-title` ``.
+
+USMR 14.10's shared small-page title scale is `clamp(40px, 5vw, 64px)` and is documented in DESIGN.md §3.2. The upstream typography map permits named font-size tokens, but `fontSize` is validated as a static dimension: `npm run lint:design` rejects this responsive `clamp()` value as invalid. Keep the live responsive value in `public/assets/theme.css` and allow-list it here rather than recording a false static size in frontmatter. This preserves the CSS/DESIGN.md drift gate while the §3.2 prose remains the human-readable contract.
+
 ## 7 · Accepted `lint:design` warnings
 
 The following 10 lint warnings produced by `npm run lint:design` on the current `DESIGN.md` are accepted. Each is a deliberate architectural choice, not an oversight.
