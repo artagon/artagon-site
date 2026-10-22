@@ -446,7 +446,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **A11y.** All animations disabled under `prefers-reduced-motion`. In the light theme, the glow-tag uses its static per-instance accent shadow; the breathing animation runs only on dark themes. Text contrast verified on both themes.
 
-**Offscreen pause (USMR 14.78).** A bundled page script observes each `.glow-tag` host separately and marks it with `data-glow-paused` while it is outside the viewport. The glow CSS pauses animation on the host, its pseudo-elements, and its `.glow-dot` and `.glow-text` descendants. Re-entering the viewport removes the attribute and resumes animation.
+**Offscreen pause (USMR 14.78).** Offscreen pausing is opt-in: a page that renders a `.glow-tag` marks a container with `data-glow-pause-root` and calls `pauseOffscreenGlows` from a processed `<script>`. Today this is wired only on the home hero. The script observes each `.glow-tag` host in that container and marks it with `data-glow-paused` while it is outside the viewport; the glow CSS pauses animation on the host, its pseudo-elements, and its `.glow-dot` and `.glow-text` descendants. Re-entering the viewport removes the attribute and resumes animation. If `IntersectionObserver` is unavailable, the animations continue to run.
 
 **Do** use for the positioning line, section breakpoints, and "new" announcements.
 **Don't** use more than one per viewport. Don't stack two glow-tags.
