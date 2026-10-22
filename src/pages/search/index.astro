@@ -32,11 +32,11 @@ import Base from '../../layouts/BaseLayout.astro';
     .search-page {
       max-width: var(--maxw, 1240px);
       margin: clamp(48px, 8vw, 80px) auto 0;
-      padding-inline: clamp(24px, 4vw, 40px);
+      padding-inline: var(--gutter);
       padding-bottom: clamp(48px, 8vw, 80px);
     }
     .search-page__title {
-      font-size: clamp(40px, 5vw, 64px);
+      font-size: var(--fs-page-title);
       line-height: 1.05;
       margin: 0 0 16px;
     }

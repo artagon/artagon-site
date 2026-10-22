@@ -293,6 +293,8 @@ above-the-fold. Production **must not** ship more than four custom families.
 
 ### 3.2 Type scale
 
+**Small-page titles (USMR 14.10).** Shim pages, FAQ, console, search and docs share `--fs-page-title: clamp(40px, 5vw, 64px)`; their local line-height and margin rules retain the existing presentation.
+
 **Route headings (USMR 14.4 / 14.9).** `/platform`, `/bridge`, `/use-cases`, `/standards`, and `/roadmap` each render one `<h1>` at the former section scale: 36–60 px, line-height 1.02. Their title classes pin `var(--display-weight, 500)` and the existing `--display-tracking` fallbacks, so semantic promotion preserves presentation. Subsections use `<h2>` with their existing styles. Validated MDX supplies eyebrow, headline, and lede; headline newlines create breaks and `*text*` uses the existing emphasis face.
 
 ```
@@ -355,6 +357,8 @@ for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 **Density variants** (USMR Phase 5.5.6). The `--gutter` token defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Toggle via `<body data-density="dense">` (or the canonical Tweaks panel surface). Pre-5.5.6 the attribute was documented but inert — no override blocks shipped.
 
 **Token-only utility classes.** Beyond `.wrap`, theme.css exposes:
+
+- `.section-head` — the shared equal-column grid with an 80px gap for HomeExplore, Pillars, Bridge, Standards and Roadmap; each keeps its alignment, margins and responsive overrides local (USMR 14.10).
 
 - `.display` — display-family + tracking + weight (consumes `--f-display` + `--display-tracking` with `--tracking-h1` fallback).
 - `.serif` — serif-family at weight 400 (consumes `--f-serif`). Use sparingly for italic emphasis on a single word inside a display headline (e.g. `<span class="serif" style="font-style: italic">next</span>`).
@@ -462,6 +466,8 @@ text-transform: uppercase; margin-bottom: 24px;
 Total surfaces consuming this contract: 9 — global `.eyebrow` (theme.css), `.pillars__eyebrow`, `.bridge-flow__eyebrow`, `.use-cases__eyebrow`, `.standards-wall__eyebrow`, `.roadmap-timeline__eyebrow`, `.home-explore__eyebrow`, `.writing-hero__eyebrow`, `.not-found__eyebrow` (USMR 5.5.16-pt70 — 404 missed by the original pt15/pt16 sweep; shipped 11/fg-3/0.12em with no dash). The 18 px teal accent dash is the canonical signature element. Pre-fix all surfaces used `0.7-0.72rem / fg-3 / 0.12em / no dash` — read as plain mono caps labels instead of canonical section-eyebrow primitives.
 
 The blog-hero variant (`.blog-hero__eyebrow`) intentionally **omits** the dash because the "← Blog" backlink IS the visual element; an extra dash before the arrow reads as clutter.
+
+The eight component surfaces compose `class="eyebrow"` and keep only local spacing; StandardsWall retains its forced-colors `::before` override (USMR 14.10).
 
 ### 6.4 Standards chip
 
@@ -1035,7 +1041,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - **External cards** open in a new tab with `rel="noopener noreferrer"` (matches Footer convention 5.5.4).
 - **Hover tint** uses `color-mix(in oklab, var(--accent) 4%, var(--bg-1))` per canonical `global.css:303`. Border darkens to `var(--accent-dim)`. Card lifts via `transform: translateY(-2px)` on a 220 ms ease.
 - **The section is the canonical `#playground` anchor** (5.5.6) — the hero secondary CTA `Open the playground` jumps here, mirroring canonical `Hero.jsx:167`.
-- **Gutter alignment (USMR 14.10).** HomeExplore consumes `--gutter` for inline padding. This intentional visible correction replaces its former `clamp(24px, 4vw, 40px)`: comfortable padding becomes 32px, including an 8px reduction at desktop and an 8px increase at 390px. Dense/roomy now follow the shared 20px/44px tokens. Its other layout rules remain unchanged.
+- **Gutter alignment (USMR 14.10).** HomeExplore and the remaining page-edge wrappers consume `--gutter` for inline padding: the product-page heads, tabs, panels, boards and result/badge rows; writing index/post wrappers; get-started, 404, shim, console, search and docs wrappers. This intentional visible correction replaces all 19 remaining `clamp(24px, 4vw, 40px)` declarations: old comfortable padding was 24px at 390px and 40px at 1280px; new padding is 32px at both widths, with dense/roomy following the shared 20px/44px tokens. The home hero's later padding shorthand had also erased its container gutter (0px); it now keeps its 80px/120px vertical rhythm and uses `--gutter` horizontally. Inner card padding stays local. The home page's hero, writing strip, Explore grid and on-ramp now align on the same gutter. Responsive wrapping may change with the corrected content width.
 
 **A11y.**
 

@@ -11,7 +11,7 @@ interface Props { copy: MarketingCopy; }
 const { copy } = Astro.props;
 ---
 <section class="roadmap-timeline" aria-labelledby="roadmap-timeline-heading" id="roadmap-timeline">
-  <div class="roadmap-timeline__head">
+  <div class="roadmap-timeline__head section-head">
     <div>
       <p class="roadmap-timeline__eyebrow eyebrow">{copy.eyebrow}</p>
       <h1 id="roadmap-timeline-heading" class="roadmap-timeline__title display">
@@ -60,14 +60,11 @@ const { copy } = Astro.props;
   }
 
   .roadmap-timeline__head {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
     align-items: end;
     margin-bottom: 56px;
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
+    padding-inline: var(--gutter);
   }
 
   /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */

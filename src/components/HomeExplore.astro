@@ -11,7 +11,7 @@
 import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
 ---
 <section class="home-explore" id="playground" aria-labelledby="home-explore-h">
-  <div class="home-explore__head">
+  <div class="home-explore__head section-head">
     <div>
       <p class="home-explore__eyebrow eyebrow">Explore</p>
       <h2 id="home-explore-h" class="home-explore__title display">
@@ -74,9 +74,6 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
   }
 
   .home-explore__head {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
     align-items: end;
     margin-bottom: 56px;
   }

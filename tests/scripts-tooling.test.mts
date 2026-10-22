@@ -132,7 +132,8 @@ describe("developer tooling script regressions", () => {
   it("warns during the Google font migration only for the two CSP-allowed hosts", () => {
     withTempDir("font-hosts-", (root) => {
       const dist = join(root, "dist");
-      writeFile(root, "src/layouts/BaseLayout.astro", "https://fonts.googleapis.com/css2\n");
+      writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="preconnect" href="https://fonts.googleapis.com">\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2 https://fonts.gstatic.com/font.woff2\n");
       const result = runNode(
         join(SCRIPTS, "verify-font-self-hosting.mjs"),
@@ -141,11 +142,12 @@ describe("developer tooling script regressions", () => {
       );
       expect(result.code).toBe(0);
       expect(result.stderr).toContain("Severity downgraded to warn");
+      expect(result.stderr).toContain("src/data/font-stylesheets.ts");
     });
 
     withTempDir("font-host-mixed-", (root) => {
       const dist = join(root, "dist");
-      writeFile(root, "src/layouts/BaseLayout.astro", "https://fonts.googleapis.com/css2\n");
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2 https://use.typekit.net/abc.css\n");
       const result = runNode(
         join(SCRIPTS, "verify-font-self-hosting.mjs"),
@@ -159,7 +161,7 @@ describe("developer tooling script regressions", () => {
 
     withTempDir("font-host-lookalike-", (root) => {
       const dist = join(root, "dist");
-      writeFile(root, "src/layouts/BaseLayout.astro", "https://fonts.googleapis.com/css2\n");
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
       writeFile(root, "dist/index.html", "https://fonts.googleapis.com.attacker.invalid/fonts/a.woff2\n");
       const result = runNode(
         join(SCRIPTS, "verify-font-self-hosting.mjs"),
@@ -168,6 +170,36 @@ describe("developer tooling script regressions", () => {
       );
       expect(result.code).toBe(1);
       expect(result.stderr).toContain("fonts.googleapis.com.attacker.invalid");
+      expect(result.stderr).not.toContain("Severity downgraded to warn");
+    });
+  });
+
+  it("misses the extracted css2 loader without its source path (negative control)", () => {
+    withTempDir("font-loader-path-", (root) => {
+      const script = join(SCRIPTS, "verify-font-self-hosting.mjs");
+      const source = readFileSync(script, "utf8");
+      const newPath = '    join(ROOT, "src", "data", "font-stylesheets.ts"),\n';
+      expect(source).toContain(newPath);
+      const withoutNewPath = writeFile(root, "probe-without-module.mjs", source.replace(newPath, ""));
+      writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="preconnect" href="https://fonts.googleapis.com">\n');
+      writeFile(root, "src/data/font-stylesheets.ts", 'export const URL = "https://fonts.googleapis.com/css2?family=Fraunces";\n');
+      const dist = join(root, "dist");
+      writeFile(root, "dist/index.html", "https://fonts.googleapis.com/css2?family=Fraunces\n");
+      const negative = runNode(withoutNewPath, [root, dist], root);
+      expect(negative.code).toBe(1);
+      expect(negative.stderr).not.toContain("Severity downgraded to warn");
+      const positive = runNode(script, [root, dist], root);
+      expect(positive.code).toBe(0);
+      expect(positive.stderr).toContain("loader still present in src/data/font-stylesheets.ts");
+    });
+  });
+
+  it("does not treat preconnect hints as a css2 loader", () => {
+    withTempDir("font-loader-hints-", (root) => {
+      writeFile(root, "src/layouts/BaseLayout.astro", '<link rel="preconnect" href="https://fonts.googleapis.com">\n');
+      writeFile(root, "dist/index.html", "https://fonts.gstatic.com/font.woff2\n");
+      const result = runNode(join(SCRIPTS, "verify-font-self-hosting.mjs"), [root, join(root, "dist")], root);
+      expect(result.code).toBe(1);
       expect(result.stderr).not.toContain("Severity downgraded to warn");
     });
   });
