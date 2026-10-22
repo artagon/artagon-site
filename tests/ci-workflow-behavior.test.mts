@@ -176,6 +176,7 @@ describe("actionlint CI lane", () => {
   test("uses read-only permissions and pins every action by full SHA", () => {
     expect(actionlintWorkflow.permissions).toEqual({ contents: "read" });
     expect(job.permissions).toEqual({ contents: "read" });
+    expect(step("Checkout", job).with?.["persist-credentials"]).toBe(false);
     const actionRefs = job.steps
       .filter(({ uses }) => uses !== undefined)
       .map(({ uses }) => uses!);
