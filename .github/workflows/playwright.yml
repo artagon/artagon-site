@@ -128,6 +128,13 @@ jobs:
         if: matrix.shard == 1
         run: npm run test:node
 
+      # USMR 14.80 (site-2m1.80): the Playwright image lacks jq, which the
+      # stubbed cache-purge response tests invoke from the workflow shell.
+      - name: Install jq for Vitest (shard 1 only)
+        if: matrix.shard == 1
+        timeout-minutes: 3
+        run: apt-get update && apt-get install -y --no-install-recommends jq
+
       # Run vitest unit suites once on shard 1 only — same rationale as
       # node:test. Discovery is the vitest config glob
       # `include: ["tests/**/*.test.mts"]` (see vitest.config.ts); the
