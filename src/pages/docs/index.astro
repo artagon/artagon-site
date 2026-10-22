@@ -64,7 +64,7 @@ import Tagline from '../../components/Tagline.astro';
     .docs-main {
       max-width: var(--maxw, 1240px);
       margin-inline: auto;
-      padding-inline: clamp(24px, 4vw, 40px);
+      padding-inline: var(--gutter);
     }
     .docs-hero {
       padding-top: clamp(48px, 8vw, 80px);
@@ -79,7 +79,7 @@ import Tagline from '../../components/Tagline.astro';
       gap: 12px;
     }
     .docs-hero__title {
-      font-size: clamp(40px, 5vw, 64px);
+      font-size: var(--fs-page-title);
       line-height: 1.05;
       margin: 12px 0 16px;
     }

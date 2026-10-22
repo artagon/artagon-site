@@ -524,7 +524,7 @@
 - [x] 14.7 (`site-2m1.7`) No type checker runs, but the code depends on compile-time contracts
 - [x] 14.8 (`site-2m1.8`) FAQ answer styles never apply (scoped CSS cannot reach markdown HTML)
 - [x] 14.9 (`site-2m1.9`) Content-collection vs component boundary: copy duplicated, entries dead, fields silently stripped
-- [ ] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch
+- [x] 14.10 (`site-2m1.10`) Duplicated page and section scaffolding (counts) and an 8 px gutter mismatch
 - [x] 14.11 (`site-2m1.11`) Glossary chip implemented 3×, the "canonical" component is dead, and the client gets the whole glossary
 - [x] 14.12 (`site-2m1.12`) Writing posts: duplicated queries, local-timezone dates, three frontmatter date parsers
 - [ ] 14.13 (`site-2m1.13`) Stringly typed and weakened contracts; dev and prod theme vocabularies disagree

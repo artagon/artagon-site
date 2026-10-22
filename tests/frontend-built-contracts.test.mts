@@ -48,6 +48,8 @@ describe("WP-E built frontend contracts (build required)", () => {
         .map((el) => $(el).attr("href")!)
         .filter((href) => href.startsWith("/_astro/"))
         .map((href) => readFileSync(join(dist, href.slice(1)), "utf8"))
+        // USMR 14.10: Astro may inline a stylesheet after consolidation.
+        .concat($("style").toArray().map((el) => $(el).html() ?? ""))
         .join("")
         .replace(/\s/g, "");
       const prefix = route === "platform" ? "pillars" : "use-cases";

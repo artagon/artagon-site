@@ -17,14 +17,11 @@
 }
 
 .bridge-flow__head {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
   align-items: start;
   margin-bottom: 56px;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 
 /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
@@ -254,7 +251,7 @@
   margin: 0;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 .bridge-flow__result-accent {
   color: var(--accent);
