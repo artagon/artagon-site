@@ -587,9 +587,11 @@
 - [x] 14.72 (`site-2m1.72`) Formatter hooks can resolve an executable outside the frozen dependency install
 - [x] 14.73 (`site-2m1.73`) pr-spec-compliance.yml redeclares the injected github-script `core` (same defect f1842d7 fixed elsewhere)
 - [x] 14.73a (`site-2m1.73`) pr-spec-compliance.yml sets SPEC_VALIDATION_PATH at step scope; job-level `runner.temp` is not an allowed context
-- [ ] 14.74 (`site-2m1.74`) Mobile Safari touch-toggle specs tap before the client:visible trust-chain island hydrates
+- [x] 14.74 (`site-2m1.74`) Mobile Safari touch-toggle specs tap before the client:visible trust-chain island hydrates
 - [ ] 14.75 (`site-2m1.75`) The actionlint gate never runs in CI: the Playwright container lacks actionlint and shellcheck
 - [x] 14.76 (`site-2m1.76`) npm ci fails on CI's Node 22.18 (npm 10): typescript 6 conflicts with tsconfck's optional peer ^5
+- [x] 14.77 (`site-2m1.77`) hero-font-matrix loaded-face check races document.fonts.ready on WebKit
+- [x] 14.78 (`site-2m1.78`) Offscreen hero glow animations starve WebKit rendering (3 fps after scrolling past the hero)
 
 ## Parallelism notes
 

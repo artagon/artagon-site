@@ -1449,8 +1449,11 @@ header {
  * USMR Phase 5.1i — Glow components (ported from
  * new-design/extracted/src/styles/global.css lines 115-210).
  *
- * Pure CSS — no JS. Used by the home hero eyebrow pill (5.1j) and
- * future hero meta-strip (5.1k). Each effect uses a `--g-accent`
+ * CSS animation primitives with an optional JS pause hook (USMR
+ * 14.78). The home hero opts in via `data-glow-pause-root` and the
+ * processed `pauseOffscreenGlows` script; without IntersectionObserver,
+ * animations continue to run. Used by the home hero eyebrow pill
+ * (5.1j) and future hero meta-strip (5.1k). Each effect uses a `--g-accent`
  * custom property that defaults to `--accent` so consumers can
  * override per-instance (e.g., `.glow-tag.is-warning { --g-accent:
  * var(--warn); }` for an alert-tone pill) without rewriting the
@@ -1689,6 +1692,17 @@ header {
   50% {
     background-position: -20% 50%;
   }
+}
+
+/* USMR 14.78 — Pause all glow effects while their pill is offscreen. */
+.glow-tag[data-glow-paused],
+.glow-tag[data-glow-paused]::before,
+.glow-tag[data-glow-paused]::after,
+.glow-tag[data-glow-paused] .glow-dot,
+.glow-tag[data-glow-paused] .glow-dot::before,
+.glow-tag[data-glow-paused] .glow-dot::after,
+.glow-tag[data-glow-paused] .glow-text {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {

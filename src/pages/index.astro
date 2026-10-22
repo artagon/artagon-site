@@ -61,7 +61,7 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
       AT announces the section landmark by its heading. Same pattern
       used by .home-explore / .pillars / .standards-wall / .roadmap
       already. */}
-  <section class="hero container" aria-labelledby="hero-h1">
+  <section class="hero container" aria-labelledby="hero-h1" data-glow-pause-root>
     {/* USMR Phase 5.5.5 — meta-strip moved INSIDE the hero section per
      * canonical Hero.jsx:124-141 (single `<div.wrap>` holds the strip
      * + headline grid). Was previously its own `<div class="container">`
@@ -200,6 +200,13 @@ const heroLedeSegments = lede.split(/\*\*([^*]+)\*\*/);
     </div>
 
   </section>
+
+  <script>
+    import { pauseOffscreenGlows } from "../lib/glow-pause";
+
+    const hero = document.querySelector<HTMLElement>("[data-glow-pause-root]");
+    if (hero) pauseOffscreenGlows(hero);
+  </script>
 
   {
     latestPosts.length > 0 && (

@@ -74,6 +74,9 @@ for (const variant of VARIANTS) {
       }
       await page.evaluate((attr) => {
         document.documentElement.setAttribute("data-hero-font", attr);
+        const heroHeading = document.querySelector<HTMLElement>("#hero-h1");
+        if (!heroHeading) throw new Error("Missing #hero-h1");
+        void heroHeading.offsetWidth;
       }, variant.attr);
       await page.evaluate(() => document.fonts.ready);
     });
@@ -129,10 +132,18 @@ for (const variant of VARIANTS) {
         .locator("h1#hero-h1")
         .evaluate((el) => getComputedStyle(el).fontFamily);
       expect(h1FontFamily).toMatch(variant.expectedFamilyHead);
-      const loaded = await page.evaluate(() =>
-        [...document.fonts].filter(f => f.status === "loaded").map(f => f.family),
-      );
-      expect(loaded.some(f => variant.expectedFamilyHead.test(f))).toBe(true);
+      await expect
+        .poll(async () => {
+          const loadedFamilies = await page.evaluate(() =>
+            [...document.fonts]
+              .filter((face) => face.status === "loaded")
+              .map((face) => face.family),
+          );
+          return loadedFamilies.some((family) =>
+            variant.expectedFamilyHead.test(family),
+          );
+        })
+        .toBe(true);
     });
   });
 }

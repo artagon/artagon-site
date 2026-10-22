@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { waitForTrustChainHydration } from "./helpers/trust-chain-hydration.js";
 
 /**
  * Behavioural coverage for `/`. Two distinct layers:
@@ -51,9 +52,7 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    // USMR 14.31: the island hydrates client:visible; on phone viewports it
-    // sits below the fold, so scroll it in before asserting hydrated state.
-    await page.locator(".trust-chain__decision-claim").scrollIntoViewIfNeeded();
+    await waitForTrustChainHydration(page);
     // Default scenarioIdx=0 is the healthy PERMIT scenario (SSR state).
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
       "decision=PERMIT",
@@ -96,6 +95,7 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
     );
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     await page.locator("#trust-chain-passkey").hover();
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
       "user.webauthn.verified",
@@ -116,11 +116,10 @@ test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
     test.skip(isMobile, "Touch input is covered by the mobile tap tests.");
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
 
     const stage0 = page.locator(".trust-chain__stage").nth(0);
     const claim = page.locator(".trust-chain__decision-claim");
-    // USMR 14.31: client:visible hydration needs the island in view.
-    await claim.scrollIntoViewIfNeeded();
     await expect(claim).toContainText("decision=PERMIT");
 
     await stage0.click();
@@ -138,6 +137,7 @@ test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
     test.skip(isMobile, "Touch input is covered by the mobile tap tests.");
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
 
     const stages = page.locator(".trust-chain__stage");
     await stages.nth(0).click();
@@ -157,11 +157,10 @@ test.describe("Home (/) — TrustChainIsland touch toggle", () => {
     test.skip(!isMobile, "This case verifies actual touch input.");
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
 
     const stage0 = page.locator(".trust-chain__stage").nth(0);
     const claim = page.locator(".trust-chain__decision-claim");
-    // USMR 14.31: client:visible hydration needs the island in view.
-    await claim.scrollIntoViewIfNeeded();
     await expect(claim).toContainText("decision=PERMIT");
 
     await stage0.tap();
@@ -179,6 +178,7 @@ test.describe("Home (/) — TrustChainIsland touch toggle", () => {
     test.skip(!isMobile, "This case verifies actual touch input.");
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
 
     const stages = page.locator(".trust-chain__stage");
     await stages.nth(0).tap();
@@ -319,6 +319,7 @@ test.describe("Home (/) — scenario picker keyboard navigation (chromium / desk
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     const dots = page.locator(".trust-chain__scenario-dot");
     await dots.nth(0).focus();
     // Default scenarioIdx=0 is PERMIT.
@@ -336,6 +337,7 @@ test.describe("Home (/) — scenario picker keyboard navigation (chromium / desk
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     const dots = page.locator(".trust-chain__scenario-dot");
     const dotCount = await dots.count();
     await dots.nth(2).focus();
@@ -486,6 +488,7 @@ test.describe("Home (/) — TrustChainIsland keyboard focus contract", () => {
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     // SSR baseline: the scenario's finalClaim is what the decision card
     // shows before any focus event fires.
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
