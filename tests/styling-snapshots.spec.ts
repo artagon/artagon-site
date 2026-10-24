@@ -11,20 +11,21 @@ import { THEMES } from "../src/scripts/tweaks-state.ts";
  * are NOT a refactor diff — the styling refactor already shipped, and no
  * pre-refactor baseline exists. This suite is a forward baseline: future
  * styling changes diff against these images. For an intentional visual
- * change, merge it to main, dispatch the update-snapshots job on main, then
- * push a follow-up commit or re-run a comparison against the updated main
- * SHA to verify the new baselines.
+ * change, merge it to main, dispatch update-snapshots on main, then push a
+ * follow-up commit to main or open/update a PR to trigger a fresh comparison
+ * against the new baselines.
  *
  * Authoritative baselines are Linux-pinned (Playwright names files
- * `*-chromium-linux.png` on ubuntu runners). Run via the
+ * `*-chromium-linux.png` on ubuntu runners). The
  * `.github/workflows/playwright.yml` update-snapshots job runs on
  * `workflow_dispatch` of main and auto-commits Linux baselines. The
- * visual-regression job is skipped for that event; verify the new baselines
- * with a push or comparison run against updated main. Local darwin runs
- * produce `*-chromium-darwin.png` for spot-checks but are NOT committed.
+ * visual-regression job is skipped for that event, and the GITHUB_TOKEN push
+ * does not start a new run. Use a follow-up main push or a new/updated PR to
+ * compare against the new baselines. Local darwin runs produce
+ * `*-chromium-darwin.png` for spot-checks but are NOT committed.
  *
  * Run locally:  VISUAL_REGRESSION=1 npx playwright test styling-snapshots.spec.ts
- * Update (CI):  workflow_dispatch on main; then push or re-run comparison
+ * Update (CI):  workflow_dispatch on main; then main push or new/updated PR
  */
 
 const runVisualRegression = process.env.VISUAL_REGRESSION === "1";

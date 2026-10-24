@@ -253,14 +253,13 @@ jobs:
       - name: Build site
         run: npm run build
 
-      # USMR 14.38b (follow-up 1/2): mask volatile output, merge the mask,
-      # re-seed on main, confirm a green compare run, then remove this setting
-      # in follow-up 2/2.
+      # USMR 14.38b: 39 Chromium Linux baselines are tracked, including the
+      # masked /vision footer. A mismatch fails the visual-regression job;
+      # this job is not a required status check on main.
       - name: Run visual regression tests (compare-only)
         run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --fail-on-flaky-tests
         env:
           VISUAL_REGRESSION: "1"
-        continue-on-error: true
 
       - name: Upload visual diffs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
