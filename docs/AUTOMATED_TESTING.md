@@ -95,8 +95,8 @@ Tests Content Collections schema enforcement:
 
 3. **visual-regression** - Visual regression suite (`VISUAL_REGRESSION=1`)
    - Compares `tests/vision-page.spec.ts` and `tests/styling-snapshots.spec.ts` on Chromium only, with read-only repository permission and no persisted checkout credentials
-   - Runs on push/PR events with 39 tracked Chromium Linux baselines; baseline acceptance remains pending while the footer mask is merged, snapshots are re-seeded on main, and a green compare run is confirmed
-   - The compare step currently continues on error; after that setting is removed, a mismatch fails the visual-regression job. The job is not a required status check on main
+   - Runs on push/PR events with 39 tracked Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete
+   - A mismatch fails the visual-regression job. The job is not a required status check on main
    - Uploads the diff artifact after comparison failures
 
 4. **update-snapshots** - Manual baseline update

@@ -59,7 +59,7 @@ Adding a device project means updating `projects[]` in `playwright.config.ts` an
 
 ### Intentional visual changes
 
-Merge the visual change to main, dispatch `update-snapshots` on main, then push a follow-up commit or re-run a comparison against the updated main SHA to verify the new baselines. The update job's `GITHUB_TOKEN` commit does not trigger another workflow run. During this follow-up, the compare step still has `continue-on-error: true`; after it is removed, a mismatch fails the visual-regression job. That job is not a required status check on main.
+Merge the visual change to main, dispatch `update-snapshots` on main, then push a follow-up commit to main or open/update a PR to trigger a fresh comparison against the new baselines. The update job's `GITHUB_TOKEN` commit does not trigger another workflow run. A mismatch fails the visual-regression job; that job is not a required status check on main.
 
 ## Gotchas
 
@@ -70,6 +70,6 @@ Merge the visual change to main, dispatch `update-snapshots` on main, then push 
 
 From the 2026-10-20 review (beads under epic `site-2m1`):
 
-- The trusted-main `workflow_dispatch` update-snapshots job seeded 39 Chromium Linux baselines. Baseline acceptance remains pending while the `.footer-meta` mask is merged, the snapshots are re-seeded on main, and a green compare run is confirmed. The current compare step continues on error; after that setting is removed, a mismatch fails the visual-regression job. This job is not a required status check on main. `site-2m1.38` uses `#playground` for the home explore snapshot, restores `#pillars` coverage on `/platform`, and scopes the vision domain-card snapshot to `#executive-summary`.
+- The trusted-main `workflow_dispatch` update-snapshots job seeded 39 Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the visual-regression job. This job is not a required status check on main. `site-2m1.38` uses `#playground` for the home explore snapshot, restores `#pillars` coverage on `/platform`, and scopes the vision domain-card snapshot to `#executive-summary`.
 - The active `self-host-woff2-fonts` change will require a full visual-baseline re-seed after the font files move into the repository.
 - The header hit-area tests are `test.fixme`, and the GitHub icon is 34 × 34 px (`site-2m1.32`).

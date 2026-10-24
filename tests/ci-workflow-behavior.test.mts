@@ -150,7 +150,7 @@ describe("browser CI routing", () => {
       "Run visual regression tests (compare-only)",
       compare,
     );
-    expect(comparison["continue-on-error"]).toBe(true);
+    expect(comparison["continue-on-error"]).toBeUndefined();
     expect(comparison.env?.VISUAL_REGRESSION).toBe("1");
     const compareCommand = comparison.run!;
     expect(compareCommand).toContain("--fail-on-flaky-tests");
