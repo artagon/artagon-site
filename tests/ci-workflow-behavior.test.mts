@@ -20,10 +20,14 @@ type Step = {
   run?: string;
   if?: string;
   uses?: string;
+  env?: Record<string, string>;
+  "continue-on-error"?: boolean | string;
   "timeout-minutes"?: number;
   with?: Record<string, unknown>;
 };
 type Job = {
+  container?: { image?: string };
+  "continue-on-error"?: boolean | string;
   env?: Record<string, string>;
   if?: string;
   permissions?: Record<string, string>;
@@ -130,6 +134,7 @@ afterEach(() => {
 describe("browser CI routing", () => {
   test("comparison is read-only; only trusted dispatch can update snapshots", () => {
     const compare = playwright.jobs["visual-regression"]!;
+    expect(compare["continue-on-error"]).toBeUndefined();
     expect(compare.permissions?.contents).toBe("read");
     expect(compare.if).toContain("!= 'workflow_dispatch'");
     expect(step("Checkout code", compare).with?.["persist-credentials"]).toBe(
@@ -139,16 +144,36 @@ describe("browser CI routing", () => {
     expect(update.if).toContain("== 'workflow_dispatch'");
     expect(update.if).toContain("refs/heads/main");
     expect(update.permissions?.contents).toBe("write");
-    expect(
-      step("Run visual regression tests (compare-only)", compare).run?.match(
-        /--project=\S+/g,
-      ),
-    ).toEqual(["--project=chromium"]);
-    expect(
-      step("Run visual regression tests (update snapshots)", update).run?.match(
-        /--project=\S+/g,
-      ),
-    ).toEqual(["--project=chromium"]);
+    expect(compare.container?.image).toBeTruthy();
+    expect(update.container?.image).toBe(compare.container?.image);
+    const comparison = step(
+      "Run visual regression tests (compare-only)",
+      compare,
+    );
+    expect(comparison["continue-on-error"]).toBe(true);
+    expect(comparison.env?.VISUAL_REGRESSION).toBe("1");
+    const compareCommand = comparison.run!;
+    expect(compareCommand).toContain("--fail-on-flaky-tests");
+    expect(comparison.run?.match(/--project=\S+/g)).toEqual([
+      "--project=chromium",
+    ]);
+    const diffUpload = step("Upload visual diffs", compare);
+    expect(["failure()", "always()"]).toContain(diffUpload.if);
+    const updateCommand = step(
+      "Run visual regression tests (update snapshots)",
+      update,
+    ).run!;
+    const compareCommandWithoutFlakyOption = compareCommand.replace(
+      " --fail-on-flaky-tests",
+      "",
+    );
+    expect(updateCommand).toBe(
+      `${compareCommandWithoutFlakyOption} --update-snapshots`,
+    );
+    expect(updateCommand).not.toContain("--fail-on-flaky-tests");
+    expect(updateCommand.match(/--project=\S+/g)).toEqual([
+      "--project=chromium",
+    ]);
   });
 
   test("the dedicated a11y job selects the axe and a11y files", () => {

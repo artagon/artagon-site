@@ -253,11 +253,11 @@ jobs:
       - name: Build site
         run: npm run build
 
-      # USMR 14.38: Chromium-only until Linux baselines are seeded by the
-      # dispatch job and the redesign selectors are verified in CI. Then
-      # remove continue-on-error to make comparisons a blocking gate.
+      # USMR 14.38b (follow-up 1/2): mask volatile output, merge the mask,
+      # re-seed on main, confirm a green compare run, then remove this setting
+      # in follow-up 2/2.
       - name: Run visual regression tests (compare-only)
-        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --fail-on-flaky-tests
         env:
           VISUAL_REGRESSION: "1"
         continue-on-error: true

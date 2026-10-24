@@ -261,6 +261,8 @@ test.describe("Vision Page - Content Collections", () => {
     await expect(page).toHaveScreenshot("vision-page-full.png", {
       fullPage: true,
       animations: "disabled",
+      // USMR 14.38b: footer meta contains the current year and build SHA.
+      mask: [page.locator(".footer-meta")],
     });
   });
 
