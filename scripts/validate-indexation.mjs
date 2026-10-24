@@ -6,26 +6,16 @@
  *
  * THREE checks:
  *
- *   (A) meta-robots parity — every built HTML page under
- *       `.build/dist/` MUST have `<meta name="robots" content="noindex,
- *       nofollow">` iff its route is in NOINDEX_ROUTES (per
- *       `src/lib/indexation.ts` SSoT, pt416). Routes NOT in
- *       NOINDEX_ROUTES MUST NOT emit a robots meta. This catches
- *       drift in two directions: a noindex route losing its meta
- *       (e.g. via a hand-edited `<Base>` prop), AND an indexable
- *       route accidentally getting one (e.g. via a typo'd path
- *       prop that triggers `isNoindexRoute('/privacy/something')`
- *       falsely).
+ *   (A) meta-robots parity — routes in NOINDEX_ROUTES MUST include
+ *       `noindex`; routes NOT in NOINDEX_ROUTES MUST NOT include it.
+ *       The spec additionally requires `nofollow` on /console,
+ *       /search, /play, and /404 only. Other noindex routes may use
+ *       BaseLayout's documented `noindex, follow` override.
  *
- *   (B) sitemap lastmod parity — every URL in `sitemap-0.xml` that
- *       carries a `<lastmod>` MUST equal the MDX frontmatter
- *       `updated` (falling back to `published` if `updated`
- *       absent). Sitemap URLs without `<lastmod>` are skipped —
- *       Phase 10.1 (`@astrojs/sitemap` `serialize` hook) wires the
- *       date emission; until that ships this check is vacuously
- *       satisfied (no lastmod present → nothing to validate). The
- *       hook IS the consumer that makes this check load-bearing;
- *       both ship in close lockstep.
+ *   (B) sitemap lastmod parity — every writing URL MUST have a
+ *       `<lastmod>` equal to its content frontmatter `updated`
+ *       (falling back to `published`). Other sitemap URLs may omit
+ *       `<lastmod>`. An empty or unrecognized sitemap fails closed.
  *
  *   (C) `_redirects` same-origin — every destination in
  *       `public/_redirects` MUST begin with `/` (relative to site
@@ -48,7 +38,9 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname, resolve, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { argv, exit } from "node:process";
+import * as cheerio from "cheerio";
 import { isNoindexRoute, NOINDEX_ROUTES } from "../src/lib/indexation.ts";
+import { readWritingLastmod } from "../src/lib/writing-lastmod.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
@@ -56,6 +48,9 @@ const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
 const DIST = join(ROOT, ".build", "dist");
 const SITEMAP_PATH = join(DIST, "sitemap-0.xml");
 const REDIRECTS_PATH = join(ROOT, "public", "_redirects");
+// USMR 14.23 (site-2m1.23): these four routes are the only routes for
+// which the live indexation spec requires both noindex and nofollow.
+const NOFOLLOW_ROUTES = new Set(["/console", "/search", "/play", "/404"]);
 
 /* ------------------------------------------------------------------ */
 /* Check A: meta-robots parity                                        */
@@ -91,9 +86,6 @@ function distFileToRoute(distFile) {
   return "/" + rel.slice(0, -".html".length);
 }
 
-const ROBOTS_META_RE =
-  /<meta\s+name=["']robots["']\s+content=["']([^"']+)["']\s*\/?>/i;
-
 function checkA() {
   if (!existsSync(DIST)) {
     return {
@@ -105,10 +97,17 @@ function checkA() {
   for (const file of listHtmlFiles(DIST)) {
     const route = distFileToRoute(file);
     const body = readFileSync(file, "utf8");
-    const match = body.match(ROBOTS_META_RE);
+    const $ = cheerio.load(body);
+    const robots = $("meta")
+      .toArray()
+      .filter((element) => ($(element).attr("name") ?? "").toLowerCase() === "robots");
+    const content = robots
+      .map((element) => $(element).attr("content") ?? "")
+      .join(", ");
+    const tokens = new Set(content.toLowerCase().split(/[\s,]+/).filter(Boolean));
     const expected = isNoindexRoute(route);
     if (expected) {
-      if (!match) {
+      if (robots.length === 0) {
         findings.push({
           route,
           file: relative(ROOT, file),
@@ -116,21 +115,28 @@ function checkA() {
           detail:
             'route is in NOINDEX_ROUTES but no `<meta name="robots">` was emitted',
         });
-      } else if (!/\bnoindex\b/i.test(match[1])) {
+      } else if (!tokens.has("noindex")) {
         findings.push({
           route,
           file: relative(ROOT, file),
           issue: "wrong-robots-content",
-          detail: `route is in NOINDEX_ROUTES but emitted \`${match[1]}\` instead of including "noindex"`,
+          detail: `route is in NOINDEX_ROUTES but emitted \`${content}\` instead of including "noindex"`,
+        });
+      } else if (NOFOLLOW_ROUTES.has(route) && !tokens.has("nofollow")) {
+        findings.push({
+          route,
+          file: relative(ROOT, file),
+          issue: "missing-nofollow",
+          detail: `route requires both noindex and nofollow but emitted \`${content}\``,
         });
       }
     } else {
-      if (match && /\bnoindex\b/i.test(match[1])) {
+      if (tokens.has("noindex")) {
         findings.push({
           route,
           file: relative(ROOT, file),
           issue: "spurious-robots-meta",
-          detail: `route is NOT in NOINDEX_ROUTES but emitted \`${match[1]}\` (likely a stale hand-set robots prop)`,
+          detail: `route is NOT in NOINDEX_ROUTES but emitted \`${content}\` (likely a stale hand-set robots prop)`,
         });
       }
     }
@@ -142,23 +148,39 @@ function checkA() {
 /* Check B: sitemap lastmod parity                                    */
 /* ------------------------------------------------------------------ */
 
-const SITEMAP_URL_RE =
-  /<url>\s*<loc>([^<]+)<\/loc>(?:\s*<lastmod>([^<]+)<\/lastmod>)?\s*<\/url>/g;
-
 function parseSitemap(body) {
-  const urls = [];
-  for (const m of body.matchAll(SITEMAP_URL_RE)) {
-    urls.push({ loc: m[1], lastmod: m[2] ?? null });
+  const $ = cheerio.load(body, { xml: true });
+  const urls = $("urlset > url")
+    .toArray()
+    .map((element) => ({
+      loc: $(element).children("loc").first().text().trim(),
+      lastmod: $(element).children("lastmod").first().text().trim() || null,
+    }));
+  // USMR 14.24 (site-2m1.24): Cheerio recovers from truncated XML.
+  // Require a closed urlset and matching URL tags so partial input
+  // cannot leave a valid prefix that makes sitemap checks pass.
+  const openUrlTags = (body.match(/<url\s*>/g) ?? []).length;
+  const closeUrlTags = (body.match(/<\/url\s*>/g) ?? []).length;
+  if (
+    !body.trimEnd().endsWith("</urlset>") ||
+    openUrlTags !== closeUrlTags ||
+    closeUrlTags !== urls.length
+  ) {
+    return {
+      urls,
+      error: `sitemap-0.xml has unclosed structure (url tags: ${openUrlTags} open, ${closeUrlTags} closed, ${urls.length} parsed)`,
+    };
   }
-  return urls;
+  return { urls, error: null };
 }
 
-function frontmatterDate(mdxBody, key) {
-  const re = new RegExp(`^${key}:\\s*(.+)$`, "m");
-  const m = mdxBody.match(re);
-  if (!m) return null;
-  // Strip surrounding quotes if present.
-  return m[1].trim().replace(/^['"]|['"]$/g, "");
+function isPathWithin(root, candidate) {
+  const contentRelative = relative(root, candidate);
+  return (
+    contentRelative !== ".." &&
+    !contentRelative.startsWith(`..${sep}`) &&
+    !contentRelative.startsWith(sep)
+  );
 }
 
 function checkB() {
@@ -171,37 +193,84 @@ function checkB() {
     ];
   }
   const body = readFileSync(SITEMAP_PATH, "utf8");
-  const urls = parseSitemap(body);
+  const { urls, error } = parseSitemap(body);
+  if (error) {
+    return [{ issue: "invalid-sitemap-xml", detail: error }];
+  }
+  // USMR 14.24 (site-2m1.24): parser drift or an empty sitemap must
+  // not turn the only lastmod check into a vacuous success.
+  if (urls.length === 0) {
+    return [
+      {
+        issue: "empty-sitemap",
+        detail: "No sitemap URL entries parsed from sitemap-0.xml",
+      },
+    ];
+  }
   const findings = [];
   for (const { loc, lastmod } of urls) {
-    if (!lastmod) continue; // Phase 10.1 unshipped → vacuously OK
-    // Derive the writing slug if this is a /writing/<slug> URL.
-    const m = loc.match(/\/writing\/([^/]+)$/);
-    if (!m) continue; // only writing routes have MDX frontmatter we can parity-check
-    const slug = m[1];
-    const mdxPath = join(ROOT, "src", "content", "writing", `${slug}.mdx`);
-    if (!existsSync(mdxPath)) {
+    if (!loc) {
       findings.push({
-        loc,
-        issue: "sitemap-url-without-mdx",
-        detail: `sitemap cites <loc>${loc}</loc> but no MDX file at ${relative(
-          ROOT,
-          mdxPath,
-        )}`,
+        issue: "empty-sitemap-location",
+        detail: "A sitemap URL entry has no <loc> value",
       });
       continue;
     }
-    const mdxBody = readFileSync(mdxPath, "utf8");
-    const updated = frontmatterDate(mdxBody, "updated");
-    const published = frontmatterDate(mdxBody, "published");
-    const expected = updated ?? published;
+    let pathname;
+    try {
+      pathname = decodeURIComponent(new URL(loc).pathname);
+    } catch {
+      findings.push({
+        loc,
+        issue: "invalid-sitemap-location",
+        detail: `Sitemap <loc>${loc}</loc> is not a valid absolute URL`,
+      });
+      continue;
+    }
+    // USMR 14.24 (site-2m1.24): support nested content IDs and both
+    // collection extensions instead of assuming one flat .mdx slug.
+    const m = pathname.match(/^\/writing\/(.+?)\/?$/);
+    if (!m) continue; // only writing routes have MDX frontmatter we can parity-check
+    const slug = m[1];
+    if (!lastmod) {
+      findings.push({
+        loc,
+        issue: "missing-lastmod",
+        detail: "Writing URL lacks its required frontmatter lastmod",
+      });
+      continue;
+    }
+    const writingRoot = resolve(ROOT, "src", "content", "writing");
+    const segments = slug.split("/");
+    if (segments.some((segment) => !segment || segment === "." || segment === "..")) {
+      findings.push({
+        loc,
+        issue: "invalid-writing-path",
+        detail: "Writing URL does not map to a safe content path",
+      });
+      continue;
+    }
+    const contentBase = resolve(writingRoot, ...segments);
+    const contentCandidates = isPathWithin(writingRoot, contentBase)
+      ? [`${contentBase}.md`, `${contentBase}.mdx`]
+      : [];
+    const contentPath = contentCandidates.find((candidate) => existsSync(candidate));
+    if (!contentPath) {
+      findings.push({
+        loc,
+        issue: "sitemap-url-without-writing-content",
+        detail: `sitemap cites <loc>${loc}</loc> but no .md or .mdx content file under ${relative(ROOT, writingRoot)}`,
+      });
+      continue;
+    }
+    const expected = readWritingLastmod(slug, writingRoot);
     if (!expected) {
       findings.push({
         loc,
-        issue: "mdx-without-date",
-        detail: `MDX at ${relative(
+        issue: "writing-content-without-date",
+        detail: `Writing content at ${relative(
           ROOT,
-          mdxPath,
+          contentPath,
         )} has neither \`updated\` nor \`published\` frontmatter`,
       });
       continue;
@@ -214,9 +283,7 @@ function checkB() {
       findings.push({
         loc,
         issue: "lastmod-parity",
-        detail: `sitemap <lastmod>${lastmod}</lastmod> does not match MDX frontmatter (${
-          updated ? "updated" : "published"
-        }=${expected})`,
+        detail: `sitemap <lastmod>${lastmod}</lastmod> does not match parsed writing frontmatter lastmod (${expected})`,
       });
     }
   }

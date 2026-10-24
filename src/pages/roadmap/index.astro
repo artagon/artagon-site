@@ -7,20 +7,21 @@
 // helpers — those were specific to the toggle UX that the
 // new-design canonical removed.
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import RoadmapTimeline from '../../components/RoadmapTimeline.astro';
+import { getEntry } from 'astro:content';
+const entry = await getEntry('pages', 'roadmap');
+if (!entry) throw new Error('roadmap.mdx content entry not found');
 ---
 <Base
-  title="Roadmap — Artagon"
-  description="From authentication to authority. Five phases, eighteen months — core trust, verifiable credentials, policy engine, proofing & network, federation & AI."
+  title={entry.data.title}
+  description={entry.data.description}
   path="/roadmap"
 >
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       wraps the slot in <main id="main-content"> already. */}
-  <RoadmapTimeline />
+  <RoadmapTimeline copy={entry.data} />
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

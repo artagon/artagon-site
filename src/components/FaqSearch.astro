@@ -80,12 +80,14 @@
 
 .faq-clear-btn {
   position: absolute;
-  right: 12px;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  padding: 8px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   cursor: pointer;
   color: var(--fg-2);
   display: flex;
@@ -152,7 +154,8 @@
   const categories = document.querySelectorAll('.faq-category');
   const items = document.querySelectorAll('.faq-item');
 
-  function search(query: string) {
+  // USMR 14.7: retain the checked DOM references in the search closure.
+  const search = (query: string) => {
     const q = query.toLowerCase().trim();
 
     if (!q) {
@@ -193,7 +196,7 @@
     } else {
       resultsDiv.textContent = `${visibleCount} results found`;
     }
-  }
+  };
 
   searchInput.addEventListener('input', (e) => {
     search((e.target as HTMLInputElement).value);
@@ -211,7 +214,10 @@
     const targetEl = document.getElementById(targetId);
     if (targetEl && targetEl.tagName === 'DETAILS') {
       (targetEl as HTMLDetailsElement).open = true;
-      setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth';
+      setTimeout(() => targetEl.scrollIntoView({ behavior, block: 'start' }), 100);
     }
   }
 })();

@@ -22,6 +22,7 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { argv, exit, stdout, stderr } from "node:process";
+import * as cheerio from "cheerio";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(argv[2] ? argv[2] : join(__dirname, ".."));
@@ -65,11 +66,6 @@ const SKIP_LINK_RE =
   /<a\b[^>]*\bclass\s*=\s*["'][^"']*\bskip-link\b[^"']*["'][^>]*\bhref\s*=\s*["']#([^"']+)["']/i;
 const SKIP_LINK_HREF_FIRST_RE =
   /<a\b[^>]*\bhref\s*=\s*["']#([^"']+)["'][^>]*\bclass\s*=\s*["'][^"']*\bskip-link\b[^"']*["']/i;
-const ID_TARGET_RE = (id) =>
-  new RegExp(
-    `\\bid\\s*=\\s*["']${id.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}["']`,
-  );
-
 const violations = [];
 const htmlFiles = walkHtml(DIST_DIR);
 
@@ -112,7 +108,13 @@ for (const file of htmlFiles) {
     firstFocusableTag.match(SKIP_LINK_RE) ||
     firstFocusableTag.match(SKIP_LINK_HREF_FIRST_RE);
   const targetId = hrefMatch[1];
-  if (!ID_TARGET_RE(targetId).test(html)) {
+  // USMR 14.22 (site-2m1.22): compare parsed id attributes exactly so
+  // data-id suffixes and regex metacharacters cannot fool this gate.
+  const $ = cheerio.load(html);
+  const targetExists = $("[id]")
+    .toArray()
+    .some((element) => $(element).attr("id") === targetId);
+  if (!targetExists) {
     violations.push({
       file: rel,
       reason: `skip-link target #${targetId} not found on page`,

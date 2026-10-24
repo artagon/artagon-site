@@ -1,0 +1,47 @@
+---
+// USMR 14.6 / 14.54: static glossary and initial Verify state; a small
+// shared script cycles steps, pausing for pointer/focus and reduced motion.
+import { PARTIES, STEPS } from '../data/bridge';
+import { parseGlossaryText } from '../data/glossary';
+import type { MarketingCopy } from '../lib/marketing-copy';
+import HeadlineText from './HeadlineText.astro';
+import GlossaryText from './GlossaryText.astro';
+import './BridgeFlow.css';
+interface Props { copy: MarketingCopy; }
+const { copy } = Astro.props;
+const initialStep = 2;
+---
+<section class="bridge-flow" aria-labelledby="bridge-flow-heading" id="bridge-flow" data-bridge-cycle>
+  <div class="bridge-flow__head section-head">
+    <div>
+      <p class="bridge-flow__eyebrow eyebrow">{copy.eyebrow}</p>
+      <h1 id="bridge-flow-heading" class="bridge-flow__title display"><HeadlineText text={copy.headline} emphasisClass="bridge-flow__title-emphasis" /></h1>
+    </div>
+    <p class="bridge-flow__lede lead"><GlossaryText nodes={parseGlossaryText(copy.lede)} /></p>
+  </div>
+  <div class="bridge-flow__board">
+    <div class="bridge-flow__parties" role="presentation">
+      {PARTIES.map((party) => (
+        <div class:list={['bridge-party', { 'is-active': party.id === STEPS[initialStep].nodeId }]}
+          data-node-id={party.id} aria-current={party.id === STEPS[initialStep].nodeId ? 'step' : undefined}>
+          <div class="bridge-party__role">{party.role}</div>
+          <div class="bridge-party__label"><GlossaryText nodes={party.label} /></div>
+          <div class="bridge-party__sub"><GlossaryText nodes={party.sub} /></div>
+        </div>
+      ))}
+    </div>
+    <ol class="bridge-flow__steps" aria-label="Bridge protocol steps">
+      {STEPS.map((step, i) => (
+        <li class="bridge-flow__step-wrap">
+          <button type="button" class:list={['bridge-step', { 'is-active': i === initialStep, 'is-past': i < initialStep }]}
+            data-node-id={step.nodeId} aria-current={i === initialStep ? 'step' : undefined} disabled>
+            <span class="bridge-step__num">STEP 0{step.num}</span><span class="bridge-step__title">{step.title}</span>
+            <span class="bridge-step__desc"><GlossaryText nodes={step.desc} interactive={false} /></span>
+          </button>
+        </li>
+      ))}
+    </ol>
+  </div>
+  <p class="bridge-flow__result">Result: <span class="bridge-flow__result-accent">high-assurance identity</span> flows through your existing stack. No migration. No rip-and-replace.</p>
+</section>
+<script src="../scripts/marketing-interactions.ts"></script>

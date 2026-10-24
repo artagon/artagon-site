@@ -3,10 +3,9 @@
 // canonical OID4VP→OIDC bridge composition).
 //
 // Three parties, four protocol steps. Each step's `nodeId` points
-// at the party it activates during the auto-cycle so the React
-// island can highlight the right card mid-step.
+// at the party it activates during the auto-cycle.
 
-import type { GlossaryTerm } from "./glossary.js";
+import { term as t, text as txt, type GlossaryNode } from "./glossary.js";
 
 export interface BridgeParty {
   id: BridgePartyId;
@@ -32,12 +31,7 @@ export interface BridgeStep {
 }
 
 /** Inline label/desc tokens — text segments + glossary terms. */
-export type LabelNode =
-  | { kind: "text"; value: string }
-  | { kind: "term"; value: GlossaryTerm | string };
-
-const t = (value: string): LabelNode => ({ kind: "term", value });
-const txt = (value: string): LabelNode => ({ kind: "text", value });
+export type LabelNode = GlossaryNode;
 
 export const PARTIES: readonly [BridgeParty, BridgeParty, BridgeParty] = [
   {

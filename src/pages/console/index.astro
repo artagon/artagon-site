@@ -1,13 +1,11 @@
 ---
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import Tagline from '../../components/Tagline.astro';
 ---
 {/* USMR Phase 5.5.16-pt143 — canonical title pattern per DESIGN.md
     §9.5: `{Page} — Artagon`. Pre-pt143 was "Artagon Console". */}
 <Base title="Console — Artagon" description="Manage tenants, clients, credentials, and policy — Verified. Private. Attested." path="/console">
-  <Fragment slot="header"><Header /></Fragment>
+
   {/* USMR Phase 5.5.16-pt119 — pre-pt119 the bare <h1>Welcome</h1>
       rendered at 102 px (hero-sized). Same drift class as pt114 / pt117
       / pt118. Canonicalized to .display + clamp(40, 5vw, 64) sizing.
@@ -34,10 +32,10 @@ import Tagline from '../../components/Tagline.astro';
     .console-hero {
       max-width: var(--maxw, 1240px);
       margin: clamp(48px, 8vw, 80px) auto 0;
-      padding-inline: clamp(24px, 4vw, 40px);
+      padding-inline: var(--gutter);
     }
     .console-hero__title {
-      font-size: clamp(40px, 5vw, 64px);
+      font-size: var(--fs-page-title);
       line-height: 1.05;
       margin: 0 0 16px;
     }
@@ -45,5 +43,5 @@ import Tagline from '../../components/Tagline.astro';
       margin-bottom: 16px;
     }
   </style>
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

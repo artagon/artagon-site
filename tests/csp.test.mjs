@@ -13,10 +13,15 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import * as cheerio from "cheerio";
 import {
   buildPolicy,
   extractScriptSrcHashes,
   extractStyleSrcHashes,
+  processHtml,
   sha,
 } from "../scripts/csp.mjs";
 
@@ -39,6 +44,9 @@ test("buildPolicy emits all expected directives with hashes", () => {
   assert.match(m[1], /'sha256-def456'/);
   // safety: never 'unsafe-inline' in script-src
   assert.doesNotMatch(m[1], /'unsafe-inline'/);
+  // CSP's frame-ancestors directive is supplied by the HTTP response
+  // header; meta-delivered policies cannot enforce it.
+  assert.doesNotMatch(policy, /(?:^|;\s*)frame-ancestors\s/);
 });
 
 test("buildPolicy never emits 'unsafe-inline' in script-src even with extras", () => {
@@ -130,19 +138,39 @@ test("extractStyleSrcHashes returns empty Set when no style-src directive", () =
 
 test("extractStyleSrcHashes ignores non-hash tokens like 'self' and URLs", () => {
   const policy =
-    "style-src 'self' https://cdn.jsdelivr.net/npm/@docsearch/ 'sha256-abc'; img-src 'self'";
+    "style-src 'self' https://cdn.example/styles/ 'sha256-abc'; img-src 'self'";
   const result = extractStyleSrcHashes(policy);
   assert.equal(result.size, 1);
   assert.ok(result.has("abc"));
 });
 
+test("processHtml does not allow origins for unconfigured DocSearch assets", async () => {
+  const root = mkdtempSync(join(tmpdir(), "csp-unconfigured-search-"));
+  const file = join(root, "index.html");
+  try {
+    writeFileSync(
+      file,
+      '<!doctype html><html><head><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3"><script src="https://cdn.jsdelivr.net/npm/@docsearch/js@3"></script></head><body></body></html>',
+    );
+
+    await processHtml(file);
+
+    const $ = cheerio.load(readFileSync(file, "utf8"));
+    const policy = $('meta[http-equiv="Content-Security-Policy"]').attr(
+      "content",
+    );
+    assert.ok(policy, "CSP meta should be added");
+    assert.doesNotMatch(policy, /cdn\.jsdelivr\.net|algolia/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 // pt433 — defense-in-depth: `buildPolicy` itself must refuse to emit
 // forbidden CSP keywords even when a caller passes them via `extras`.
-// Today the DocSearch branch in `processHtml` is the only callsite
-// and `extras` is hardcoded-safe, but `buildPolicy` is exported for
-// testing and a future caller could regress. Helper-level filter
-// makes `'unsafe-inline'` / `'unsafe-eval'` etc. impossible to slip
-// through, regardless of caller intent.
+// `buildPolicy` is exported for testing and other script callers.
+// Helper-level filtering makes `'unsafe-inline'` / `'unsafe-eval'`
+// impossible to slip through, regardless of caller intent.
 test("buildPolicy filters 'unsafe-inline' from extras (script-src)", () => {
   const policy = buildPolicy(
     new Set(["abc"]),

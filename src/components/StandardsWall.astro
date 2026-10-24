@@ -4,54 +4,43 @@
 // token-only static Astro component. No interactivity needed —
 // the column grid is purely presentational.
 //
-// Each item's `name` is glossary-looked-up — matches become
-// hover-able canonical-URL links via the global `.standard-chip`
-// class (Phase 5.2.1 single-source rule). Misses render as plain
-// text; the build-time warning surfaces in dev.
+// Standard resolves item names at build time. Matches are canonical
+// glossary links; labels outside the glossary remain plain text.
 import { STANDARDS_GROUPS, STANDARDS_BADGES } from '../data/standards';
-import { lookupGlossary } from '../data/glossary';
+import Standard from './Standard.astro';
+import { parseGlossaryText } from '../data/glossary';
+import GlossaryText from './GlossaryText.astro';
+import type { MarketingCopy } from '../lib/marketing-copy';
+import HeadlineText from './HeadlineText.astro';
+interface Props { copy: MarketingCopy; }
+const { copy } = Astro.props;
 ---
 <section class="standards-wall" aria-labelledby="standards-wall-heading" id="standards-wall">
-  <div class="standards-wall__head">
+  <div class="standards-wall__head section-head">
     <div>
-      <p class="standards-wall__eyebrow">Standards & specs</p>
-      <h2 id="standards-wall-heading" class="standards-wall__title display">
-        We don't invent protocols.<br />
-        <span class="standards-wall__title-emphasis">We implement</span> them rigorously.
-      </h2>
+      <p class="standards-wall__eyebrow eyebrow">{copy.eyebrow}</p>
+      <h1 id="standards-wall-heading" class="standards-wall__title display">
+        <HeadlineText text={copy.headline} emphasisClass="standards-wall__title-emphasis" />
+      </h1>
     </div>
     <p class="standards-wall__lede lead">
-      Artagon contributes to IETF, OpenID Foundation, and W3C working groups.
-      Every feature maps to a published spec; every flow is conformance-testable.
+      <GlossaryText nodes={parseGlossaryText(copy.lede)} />
     </p>
   </div>
 
   <div class="standards-wall__columns">
     {STANDARDS_GROUPS.map((group) => (
       <div class="standards-col" id={`standards-col-${group.id}`}>
-        <h3 class="standards-col__head">{group.label}</h3>
+        <h2 class="standards-col__head">{group.label}</h2>
         <ul class="standards-col__list">
-          {group.items.map((item) => {
-            const def = lookupGlossary(item.name);
-            return (
+          {group.items.map((item) => (
               <li class="standards-col__item">
                 <span class="standards-col__name">
-                  {def ? (
-                    <a
-                      href={def.href}
-                      target={def.external ? '_blank' : undefined}
-                      rel={def.external ? 'noopener noreferrer' : undefined}
-                      title={def.name}
-                      class="standard-chip"
-                    >{item.name}</a>
-                  ) : (
-                    item.name
-                  )}
+                  <Standard term={item.name} plainMissing />
                 </span>
                 <span class="standards-col__desc">{item.description}</span>
               </li>
-            );
-          })}
+          ))}
         </ul>
       </div>
     ))}
@@ -75,34 +64,17 @@ import { lookupGlossary } from '../data/glossary';
   }
 
   .standards-wall__head {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
     align-items: end;
     margin-bottom: 56px;
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
+    padding-inline: var(--gutter);
   }
 
   /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+  /* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
   .standards-wall__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--fg-2);
     margin: 0 0 24px;
-  }
-  .standards-wall__eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
   }
 
   .standards-wall__title {
@@ -115,7 +87,7 @@ import { lookupGlossary } from '../data/glossary';
     color: var(--fg);
     margin: 0;
   }
-  .standards-wall__title-emphasis {
+  .standards-wall__title :global(.standards-wall__title-emphasis) {
     font-family: var(--f-emphasis, var(--f-serif));
     font-style: italic;
   }
@@ -149,7 +121,7 @@ import { lookupGlossary } from '../data/glossary';
     gap: 40px;
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
+    padding-inline: var(--gutter);
   }
 
   @media (max-width: 1024px) {
@@ -170,6 +142,7 @@ import { lookupGlossary } from '../data/glossary';
     padding-bottom: 10px;
     margin: 0 0 8px;
     font-weight: 400;
+    line-height: 1.2;
   }
 
   .standards-col__list {
@@ -219,7 +192,7 @@ import { lookupGlossary } from '../data/glossary';
     flex-wrap: wrap;
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
+    padding-inline: var(--gutter);
   }
 
   .standards-badge {

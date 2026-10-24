@@ -107,15 +107,7 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
 // only below 720px, body.nav-open pivot, fixed-position panels (links
 // at top:64px, right docked at bottom:0), aria-expanded sync.
 test.describe("Header — mobile hamburger menu", () => {
-  // pt443 — `.fixme()` rather than disable. The 44×44 toggle
-  // dimension assertion fails on Mobile Chrome under the Pixel 5
-  // device profile post-pt423/pt424 design refresh. Tracked under
-  // a follow-up `enhance-a11y-coverage` Phase 4 task to validate
-  // tap-target dimensions against the canonical mock at the new
-  // density profile. Marking fixme keeps the test in the suite
-  // (visible in reports as a pending issue) without blocking
-  // unrelated PRs.
-  test.fixme("toggle is hidden on desktop, visible 44×44 below 720px", async ({
+  test("toggle is hidden on desktop, visible with at least a 44×44 hit area below 720px", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
@@ -126,8 +118,10 @@ test.describe("Header — mobile hamburger menu", () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(toggle).toBeVisible();
     const box = await toggle.boundingBox();
-    expect(box?.width).toBe(44);
-    expect(box?.height).toBe(44);
+    // USMR 14.32: device emulation reports sub-pixel boxes (43.999996 on
+    // Pixel 5 at DPR 2.75) for a 44 CSS px element; compare rounded px.
+    expect(Math.round(box?.width ?? 0)).toBeGreaterThanOrEqual(44);
+    expect(Math.round(box?.height ?? 0)).toBeGreaterThanOrEqual(44);
   });
 
   test("clicking toggle opens menu, swaps aria-expanded, fixed-positions panels", async ({
@@ -167,6 +161,31 @@ test.describe("Header — mobile hamburger menu", () => {
     expect(rightPos.position).toBe("fixed");
     expect(rightPos.bottom).toBe("0px");
   });
+
+  test("same-page link closes the menu and Escape closes it with focus returned to the toggle", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    const toggle = page.locator(".nav-toggle");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    const playground = page.locator('.site-nav .right a[href="/#playground"]');
+    await expect(playground).toBeVisible();
+    await playground.click();
+    await expect(page).toHaveURL(/#playground$/);
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(page.locator("body")).not.toHaveClass(/nav-open/);
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await page.locator(".site-nav .links a").first().focus();
+    await page.keyboard.press("Escape");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(page.locator("body")).not.toHaveClass(/nav-open/);
+    await expect(toggle).toBeFocused();
+  });
 });
 
 // USMR 5.5.16-pt87 — canonical NAV_LINKS expanded from the
@@ -196,13 +215,10 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
     ]);
   });
 
-  // pt443 — same layout-sensitivity as the 44×44 toggle test above.
-  // The 34×34 GitHub icon dimension assertion fails on Mobile Chrome
-  // (Pixel 5) post-pt423/pt424 design refresh. Tracked under the
-  // same `enhance-a11y-coverage` Phase 4 follow-up.
-  test.fixme("GitHub appears as a 34×34 icon button in .right, not in .links", async ({
+  test("GitHub keeps its 34×34 chip inside a 44×44 hit area in .right, not in .links", async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
     // No GitHub label inside .links
     await expect(
@@ -213,9 +229,40 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
     await expect(gh).toHaveAttribute("aria-label", "GitHub");
     await expect(gh).toHaveAttribute("href", "https://github.com/artagon");
     await expect(gh).toHaveAttribute("target", "_blank");
+    await expect(gh).toBeVisible();
     const box = await gh.boundingBox();
-    expect(box?.width).toBeGreaterThanOrEqual(34);
-    expect(box?.height).toBeGreaterThanOrEqual(34);
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  });
+
+  test("active nav link gains a visible focus outline from keyboard focus", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/platform");
+    const active = page.locator(
+      '.site-nav .links a.active[aria-current="page"]',
+    );
+    await expect(active).toBeVisible();
+    const outlineBefore = await active.evaluate(
+      (el) => getComputedStyle(el).outlineStyle,
+    );
+
+    for (let tab = 0; tab < 10; tab += 1) {
+      await page.keyboard.press("Tab");
+      if (await active.evaluate((el) => document.activeElement === el)) {
+        break;
+      }
+    }
+
+    await expect(active).toBeFocused();
+    const focusOutline = await active.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { style: style.outlineStyle, width: style.outlineWidth };
+    });
+    expect(focusOutline.style).toBe("solid");
+    expect(focusOutline.width).toBe("2px");
+    expect(focusOutline.style).not.toBe(outlineBefore);
   });
 
   // USMR 5.5.16-pt5 — canonical CTA routing per BaseLayout.jsx:239-240.

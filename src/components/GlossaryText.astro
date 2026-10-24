@@ -1,0 +1,7 @@
+---
+import type { GlossaryText } from '../data/glossary';
+import Standard from './Standard.astro';
+interface Props { nodes: GlossaryText; interactive?: boolean; }
+const { nodes, interactive = true } = Astro.props;
+---
+{nodes.map((node) => node.kind === 'term' ? <Standard term={node.value} interactive={interactive} /> : node.value)}

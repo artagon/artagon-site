@@ -80,39 +80,45 @@ Tests Content Collections schema enforcement:
 
 **Jobs:**
 
-1. **test** - Run all tests (5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22`)
+1. **test** - Run the full project matrix in 5 shards (`TOTAL_SHARDS` in `.github/workflows/playwright.yml`)
    - Installs dependencies (`npm ci`, frozen lockfile)
    - Installs Playwright browsers (chromium / firefox / webkit bundled in CI image; Edge + Chrome stable channels installed via `npx playwright install msedge` / `chrome`)
-   - Builds site (runs prebuild → astro build → 10-step postbuild)
-   - Runs tests in parallel (1/5, 2/5, 3/5, 4/5, 5/5 shards)
-   - Uploads per-shard test reports + screenshots on failure (14-day retention)
+   - Builds site through the configured prebuild, Astro, and postbuild chain
+   - Runs tests with two workers per shard
+   - Uploads per-shard blob reports (14-day retention) and screenshots on failure (7 days)
 
 2. **merge-reports** - Combines shard results
-   - Downloads all 5 shard reports
-   - Merges into single HTML report
+   - Checks out the repository and installs the lockfile-pinned CLI
+   - Downloads the per-shard blob reports
+   - Merges them into HTML at `BUILD.reports.playwright.html`; merge failures fail the job
    - Uploads merged report artifact
 
 3. **visual-regression** - Visual regression suite (`VISUAL_REGRESSION=1`)
-   - Workflow invokes `tests/vision-page.spec.ts` + `tests/styling-snapshots.spec.ts` on 3 projects (chromium · webkit · Mobile Safari) per `playwright.yml:254,256` (line 254 = `npx playwright test ... --project=chromium --project=webkit --project="Mobile Safari"`; line 256 = `VISUAL_REGRESSION: "1"` env)
-   - The specs themselves currently skip non-chromium via `test.skip(testInfo.project.name !== "chromium", ...)` so net effect is chromium-only snapshot capture (the webkit / Mobile Safari Linux baselines do not exist yet — see AGENTS.md §Testing for the broader cross-engine guard via `tests/header.spec.ts` + `tests/home-axe.spec.ts`)
-   - Uploads visual diffs on failure
-   - On `workflow_dispatch`: regenerates baselines via `--update-snapshots` and auto-commits
+   - Compares `tests/vision-page.spec.ts` and `tests/styling-snapshots.spec.ts` on Chromium only, with read-only repository permission and no persisted checkout credentials
+   - Runs on push/PR events and uploads visual results; comparison remains non-blocking until Linux baseline seeding and selector verification
 
-4. **accessibility** - Accessibility audit
-   - Runs `--grep "accessibility"` on 3 engines: chromium · webkit · Mobile Safari (per `playwright.yml:326`)
-   - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; per pt264 archaeology in AGENTS.md §Accessibility)
+4. **update-snapshots** - Manual baseline update
+   - Runs only on `workflow_dispatch` of `main`, with write permission
+   - Uses the same two specs on Chromium with `--update-snapshots`
+   - Stages only Chromium Linux PNGs through the verified pathspec; commit/push failures fail the job
+
+5. **accessibility** - Accessibility audit
+   - Explicitly selects `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium, webkit, and Mobile Safari
+   - The axe-core gate at `tests/home-axe.spec.ts` is MANDATORY (pt5.1p.8 flipped from opt-in; contract in `docs/agents/accessibility.md`)
    - Uploads failures for review
 
 **Triggers:**
 
-- Push to `main` or `feature/*` branches
+- Push to `main`
 - Pull requests to `main`
 - Manual workflow dispatch
 
+Feature branches without a PR to `main` require manual dispatch. Snapshot updates additionally require dispatch on `main`.
+
 **Artifacts Retention** (per `.github/workflows/playwright.yml`):
 
-- Test reports (per-shard, merged HTML): 14 days (lines 146, 181)
-- Screenshots / failure traces / visual diffs / a11y failures: 7 days (lines 154, 280, 329)
+- Test reports (per-shard blobs and merged HTML): 14 days
+- Screenshots / failure traces / visual diffs / a11y failures: 7 days
 
 ### 4. NPM Scripts
 
@@ -124,7 +130,7 @@ Added to `package.json`:
   "test:headed": "playwright test --headed",
   "test:ui": "playwright test --ui",
   "test:update-snapshots": "playwright test --update-snapshots",
-  "test:ci": "playwright test --reporter=github"
+  "test:ci": "playwright test"
 }
 ```
 
@@ -132,13 +138,14 @@ Added to `package.json`:
 
 **playwright.config.ts:**
 
+- Node runtime: 22.18.0 from `.nvmrc`; `engines.node` declares `>=22.18.0`
 - Test directory: `./tests`
 - Base URL: `http://localhost:4321`
 - Auto-start preview server before tests
-- Parallel execution (local: unlimited, CI: 1 worker)
+- Parallel execution (local: Playwright's default, CI: 2 workers per shard)
 - Retries: 0 locally, 2 on CI
 - Projects: 15-device matrix (5 desktop · 5 mobile · 3 tablet · 2 large) per `playwright.config.ts` `projects[]` — see `AGENTS.md` §"Device matrix" for the canonical list
-- Reporters: HTML locally, GitHub on CI
+- Reporters: HTML locally; GitHub annotations, HTML, and blob reports on CI
 - Screenshots on failure
 - Traces on first retry
 
@@ -186,7 +193,7 @@ npx playwright test --project=chromium
 
 Tests run automatically on:
 
-- Every push to `main` or `feature/*` branches
+- Every push to `main`
 - Every pull request to `main`
 
 View results:
@@ -393,8 +400,8 @@ test("should have no accessibility violations", async ({ page }) => {
 
 Tests run in parallel for speed:
 
-- **Local:** Unlimited workers (based on CPU cores)
-- **CI:** 5 shards per `TOTAL_SHARDS: 5` in `.github/workflows/playwright.yml:22` (shards 1/5–5/5; pre-pt234 was 3 shards before the device-matrix expansion required tighter parallelization)
+- **Local:** Playwright's default worker count, based on CPU cores
+- **CI:** 5 shards per `TOTAL_SHARDS` in `.github/workflows/playwright.yml`, with 2 workers per shard
 
 ### Browser Optimization
 

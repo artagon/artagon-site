@@ -24,7 +24,7 @@ test("parse accepts a valid full Tweaks object", () => {
   const input = {
     accent: "blue",
     density: "dense",
-    theme: "light",
+    theme: "midnight",
     heroFont: "fraunces",
     showGrid: false,
     writingWidget: "A · strip",
@@ -36,7 +36,7 @@ test("parse falls back per-field for invalid values", () => {
   const input = {
     accent: "neon-pink", // invalid
     density: "ultra-roomy", // invalid
-    theme: "dark", // valid
+    theme: "twilight", // valid
     heroFont: 42, // wrong type
     showGrid: "yes", // wrong type
     writingWidget: "Z · phantom", // invalid
@@ -44,7 +44,7 @@ test("parse falls back per-field for invalid values", () => {
   assert.deepEqual(parse(input), {
     accent: DEFAULTS.accent,
     density: DEFAULTS.density,
-    theme: "dark",
+    theme: "twilight",
     heroFont: DEFAULTS.heroFont,
     showGrid: DEFAULTS.showGrid,
     writingWidget: DEFAULTS.writingWidget,
@@ -78,7 +78,7 @@ test("parse accepts every valid density", () => {
 });
 
 test("parse accepts every valid theme", () => {
-  for (const theme of ["dark", "light"]) {
+  for (const theme of ["twilight", "midnight"]) {
     assert.equal(parse({ theme }).theme, theme);
   }
 });

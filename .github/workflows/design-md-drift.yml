@@ -31,30 +31,52 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
+        id: install
         run: npm ci
 
       - name: "(2.7a) Regenerate design.md spec and check for drift"
         id: spec-drift
         run: |
           npm run spec:cache
-          git diff --exit-code openspec/.cache/design-md-spec.md || echo "SPEC_DRIFTED=true" >> $GITHUB_ENV
+          if git diff --quiet -- openspec/.cache/design-md-spec.md; then
+            echo "Spec cache is current"
+          else
+            status=$?
+            if [ "$status" -ne 1 ]; then exit "$status"; fi
+            echo "SPEC_DRIFTED=true" >> "$GITHUB_ENV"
+          fi
 
       - name: "(2.7b) Check upstream design.md repo health"
         id: upstream-health
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Fetch repository info from google-labs-code/design.md
-          REPO_INFO=$(gh api repos/google-labs-code/design.md --jq '{archived: .archived, pushed_at: .pushed_at}' 2>/dev/null || echo '{"archived":true}')
-          ARCHIVED=$(echo "$REPO_INFO" | jq -r '.archived // true')
+          # USMR 14.52 R2: a missing upstream is drift; transient API errors are not.
+          API_ERROR=$(mktemp)
+          trap 'rm -f "$API_ERROR"' EXIT
+          if ! REPO_INFO=$(gh api repos/google-labs-code/design.md --jq '{archived: .archived, pushed_at: .pushed_at}' 2> "$API_ERROR"); then
+            if grep -Eq '\(HTTP (404|410)\)' "$API_ERROR"; then
+              echo "UPSTREAM_DRIFTED=true" >> "$GITHUB_ENV"
+              echo "Upstream repository is missing or inaccessible (HTTP 404/410)."
+              exit 1
+            fi
+            echo "::warning::GitHub API unavailable; upstream health was not checked."
+            echo "Upstream health unavailable; no drift issue was inferred from the API error." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if ! echo "$REPO_INFO" | jq -e '(.archived | type == "boolean") and (.pushed_at | type == "string")' > /dev/null; then
+            echo "::error::Unexpected upstream health response."
+            exit 1
+          fi
+          ARCHIVED=$(echo "$REPO_INFO" | jq -r '.archived')
           PUSHED_AT=$(echo "$REPO_INFO" | jq -r '.pushed_at // ""')
 
           if [ "$ARCHIVED" = "true" ]; then
-            echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
+            echo "UPSTREAM_DRIFTED=true" >> "$GITHUB_ENV"
             echo "Repository is archived"
             exit 1
           fi
@@ -62,10 +84,10 @@ jobs:
           if [ -n "$PUSHED_AT" ]; then
             PUSH_DATE=$(date -d "$PUSHED_AT" +%s 2>/dev/null || date -jf "%Y-%m-%dT%H:%M:%SZ" "$PUSHED_AT" +%s)
             NOW=$(date +%s)
-            DAYS_SINCE=$((($NOW - $PUSH_DATE) / 86400))
+            DAYS_SINCE=$(((NOW - PUSH_DATE) / 86400))
             
             if [ "$DAYS_SINCE" -gt 90 ]; then
-              echo "UPSTREAM_DRIFTED=true" >> $GITHUB_ENV
+              echo "UPSTREAM_DRIFTED=true" >> "$GITHUB_ENV"
               echo "Last push was $DAYS_SINCE days ago (threshold: 90)"
               exit 1
             fi
@@ -74,7 +96,8 @@ jobs:
 
       - name: "(2.7c) Run design.md fixture snapshot tests"
         id: fixture-tests
-        run: npm run test:design-fixtures || echo "FIXTURE_TESTS_FAILED=true" >> $GITHUB_ENV
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run test:design-fixtures || echo "FIXTURE_TESTS_FAILED=true" >> "$GITHUB_ENV"
 
       - name: Collect drift findings
         id: drift-findings
@@ -86,29 +109,43 @@ jobs:
         run: |
           FINDINGS=""
           [ "$SPEC_DRIFTED" = "true" ] && FINDINGS="${FINDINGS}(2.7a) Design.md spec has drifted\n"
-          [ "$UPSTREAM_DRIFTED" = "true" ] && FINDINGS="${FINDINGS}(2.7b) Upstream design.md repo is archived or stale (>90 days)\n"
+          [ "$UPSTREAM_DRIFTED" = "true" ] && FINDINGS="${FINDINGS}(2.7b) Upstream design.md repo is missing, inaccessible, archived, or stale (>90 days)\n"
           [ "$FIXTURE_TESTS_FAILED" = "true" ] && FINDINGS="${FINDINGS}(2.7c) Fixture snapshot tests failed\n"
 
           if [ -z "$FINDINGS" ]; then
-            echo "All checks passed"
+            echo "No drift detected; inspect warnings for checks that were unavailable."
             exit 0
           fi
 
-          echo "DRIFT_FINDINGS<<EOF" >> $GITHUB_ENV
-          echo -e "$FINDINGS" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          {
+            echo "DRIFT_FINDINGS<<EOF"
+            echo -e "$FINDINGS"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
           exit 1
 
       - name: Open tracking issue on drift
-        if: failure()
+        # USMR 14.52: unrelated workflow errors must not create drift issues.
+        if: ${{ failure() && env.DRIFT_FINDINGS != '' }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v7.0.1
         with:
           script: |
-            const findings = process.env.DRIFT_FINDINGS || "Unknown drift detected";
+            const findings = process.env.DRIFT_FINDINGS;
+            if (!findings) return;
+            const title = "[Design.md] Spec drift detected";
+            const existing = await github.paginate(github.rest.issues.listForRepo, {
+              ...context.repo,
+              state: "open",
+              per_page: 100,
+            });
+            if (existing.some(item => !item.pull_request && item.title === title)) {
+              core.info("An open drift tracking issue already exists.");
+              return;
+            }
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: "[Design.md] Spec drift detected",
+              title,
               body: `**Automated drift detection (${new Date().toISOString().split('T')[0]})**\n\n${findings}\n\nSee workflow run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
               labels: ["design-md", "drift"]
             });

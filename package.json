@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.18.0"
   },
   "description": "Artagon Identity Platform - The Unified Identity Platform: Trusted Identity for Machines and Humans. OIDC 2.1 Provider, GNAP Authorization Server, Verifiable Credentials (SD-JWT, BBS+), Passkeys, WebAuthn, Device Attestation, Zanzibar Policy Engine. Verified, Private, Attested.",
   "keywords": [
@@ -33,15 +33,16 @@
     "dev": "astro dev",
     "predev": "npm run build:prebuild-chain",
     "build": "astro build",
+    "check": "astro check",
     "prebuild": "npm run build:prebuild-chain",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:skip-link && npm run lint:taglines && npm run lint:design && npm run lint:design-md-uniqueness && npm run verify:indexation",
+    "postbuild": "npm run verify:prerequisites && npm run verify:design-prerequisites && npm run lint:tokens && node scripts/verify-font-self-hosting.mjs && node scripts/minify-theme-css.mjs && node scripts/sri.mjs && node scripts/csp.mjs && npm run lint:skip-link && npm run lint:taglines && npm run lint:design && npm run lint:design-md-uniqueness && npm run verify:indexation",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:update-snapshots": "playwright test --update-snapshots",
-    "test:ci": "playwright test --reporter=github",
+    "test:ci": "playwright test",
     "test:build-config": "node --test tests/build-config.test.mjs",
     "test:design-prerequisites": "node --test tests/verify-design-prerequisites.test.mjs",
     "test:design-fixtures": "node --test tests/design-md-fixtures.test.mjs",
@@ -90,15 +91,19 @@
   },
   "devDependencies": {
     "@ast-grep/cli": "0.42.1",
+    "@astrojs/check": "0.9.11",
     "@axe-core/playwright": "4.11.3",
     "@google/design.md": "0.1.1",
     "@lhci/cli": "0.15.1",
+    "@playwright/cli": "0.1.22",
     "@playwright/test": "1.59.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "cheerio": "1.2.0",
+    "esbuild": "0.27.7",
     "husky": "9.1.7",
     "prettier": "3.8.3",
+    "typescript": "5.9.3",
     "vitest": "4.1.5"
   },
   "overrides": {

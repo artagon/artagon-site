@@ -4,7 +4,7 @@ Thanks for helping improve the Artagon marketing site and docs shell. This guide
 
 ## Prerequisites
 
-- Node 22+ and npm (per `.nvmrc` 22.12 + `package.json` engines.node `>=22.0.0`; CI workflows pinned to 22 per pt193)
+- Node 22.18.0+ and npm (per `.nvmrc` 22.18.0 + `package.json` engines.node `>=22.18.0`; build/test workflows read `.nvmrc`). npm warns on unsupported engines; repository `engine-strict` is not enabled.
 - Git
 
 ## Quick Start
@@ -53,10 +53,10 @@ lychee --config lychee.toml './**/*.md' './public/**/*.html' './src/**/*.astro'
 - `scripts/sri.mjs` adds integrity attributes to local JS and CSS. Avoid CDN minification that would change file contents.
 - New pages should include accurate meta descriptions and canonical paths via `BaseLayout` props.
 
-## Search (DocSearch)
+## Search
 
-- The `/search` page expects Algolia DocSearch settings in `public/docsearch.json`.
-- Leave the values empty when DocSearch is not configured.
+- The `/search` page is currently an unconfigured placeholder.
+- Do not add provider credentials or CDN configuration until a search provider is part of the product scope.
 
 ## Assets and Media
 

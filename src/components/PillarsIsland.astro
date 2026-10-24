@@ -1,0 +1,51 @@
+---
+// USMR 14.6 / 14.11: build-time panels and glossary; shared manual tablist.
+import { PILLARS } from '../data/pillars';
+import { parseGlossaryText } from '../data/glossary';
+import type { MarketingCopy } from '../lib/marketing-copy';
+import HeadlineText from './HeadlineText.astro';
+import GlossaryText from './GlossaryText.astro';
+import './PillarsIsland.css';
+interface Props { copy: MarketingCopy; }
+const { copy } = Astro.props;
+---
+<section class="pillars" aria-labelledby="pillars-heading" id="pillars" data-manual-tabs>
+  <div class="pillars__head section-head">
+    <div>
+      <p class="pillars__eyebrow eyebrow">{copy.eyebrow}</p>
+      <h1 id="pillars-heading" class="pillars__title display">
+        <HeadlineText text={copy.headline} emphasisClass="pillars__title-emphasis" />
+      </h1>
+    </div>
+    <p class="pillars__lede lead"><GlossaryText nodes={parseGlossaryText(copy.lede)} /></p>
+  </div>
+  <div role="tablist" aria-label="Platform pillars" class="pillars__tabs">
+    {PILLARS.map((pillar, i) => (
+      <button type="button" role="tab" id={`pillar-tab-${pillar.id}`}
+        aria-selected={i === 0} aria-controls={`pillar-panel-${pillar.id}`}
+        tabindex={i === 0 ? 0 : -1} data-pillar-idx={i}
+        class:list={['pillar-tab', { 'is-selected': i === 0 }]} disabled>
+        <span class="pillar-tab__num">{pillar.num} · {pillar.eyebrow.toUpperCase()}</span>
+        <span class="pillar-tab__title">{pillar.title}</span>
+      </button>
+    ))}
+  </div>
+  {PILLARS.map((pillar, i) => (
+    <div role="tabpanel" id={`pillar-panel-${pillar.id}`} aria-labelledby={`pillar-tab-${pillar.id}`} hidden={i !== 0} class="pillars__panel">
+      <div class="pillars__panel-prose">
+        <div class="pillars__tagline serif">{pillar.tagline}</div>
+        <p class="pillars__body"><GlossaryText nodes={pillar.body} /></p>
+        <ul class="pillars__bullets">
+          {pillar.bullets.map((bullet) => (
+            <li class="pillars__bullet"><span class="pillars__bullet-arrow" aria-hidden="true">→</span><span><GlossaryText nodes={bullet} /></span></li>
+          ))}
+        </ul>
+      </div>
+      <div class="pillar-specimen">
+        <div class="pillar-specimen__head"><span>{pillar.specimen.header}</span><span class="pillar-specimen__live">● live</span></div>
+        <pre class="pillar-specimen__body">{pillar.specimen.payload}</pre>
+      </div>
+    </div>
+  ))}
+</section>
+<script src="../scripts/marketing-interactions.ts"></script>

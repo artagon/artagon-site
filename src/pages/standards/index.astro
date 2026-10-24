@@ -4,8 +4,6 @@
 // new-design/extracted/src/components/Standards.jsx.
 import { getEntry } from 'astro:content';
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import StandardsWall from '../../components/StandardsWall.astro';
 
 const entry = await getEntry('pages', 'standards');
@@ -17,11 +15,11 @@ if (!entry) {
 const { title, description } = entry.data;
 ---
 <Base title={title} description={description} path="/standards">
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       wraps the slot in <main id="main-content"> already. */}
-  <StandardsWall />
+  <StandardsWall copy={entry.data} />
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

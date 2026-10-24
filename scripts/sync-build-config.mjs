@@ -82,7 +82,7 @@ const configSha = createHash("sha256")
   .slice(0, 16);
 
 // ---------- Fast-path mtime check ----------
-const inputs = [CONFIG_PATH];
+const inputs = [CONFIG_PATH, fileURLToPath(import.meta.url)];
 if (existsSync(FIXTURE_PATH)) inputs.push(FIXTURE_PATH);
 const outputs = [join(ROOT, "lighthouserc.json"), join(ROOT, "lychee.toml")];
 const start = hrtime.bigint();
@@ -174,13 +174,7 @@ const lhci = {
 
 // ---------- lychee.toml ----------
 // NOTE: lychee v0.23 dropped `cache_path` as a config key; caching is enabled
-// via `cache = true`. The cache directory is controlled by --cache-dir CLI
-// flag (lychee defaults to `.lycheecache/` at repo root if not specified).
-//
-// `.github/workflows/link-check.yml` passes
-// `--cache-dir .build/cache/lychee` so the cache lives under the .build
-// umbrella. `.gitignore` also lists `.lycheecache/` as defense-in-depth in
-// case a future workflow change drops the flag.
+// via `cache = true`.
 const lycheeBody = `cache = true
 exclude_path = [
   "${buildConfig.dist}",
@@ -202,13 +196,8 @@ max_retries = 3
 accept = [200, 204, 206, 301, 302, 304, 307, 308, 403, 429]
 include_verbatim = true
 no_progress = true
-# Resolve root-relative links (e.g. \`/writing/feed.xml\` cited in the
-# USMR rolling narrative) against the repo root instead of erroring
-# with "Cannot resolve root-relative link". Resolution turns each into
-# a file:// URL pointing at <repo>/<path>; non-existent ones become
-# normal file-not-found errors that the file:// exclude patterns
-# can match. (Lychee 0.24+ renamed \`base\` → \`root_dir\` for this.)
-root_dir = "${buildConfig.root}"
+# Root-relative links require an absolute --root-dir. The link-check workflow
+# supplies its checkout path; do not encode a worktree-specific path here.
 
 # URL exclusions (regex patterns).
 exclude = [
@@ -237,27 +226,23 @@ exclude = [
   "^https?://fonts\\\\.googleapis\\\\.com/?$",
   "^https?://fonts\\\\.gstatic\\\\.com/?$",
   "^https?://fonts\\\\.googleapis\\\\.com/css2\\\\?%E2%80%A6$",
-  # CDN path-prefix referenced in scripts/csp.mjs allow-list (pt431).
-  # The path-prefix \`/npm/@docsearch/\` is not a directory listing;
-  # bare GET 400s. Specific bundle URLs (/npm/@docsearch/js@3.9.0)
-  # are SRI-pinned and load fine.
-  "^https?://cdn\\\\.jsdelivr\\\\.net/npm/@docsearch/?$",
   # Astro RSS docs URL moved during a recent docs reorg. The README
   # reference is informational; the actual RSS integration is wired
   # via @astrojs/rss in src/pages/writing/feed.xml.ts.
   "^https?://docs\\\\.astro\\\\.build/en/guides/integrations-guide/rss/?$",
+  # The DocSearch CSP allow-list entry is gone, but historical OpenSpec task
+  # text still cites this bare path-prefix. jsDelivr returns 400 because it
+  # is not a directory listing.
+  "^https?://cdn\\\\.jsdelivr\\\\.net/npm/@docsearch/?$",
   # USMR rolling tasks.md narrative occasionally references
   # relative paths in backticks that lychee resolves to bogus
   # file:// URLs (e.g. \`writing/feed.xml\`, \`ink/SKILL.md\`, \`url\`).
   # The narrative is documentation, not navigable links — exclude
   # the misresolved file:// forms targeted at the USMR change dir.
   "^file://.*/openspec/changes/update-site-marketing-redesign/(ink/SKILL\\\\.md|url|writing/feed\\\\.xml)$",
-  # \`base = "."\` (above) resolves root-relative \`/writing/feed.xml\`
-  # against the repo root, so it becomes a file:// path. The route
-  # is built into \`.build/dist/writing/feed.xml\` at runtime but
-  # doesn't exist in the source tree. Match the resolved file://
-  # form so the gate doesn't flag a route that legitimately ships
-  # only as a build artifact.
+  # The workflow's absolute --root-dir resolves /writing/feed.xml against
+  # the repository, but the route only exists in the built artifact. Exclude
+  # its resolved file:// form so the source-tree scan does not flag it.
   "^file://.*/writing/feed\\\\.xml$",
   # Upstream link rot (acceptable; pinned reference is in archive.org).
   "^https?://playwright\\\\.dev/docs/test-patterns/?$",

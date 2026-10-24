@@ -1,0 +1,19 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "isolated": true,
+    "launchOptions": {
+      "channel": "chrome"
+    }
+  },
+  "outputDir": ".build/reports/playwright-cli",
+  "outputMode": "file",
+  "network": {
+    "allowedOrigins": [
+      "http://localhost:4400",
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com"
+    ]
+  },
+  "codegen": "typescript"
+}

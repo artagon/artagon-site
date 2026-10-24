@@ -244,7 +244,7 @@ series 1. Everything else is neutral.
 
 **Site-wide accent**: `BaseLayout.astro` ships `data-accent="cyan"` on
 `<html>`; the dev-only Tweaks panel can override at runtime. The teal
-default reads on both dark and light themes. The trust-chain's `--ok`
+default reads on both `twilight` and `midnight` (USMR 14.13). The trust-chain's `--ok`
 (PERMIT, green) and `--bad` (DENY, red) tokens stay constant across
 accent variants — only `--accent` and `--accent-dim` shift.
 
@@ -259,11 +259,22 @@ accent variants — only `--accent` and `--accent-dim` shift.
 Semantic colors appear in the trust chain, logs, and status badges. They are
 **never** used for decoration.
 
-### 2.4 Light theme
+### 2.4 Theme vocabulary (USMR 14.13)
 
-Activated via `[data-theme="light"]`. All `--bg-*` and `--fg-*` swap; accent
-and semantic tokens stay constant (they are designed to read on both themes).
-Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
+Production and the dev-only Tweaks panel offer exactly `twilight` and
+`midnight`, with `twilight` as the default. The typed `THEMES` tuple in
+`src/scripts/tweaks-state.ts` owns this vocabulary; the inline pre-paint
+allow-lists are checked against it. Both themes retain the §2.1 base palette.
+Only a valid stored Tweaks theme overrides the production pre-paint choice.
+Missing, legacy (`dark`/`light`), or invalid Tweaks themes leave the page theme
+untouched. The panel uses that page theme if it is in `THEMES`, otherwise
+`THEMES[0]`. Its selected option and first edit to an unrelated field retain
+and persist that resolved theme (USMR 14.13 R1).
+
+The retired `[data-theme="dark"]` and `[data-theme="light"]` blocks,
+including light-only glow and accent overrides, are removed. Frontmatter
+palette values and production theme styles are unchanged. The paper variants
+in §6.14 are standalone brand assets, separate from page theme selection.
 
 ---
 
@@ -274,23 +285,28 @@ Contrast ratios verified against WCAG 2.2 AA for all text-on-surface pairs.
 | Family               | Role           | Weight     | Notes                                                                   |
 | -------------------- | -------------- | ---------- | ----------------------------------------------------------------------- |
 | **Inter Tight**      | Body sans      | 400, 500   | `--f-sans`. Optical spacing via `font-feature-settings: "ss01", "cv11"` |
-| **Space Grotesk**    | Display        | 400, 500   | `--f-display`. Default hero + h1/h2. Geometric, high x-height.          |
-| **Fraunces**         | Serif accent   | 400 italic | `--f-serif`. Emphasis within eyebrows; optional display alt.            |
-| **Instrument Serif** | Serif fallback | 400        | Fallback for Fraunces in certain contexts.                              |
+| **Space Grotesk**    | Dev display    | 400, 500   | Tweaks `grotesk` alternative. Geometric, high x-height.                   |
+| **Fraunces**         | Display/serif  | 400, 500; 400 italic | Production hero + h1/h2 default and `--f-serif` emphasis.         |
+| **Instrument Serif** | Dev fallback   | 400        | Retained in the serif stack; only the dev loader requests this face.     |
+| **DM Serif Display** | Dev display    | 400        | Tweaks `dmserif` alternative.                                            |
 | **JetBrains Mono**   | Mono           | 400, 500   | `--f-mono`. Code, eyebrows, standards chips, log lines.                 |
 
 Each family loads with `font-display: swap`. Preload the display face used
-above-the-fold. The site **must not** ship more than four custom families.
+above-the-fold. Production **must not** ship more than four custom families.
 
-**Webfont loading (USMR 5.5.16).** `BaseLayout.astro` ships the canonical Google-Fonts loader: `<link rel="preconnect">` to `fonts.googleapis.com` + `fonts.gstatic.com`, then a single `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?…">` request that pulls all 6 families above (`Inter Tight` 300-700, `JetBrains Mono` 300-600, `Instrument Serif` ital 0;1, `Fraunces` ital,opsz,wght variable, `DM Serif Display` ital 0;1, `Space Grotesk` 400-600). The `tests/webfonts.spec.ts` Playwright spec gates the loader's existence and verifies `h1.display` resolves to Space Grotesk + `body` to Inter Tight after `document.fonts.ready` settles. Without this loader every `--f-*` token silently fell back to system-ui (San Francisco on macOS, Segoe UI on Windows) and the hero rendered in a completely different typeface than the canonical mock — caught only when a user A/B-compared screenshots. The `self-host-woff2-fonts` OpenSpec change tracks the eventual move to self-hosted woff2; the CDN gets us pixel parity in the meantime.
+**Webfont loading (USMR 14.14).** `BaseLayout.astro` preconnects to `fonts.googleapis.com` and `fonts.gstatic.com`, then requests only the three families used across all 23 production routes: Inter Tight 300–700, JetBrains Mono 300–600, and Fraunces ital/opsz/wght. Chrome probes at 390px and 1280px confirmed those three loaded families and unchanged heading/body font stacks. Instrument Serif, Space Grotesk, and DM Serif Display load through `Tweaks.astro` only in development. Fallback token lists remain intact. `tests/webfonts.spec.ts` checks the production request and default Fraunces/Inter Tight faces; `tests/hero-font-matrix.spec.ts` injects the dev stylesheet when testing alternate faces against a built site. The runtime swap UI remains dev-only, as scoped by `self-host-woff2-fonts`; that change still owns the future self-hosted WOFF2 migration. With empty Tweaks storage, hydration preserves BaseLayout's attributes; defaults apply only after an explicit user edit (USMR 14.13).
 
 **Font-family token contract (USMR 5.5.16-pt56-57).** Every `font-family` declaration in the codebase relies on the **token's own fallback chain** rather than duplicating font names inline. The canonical pattern is `var(--f-display, var(--f-sans))` — token-to-token cascade — NOT `var(--f-display, "Space Grotesk", "Inter Tight", sans-serif)` (5.1-era duplication). Each `--f-*` token already declares its full fallback chain in `:root` (e.g. `--f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace`). When `--f-display` fails to resolve, `var(--f-sans)` provides Inter Tight as the fallback display face — a cohesive type system. The 7 surfaces migrated across pt56 (5) + pt57 (2): bare `h1`, `h2`, `h3`, `.display` (`var(--f-display, system-ui)` → `var(--f-display, var(--f-sans))` — 4 surfaces, pt56), `.serif` (drop `Georgia` since `--f-serif` already chains to it — pt56), `.glow-amp` (drop full chain duplication — pt57), `.hero h1.display` (canonical token-chain pattern — pt57).
 
-**H1 weight cascade (USMR 5.5.16-pt31, pt42).** Bare `<h1>` font-weight is **400** (regular) per canonical `global.css:229`; the catch-all `h1, h2, h3, h4 { font-weight: 500 }` is overridden by the h1-specific rule. The `.display` utility class deliberately **does NOT specify font-weight** — element-level rules drive weight per element (h1: 400, h2-h4: 500). Pre-fix the `.display` utility specified `font-weight: 500` which beat the canonical h1-specific 400 due to specificity (1 class vs 1 element); h1 consumers of `.display` (404, home index, writing index, post detail) all rendered at 500 — a noticeable thickness regression on Space Grotesk display.
+**H1 weight cascade.** Bare `<h1>` uses weight 400. The `.display` utility reads `var(--display-weight, 400)` so the chosen face controls its weight. Route title classes explicitly pin their existing weight and tracking fallbacks (USMR 14.4); the semantic heading level does not change their presentation.
 
 **Section ledes (USMR 5.5.16-pt27, pt34, pt45).** Every section lede consumes the canonical `.lead` contract: `font-size: 20px`, `color: var(--fg-1)`, `line-height: 1.5`. Section-specific overrides may set `max-width` (e.g. Pillars: 46ch, Bridge: 50ch, get-started: 52ch) or `justify-self`. Pre-fix scoped `*__lede` rules used `1.05rem` (≈16.8) on `var(--fg-2)` with `line-height: 1.55` — undersized by 3.2 px and dimmer than canonical. Total surfaces brought to canonical: 7 (Pillars, Bridge, Standards, Roadmap, HomeExplore, get-started, 404).
 
 ### 3.2 Type scale
+
+**Small-page titles (USMR 14.10).** Shim pages, FAQ, console, search and docs share `--fs-page-title: clamp(40px, 5vw, 64px)`; their local line-height and margin rules retain the existing presentation.
+
+**Route headings (USMR 14.4 / 14.9).** `/platform`, `/bridge`, `/use-cases`, `/standards`, and `/roadmap` each render one `<h1>` at the former section scale: 36–60 px, line-height 1.02. Their title classes pin `var(--display-weight, 500)` and the existing `--display-tracking` fallbacks, so semantic promotion preserves presentation. Subsections use `<h2>` with their existing styles. Validated MDX supplies eyebrow, headline, and lede; headline newlines create breaks and `*text*` uses the existing emphasis face.
 
 ```
 h1    clamp(56px,  7.2vw, 108px)  line-height 0.94   tracking -0.035em
@@ -347,9 +363,13 @@ for inline elements only). Section rhythm: **120px top/bottom**. Card padding:
 
 `.wrap` caps content at `--maxw: 1240px` and matches the canonical `new-design global.css:212` shape (`max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); position: relative; z-index: 1`). Never nest `.wrap` inside `.wrap`. `.container` is an alias kept for legacy 5.1q components — new components should author against `.wrap`.
 
+**Page chrome (USMR 14.10).** BaseLayout renders Header and Footer by default. `chrome={false}` opts out for an embedded surface. Route templates supply content and metadata without repeating chrome imports or slots.
+
 **Density variants** (USMR Phase 5.5.6). The `--gutter` token defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Toggle via `<body data-density="dense">` (or the canonical Tweaks panel surface). Pre-5.5.6 the attribute was documented but inert — no override blocks shipped.
 
 **Token-only utility classes.** Beyond `.wrap`, theme.css exposes:
+
+- `.section-head` — the shared equal-column grid with an 80px gap for HomeExplore, Pillars, Bridge, Standards and Roadmap; each keeps its alignment, margins and responsive overrides local (USMR 14.10).
 
 - `.display` — display-family + tracking + weight (consumes `--f-display` + `--display-tracking` with `--tracking-h1` fallback).
 - `.serif` — serif-family at weight 400 (consumes `--f-serif`). Use sparingly for italic emphasis on a single word inside a display headline (e.g. `<span class="serif" style="font-style: italic">next</span>`).
@@ -404,7 +424,7 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **CTA routing (USMR 5.5.16-pt5).** The Playground ghost CTA points at `/#playground` (the live HomeExplore section) and the Request access primary CTA points at `/#get-started` (the on-home onRamp card) per canonical BaseLayout.jsx:239-240. Both anchors land on the home page and scroll to the matching section; from non-home routes the browser navigates first then scrolls. The earlier 5.1l routing (Playground → `/play` shim, Request access → `/get-started` route) bypassed the canonical anchor pattern; `/play` is a noindex shim and surfaces a "Placeholder page" landing if reached directly.
 
-**A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus rings visible in both themes. Each link's hit target is ≥ 44 × 44 CSS px per WCAG 2.5.5 (`min-height: 44px` on `.site-nav .links a` since 5.5.11; visible underline still tracks the original 6px baseline). **Forced-colors override (USMR 5.5.16-pt125)**: active-link border + nav-toggle focus outline → `Highlight`; nav-toggle bars → `CanvasText`. Without these the OS palette remap drops the brand-accent signal entirely.
+**A11y.** Skip-to-content link first in tab order. `aria-current="page"` on active link. Focus indicators remain visible in both themes: nav links use an underline, the active link also gets an outline, and mobile-menu links get an outline while focused. Primary nav links have a 44px minimum hit-area height; the GitHub link has a 44 × 44 CSS px hit area around its visible 34 × 34 chip. **Forced-colors override (USMR 5.5.16-pt125)**: focused nav-link borders and focus outlines → `Highlight`; nav-toggle focus outline → `Highlight`; nav-toggle bars → `CanvasText`.
 
 **Mobile menu (USMR Phase 5.5.11).** Below 720px viewport the link list and right cluster collapse. A 44×44 hamburger button (`<button class="nav-toggle">`) appears; clicking toggles `body.nav-open`. Open-state slides the link panel below the sticky bar (`top: 64px`) and docks the CTA cluster at the viewport bottom (`top: auto; bottom: 0`). Hamburger spans rotate into an `X` via `translate + rotate(±45deg)`; `prefers-reduced-motion: reduce` zeros the transition. Inline `<script>` binds the click handler and toggles the button's `aria-expanded`. Replaces the 5.1-era `.menu` / `.menu-btn` block deleted in 5.5.11.
 
@@ -439,7 +459,9 @@ Each component has: **purpose**, **anatomy**, **tokens used**, **a11y notes**,
 
 **Tokens.** `--accent` (drives `--g-accent`) · `--bg-1` / `--bg` (gradient fill) · backdrop-blur.
 
-**A11y.** All animations disabled under `prefers-reduced-motion`. Text contrast verified on both themes.
+**A11y.** All animations disabled under `prefers-reduced-motion`. The glow-tag uses the same glow primitives in `twilight` and `midnight` (USMR 14.13).
+
+**Offscreen pause (USMR 14.78).** Offscreen pausing is opt-in: a page that renders a `.glow-tag` marks a container with `data-glow-pause-root` and calls `pauseOffscreenGlows` from a processed `<script>`. Today this is wired only on the home hero. The script observes each `.glow-tag` host in that container and marks it with `data-glow-paused` while it is outside the viewport; the glow CSS pauses animation on the host, its pseudo-elements, and its `.glow-dot` and `.glow-text` descendants. Re-entering the viewport removes the attribute and resumes animation. If `IntersectionObserver` is unavailable, the animations continue to run.
 
 **Do** use for the positioning line, section breakpoints, and "new" announcements.
 **Don't** use more than one per viewport. Don't stack two glow-tags.
@@ -458,22 +480,23 @@ Total surfaces consuming this contract: 9 — global `.eyebrow` (theme.css), `.p
 
 The blog-hero variant (`.blog-hero__eyebrow`) intentionally **omits** the dash because the "← Blog" backlink IS the visual element; an extra dash before the arrow reads as clutter.
 
+The eight component surfaces compose `class="eyebrow"` and keep only local spacing; StandardsWall retains its forced-colors `::before` override (USMR 14.10).
+
 ### 6.4 Standards chip
 
 **Purpose.** Inline glossary chip linking to a canonical spec, RFC, or vendor doc. Always opens in a new tab with `rel="noopener noreferrer"` (never `noreferrer` alone).
 
 **Anatomy.** Slot text · dotted underline (1 px, `var(--fg-3)`). On hover or `:focus-visible` the text and underline both flip to `var(--accent)`. No background fill, no badge — the chip is a typographic primitive that sits inline in body copy, not a button.
 
-**Registry (shipped, USMR Phase 5.2.0).** `src/data/glossary.ts` is the single source of truth — 71 entries today (`tests/glossary-data.test.mts` floor is ≥ 50) covering OAuth/OIDC, AuthN/proofing, verifiable credentials, AuthZ/policy, NIST/eIDAS, IAM, standards orgs, and roles. Each entry has `{ name, href, external }`. Four consumers share the global `.standard-chip` contract (count grew from 2 → 4 across Phase 5.2.x — 5.4):
+**Registry (USMR 14.11).** `src/data/glossary.ts` owns `{ name, href, external }`, the closed `GlossaryNode` / `GlossaryText` types, and `term()` / `text()` helpers. Pillars and bridge data share this representation. The render paths are:
 
 - **`<Standard term="…">`** (`src/components/Standard.astro`) — token-only static Astro chip for `.astro` and `.mdx` content.
-- **React `StandardChip`** (`src/components/PillarsIsland.tsx` inner) — emits identical markup so the global `.standard-chip` style applies to React-island content.
-- **React `StandardChip`** (`src/components/BridgeFlow.tsx:40` inner) — second island-side instance that maps `term` LabelNodes (`src/data/bridge.ts`) to chips inline within the bridge-flow legend and prose body. Identical markup contract to the PillarsIsland instance.
-- **Direct `class="standard-chip"`** (`src/components/StandardsWall.astro:45`) — token-only static usage on the `/standards` page, where each row in `STANDARDS_GROUPS` maps to a chip without going through the `<Standard>` component (the `lookupGlossary` call happens inline in the Astro frontmatter).
+- **`<GlossaryText>`** maps shared nodes to `<Standard>` for pillar prose and bridge labels. The five product-route headlines and ledes may mark terms as `[OIDC]`; unknown marked terms fail the build.
+- **Standards wall** uses `<Standard>` directly, with plain text for registry misses.
 
-All four paths share one CSS rule (`public/assets/theme.css` `.standard-chip` block) — no per-component duplication. `tests/glossary-data.test.mts` enforces the registry shape (size floor ≥ 50, every `href` is absolute https, plural aliases like `DID/DIDs` resolve to identical canonical URLs).
+Every path resolves at build time and shares the global `.standard-chip` CSS. These routes ship no glossary lookup table to the browser. `tests/glossary-data.test.mts` enforces registry shape and aliases.
 
-**A11y.** The chip is an `<a>` element when the term resolves — keyboard reachable, gets the site-wide `:focus-visible` outline. When the term is missing, the chip degrades to a plain `<span>` (no underline, no cursor change) AND a build-time `console.warn` fires so gaps are loud, not silent. Forced-colors mode swaps the underline to `CanvasText` and the hover state to `Highlight`.
+**A11y.** Resolved interactive chips are links with the site-wide focus outline. Inside bridge step buttons, `interactive={false}` renders `<abbr title>` with the same class, avoiding nested links. Missing dynamic terms render a plain span and warn in development; standards-wall labels may opt into plain text on a miss. Forced-colors mode swaps the underline to `CanvasText` and hover to `Highlight`.
 
 **Do** route every acronym through `<Standard>` — never hardcode a spec URL inline. Add new terms to `glossary.ts` with the canonical href before consuming them in copy.
 **Don't** hand-roll chip styles. Don't link to a standard without going through the registry (the URL will drift).
@@ -481,6 +504,8 @@ All four paths share one CSS rule (`public/assets/theme.css` `.standard-chip` bl
 **Status: shipped.**
 
 ### 6.5 Trust chain
+
+**Pause contract (USMR 14.2 / 14.53).** Stage hover/focus freezes evaluation and scenario rotation; resuming continues from that step. Pointer and focus state are independent, so pointer leave preserves a focused stage's pause and claim. Scenario-control hover/focus pauses only rotation: selecting a scenario resets progression and clears a pressed claim, and evaluation runs while its control retains hover or focus. Reduced motion and WebDriver settle immediately. A pressed stage claim keeps evaluation and rotation paused until released or the scenario changes.
 
 **Purpose.** The hero's centerpiece. Animated 5-stage decision that cycles through 6 real scenarios (some PERMIT, some DENY with specific, technical reasons).
 
@@ -537,9 +562,9 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 
 **Rules.** Always 4 cards, always in this order: Platform · Bridge · Use cases · Standards. Cards hover with a subtle accent tint and 2px lift.
 
-**Status: shipped.** USMR Phase 5.5.2 (extracted to typed data in 5.5.7) — `src/components/HomeExplore.astro` + `src/data/home-explore.ts`. Mounted at `src/pages/index.astro:264` (`<HomeExplore />`). The component renders a 4-up primary grid (Platform / Bridge / Use cases / Standards — described here) plus a 2-up secondary "wide" grid (Roadmap / GitHub external); see §6.23 "HomeExplore" for the full anatomy/rules of the shipped composition (this §6.6 documents only the primary 4-up sub-grid as a generic pattern). Classes are component-scoped (`.home-explore__grid` / `.home-explore__card` etc.). The earlier `.explore-grid` / `.explore-card` primitives in `public/assets/theme.css` (USMR Phase 5.1q.5) remain for surfaces that want the grid pattern outside the home page; the shipped `<HomeExplore>` does not consume them.
+**Status: shipped.** USMR Phase 5.5.2 (extracted to typed data in 5.5.7) — `src/components/HomeExplore.astro` + `src/data/home-explore.ts`. Mounted at `src/pages/index.astro:264` (`<HomeExplore />`). The component renders a 4-up primary grid (Platform / Bridge / Use cases / Standards — described here) plus a 2-up secondary "wide" grid (Roadmap / GitHub external); see §6.23 "HomeExplore" for the full anatomy and rules of the shipped composition. Classes are component-scoped (`.home-explore__grid` / `.home-explore__card` etc.). Earlier global grid primitives were removed after source search confirmed the shipped component uses its own styles and no other surface consumes them.
 
-**Sizing (USMR 5.5.16).** Both the legacy `.explore-card` (theme.css) and the shipped `.home-explore__card` (HomeExplore.astro:175-176) consume canonical (new-design global.css:296-303) `padding: 28px 24px 24px` (top inflated to clear the idx label), `gap: 14px` between rows, and `min-height: 220px` so cards align across the row even when the title text wraps. The pre-canonical 20 px / 12 px / no min-height arrangement gave shorter cards an inconsistent visual baseline on the home grid.
+**Sizing (USMR 5.5.16).** The shipped `.home-explore__card` (`HomeExplore.astro:175-176`) uses canonical (new-design global.css:296-303) `padding: 28px 24px 24px` (top inflated to clear the idx label), `gap: 14px` between rows, and `min-height: 220px` so cards align across the row even when the title text wraps. The pre-canonical 20 px / 12 px / no min-height arrangement gave shorter cards an inconsistent visual baseline on the home grid.
 
 ### 6.7 Numbered section heading
 
@@ -555,9 +580,9 @@ Both keyframes are gated behind `@media (prefers-reduced-motion: reduce) { anima
 | -------------- | ---------------------------------- | -------------------------------- |
 | `.btn.primary` | Accent background, accent-ink text | Single primary action per view   |
 | `.btn`         | Bordered, neutral                  | Secondary actions, footer CTAs   |
-| Icon button    | 34×34, bordered square             | GitHub icon, theme toggle, close |
+| Icon button    | 34×34 visible square; 44×44 hit area | GitHub icon, theme toggle, close |
 
-Height: 40px (primary) · 38px (secondary) · 34px (icon). Minimum tap target: 44×44 via hit-area padding. Never place two primary buttons adjacent.
+Height: 40px (primary) · 38px (secondary) · 34px (icon). Minimum tap target: 44×44 via hit-area padding. The GitHub chip keeps its 34×34 visible border inside a 44×44 link, and the FAQ clear button has a 44×44 hit area around its 16×16 icon. Never place two primary buttons adjacent.
 
 **Token contract (USMR 5.5.16).** Canonical `.btn` (new-design global.css:236-244): `padding: 12px 18px`, `gap: 10px`, `border-radius: 8px`, `font-size: 14px`, `font-weight: 500`, `transition: background .18s ease, border-color .18s ease, transform .18s ease`. Pre-canonical `0.5rem 0.85rem` / `border-radius: 10px` / `gap: 0.4rem` undersized every CTA against the mock; the FAQ-page `btn solid` non-canonical class was renamed to `btn primary` in the same diff. Wrapper `.wrap` consumes the density-aware `--gutter` token (`padding: 0 var(--gutter)`) instead of a hard 20 px so density toggles (`[data-density="dense" | "comfortable" | "roomy"]`) actually flow through.
 
@@ -744,8 +769,8 @@ Footer
 
 **Code blocks (the load-bearing requirement).**
 
-- **Highlighter:** Shiki (build-time, themed). Two themes registered: a
-  dark `artagon-dark` and light `artagon-light` derived from §2 tokens.
+- **Highlighter:** Shiki (build-time, themed). Use §2 tokens for both
+  `twilight` and `midnight` (USMR 14.13).
   Never use Prism or Highlight.js — Shiki produces no runtime JS.
 - **Per-block frame:** mono caption strip (language · filename · "copy"),
   scrollable body, line numbers optional, line-highlight via `{2,5-7}` syntax.
@@ -767,7 +792,8 @@ Footer
   4. **PNG/WebP screenshots** with intrinsic `width`/`height` attrs and `alt`. Last resort.
 - **No client-side diagram libraries.** Anything that requires runtime JS to render is rejected — it inflates bundles and breaks under reduced-motion and `prefers-color-scheme`.
 - **Caption.** Every diagram has a `<figcaption>` in mono, max 1 line, format: `Fig. <n> · <description>`. Numbering is per-article.
-- **Dark/light parity.** SVG diagrams must use the §2 token names via
+- **Theme parity (USMR 14.13).** SVG diagrams must work in `twilight` and
+  `midnight` using the §2 token names via
   `currentColor` and CSS variables, not hardcoded hex. The diagram's
   background should be transparent — the article surface provides it.
 
@@ -840,7 +866,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - **Hero strip** — eyebrow (`Platform`) · `<h1>` from `platform.mdx` frontmatter · lede with positioning sentence.
 - **Tab strip** (`role="tablist"`) — three `<button role="tab">` elements above a 1px `var(--line-soft)` rule. Selected tab: 2px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 5%, transparent)` background tint.
 - **Active panel** (`role="tabpanel"`) — 2-column grid (1.1fr / 1fr at ≥ 1024 px, single-column below):
-  - Left: serif italic tagline (consumes `--f-emphasis`), body paragraph, mono bullet list with `→` accent arrows. Bullets render glossary chips inline via `<Standard>` / React `StandardChip`.
+  - Left: serif italic tagline (consumes `--f-emphasis`), body paragraph, mono bullet list with `→` accent arrows. Bullets render glossary chips via `<GlossaryText>` and `<Standard>`.
   - Right: `.pillar-specimen` code panel — mono header strip carries free-form per-kind content (5.5.2: JWK JSON literal for `kind: "jwt"`, sentence-case label for `"vc"`, mono filename for `"policy"`); CSS applies `text-transform: uppercase` so authored values stay in their natural case in source. Accent `● live` indicator on the right of the header. `<pre>` payload below with `white-space: pre-wrap`.
 
 **Rules.**
@@ -858,7 +884,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - `:focus-visible` outline (2 px `var(--accent)`) survives the active-tab background tint via `outline-offset: -2px`.
 - Reduced motion: tab strip has no animation. Forced-colors mode resolves selected-tab border to `Highlight` and code panel to system colors.
 
-**Status: shipped.** USMR Phase 5.2.5 — `src/components/PillarsIsland.tsx` + `src/components/PillarsIsland.css` + `src/data/pillars.ts` extension. Snapshot baselines for `/platform` on Tablet Safari + Mobile Chrome × 3 will need workflow_dispatch regen (task 5.2.x) — the mobile-fit shim from new-design platform.html:7-22 was deliberately NOT ported (resolved Open question 1) so the responsive layout diverges from the legacy 1280-fixed look on tablets.
+**Status: shipped.** USMR 14.6 — `src/components/PillarsIsland.astro`, existing CSS, and typed panel data. `src/lib/tablist.ts`, loaded by the shared marketing script, provides manual activation. SSR hides inactive panels so the first paint with scripting enabled matches the enhanced layout; initialization enables the controls. `@media (scripting: none)` exposes all panels with spacing while tab buttons remain disabled. Heading copy comes from validated MDX.
 
 ### 6.17 BridgeFlow (Bridge route)
 
@@ -866,7 +892,7 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`The bridge strategy`) · `<h2>` with serif-italic emphasis on "cryptographically verified." · 2-column lede.
+- **Hero strip** — MDX eyebrow (`The bridge strategy`) · `<h1>` with serif-italic emphasis on "cryptographically verified." · 2-column lede from `bridge.mdx`.
 - **Board** (`.bridge-flow__board`) — outer card (`var(--bg)` over `var(--bg-1)` page bg, 1 px `var(--line)`, 14 px radius) holding:
   - **Parties row** — 3 equal `<div>` cards: Relying party (`Your OIDC App`, unchanged) · Trust service (`Artagon`, verifier + bridge) · Holder (`User's Wallet`, holds VCs). Active card: 1 px `var(--accent-dim)` border + `color-mix(in oklab, var(--accent) 8%, var(--bg-1))` background. Inactive cards stay neutral.
   - **Steps strip** (`<ol>`) — 4 `<button role>`-elements separated by 1 px `var(--line-soft)` rules. Active step: 2 px `var(--accent)` top border + `color-mix(in oklab, var(--accent) 4%, transparent)` tint. Past steps: 2 px `var(--accent-dim)` top border (visited indicator). Future steps: transparent border.
@@ -874,19 +900,19 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Rules.**
 
-- **Auto-cycle** every 2200 ms (matches canonical `setInterval(2200)`). Click any step jumps the cycle to that step but does NOT freeze the timer — the cycle continues from the user-clicked step. USMR Phase 5.5.5 removed the previously-shipped `userInteractedRef` permanent-freeze latch to match canonical Bridge.jsx:16-19 UX. Skipped under `prefers-reduced-motion: reduce` AND `navigator.webdriver` (Playwright deterministic E2E) — both render with `step = 2` (Verify highlighted, the canonical resting screenshot).
+- **Auto-cycle** every 2200 ms, paused during pointer inspection or focus within the step strip. Leaving resumes with a full interval. Reduced motion and WebDriver disable cycling and retain initial Verify state until manual selection.
 - **Data lives in `src/data/bridge.ts`** — `PARTIES` (3-tuple) + `STEPS` (4-tuple) with structured `LabelNode` tokens (text + glossary terms). The renderer maps `term` nodes to `<Standard>` chips inline.
 - **Each step's `nodeId` points at exactly one party**. The `tests/bridge-data.test.mts` invariant gate enforces (a) every nodeId resolves to a real party, (b) every party gets activated by at least one step.
-- **Click jumps the cycle to the chosen step** without freezing the timer (USMR 5.5.5 reversed the earlier "freeze for page lifetime" behavior). The auto-cycle continues from the user-clicked step, matching canonical Bridge.jsx:16-19.
+- **Click selects immediately** and restarts a full interval when unpaused. Step glossary terms are non-interactive abbreviations; party and lede terms remain links.
 
 **A11y.**
 
 - `<ol>` for steps + `<button>` per step. `aria-current="step"` on the active step (and the active party).
 - Steps are keyboard-reachable via Tab; `:focus-visible` outline (2 px `var(--accent)`) is preserved with `outline-offset: -2px` so it survives the active-step background tint.
-- Cycle pauses naturally on hover/focus only via the click-commit path — there's no separate pause-on-hover today (the cycle is brief enough that hovering rarely intersects with the timer).
+- Pointer and focus pauses are independent; leaving with one input does not release the other's pause.
 - Reduced-motion: cycle skipped, `step = 2` rendered. Forced-colors: party + step active states resolve to `Highlight` border, neutral states stay system-default.
 
-**Status: shipped.** USMR Phase 5.2.8 (page composition revised in 5.5.1) — `src/components/BridgeFlow.tsx` + `src/components/BridgeFlow.css` + `src/data/bridge.ts`. The `/bridge → /platform/#bridge 301` redirect from 5.1q.3 dropped in 5.2.8 (the route resolves directly); the `<section id="bridge">` anchor on `/platform` from 5.1q.4 also dropped in 5.5.1 after canonical-fidelity review confirmed `/platform.html` line 848 (`<App><Pillars/></App>`) renders Pillars only. `/bridge/index.astro` now mounts `<BridgeFlow client:visible />` directly with no surrounding page hero, matching `/bridge.html` line 768 (`<App><Bridge/></App>`).
+**Status: shipped.** USMR 14.6 / 14.54 — `src/components/BridgeFlow.astro`, existing CSS, typed step/party data, and `src/lib/bridge-cycle.ts` through the shared marketing script. No React runtime or glossary data hydrates on `/bridge`.
 
 ### 6.18 StandardsWall (Standards route)
 
@@ -894,20 +920,20 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`Standards & specs`) · `<h2>` with serif-italic emphasis on "We implement" · 2-column lede.
+- **Hero strip** — MDX eyebrow (`Standards & specs`) · `<h1>` with serif-italic emphasis on "We implement" · 2-column MDX lede.
 - **3-column wall** (`.standards-wall__columns`) — each column has a mono-uppercase header (the group label), then a vertical list of items. Each item is a 2-column row: `name` (mono, `--fg`, weight 500) on the left · `description` (mono, `--fg-2`, smaller) on the right. Rows are separated by 1 px `var(--line-soft)`.
 - **Affiliation badges** (`.standards-wall__badges`) — center-aligned row of 4 badges, each with a mono-uppercase eyebrow (`Certifying` / `Contributing` / `Member`) and a body label.
 
 **Rules.**
 
 - **Data lives in `src/data/standards.ts`** — `STANDARDS_GROUPS` (3-tuple) + `STANDARDS_BADGES` (4-tuple). Never hardcode standards copy in component bodies.
-- **Item names are glossary-linked at render time** — the StandardsWall renderer calls `lookupGlossary(item.name)`; matches turn into `.standard-chip` links to the canonical RFC / W3C TR / vendor docs. Misses render as plain text. The `tests/standards-data.test.mts` invariant gate enforces ≥ 70% link coverage so a glossary regression doesn't silently strip every item.
+- **Item names are glossary-linked at build time** — `<Standard term={item.name} plainMissing>` renders `.standard-chip` links to canonical RFC / W3C TR / vendor docs. Misses render as plain text. The `tests/standards-data.test.mts` invariant gate enforces ≥ 70% link coverage so a glossary regression doesn't silently strip every item.
 - **The canonical Pillars vocabulary is fully covered** — every term referenced on `/platform` (OIDC 2.1, GNAP, DPoP, etc.) appears here too. Tests gate this; the two pages stay in sync.
 - **Static-only** — no React island, no client interactivity. The wall is pure presentation.
 
 **A11y.**
 
-- `<section>` with `aria-labelledby` pointing at the `<h2>`. Each column is a `<div>` with an `<h3>` header and an `<ul>` of items.
+- `<section>` with `aria-labelledby` pointing at the `<h1>`. Each column is a `<div>` with an `<h2>` header and an `<ul>` of items.
 - Glossary chips inherit the site-wide `:focus-visible` outline. The dotted-underline + accent-on-hover pattern from Standard.astro applies.
 - Forced-colors override is inherited via the global `.standard-chip` rule (Phase 5.1).
 
@@ -919,15 +945,15 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`Roadmap`) · `<h2>` with serif-italic emphasis on "authority." · 2-column lede.
+- **Hero strip** — MDX eyebrow (`Roadmap`) · `<h1>` with serif-italic emphasis on "authority." · 2-column MDX lede.
 - **5-card grid** (`.roadmap-timeline__phases`) — equal-width columns separated by 1 px `var(--line-soft)`, all wrapped in a single 1 px `var(--line)` outer card. Each phase card is a `<li>` with header (`<span class="roadmap-phase__version">` mono prefix + `<span class="roadmap-phase__when">` time band right-aligned), status row (colored dot + uppercase mono label), title, and `<ul>` of scope items.
-- **Status dot** — 6 × 6 px `border-radius: 999px` colored token + matching `box-shadow: 0 0 10px <color>`. Status → token mapping documented in `src/data/roadmap.ts ROADMAP_STATUS`. Forced-colors mode swaps to system Highlight / Mark.
+- **Status dot** — 6 × 6 px `border-radius: 999px` colored token + matching `box-shadow: 0 0 10px <color>` (planned has no glow). Scoped status modifiers in `RoadmapTimeline.astro` map shipping → `--ok`, in-build → `--accent`, design → `--warn`, planned → `--fg-3` through a component-local CSS custom property. Forced-colors mode swaps to system Highlight / Mark.
 
 **Rules.**
 
 - **Data lives in `src/data/roadmap.ts`** — `ROADMAP_PHASES` (5-tuple) + `ROADMAP_STATUS` map. The status enumeration is exhaustive — `tests/roadmap-data.test.mts` gates that every phase resolves AND that the progression is monotonic (V1 ahead of V2 ahead of V3, etc.).
-- **`id` field preserved** for `/roadmap#v3`-style deep links carried over from the 5.1c-era stub. The card's anchor is `#roadmap-phase-<id>` if rendered with `id` props (no anchors today; track for 5.7.x if external links exist).
-- **Status drives appearance, not content** — the dot color and label come from `ROADMAP_STATUS[phase.status]`; the per-status BEM modifier (`.roadmap-phase--shipping` etc.) selects the color in CSS. Don't hardcode dot colors per phase.
+- **`id` field preserved** for `/roadmap#v3`-style deep links carried over from the 5.1c-era stub. Each card renders `id={phase.id}`, exposing stable `#v1` through `#v5` anchors.
+- **Status drives appearance, not content** — the label comes from `ROADMAP_STATUS[phase.status]`; the per-status BEM modifier (`.roadmap-phase--shipping` etc.) sets that custom property in scoped CSS. No per-card inline styles or color metadata are needed. `tests/roadmap-data.test.mts` asserts the CSS map.
 - **Static-only** — no React island. Future phases might add a "filter by status" dropdown; that would land as a separate sub-task (5.7.x).
 
 **A11y.**
@@ -945,7 +971,7 @@ Small utility classes that ride alongside the named components above. They ship 
 
 **Anatomy.**
 
-- **Hero strip** — eyebrow (`What you can build`) · `<h2>` with serif-italic emphasis on "— solved cleanly." · max-width 22 ch.
+- **Hero strip** — MDX eyebrow (`What you can build`) · `<h1>` with serif-italic emphasis on "— solved cleanly." · max-width 22 ch · MDX lede below.
 - **Board** (`.use-cases__board`) — 2-column grid: 260 px left rail + `1fr` panel. Collapses to 1-column < 720 px.
 - **Left rail** (`role="tablist" aria-orientation="vertical"`) — vertical column of `<button role="tab">` elements; selected tab gets a 2 px `var(--accent)` left border + `color-mix(in oklab, var(--accent) 6%, transparent)` background; the `short` eyebrow flips to `var(--accent)`. Inactive tabs show `var(--line-soft)` left border.
 - **Detail panel** (`role="tabpanel"`) — outer card (1 px `var(--line)`, 12 px radius, 36 px padding) holding: (a) eyebrow + serif title + body paragraph, (b) `.use-cases__metrics` 3-column divider strip with `--line-soft` separators, (c) `.use-cases__trace` ordered list rendered in `var(--f-mono)` 0.78 rem with right-aligned 2-digit numbering. The trace's last `<li>` carries `is-decision` and recolors text to `var(--accent)` — that's the PERMIT/DENIED line.
@@ -964,7 +990,7 @@ Small utility classes that ride alongside the named components above. They ship 
 - Forced-colors override: active-tab border resolves to `Highlight`; the decision line falls back to `Highlight` (system-defined emphasis); panel + trace backgrounds collapse to `Canvas`.
 - The metrics grid is exposed as `role="list"` of `role="listitem"` so screen readers announce it as a discrete unit (the visual divider strip alone wouldn't convey list semantics).
 
-**Status: shipped.** USMR Phase 5.3 — `src/components/UseCasesIsland.tsx` + `src/components/UseCasesIsland.css` + `src/data/use-cases.ts`. Replaces the PageLayout stub from 5.1q.1.
+**Status: shipped.** USMR 14.6 — `src/components/UseCasesIsland.astro`, existing CSS, and typed scenario data. The shared tablist script handles vertical keys. SSR hides inactive panels and paints the rail beside the selected panel before enhancement; initialization enables the controls. Only `@media (scripting: none)` switches to the stacked layout and exposes all panels while controls remain disabled.
 
 ### 6.21 Writing index (Blog alias)
 
@@ -1029,6 +1055,8 @@ Small utility classes that ride alongside the named components above. They ship 
 - **External cards** open in a new tab with `rel="noopener noreferrer"` (matches Footer convention 5.5.4).
 - **Hover tint** uses `color-mix(in oklab, var(--accent) 4%, var(--bg-1))` per canonical `global.css:303`. Border darkens to `var(--accent-dim)`. Card lifts via `transform: translateY(-2px)` on a 220 ms ease.
 - **The section is the canonical `#playground` anchor** (5.5.6) — the hero secondary CTA `Open the playground` jumps here, mirroring canonical `Hero.jsx:167`.
+- **Gutter alignment (USMR 14.10).** HomeExplore and the remaining page-edge wrappers consume `--gutter` for inline padding: the product-page heads, tabs, panels, boards and result/badge rows; writing index/post wrappers; get-started, 404, shim, console, search and docs wrappers. This intentional visible correction replaces all 19 remaining `clamp(24px, 4vw, 40px)` declarations: old comfortable padding was 24px at 390px and 40px at 1280px; new padding is 32px at both widths, with dense/roomy following the shared 20px/44px tokens. The home hero's later padding shorthand had also erased its container gutter (0px); it now keeps its 80px/120px vertical rhythm through `padding-block`, leaving the inline axis to `.container`. Inner card padding stays local. The home page's hero, writing strip, Explore grid and on-ramp now align on the same gutter. Responsive wrapping may change with the corrected content width.
+- **Vision gutter correction (USMR 14.10 review R3).** The 1000px-wide `.vision-container` also leaves its inline axis to `.container` and retains 0px/60px block padding. Its former fixed 20px inline padding becomes 20px dense, 32px comfortable, or 44px roomy at both 390px and 1280px. This is an intentional visible change: at 390px the content edge moves from 20px to 20px/32px/44px respectively; at 1280px the centered column moves it from 160px to 160px/172px/184px. Dense rendering stays unchanged.
 
 **A11y.**
 
@@ -1174,7 +1202,8 @@ for spinners only.
    covers the contract; the
    [`lint:reduced-motion-coverage`](./tests/lint-reduced-motion-coverage.test.mts)
    gate enforces it on the components that ship transform-based hover
-   chrome (USMR pt130). Test with the OS toggle on.
+   chrome (USMR pt130). Programmatic smooth scrolling also switches to
+   immediate scrolling. Test with the OS toggle on.
 3. **No parallax.** No scroll-hijacking. No scroll-triggered animations that
    block reading.
 4. **No `transition: all`.** Always enumerate the animated properties
@@ -1261,7 +1290,7 @@ Inline event-handler attributes (`onclick="…"`, `onload="…"`, `onerror="…"
 
 **Astro footgun.** `<button onClick={…}>` in an `.astro` template is **not** the JSX programmatic-listener syntax — Astro emits it verbatim as `onclick="…"` in the rendered HTML. A contributor copying the React idiom into an `.astro` file silently introduces an inline-handler attr.
 
-**Canonical pattern.** Use a `data-*` attribute + a scoped `<script>` that calls `addEventListener`. Examples: `Header.astro` `[data-nav-toggle]`, `BaseLayout.astro` `[data-theme-toggle]` sync hook, `ThemePreviewPanel.astro` `[data-theme-target]` (USMR pt174). Gated by [`tests/lint-no-inline-event-handler.test.mts`](./tests/lint-no-inline-event-handler.test.mts) — per-line `<!-- lint-no-inline-event-handler: ok -->` allow-list for deliberate exceptions (none today). JSX/TSX `onClick={…}` is fine — React binds those programmatically; no inline-handler attribute is ever emitted to HTML.
+**Canonical pattern.** Use a `data-*` attribute + a scoped `<script>` that calls `addEventListener`. Examples: `Header.astro` `[data-nav-toggle]`, `BaseLayout.astro` `[data-theme-toggle]` sync hook, `src/scripts/marketing-interactions.ts` `[data-manual-tabs]` binding. Gated by [`tests/lint-no-inline-event-handler.test.mts`](./tests/lint-no-inline-event-handler.test.mts) — per-line `<!-- lint-no-inline-event-handler: ok -->` allow-list for deliberate exceptions (none today). JSX/TSX `onClick={…}` is fine — React binds those programmatically; no inline-handler attribute is ever emitted to HTML.
 
 ### 9.5 Opengraph & metadata
 
@@ -1321,7 +1350,7 @@ Every interactive element reachable via Tab in source order. Focus rings are 2px
 
 ### 11.4 Reduced motion
 
-All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled under `prefers-reduced-motion: reduce`. The trust chain renders statically with the current scenario visible.
+All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled under `prefers-reduced-motion: reduce`. Programmatic FAQ anchor scrolling uses immediate behavior under reduced motion. The trust chain renders statically with the current scenario visible.
 
 ### 11.5 Screen readers
 
@@ -1332,9 +1361,9 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 
 ### 11.6 Tap targets (WCAG 2.5.5 / 2.5.8)
 
-- **Minimum**: 44 × 44 CSS px hit area for every interactive control. Visible target may be smaller — invisible padding extends the hit area (e.g. trust-chain scenario dots are 9 × 9 px visually with 44 × 44 px parent button).
+- **Minimum**: 44 × 44 CSS px hit area for every interactive control. Visible target may be smaller — invisible padding extends the hit area (e.g. the GitHub chip is 34 × 34 px, and trust-chain scenario dots are 9 × 9 px visually with 44 × 44 px parent buttons).
 - Implementation pattern: outer `<button>` with `padding`, inner `::before` pseudo-element renders the visible dot.
-- Consumed by: scenario picker (`.trust-chain__scenario-dot`), site-nav `.btn` CTAs, footer link list (single-line per row), theme toggle.
+- Consumed by: GitHub link, FAQ clear button, scenario picker (`.trust-chain__scenario-dot`), site-nav `.btn` CTAs, footer link list (single-line per row), theme toggle.
 
 ### 11.7 Forced colors mode
 
@@ -1357,7 +1386,7 @@ Hover-only affordances are mirrored to a touch-friendly press state. Trust-chain
 
 ### 11.9 Focus indicators
 
-Site-wide rule in `public/assets/theme.css`: every `<a>`, `<button>`, `<input>`, `<select>`, `<textarea>`, `<summary>`, and `[tabindex]:not([tabindex="-1"])` gains `outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px` on `:focus-visible`. Forced-colors mode swaps the outline to `Highlight`. Component-scoped overrides may tighten the outline (e.g. `.trust-chain__scenario-dot` uses 6 px radius to match the dot's rounding).
+Site-wide rule in `public/assets/theme.css`: every `<a>`, `<button>`, `<input>`, `<select>`, `<textarea>`, `<summary>`, and `[tabindex]:not([tabindex="-1"])` gains `outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px` on `:focus-visible`. Component overrides may replace that outline when another visible focus treatment is provided. Site-nav links use the underline for focus; the active link also gets an outline because its underline is already present, and focused mobile-menu links get an outline. Forced-colors mode maps every focused nav-link border to `Highlight`, along with the active-link outline and mobile-menu focus outlines. Component-scoped overrides may tighten the outline (e.g. `.trust-chain__scenario-dot` uses 6 px radius to match the dot's rounding).
 
 ### 11.10 Automated CI gate
 

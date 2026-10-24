@@ -43,12 +43,13 @@ tests/styling-snapshots.spec.ts-snapshots/*.png
 !tests/styling-snapshots.spec.ts-snapshots/*-chromium-linux.png
 tests/device-tour.spec.ts-snapshots/*.png
 !tests/device-tour.spec.ts-snapshots/*-linux.png
+tests/vision-page.spec.ts-snapshots/*.png
+!tests/vision-page.spec.ts-snapshots/*-chromium-linux.png
 
-# Lychee link-checker cache. The CI workflow now passes
-# `--cache-dir .build/cache/lychee` so the cache lives under the .build
-# umbrella, but lychee defaults to `.lycheecache/` at repo root if the
-# flag is dropped — keep this entry as defense-in-depth.
-.lycheecache/
+# Lychee cache file. `lychee.toml` enables caching and the link-check workflow
+# does not pass `--cache-dir`, so Lychee writes the default `.lycheecache`
+# file at the repo root. Keep it out of version control.
+.lycheecache
 
 # Working scratch — design handoff zip extracted at session start.
 # Tracked artifacts adopted into openspec/changes/add-brand-assets-and-writing-pipeline.
@@ -78,6 +79,15 @@ new-design/
 # a parallel ignore layer; not tracked.
 .gitignore.local
 
+# tgrep trigram index (`tgrep index .`); a per-machine snapshot of the tree.
+# See docs/agents/code-intelligence.md.
+.tgrep/
+
+# NTM session state (pids, logs, summaries, human inbox). Created on the
+# first `ntm spawn`; per-machine runtime data, same as artagon-scripts.
+# Beads keeps its own ignore list in .beads/.gitignore.
+.ntm/
+
 # Ad-hoc browser screenshots saved by playwright MCP at the repo root
 # during interactive review (e.g. `home-final.png`, `platform2.png`).
 # These are throwaway capture artifacts; canonical regenerated baselines
@@ -89,3 +99,9 @@ new-design/
 /*.png
 /*.jpg
 /*.jpeg
+/*.webm
+/*.pdf
+/auth.json
+/*-state.json
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

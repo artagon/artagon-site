@@ -3,9 +3,9 @@ import { test, expect } from "@playwright/test";
 // USMR Phase 5.5.7 — Smoke spec for the routes shipped in 5.2.8 / 5.3
 // / 5.4 / 5.7. Data-shape invariants are gated by vitest
 // (bridge-data, use-cases-data, standards-data, roadmap-data tests);
-// this spec catches rendered-route regressions where the data is fine
-// but a layout import / collection filter / island hydration breaks
-// silently.
+// this spec catches rendered-route regressions where data is fine but
+// a layout import, collection filter, static template, or client-side
+// interaction script breaks silently.
 
 test.describe("/bridge — BridgeFlow island", () => {
   test("renders the canonical hero + 3-party board + 4-step strip", async ({
@@ -14,9 +14,8 @@ test.describe("/bridge — BridgeFlow island", () => {
     await page.goto("/bridge");
     await page.waitForLoadState("networkidle");
 
-    // Canonical hero from BridgeFlow.tsx — "Your legacy OIDC app, now
-    // cryptographically verified.". The `cryptographically verified`
-    // span is serif italic via .bridge-flow__title-emphasis.
+    // Static BridgeFlow.astro renders the MDX-owned headline, and its
+    // emphasis span is serif italic via .bridge-flow__title-emphasis.
     await expect(page.locator(".bridge-flow__title")).toContainText(
       /Your legacy.*OIDC.*app/i,
     );
@@ -115,16 +114,15 @@ test.describe("/platform — PillarsIsland tablist", () => {
     await page.waitForLoadState("networkidle");
 
     // 3 pillar tabs — canonical taxonomy IDENTITY / CREDENTIALS / AUTHORIZATION.
-    // PillarsIsland uses a horizontal tablist (no aria-orientation
-    // attribute, since horizontal is the default). Scope by the
-    // tab-strip container to avoid matching the trust-chain tablist
-    // on /platform's mounted islands.
+    // PillarsIsland.astro renders static markup; a shared client script
+    // enables its manual horizontal tablist. Scope by the tab-strip
+    // container to avoid the trust-chain tablist on /platform.
     const tabs = page.locator('.pillars__tabs [role="tab"]');
     await expect(tabs).toHaveCount(3);
 
-    // Default selected tab is Identity (per PillarsIsland.tsx initial
-    // state). All 3 tabpanels render in the DOM (hidden via [hidden]);
-    // scope to the visible panel's specimen head.
+    // Identity is selected in the initial Astro markup. All 3 tabpanels
+    // render in the DOM (hidden via [hidden]); scope to the visible
+    // panel's specimen head.
     const activeHead = page.locator(
       '[role="tabpanel"]:not([hidden]) .pillar-specimen__head',
     );

@@ -54,6 +54,10 @@ const FONT_HOSTS = [
   "api.fontshare.com",
 ];
 const GENERIC_CDNS = ["cdn.jsdelivr.net", "cdnjs.cloudflare.com", "unpkg.com"];
+const MIGRATION_FONT_HOSTS = new Set([
+  "fonts.googleapis.com",
+  "fonts.gstatic.com",
+]);
 
 // Match anything containing a forbidden host — we then do a per-match
 // font-shape check on the URL substring around the match. Case-insensitive
@@ -82,6 +86,25 @@ function urlAround(body, idx) {
   while (end < body.length && !STOP.test(body[end]) && body[end] !== "\n")
     end++;
   return body.slice(start, end);
+}
+
+function hostnameAround(body, idx) {
+  const url = urlAround(body, idx);
+  const authorityMatch = url.match(/(?:https?:)?\/\/([^/?#]+)/i);
+  if (authorityMatch) {
+    const authorityParts = authorityMatch[1].split("@");
+    const hostPort = authorityParts[authorityParts.length - 1];
+    const host = hostPort.startsWith("[")
+      ? hostPort.slice(1, hostPort.indexOf("]"))
+      : hostPort.split(":")[0];
+    if (host) return host.toLowerCase();
+  }
+
+  // Some generated CSS and documentation contain a bare CDN hostname.
+  // Include adjacent DNS labels so a lookalike suffix cannot masquerade as
+  // one of the exact migration hosts.
+  const bareHost = body.slice(idx).match(/^[a-z0-9.-]+/i)?.[0];
+  return bareHost?.toLowerCase() ?? null;
 }
 
 function listFilesRecursive(dir) {
@@ -159,12 +182,13 @@ function main() {
         const url = urlAround(body, m.index);
         if (!FONT_PATH_RE.test(url)) continue;
       }
+      const actualHost = hostnameAround(body, m.index) ?? host;
       const before = body.slice(0, m.index);
       const line = before.split("\n").length;
       violations.push({
         path: relative(DIST, abs),
         line,
-        host,
+        host: actualHost,
       });
     }
   }
@@ -200,31 +224,39 @@ function main() {
   // any *new* CDN reference, but during the migration window it
   // shouldn't.
   //
-  // Source-of-truth is now `src/layouts/BaseLayout.astro` (and any
-  // other src/ file). When the loader is still in source, the gate
-  // warns; when it's been removed, the gate hard-fails. This
-  // self-resolves at the moment the migration commit lands without
-  // requiring the proposal directory to be archived first.
-  const baseLayoutPath = join(ROOT, "src", "layouts", "BaseLayout.astro");
-  let loaderStillInSource = false;
-  try {
-    const baseLayoutBody = readFileSync(baseLayoutPath, "utf8");
-    loaderStillInSource = /https?:\/\/fonts\.(?:googleapis|gstatic)\.com/i.test(
-      baseLayoutBody,
-    );
-  } catch (err) {
-    if (err.code !== "ENOENT") {
-      console.error(
-        `✗ verify-font-self-hosting: cannot read ${baseLayoutPath}: ${err.code ?? "unknown"}`,
-      );
-      exit(2);
+  // USMR 14.10 review R1: only the production loader defers this gate;
+  // the dev-only Tweaks URL and preconnect hints do not count.
+  const loaderSourcePaths = [
+    join(ROOT, "src", "layouts", "BaseLayout.astro"),
+    join(ROOT, "src", "data", "font-stylesheets.ts"),
+  ];
+  const loaderLocations = [];
+  for (const sourcePath of loaderSourcePaths) {
+    try {
+      const source = readFileSync(sourcePath, "utf8");
+      const loaderPattern = sourcePath.endsWith("BaseLayout.astro")
+        ? /\bhref\s*=\s*["']https?:\/\/fonts\.googleapis\.com\/css2(?:\?|["'])/i
+        : /^\s*export\s+const\s+PRODUCTION_FONT_STYLESHEET\s*=\s*["']https?:\/\/fonts\.googleapis\.com\/css2(?:\?|["'])/m;
+      if (loaderPattern.test(source)) {
+        loaderLocations.push(relative(ROOT, sourcePath));
+      }
+    } catch (err) {
+      if (err.code !== "ENOENT") {
+        console.error(
+          `✗ verify-font-self-hosting: cannot read ${sourcePath}: ${err.code ?? "unknown"}`,
+        );
+        exit(2);
+      }
+      // Missing loader sources mean migration may be complete; fail closed
+      // on remaining built CDN references unless another production loader remains.
     }
-    // BaseLayout missing entirely — repository structure has shifted
-    // and the migration may already be complete. Treat as
-    // loader-removed (hard-fail any remaining dist/ CDN refs).
   }
-  const severity = loaderStillInSource ? "warn" : "error";
-  const sigil = loaderStillInSource ? "⚠" : "✗";
+  const loaderStillInSource = loaderLocations.length > 0;
+  const warnOnly =
+    loaderStillInSource &&
+    violations.every((v) => MIGRATION_FONT_HOSTS.has(v.host));
+  const severity = warnOnly ? "warn" : "error";
+  const sigil = warnOnly ? "⚠" : "✗";
   for (const v of violations) {
     console.error(
       `${sigil} ${v.path}:${v.line} — third-party font CDN reference: ${v.host}`,
@@ -238,7 +270,7 @@ function main() {
   );
   if (severity === "warn") {
     console.error(
-      `\n⚠ Severity downgraded to warn — Google Fonts loader still present in ${relative(ROOT, baseLayoutPath)}.`,
+      `\n⚠ Severity downgraded to warn — Google Fonts loader still present in ${loaderLocations.join(", ")}.`,
     );
     console.error(
       `  Hard-fail resumes once the loader is removed from src/ (the migration commit landing self-hosted woff2 will flip this).`,

@@ -16,7 +16,7 @@ if (!gitSha) {
   } catch (e) {
     // Non-fatal: version string falls back to 'unknown' if git is
     // unavailable (e.g. tarball deploy with no .git).
-    process.stderr.write(`Footer: could not read git SHA — ${e.message}\n`);
+    process.stderr.write(`Footer: could not read git SHA — ${e instanceof Error ? e.message : String(e)}\n`);
     gitSha = 'unknown';
   }
 }

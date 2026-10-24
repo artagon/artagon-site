@@ -1,20 +1,17 @@
 {
   "root": ".build",
   "cache": {
-    "astro": ".build/cache/astro",
-    "content": ".build/cache/content",
-    "lhci": ".build/cache/lhci",
-    "lychee": ".build/cache/lychee",
-    "playwright": ".build/cache/playwright",
-    "playwright-mcp": ".build/cache/playwright-mcp"
+    "astro": ".build/cache/astro"
   },
   "reports": {
     "playwright": {
       "results": ".build/reports/playwright/results",
+      "blob": ".build/reports/playwright/blob",
       "html": ".build/reports/playwright/html"
     },
+    "playwrightCli": ".build/reports/playwright-cli",
     "lhci": ".build/reports/lhci",
-    "coverage": ".build/reports/coverage"
+    "cloudflarePurge": ".build/reports/cloudflare-purge"
   },
   "dist": ".build/dist"
 }

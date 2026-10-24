@@ -54,3 +54,39 @@ Project documentation SHALL state that the GitHub Pages source must be set to Gi
 
 - **WHEN** a maintainer reviews deployment documentation
 - **THEN** they can confirm the Pages source setting and the workflow responsible for deployments.
+
+### Requirement: Independent cache purge during the migration soak
+
+The GitHub Pages workflow SHALL use `CLOUDFLARE_CACHE_PURGE_TOKEN` and `CLOUDFLARE_DNS_ZONE_ID` for its optional post-deploy DNS-zone cache purge. The token SHALL have Zone.Cache Purge permission for that zone and SHALL remain separate from the dedicated Cloudflare Pages account's `CLOUDFLARE_API_TOKEN`. Missing purge credentials SHALL produce a workflow warning and a run-summary entry. Configured purges SHALL fail on HTTP errors, malformed JSON, or a response whose `success` field is not `true`. The deploy job SHALL have a ten-minute timeout.
+
+The purge SHALL target HTML plus non-content-hashed assets using a manifest prepared by the build job: every emitted file outside `_astro/`, including `/assets/theme.css`, plus HTML directory/index aliases. It SHALL NOT purge the entire DNS zone. The purge step and its two credentials SHALL be retired after the migration's seven-day soak window when the GitHub Pages workflow is retired. Purge acceptance SHALL NOT be treated as proof of fresh origin content.
+
+#### Scenario: Purge is scoped to HTML plus non-content-hashed assets
+
+- **GIVEN** the build emits HTML pages, non-content-hashed assets including `/assets/theme.css`, and content-hashed bundles under `_astro/`
+- **WHEN** the deploy requests a cache purge
+- **THEN** it purges HTML plus non-content-hashed assets (every emitted file outside `_astro/`) and HTML directory/index aliases on `https://artagon.com/`, leaving other hosts and content-hashed `_astro/` bundles outside the purge.
+
+#### Scenario: Missing soak credentials are visible
+
+- **GIVEN** either purge secret is absent
+- **WHEN** the GitHub Pages deploy completes
+- **THEN** the purge is skipped with a workflow warning and a run-summary entry.
+
+#### Scenario: Purge credentials remain independent
+
+- **GIVEN** Cloudflare Pages uses its dedicated account token
+- **WHEN** the GitHub Pages soak workflow purges its DNS-zone cache
+- **THEN** it uses only the separate cache-purge token and DNS-zone ID.
+
+#### Scenario: Unsuccessful configured purge fails deployment
+
+- **GIVEN** both purge secrets are present
+- **WHEN** the purge returns an HTTP error, malformed JSON, or `success: false`
+- **THEN** the purge step fails rather than reporting success.
+
+#### Scenario: Soak window ends
+
+- **GIVEN** the seven-day migration soak is complete
+- **WHEN** the GitHub Pages workflow is retired
+- **THEN** its purge step and the two purge credentials are retired with it.

@@ -1,7 +1,5 @@
 ---
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 ---
 {/* USMR Phase 5.5.16-pt144 — extended Base meta description to
     canonical 150-160 char range per DESIGN.md §9.5. */}
@@ -12,8 +10,8 @@ import Footer from '../../components/Footer.astro';
     itself doesn't generate per-query routes here — the route is
     static — but the `noindex` keeps the SERPs clean if someone
     deep-links to /search?q=foo. */}
-<Base title="Search — Artagon" description="Search across Artagon documentation, posts, standards, and the platform pages. Powered by DocSearch — instant results across the identity-protocol corpus." path="/search">
-  <Fragment slot="header"><Header /></Fragment>
+<Base title="Search — Artagon" description="Browse Artagon documentation, writing, standards, and platform pages while site search is being prepared. Explore the identity platform from these routes." path="/search">
+
   {/* USMR Phase 5.5.16-pt119 — same canonical sizing pattern as
       pt117/pt118 — bare <h1>Search</h1> would render at 102 px
       hero size. Scoped to .display + clamp(40, 5vw, 64). */}
@@ -23,28 +21,22 @@ import Footer from '../../components/Footer.astro';
   <div class="search-page">
     <h1 class="search-page__title display">Search</h1>
     <div class="search-page__box">
-      <div id="docsearch"></div>
       <div id="docsearch-fallback" class="card search-page__fallback">
-        <strong>Site search not configured.</strong><br/>
-        Add your DocSearch keys to <code>/docsearch.json</code> to enable instant search.
+        <strong>Site search is coming soon.</strong><br/>
+        Browse the <a href="/platform">platform</a>, <a href="/standards">standards</a>, or <a href="/writing">writing</a>.
       </div>
     </div>
-    {/* USMR Phase 5.5.16-pt140 — landmark labelling + aria-live for
-        result-list updates. DocSearch populates results into this
-        container; AT users get a polite announcement when the list
-        changes. */}
-    <section id="results" class="search-page__results" aria-label="Search results" aria-live="polite"></section>
   </div>
 
   <style>
     .search-page {
       max-width: var(--maxw, 1240px);
       margin: clamp(48px, 8vw, 80px) auto 0;
-      padding-inline: clamp(24px, 4vw, 40px);
+      padding-inline: var(--gutter);
       padding-bottom: clamp(48px, 8vw, 80px);
     }
     .search-page__title {
-      font-size: clamp(40px, 5vw, 64px);
+      font-size: var(--fs-page-title);
       line-height: 1.05;
       margin: 0 0 16px;
     }
@@ -53,46 +45,8 @@ import Footer from '../../components/Footer.astro';
     }
     .search-page__fallback {
       margin-top: 12px;
-      display: none;
-    }
-    .search-page__results {
-      margin-top: 20px;
     }
   </style>
-  {/* pt431 — DocSearch CDN refs pinned to exact version + SRI. Pre-pt431
-       used the unpinned `@3` major-version range and shipped no integrity
-       attribute, so a future jsdelivr / Algolia compromise could ship
-       arbitrary code under the site's origin (CSP allowed
-       `https://cdn.jsdelivr.net` site-wide because of the conditional
-       allow-list in scripts/csp.mjs). The SHA-384 hashes were computed
-       against the bytes published at pin time:
-         js  sha384-f/IEhh8fvOc2ALU79emLlUqAYXyqlA/zYhM+g5GlWMk15QBjTXy05TtmfT1TbtV6
-         css sha384-XMwByx5w8uj/lIF/JzG5ifeDnUBe9BURWnnD/Hk81DBN5iGIbno8pG5acrUlEhoA
-       Bumping the version requires regenerating both hashes. The
-       crossorigin="anonymous" attribute is required for SRI to
-       evaluate on cross-origin requests. */}
-  <script
-    src="https://cdn.jsdelivr.net/npm/@docsearch/js@3.9.0"
-    integrity="sha384-f/IEhh8fvOc2ALU79emLlUqAYXyqlA/zYhM+g5GlWMk15QBjTXy05TtmfT1TbtV6"
-    crossorigin="anonymous"
-  ></script>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/@docsearch/css@3.9.0"
-    integrity="sha384-XMwByx5w8uj/lIF/JzG5ifeDnUBe9BURWnnD/Hk81DBN5iGIbno8pG5acrUlEhoA"
-    crossorigin="anonymous"
-  />
-  <script>
-  (async function(){
-    try{
-      const res = await fetch('/docsearch.json', {cache:'no-store'});
-      if(!res.ok) throw new Error('docsearch.json missing');
-      const cfg = await res.json();
-      if(!cfg.appId || !cfg.apiKey || !cfg.indexName){ document.getElementById('docsearch-fallback').style.display='block'; return; }
-      // @ts-ignore
-      docsearch({ container:'#docsearch', appId: cfg.appId, apiKey: cfg.apiKey, indexName: cfg.indexName });
-    }catch(e){ document.getElementById('docsearch-fallback').style.display='block'; }
-  })();
-  </script>
-  <Fragment slot="footer"><Footer /></Fragment>
+  {/* USMR 14.16: defer DocSearch assets until a working index ships. */}
+
 </Base>

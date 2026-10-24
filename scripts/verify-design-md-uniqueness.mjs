@@ -35,7 +35,6 @@ const ALLOWLIST_PREFIXES = [
   ".claude/",
   "openspec/changes/",
   "openspec/.cache/",
-  "new-design/",
 ];
 
 function isAllowlisted(path) {

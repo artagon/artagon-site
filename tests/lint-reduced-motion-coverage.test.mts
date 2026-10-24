@@ -1,57 +1,69 @@
-// USMR Phase 5.5.16-pt130 — prefers-reduced-motion coverage gate.
-//
-// DESIGN.md §8.2 motion principles state that any component with
-// transform-based motion (translate / scale / rotate on a hover /
-// focus state) MUST also ship a `@media (prefers-reduced-motion:
-// reduce)` override that suppresses the motion. WCAG 2.3.3 covers
-// the contract: non-essential animation is opt-out for users with
-// the OS preference set.
-//
-// Simple property transitions (color, background, border) are
-// generally OK to keep under reduced-motion — they're state signals,
-// not motion. The strict gate target is `transform: translate*` /
-// `scale*` / `rotate*` which physically moves the element.
-//
-// pt130 added reduced-motion blocks to FaqItem.astro (icon rotate),
-// HomeExplore.astro (card hover lift), and src/pages/index.astro
-// (writing-strip link hover lift). This gate asserts the contract
-// holds for those three files; future motion-using components
-// should be added here.
+// Reduced-motion coverage follows CSS sources that ship motion behavior or
+// already define the contract, so color-only transitions stay out of scope.
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import {
+  discoverStyleSources,
+  stripCssComments,
+} from "./helpers/lint-discovery.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
-
-const REQUIRED_REDUCED_MOTION_FILES = [
+const STYLE_ROOTS = [
+  "src/components",
+  "src/pages",
+  "src/styles",
+  "public/assets",
+] as const;
+const HISTORICALLY_REQUIRED = [
   "src/components/FaqItem.astro",
   "src/components/HomeExplore.astro",
   "src/pages/index.astro",
-  // USMR Phase 5.5.16-pt131 — added theme.css. The `.btn` /
-  // `.btn.primary` / `.btn .arr` / `.ui-card--hover` rules ship
-  // hover-state transforms (translateY / translate) that render
-  // on every CTA + hoverable card site-wide; the global override
-  // covers those plus the existing .glow-* / .chain-spinner
-  // animations.
   "public/assets/theme.css",
 ] as const;
+const REDUCED_MOTION =
+  /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/i;
+const ANIMATION = /@keyframes\b|\banimation(?:-[a-z-]+)?\s*:/i;
+const TRANSITION_TO_MOTION =
+  /\btransition(?:-[a-z-]+)?\s*:[^;{}]*(?:\btransform\b|\ball\b)/i;
+const INTERACTION_TRANSFORM =
+  /(?:^|})\s*[^{}]*(?::hover|:focus(?:-visible)?)[^{}]*\{[^{}]*(?:transform|translate|scale|rotate)\s*:/i;
+
+function isDevelopmentOnly(source: string): boolean {
+  return /\bimport\.meta\.env\.DEV\b/.test(source) && /\bisDev\s*&&/.test(source);
+}
+
+function hasMotion(css: string): boolean {
+  return (
+    ANIMATION.test(css) ||
+    TRANSITION_TO_MOTION.test(css) ||
+    INTERACTION_TRANSFORM.test(css)
+  );
+}
+
+const REQUIRED_SOURCES = discoverStyleSources(ROOT, STYLE_ROOTS)
+  .map((source) => ({ ...source, css: stripCssComments(source.css) }))
+  .filter(
+    ({ source, css }) =>
+      !isDevelopmentOnly(source) && (hasMotion(css) || REDUCED_MOTION.test(css)),
+  );
 
 describe("prefers-reduced-motion coverage", () => {
-  for (const rel of REQUIRED_REDUCED_MOTION_FILES) {
-    test(`${rel} ships @media (prefers-reduced-motion: reduce) override`, () => {
-      const full = join(ROOT, rel);
-      expect(existsSync(full), `${rel} must exist`).toBe(true);
-      const body = readFileSync(full, "utf8");
-      const stripped = body.replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const source of REQUIRED_SOURCES) {
+    test(`${source.relativePath} ships @media (prefers-reduced-motion: reduce) override`, () => {
       expect(
-        /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/.test(stripped),
-        `${rel} must include @media (prefers-reduced-motion: reduce) — DESIGN.md §8.2`,
+        REDUCED_MOTION.test(source.css),
+        `${source.relativePath} must include @media (prefers-reduced-motion: reduce) — DESIGN.md §8.2`,
       ).toBe(true);
     });
   }
 
-  test("walker discovered the required files", () => {
-    expect(REQUIRED_REDUCED_MOTION_FILES.length).toBeGreaterThan(0);
+  test("discovers motion behavior and existing reduced-motion contracts", () => {
+    expect(REQUIRED_SOURCES.length).toBeGreaterThan(0);
+  });
+
+  test("retains every historically required motion surface", () => {
+    const discovered = new Set(REQUIRED_SOURCES.map((source) => source.relativePath));
+    const missing = HISTORICALLY_REQUIRED.filter((path) => !discovered.has(path));
+    expect(missing, "historically required reduced-motion sources must be discovered").toEqual([]);
   });
 });

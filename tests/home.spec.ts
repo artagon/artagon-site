@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { waitForTrustChainHydration } from "./helpers/trust-chain-hydration.js";
 
 /**
  * Behavioural coverage for `/`. Two distinct layers:
@@ -45,23 +46,35 @@ test.describe("Home (/) — content parse + render smoke", () => {
   });
 });
 
-test.describe("Home (/) — TrustChainIsland interactivity (desktop / mouse)", () => {
-  test.skip(
-    ({ isMobile }) => isMobile,
-    "Mouse-driven interactions: scenario-picker dots are 9px (sub-tappable on touch) and hover is unsupported on touch devices. See Mobile-specific tests below.",
-  );
-
+test.describe("Home (/) — TrustChainIsland interactivity", () => {
   test("scenario picker click swaps the decision card to a DENY scenario", async ({
     page,
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     // Default scenarioIdx=0 is the healthy PERMIT scenario (SSR state).
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
       "decision=PERMIT",
     );
     // 2nd dot is SCENARIOS[1] ("Jailbroken phone · blocked", DENY).
     const dots = page.locator(".trust-chain__scenario-dot");
+    const hitAreas = await dots.evaluateAll((buttons) =>
+      buttons.map((button) => {
+        const { width, height } = button.getBoundingClientRect();
+        return { width, height };
+      }),
+    );
+    for (const [index, hitArea] of hitAreas.entries()) {
+      expect(
+        hitArea.width,
+        `scenario button ${index} width`,
+      ).toBeGreaterThanOrEqual(44);
+      expect(
+        hitArea.height,
+        `scenario button ${index} height`,
+      ).toBeGreaterThanOrEqual(44);
+    }
     await dots.nth(1).click();
     // Wait for the picker state to flip first (proves the React handler
     // ran post-hydration); the decision-claim text follows.
@@ -74,9 +87,15 @@ test.describe("Home (/) — TrustChainIsland interactivity (desktop / mouse)", (
 
   test("hovering a stage row swaps the decision claim to that stage's pass string", async ({
     page,
+    isMobile,
   }) => {
+    test.skip(
+      isMobile,
+      "Stage-row hover interactions are mouse-only; tap behavior is covered separately.",
+    );
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     await page.locator("#trust-chain-passkey").hover();
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
       "user.webauthn.verified",
@@ -86,6 +105,88 @@ test.describe("Home (/) — TrustChainIsland interactivity (desktop / mouse)", (
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
       "decision=PERMIT",
     );
+  });
+});
+
+test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
+  test("clicking stage 0 toggles its pressed state", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "Touch input is covered by the mobile tap tests.");
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
+
+    const stage0 = page.locator(".trust-chain__stage").nth(0);
+    const claim = page.locator(".trust-chain__decision-claim");
+    await expect(claim).toContainText("decision=PERMIT");
+
+    await stage0.click();
+    await expect(stage0).toHaveAttribute("aria-pressed", "true");
+    await expect(claim).toContainText("user.webauthn.verified");
+
+    await stage0.click();
+    await expect(stage0).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("clicking another stage moves the pressed state", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "Touch input is covered by the mobile tap tests.");
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
+
+    const stages = page.locator(".trust-chain__stage");
+    await stages.nth(0).click();
+    await expect(stages.nth(0)).toHaveAttribute("aria-pressed", "true");
+
+    await stages.nth(2).click();
+    await expect(stages.nth(0)).toHaveAttribute("aria-pressed", "false");
+    await expect(stages.nth(2)).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+test.describe("Home (/) — TrustChainIsland touch toggle", () => {
+  test("tapping stage 0 toggles its pressed state", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "This case verifies actual touch input.");
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
+
+    const stage0 = page.locator(".trust-chain__stage").nth(0);
+    const claim = page.locator(".trust-chain__decision-claim");
+    await expect(claim).toContainText("decision=PERMIT");
+
+    await stage0.tap();
+    await expect(stage0).toHaveAttribute("aria-pressed", "true");
+    await expect(claim).toContainText("user.webauthn.verified");
+
+    await stage0.tap();
+    await expect(stage0).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("tapping another stage moves the pressed state", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, "This case verifies actual touch input.");
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
+
+    const stages = page.locator(".trust-chain__stage");
+    await stages.nth(0).tap();
+    await expect(stages.nth(0)).toHaveAttribute("aria-pressed", "true");
+
+    await stages.nth(2).tap();
+    await expect(stages.nth(0)).toHaveAttribute("aria-pressed", "false");
+    await expect(stages.nth(2)).toHaveAttribute("aria-pressed", "true");
   });
 });
 
@@ -218,6 +319,7 @@ test.describe("Home (/) — scenario picker keyboard navigation (chromium / desk
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     const dots = page.locator(".trust-chain__scenario-dot");
     await dots.nth(0).focus();
     // Default scenarioIdx=0 is PERMIT.
@@ -235,6 +337,7 @@ test.describe("Home (/) — scenario picker keyboard navigation (chromium / desk
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     const dots = page.locator(".trust-chain__scenario-dot");
     const dotCount = await dots.count();
     await dots.nth(2).focus();
@@ -302,9 +405,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
     expect(heroFont.toLowerCase()).not.toMatch(/inter\s*tight/);
   });
 
-  test("primary CTA paints --accent solid (Header.astro:239)", async ({
-    page,
-  }) => {
+  test("primary CTA paints the accent color as a solid", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     const cta = page.locator(".site-nav .right .btn.primary").first();
@@ -387,6 +488,7 @@ test.describe("Home (/) — TrustChainIsland keyboard focus contract", () => {
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
+    await waitForTrustChainHydration(page);
     // SSR baseline: the scenario's finalClaim is what the decision card
     // shows before any focus event fires.
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(

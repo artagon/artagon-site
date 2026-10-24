@@ -2,13 +2,14 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [main, feature/*]
+    # USMR 14.43: feature branches are covered by pull_request, once per push.
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 # Default permissions for the workflow are read-only; jobs that need write
-# scopes (visual-regression auto-commit) escalate explicitly.
+# scopes (dispatch-only snapshot updates) escalate explicitly.
 permissions:
   contents: read
 
@@ -54,7 +55,7 @@ env:
 #        curl -s "https://mcr.microsoft.com/v2/playwright/manifests/v<X.Y.Z>-jammy" \
 #          -H 'Accept: application/vnd.docker.distribution.manifest.list.v2+json' \
 #          -D - | grep docker-content-digest
-#   3. Update all three `container.image` lines below to the new tag@digest.
+#   3. Update every `container.image` line below to the new tag@digest.
 #   4. Verify with `npx playwright --version` inside the new container.
 
 jobs:
@@ -69,7 +70,7 @@ jobs:
       # captures one above-the-fold PNG per playwright project and
       # attaches it via testInfo.attach() — no snapshot baseline,
       # purely artifact-only evidence. Adds ~15s per shard; reviewers
-      # download the playwright-report-shard-* artifact zip to scan
+      # download the merged HTML report artifact to scan
       # device parity at a glance. To regenerate: re-run the workflow.
       DEVICE_TOUR: "1"
     permissions:
@@ -94,7 +95,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: "npm"
 
       - name: Install dependencies
@@ -127,6 +128,13 @@ jobs:
         if: matrix.shard == 1
         run: npm run test:node
 
+      # USMR 14.80 (site-2m1.80): the Playwright image lacks jq, which the
+      # stubbed cache-purge response tests invoke from the workflow shell.
+      - name: Install jq for Vitest (shard 1 only)
+        if: matrix.shard == 1
+        timeout-minutes: 3
+        run: apt-get update && apt-get install -y --no-install-recommends jq
+
       # Run vitest unit suites once on shard 1 only — same rationale as
       # node:test. Discovery is the vitest config glob
       # `include: ["tests/**/*.test.mts"]` (see vitest.config.ts); the
@@ -146,8 +154,10 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
-          name: playwright-report-shard-${{ strategy.job-index }}
-          path: .build/reports/playwright/html/
+          name: playwright-blob-shard-${{ strategy.job-index }}
+          path: .build/reports/playwright/blob/
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14
 
       - name: Upload screenshots on failure
@@ -159,23 +169,42 @@ jobs:
           retention-days: 7
 
   merge-reports:
-    if: always()
+    if: ${{ !cancelled() && needs.test.result != 'skipped' }}
     needs: [test]
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
+      # USMR 14.39: use the lockfile-pinned CLI and BUILD's HTML output path.
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Download all reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: playwright-report-shard-*
-          path: all-reports
+          pattern: playwright-blob-shard-*
+          path: .build/reports/playwright/blob/
           merge-multiple: true
 
       - name: Merge reports
+        # The CLI defaults to playwright-report/ unless this env is set.
         run: |
-          npx playwright merge-reports --reporter html all-reports
-        continue-on-error: true
+          PLAYWRIGHT_HTML_OUTPUT_DIR="$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.playwright.html)')"
+          export PLAYWRIGHT_HTML_OUTPUT_DIR
+          BLOB_DIR="$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.playwright.blob)')"
+          npx --no-install playwright merge-reports --reporter html "$BLOB_DIR"
 
       - name: Upload merged report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -183,24 +212,26 @@ jobs:
         with:
           name: playwright-report-merged
           path: .build/reports/playwright/html/
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 14
 
   visual-regression:
+    # USMR 14.67 (site-2m1.67): PR code only receives a read-only token.
+    if: github.event_name != 'workflow_dispatch'
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
     env:
       HOME: /root
-    # GitHub Actions does NOT support expressions in `permissions:` values
-    # — must be static. The job-level grant is `contents: write`; ALL
-    # write-effecting steps below are guarded by
-    # `if: github.event_name == 'workflow_dispatch'` so PR pushes have
-    # write capability available but never exercise it.
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        with:
+          persist-credentials: false
 
       # The Microsoft Playwright image runs as root, but the checkout files
       # are owned by a different UID — git refuses to operate on the tree
@@ -213,7 +244,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: "npm"
 
       - name: Install dependencies
@@ -222,65 +253,72 @@ jobs:
       - name: Build site
         run: npm run build
 
-      # On PR/push: read-only comparison (asserts pixel parity, fails on diff).
-      # On workflow_dispatch: --update-snapshots (rebases the baseline images).
-      #
-      # Two test files run under VISUAL_REGRESSION=1:
-      #   - tests/vision-page.spec.ts          (test titles match "visual regression")
-      #   - tests/styling-snapshots.spec.ts    (test titles like "midnight @ desktop")
-      # The older grep `"visual regression"` only matched the first file, so
-      # the styling-snapshots baseline never ran in CI. Pass the spec files
-      # explicitly to cover both surfaces.
-      #
-      # `continue-on-error: true` on compare-only is INTENTIONAL until the
-      # redesign change (`update-site-marketing-redesign`) lands — the
-      # current vision-page tests reference selectors (`.three-domains`,
-      # etc.) that ship with the redesign. Failure surface is the artifact
-      # upload below, which reviewers inspect manually. Once the redesign
-      # archives, drop `continue-on-error` so PR signal blocks on diffs.
-      #
-      # Baselines are Linux-pinned (Playwright names files `*-chromium-linux.png`
-      # on ubuntu runners). Local darwin runs produce `*-chromium-darwin.png`
-      # which are NOT authoritative — committed baselines come from this
-      # workflow's `workflow_dispatch` --update-snapshots run only.
-      # Cross-engine coverage: chromium catches the vast majority of
-      # regressions, but webkit's text-rendering / color-mix evaluation
-      # / focus-ring rendering all differ enough that a chromium-only
-      # baseline misses Safari-class bugs. Mobile Safari extends that to
-      # the touch + sub-1024 viewport surface. Adding them triples the
-      # baseline storage cost — accepted for the engine-parity coverage.
+      # USMR 14.38: Chromium-only until Linux baselines are seeded by the
+      # dispatch job and the redesign selectors are verified in CI. Then
+      # remove continue-on-error to make comparisons a blocking gate.
       - name: Run visual regression tests (compare-only)
-        if: github.event_name != 'workflow_dispatch'
-        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --project=webkit --project="Mobile Safari"
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium
         env:
           VISUAL_REGRESSION: "1"
         continue-on-error: true
 
+      - name: Upload visual diffs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: visual-regression-diffs
+          path: .build/reports/playwright/results/
+          retention-days: 7
+
+  update-snapshots:
+    # USMR 14.67: write access is restricted to a manual run of trusted main.
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
+    env:
+      HOME: /root
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+
+      - name: Trust workspace inside container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
       - name: Run visual regression tests (update snapshots)
-        if: github.event_name == 'workflow_dispatch'
-        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --project=webkit --project="Mobile Safari" --update-snapshots
+        run: npx playwright test tests/vision-page.spec.ts tests/styling-snapshots.spec.ts --project=chromium --update-snapshots
         env:
           VISUAL_REGRESSION: "1"
 
-      # Snapshot auto-commit ONLY on workflow_dispatch (manual trigger).
-      # PR pushes never auto-commit; reviewers must intentionally update
-      # baselines via the manual workflow. The job-level "Trust workspace
-      # inside container" step (above) already handles safe.directory, so
-      # this step only sets the bot identity before committing.
+      # USMR 14.38: quote the verified Git pathspec; surface push failures.
       - name: Commit updated snapshots
-        if: github.event_name == 'workflow_dispatch'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tests/**/*-snapshots/ 2>/dev/null || true
+          git add -- 'tests/*-snapshots/*-chromium-linux.png'
           git diff --staged --quiet || git commit -m "chore(ci): update Linux visual regression snapshots"
-          git push || true
+          git push
 
       - name: Upload visual diffs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
-          name: visual-regression-diffs
+          name: snapshot-update-failures
           path: .build/reports/playwright/results/
           retention-days: 7
 
@@ -307,7 +345,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: "npm"
 
       - name: Install dependencies
@@ -316,14 +354,14 @@ jobs:
       - name: Build site
         run: npm run build
 
-      # Run accessibility-tagged tests on chromium + webkit + Mobile
+      # USMR 14.40: target the axe and a11y specs on chromium + webkit + Mobile
       # Safari. Most a11y regressions show up cross-engine identically
       # (focus-ring CSS, ARIA attribute parsing), but webkit + Mobile
       # Safari have historically diverged on focus-visible behaviour and
       # touch-driven focus management — the engine-spread is the cheap
       # belt-and-suspenders that catches a real subclass of bugs.
       - name: Run accessibility tests
-        run: npx playwright test --grep "accessibility" --project=chromium --project=webkit --project="Mobile Safari"
+        run: npx playwright test tests/home-axe.spec.ts tests/styling-a11y.spec.ts --project=chromium --project=webkit --project="Mobile Safari"
 
       - name: Upload a11y results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

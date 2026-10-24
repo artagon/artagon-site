@@ -22,17 +22,15 @@ export interface RoadmapPhase {
 }
 
 export interface RoadmapStatusMeta {
-  /** Token reference for the dot fill + status label color. */
-  colorToken: "--ok" | "--accent" | "--warn" | "--fg-3";
   /** Mono-uppercase status label rendered next to the dot. */
   label: "Shipping" | "In build" | "Design" | "Planned";
 }
 
 export const ROADMAP_STATUS: Record<RoadmapStatus, RoadmapStatusMeta> = {
-  shipping: { colorToken: "--ok", label: "Shipping" },
-  "in-build": { colorToken: "--accent", label: "In build" },
-  design: { colorToken: "--warn", label: "Design" },
-  planned: { colorToken: "--fg-3", label: "Planned" },
+  shipping: { label: "Shipping" },
+  "in-build": { label: "In build" },
+  design: { label: "Design" },
+  planned: { label: "Planned" },
 };
 
 export const ROADMAP_PHASES: readonly [

@@ -1,7 +1,5 @@
 ---
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
 import FaqItem from '../../components/FaqItem.astro';
 import FaqSearch from '../../components/FaqSearch.astro';
 import { FAQS, FAQ_CATEGORIES } from '../../data/faq';
@@ -40,7 +38,7 @@ const faqSchema = {
 ---
 
 <Base title={page.title} description={page.description} path="/faq">
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt139 — landmark labelling. */}
   <section class="faq-hero" aria-labelledby="faq-hero-h">
@@ -78,7 +76,7 @@ const faqSchema = {
     </div>
   </section>
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 
   {/* USMR 5.5.13 — FAQPage JSON-LD now lives in <head> via the
        `json-ld` slot (BaseLayout.astro:91). Google parses ld+json
@@ -112,7 +110,7 @@ const faqSchema = {
  * 64) — display-sized but smaller than the home-Hero clamp(56-108)
  * since FAQ is a content page not the marketing front door. */
 .faq-hero__title {
-  font-size: clamp(40px, 5vw, 64px);
+  font-size: var(--fs-page-title);
   line-height: 1.05;
   margin: 0;
 }

@@ -150,6 +150,8 @@
      * + --lh-* + --tracking-* are consumed by the bare-h1/h2/h3 rules
      * at line 478+. Components use scoped clamp / px directly. */
     --fs-h1: clamp(3.5rem, 7.2vw, 6.75rem); /* 56 → 108 */
+    /* USMR 14.10: content/shim page titles retain their existing 40 → 64 scale. */
+    --fs-page-title: clamp(40px, 5vw, 64px);
     --fs-h2: clamp(2.25rem, 4vw, 3.75rem); /* 36 → 60 */
     --fs-h3: 1.375rem; /* 22 */
     /* USMR Phase 5.5.16-pt170 — `--fs-small` (13.5px) + `--fs-micro`
@@ -177,26 +179,17 @@
      * Components use var(--accent-ink) directly. */
     --chip-bg-neutral: color-mix(
       in oklab,
-      var(--nd-fg-2) 12%,
+      var(--fg-2) 12%,
       transparent
     ); /* low-contrast neutral surface */
   }
 }
 
-/* USMR Phase 5.5.16-pt82 — pre-USMR :root pruned. Removed --ink, --primary,
- * --shadow (zero consumers); --surface and --muted are still defined here
- * for the legacy alias chain (theme blocks override --surface = var(--bg-1)
- * etc., this :root layer provides a fallback for unthemed contexts).
- *
- * USMR Phase 5.5.16-pt90 — also canonicalized the unlayered :root --bg
- * fallback from `#0a0f1e` (RGB 10/15/30, visibly blue) to canonical
- * `oklch(0.14 0.008 260)` (chroma 0.008, near-neutral). Without this,
- * any data-theme value that doesn't match a [data-theme="..."] block
- * would render against a blue navy bg instead of the canonical neutral
- * dark — exactly the regression that pt87 missed. */
+/* USMR Phase 5.5.16-pt90 — canonical unlayered --bg fallback for unknown
+ * data-theme values. Theme blocks own --surface; the layered semantic
+ * alias and [data-accent] blocks own --accent. */
 :root {
   --bg: oklch(0.14 0.008 260);
-  --surface: #0f172a;
   /* USMR Phase 5.5.16-pt169 — `--muted: #94a3b8` removed. Pre-pt169
    * the legacy 5.1-era token had ZERO consumers anywhere in the
    * codebase (only one mention, in a `Pre-canonical (5.1-era) used
@@ -206,7 +199,6 @@
    * the unlayered :root vocabulary aligned with what's actually
    * accessible to consumers — same dead-public-API discipline as
    * pt163-pt168. */
-  --accent: #7c5cff;
   /* USMR Phase 5.1p.13 — bumped from 1200px to match new-design
    * tokens.css:23. Adds 40px of horizontal breathing room sitewide. */
   --maxw: 1240px;
@@ -264,47 +256,8 @@
  * twilight distinction now lives in --bg-1 / accent / surface tints
  * rather than the page bg itself. */
 
-/* USMR Phase 5.5.16-pt90 — Tweaks panel writes `data-theme="dark"`
- * (per its dark/light switcher) but pre-pt90 there was no
- * `[data-theme="dark"]` block in CSS — `--bg` fell through to the
- * unlayered :root default `#0a0f1e` (the OG blue navy). pt87's
- * canonical neutral-dark fix only landed on `[data-theme="midnight"]`
- * and `[data-theme="twilight"]`, neither of which the Tweaks panel
- * actually writes. The "dark" block is the one that matches the
- * Tweaks `Theme: dark/light` vocabulary AND the canonical reference
- * defaults. */
-
-/* Dark (canonical default — Tweaks panel writes data-theme="dark") */
-:root[data-theme="dark"] {
-  --bg: oklch(0.14 0.008 260);
-  --surface: var(--bg-1);
-
-  --brand-teal: var(--accent);
-  --brand-teal-rgb: 60, 238, 221;
-}
-
-/* USMR Phase 5.5.16 — Light theme. Tweaks panel writes
- * `data-theme="light"`. Pre-fix there was no matching CSS block, so
- * selecting "Theme: light" left the page in dark mode. The palette
- * inverts the dark foundation tokens (`--bg-*`, `--fg-*`, `--line*`)
- * to near-white / near-black with cool-neutral hue 260 to match the
- * dark side. Accent tokens cascade unchanged from the
- * `[data-accent="…"]` block above. */
-:root[data-theme="light"] {
-  --bg: oklch(0.98 0.005 260);
-  --bg-1: oklch(0.96 0.005 260);
-  --bg-2: oklch(0.92 0.008 260);
-  --fg: oklch(0.2 0.012 260);
-  --fg-1: oklch(0.34 0.01 260);
-  --fg-2: oklch(0.52 0.008 260);
-  --fg-3: oklch(0.68 0.006 260);
-  --line: oklch(0.85 0.008 260);
-  --line-soft: oklch(0.92 0.006 260);
-  --surface: var(--bg-1);
-
-  --brand-teal: var(--accent);
-  --brand-teal-rgb: 60, 238, 221;
-}
+/* USMR 14.13: production and Tweaks select twilight/midnight only.
+ * Retired dark/light blocks and their light-only descendants are removed. */
 
 /* Midnight Teal */
 :root[data-theme="midnight"] {
@@ -478,8 +431,8 @@ body {
   /* USMR Phase 5.5.9 — flattened to canonical body surface per
    * `new-design/extracted/src/styles/global.css:68-75` (`body { background:
    * var(--bg); }`). pt91 also dropped the #0b1220 hardcoded fallback
-   * — `--bg` now resolves canonical-neutral via the unlayered :root
-   * default OR the [data-theme="dark"] override (pt90). */
+   * — `--bg` now resolves canonical-neutral via the unlayered :root default
+   * or the twilight/midnight block (USMR 14.13). */
   background: var(--bg);
 }
 
@@ -592,6 +545,14 @@ a {
   z-index: 1;
 }
 
+/* USMR 14.10: section-head grid base; alignment, spacing and responsive
+ * overrides stay local because the five section contracts differ. */
+.section-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+}
+
 /* USMR Phase 5.5.5 — display + serif + lead utilities. Canonical
  * (new-design global.css:43-47, :95, :234) defines these at root scope
  * so every consumer of `<h1 class="display">`, `<span class="serif">`,
@@ -682,7 +643,8 @@ a {
  * by ~78 px. Restoring 120 lets the hero's lower meta strip
  * (`Implements & contributes to`) breathe before the next section. */
 .hero {
-  padding: 80px 0 120px;
+  /* USMR 14.10: preserve vertical rhythm without erasing .container's gutter. */
+  padding-block: 80px 120px;
 }
 /* USMR Phase 5.5.16-pt123 — bring the hero h1 fallback rule to
  * canonical size (global.css:229 — clamp(56, 7.2vw, 108)) but DO
@@ -836,14 +798,6 @@ a {
 .grid {
   display: grid;
   gap: 18px;
-}
-.grid.cols-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-@media (max-width: 900px) {
-  .grid.cols-3 {
-    grid-template-columns: 1fr;
-  }
 }
 
 .card {
@@ -1346,15 +1300,6 @@ a {
  * `rgba(148, 163, 184, 0.12)` border + `#9fb1c8` color, zero visible
  * effect — fully overridden by `.site-footer` in Footer.astro which
  * sets border-top + color + padding via canonical tokens). 13 lines. */
-/* USMR Phase 5.5.16-pt74 — `.discrete` consumed by ShimPage,
- * /console, /docs placeholder pages. Pre-fix shipped hardcoded
- * `#8fa0b8` (a near-fg-2 grey); canonicalized to `var(--fg-2)` so
- * the placeholder copy follows theme + accent overrides instead of
- * pinning to a single dark-mode palette literal. */
-.discrete {
-  color: var(--fg-2);
-  font-size: 0.92rem;
-}
 /* USMR Phase 5.5.11 Task #35 — removed dead `.menu` / `.menu-btn`
  * pre-USMR mobile-menu pattern (45 lines). No Astro component
  * rendered `.menu` / `.menu-btn` — the only live rule was
@@ -1373,25 +1318,8 @@ a {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.sidebar {
-  width: 260px;
-  padding: 16px;
-  position: sticky;
-  top: 70px;
-}
 .doc {
   padding: 16px;
-}
-.site-footer small {
-  color: var(--fg-3);
-}
-.hide-sm {
-  display: inline-flex;
-}
-@media (max-width: 980px) {
-  .hide-sm {
-    display: none;
-  }
 }
 
 /* ===== NAV LAYOUT NORMALIZATION ===== */
@@ -1478,22 +1406,6 @@ header {
 
 /* ===== HOME PAGE HERO SECTION ===== */
 
-/* Mission Badge - prominent hero badge */
-.mission-badge {
-  display: inline-block;
-  color: var(--brand-teal);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 0.6rem 1.2rem;
-  border: 2px solid var(--brand-teal);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--brand-teal) 8%, transparent);
-  box-shadow: 0 0 25px color-mix(in srgb, var(--brand-teal) 35%, transparent);
-  margin-bottom: 1.5rem;
-}
-
 /* USMR Phase 5.1p.2 — the legacy `#hero-h1` rainbow-gradient text +
  * `rainbow-shift` keyframes (8s ease-in-out infinite) were removed
  * because they overpainted `.hero h1.display` (5.1j) via ID
@@ -1505,41 +1417,15 @@ header {
 
 /* ===== HOME PAGE MISSION SECTION ===== */
 
-/* Mission intro paragraph */
-.mission-intro {
-  font-size: 1.15rem;
-  line-height: 1.7;
-  color: var(--fg-2);
-  max-width: 900px;
-  margin: 0 auto 2rem;
-  text-align: center;
-}
-
-.mission-intro strong {
-  color: var(--fg);
-  font-weight: 600;
-}
-
-/* USMR 5.5.16-pt58 — orphan CSS removed: `.domain-highlight`,
- * `.domain-badge`, `.pillar-card`, `.pill-number` and their @media
- * mobile overrides had ZERO consumers across src/ + tests/ (verified
- * via rtk grep). They were 5.1-era styles for the legacy MissionSection
- * + early Pillars markup that was replaced by `.pillars__panel` in
- * 5.2. The .mission-badge mobile override stays — vision.mdx still
- * consumes it. */
-@media (max-width: 768px) {
-  .mission-badge {
-    font-size: 0.7rem;
-    padding: 0.5rem 1rem;
-  }
-}
-
 /* ============================================================
  * USMR Phase 5.1i — Glow components (ported from
  * new-design/extracted/src/styles/global.css lines 115-210).
  *
- * Pure CSS — no JS. Used by the home hero eyebrow pill (5.1j) and
- * future hero meta-strip (5.1k). Each effect uses a `--g-accent`
+ * CSS animation primitives with an optional JS pause hook (USMR
+ * 14.78). The home hero opts in via `data-glow-pause-root` and the
+ * processed `pauseOffscreenGlows` script; without IntersectionObserver,
+ * animations continue to run. Used by the home hero eyebrow pill
+ * (5.1j) and future hero meta-strip (5.1k). Each effect uses a `--g-accent`
  * custom property that defaults to `--accent` so consumers can
  * override per-instance (e.g., `.glow-tag.is-warning { --g-accent:
  * var(--warn); }` for an alert-tone pill) without rewriting the
@@ -1727,19 +1613,19 @@ header {
   0%,
   100% {
     box-shadow:
-      inset 0 1px 0 color-mix(in oklab, var(--accent) 22%, transparent),
-      inset 0 -1px 0 color-mix(in oklab, var(--accent) 8%, transparent),
-      0 1px 0 color-mix(in oklab, var(--accent) 10%, transparent),
-      0 0 18px -2px color-mix(in oklab, var(--accent) 35%, transparent),
-      0 0 80px -20px color-mix(in oklab, var(--accent) 70%, transparent);
+      inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
+      0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
+      0 0 18px -2px color-mix(in oklab, var(--g-accent) 35%, transparent),
+      0 0 80px -20px color-mix(in oklab, var(--g-accent) 70%, transparent);
   }
   50% {
     box-shadow:
-      inset 0 1px 0 color-mix(in oklab, var(--accent) 35%, transparent),
-      inset 0 -1px 0 color-mix(in oklab, var(--accent) 14%, transparent),
-      0 1px 0 color-mix(in oklab, var(--accent) 18%, transparent),
-      0 0 28px 0 color-mix(in oklab, var(--accent) 55%, transparent),
-      0 0 130px -14px color-mix(in oklab, var(--accent) 85%, transparent);
+      inset 0 1px 0 color-mix(in oklab, var(--g-accent) 35%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 14%, transparent),
+      0 1px 0 color-mix(in oklab, var(--g-accent) 18%, transparent),
+      0 0 28px 0 color-mix(in oklab, var(--g-accent) 55%, transparent),
+      0 0 130px -14px color-mix(in oklab, var(--g-accent) 85%, transparent);
   }
 }
 
@@ -1780,6 +1666,17 @@ header {
   }
 }
 
+/* USMR 14.78 — Pause all glow effects while their pill is offscreen. */
+.glow-tag[data-glow-paused],
+.glow-tag[data-glow-paused]::before,
+.glow-tag[data-glow-paused]::after,
+.glow-tag[data-glow-paused] .glow-dot,
+.glow-tag[data-glow-paused] .glow-dot::before,
+.glow-tag[data-glow-paused] .glow-dot::after,
+.glow-tag[data-glow-paused] .glow-text {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .glow-tag,
   .glow-tag::before,
@@ -1790,48 +1687,6 @@ header {
   .glow-text {
     animation: none;
   }
-}
-
-/* USMR pt427 — Light-theme polish for hero glow primitives. The
- * canonical glow-tag halo + glow-text white shimmer were tuned for
- * dark-mode specular pop. On near-white surfaces:
- *   1. `.glow-tag::after` (radial blur 14px reaching 20px past the
- *      pill) bleeds an amber wash into adjacent UI (visible smear
- *      across the trust-card top-left). Killed entirely; the chip
- *      keeps its border + ::before inset highlight.
- *   2. `.glow-text` shimmer keyframes pass through pure `#fff` at
- *      45% / 55% — on white bg the headline letters dissolve mid-
- *      cycle. Override with a fg ↔ accent gradient (no white peak)
- *      so the shimmer modulates between dark text and accent tint
- *      instead of vanishing into the page.
- *   3. `.glow-tag` outer drop-shadow tuned for dark-mode specular —
- *      flatten on light theme to keep the chip readable. */
-:root[data-theme="light"] .glow-tag::after {
-  display: none;
-}
-:root[data-theme="light"] .glow-tag {
-  /* Drop the 80px atmospheric bloom from the canonical chain — on
-   * white it leaves an amber wash extending well past the chip
-   * (visible smear in the screenshot). Keep the inset highlight +
-   * 1px outline for chip definition. */
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--g-accent) 22%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, var(--g-accent) 8%, transparent),
-    0 1px 0 color-mix(in oklab, var(--g-accent) 10%, transparent),
-    0 0 12px -4px color-mix(in oklab, var(--g-accent) 25%, transparent);
-}
-:root[data-theme="light"] .glow-text {
-  background: linear-gradient(
-    100deg,
-    var(--fg) 0%,
-    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 35%,
-    var(--g-accent) 50%,
-    color-mix(in oklab, var(--fg) 70%, var(--g-accent)) 65%,
-    var(--fg) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  filter: none;
 }
 
 /* USMR Phase 5.5.16-pt131 — global reduced-motion override for the
@@ -1956,35 +1811,6 @@ header {
 [data-accent="lime"] {
   --accent: oklch(0.88 0.18 135);
   --accent-dim: oklch(0.52 0.12 135);
-}
-
-/* USMR pt425 — Light-theme accent overrides. The default accent
- * triples above (L≈0.84-0.88) are tuned for dark backgrounds; on
- * light theme (bg L≈0.98) they wash out — pill borders, CTA
- * surfaces, and chip text fail contrast. Drop lightness ~25 LSB
- * to L≈0.55-0.62 so the accent reads on white. `--accent-ink`
- * (text on accent surfaces) flips near-white because the accent
- * itself is now dark. Specificity (0,3,0) wins against the bare
- * `[data-accent]` block above. */
-:root[data-theme="light"][data-accent="cyan"] {
-  --accent: oklch(0.55 0.14 185);
-  --accent-dim: oklch(0.4 0.1 185);
-  --accent-ink: oklch(0.98 0.01 185);
-}
-:root[data-theme="light"][data-accent="blue"] {
-  --accent: oklch(0.55 0.17 245);
-  --accent-dim: oklch(0.4 0.12 245);
-  --accent-ink: oklch(0.98 0.01 245);
-}
-:root[data-theme="light"][data-accent="amber"] {
-  --accent: oklch(0.62 0.14 75);
-  --accent-dim: oklch(0.45 0.1 75);
-  --accent-ink: oklch(0.98 0.01 75);
-}
-:root[data-theme="light"][data-accent="lime"] {
-  --accent: oklch(0.6 0.18 135);
-  --accent-dim: oklch(0.45 0.12 135);
-  --accent-ink: oklch(0.98 0.01 135);
 }
 
 /* ============================================================
@@ -2132,86 +1958,6 @@ summary:focus-visible,
   font-family: var(--f-mono);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
-}
-
-/* ============================================================
- * USMR Phase 5.1q.5 — Legacy Explore grid primitives (DESIGN.md
- * §6.6). The shipped home-page component is `<HomeExplore>`
- * (`src/components/HomeExplore.astro`, USMR Phase 5.5.2 + 5.5.7
- * typed-data extraction) at `src/pages/index.astro:264`; it uses
- * scoped `.home-explore__*` classes and does NOT consume the
- * primitives below. These `.explore-grid` / `.explore-card` rules
- * remain for surfaces wanting the grid pattern outside the home
- * page. Ports new-design global.css:294-307. The earlier
- * "<ExploreGrid> Planned for Phase 5.x" comment text predated the
- * Phase 5.5.2 ship; corrected in pt326 (sibling of pt307 §6.6
- * DESIGN.md update).
- * ============================================================ */
-
-.explore-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-.explore-card {
-  /* Canonical .explore-card — new-design global.css:296-303. Top
-   * padding 28 (room for the idx label), inline + bottom 24, gap 14
-   * between rows, min-height 220 anchors a consistent card height
-   * across the 4-card row even when title text wraps. */
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 28px 24px 24px;
-  min-height: 220px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--bg-1);
-  color: inherit;
-  text-decoration: none;
-  transition:
-    border-color 0.25s ease,
-    transform 0.25s ease,
-    background 0.25s ease;
-}
-.explore-card:hover,
-.explore-card:focus-visible {
-  border-color: color-mix(in oklab, var(--accent) 50%, var(--line));
-  background: color-mix(in oklab, var(--accent) 6%, var(--bg-1));
-  transform: translateY(-2px);
-}
-.explore-card__num {
-  font-family: var(--f-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  color: var(--fg-3);
-}
-.explore-card__title {
-  font-family: var(--f-display);
-  font-size: 1.2rem;
-  color: var(--fg);
-  margin: 0;
-}
-.explore-card__desc {
-  font-size: 0.95rem;
-  color: var(--fg-2);
-  line-height: 1.5;
-  margin: 0;
-}
-.explore-card__cta {
-  margin-top: auto;
-  font-family: var(--f-mono);
-  font-size: 0.78rem;
-  color: var(--accent);
-}
-@media (max-width: 720px) {
-  .explore-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 480px) {
-  .explore-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ============================================================

@@ -8,16 +8,12 @@ export interface BuildPaths {
   root: string;
   cache: {
     astro: string;
-    content: string;
-    lhci: string;
-    lychee: string;
-    playwright: string;
-    "playwright-mcp": string;
   };
   reports: {
-    playwright: { results: string; html: string };
+    playwright: { results: string; blob: string; html: string };
+    playwrightCli: string;
     lhci: string;
-    coverage: string;
+    cloudflarePurge: string;
   };
   dist: string;
 }
@@ -63,7 +59,7 @@ function assertPaths(node: unknown, trail: string): void {
 // Required key tree, mirroring the BuildPaths interface. Used to verify
 // presence of every leaf — assertPaths only checks that EXISTING leaves
 // are valid, not that all REQUIRED leaves are present. Without this
-// check a missing key (e.g. cache.playwright dropped from the JSON)
+// check a missing key (e.g. reports.playwright.blob dropped from the JSON)
 // would type as `string` at compile time while being `undefined` at
 // runtime — exactly the kind of unsoundness `as DeepReadonly<BuildPaths>`
 // papers over.
@@ -71,16 +67,12 @@ const REQUIRED_SHAPE = {
   root: null,
   cache: {
     astro: null,
-    content: null,
-    lhci: null,
-    lychee: null,
-    playwright: null,
-    "playwright-mcp": null,
   },
   reports: {
-    playwright: { results: null, html: null },
+    playwright: { results: null, blob: null, html: null },
+    playwrightCli: null,
     lhci: null,
-    coverage: null,
+    cloudflarePurge: null,
   },
   dist: null,
 } as const;

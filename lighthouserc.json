@@ -1,6 +1,6 @@
 {
   "$generated": "build.config.json",
-  "$sha": "886935a235c5a3d8",
+  "$sha": "cef4a3acc3aacec1",
   "ci": {
     "collect": {
       "staticDistDir": ".build/dist",

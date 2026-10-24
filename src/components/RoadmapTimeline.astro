@@ -3,19 +3,23 @@
 // new-design/extracted/src/components/Roadmap.jsx. Static — no
 // React island, no client interactivity.
 import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
+import { parseGlossaryText } from '../data/glossary';
+import type { MarketingCopy } from '../lib/marketing-copy';
+import HeadlineText from './HeadlineText.astro';
+import GlossaryText from './GlossaryText.astro';
+interface Props { copy: MarketingCopy; }
+const { copy } = Astro.props;
 ---
 <section class="roadmap-timeline" aria-labelledby="roadmap-timeline-heading" id="roadmap-timeline">
-  <div class="roadmap-timeline__head">
+  <div class="roadmap-timeline__head section-head">
     <div>
-      <p class="roadmap-timeline__eyebrow">Roadmap</p>
-      <h2 id="roadmap-timeline-heading" class="roadmap-timeline__title display">
-        From authentication<br />
-        to <span class="roadmap-timeline__title-emphasis">authority.</span>
-      </h2>
+      <p class="roadmap-timeline__eyebrow eyebrow">{copy.eyebrow}</p>
+      <h1 id="roadmap-timeline-heading" class="roadmap-timeline__title display">
+        <HeadlineText text={copy.headline} emphasisClass="roadmap-timeline__title-emphasis" />
+      </h1>
     </div>
     <p class="roadmap-timeline__lede lead">
-      Five phases. Eighteen months. We ship core trust first, layer verifiable
-      credentials on top, then scale into federation and AI-agent authorization.
+      <GlossaryText nodes={parseGlossaryText(copy.lede)} />
     </p>
   </div>
 
@@ -23,7 +27,7 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
     {ROADMAP_PHASES.map((phase) => {
       const meta = ROADMAP_STATUS[phase.status];
       return (
-        <li class={`roadmap-phase roadmap-phase--${phase.status}`}>
+        <li id={phase.id} class={`roadmap-phase roadmap-phase--${phase.status}`}>
           <header class="roadmap-phase__head">
             <span class="roadmap-phase__version">{phase.version}</span>
             <span class="roadmap-phase__when">{phase.when}</span>
@@ -34,7 +38,7 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
             <span>{meta.label}</span>
           </p>
 
-          <h3 class="roadmap-phase__title">{phase.title}</h3>
+          <h2 class="roadmap-phase__title">{phase.title}</h2>
 
           <ul class="roadmap-phase__items">
             {phase.items.map((item) => (
@@ -56,34 +60,17 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
   }
 
   .roadmap-timeline__head {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
     align-items: end;
     margin-bottom: 56px;
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
+    padding-inline: var(--gutter);
   }
 
   /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+  /* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
   .roadmap-timeline__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--fg-2);
     margin: 0 0 24px;
-  }
-  .roadmap-timeline__eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
   }
 
   .roadmap-timeline__title {
@@ -96,7 +83,7 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
     color: var(--fg);
     margin: 0;
   }
-  .roadmap-timeline__title-emphasis {
+  .roadmap-timeline__title :global(.roadmap-timeline__title-emphasis) {
     font-family: var(--f-emphasis, var(--f-serif));
     font-style: italic;
   }
@@ -218,40 +205,19 @@ import { ROADMAP_PHASES, ROADMAP_STATUS } from '../data/roadmap';
     border-radius: 999px;
   }
 
-  /* Per-status colors. The dot fill + label color follow the
-   * RoadmapStatusMeta token reference; this mapping mirrors
-   * src/data/roadmap.ts (Test gate `roadmap-data.test.mts`
-   * verifies the status enumeration matches). */
-  .roadmap-phase--shipping .roadmap-phase__dot,
-  .roadmap-phase--shipping .roadmap-phase__status {
-    color: var(--ok);
-  }
-  .roadmap-phase--shipping .roadmap-phase__dot {
-    background: var(--ok);
-    box-shadow: 0 0 10px var(--ok);
-  }
-  .roadmap-phase--in-build .roadmap-phase__dot,
-  .roadmap-phase--in-build .roadmap-phase__status {
-    color: var(--accent);
-  }
-  .roadmap-phase--in-build .roadmap-phase__dot {
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-  }
-  .roadmap-phase--design .roadmap-phase__dot,
-  .roadmap-phase--design .roadmap-phase__status {
-    color: var(--warn);
-  }
-  .roadmap-phase--design .roadmap-phase__dot {
-    background: var(--warn);
-    box-shadow: 0 0 10px var(--warn);
-  }
-  .roadmap-phase--planned .roadmap-phase__dot,
-  .roadmap-phase--planned .roadmap-phase__status {
-    color: var(--fg-3);
+  /* USMR 14.13 review R3: scoped modifiers own status colors. */
+  .roadmap-phase--shipping { --phase-color: var(--ok); }
+  .roadmap-phase--in-build { --phase-color: var(--accent); }
+  .roadmap-phase--design { --phase-color: var(--warn); }
+  .roadmap-phase--planned { --phase-color: var(--fg-3); }
+  .roadmap-phase__dot,
+  .roadmap-phase__status { color: var(--phase-color); }
+  .roadmap-phase__dot {
+    background: var(--phase-color);
+    box-shadow: 0 0 10px var(--phase-color);
   }
   .roadmap-phase--planned .roadmap-phase__dot {
-    background: var(--fg-3);
+    box-shadow: none;
   }
 
   /* Canonical Roadmap.jsx:65 — phase title `fontSize: 18`. */

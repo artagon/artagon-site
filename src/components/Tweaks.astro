@@ -29,12 +29,15 @@
  * Toggle: `⌘.` (or `Ctrl+.` on non-mac), `Esc` to close.
  */
 import TweaksPanel from "./TweaksPanel.tsx";
+import { TWEAKS_FONT_STYLESHEET } from "../data/font-stylesheets";
 const isDev = import.meta.env.DEV;
 ---
 
 {
   isDev && (
     <>
+      {/* USMR 14.14: these alternate faces never load in production. */}
+      <link rel="stylesheet" href={TWEAKS_FONT_STYLESHEET} data-tweaks-fonts />
       {/* Pre-paint restore: synchronously apply persisted Tweaks state to
           the DOM before React hydrates. Mirrors BaseLayout.astro's
           theme-restore pattern. Dev-only — gated by `isDev`. */}
@@ -47,11 +50,14 @@ const isDev = import.meta.env.DEV;
             const html = document.documentElement;
             const accents = ["cyan", "blue", "amber", "lime"];
             const densities = ["dense", "comfortable", "roomy"];
-            const themes = ["dark", "light"];
+            // USMR 14.13: mirrors tweaks-state.ts; the sync gate checks both production scripts.
+            const themes = ["twilight", "midnight"];
             const fonts = ["grotesk", "fraunces", "dmserif", "mono"];
             const widgets = ["in-hero", "A · strip", "B · 3-up", "C · split", "D · ticker", "off"];
             if (accents.indexOf(t.accent) >= 0) html.setAttribute("data-accent", t.accent);
             if (densities.indexOf(t.density) >= 0) html.setAttribute("data-density", t.density);
+            // USMR 14.13 R1: only valid Tweaks themes override the production choice.
+            // Legacy, missing, and invalid themes leave the pre-paint result untouched.
             if (themes.indexOf(t.theme) >= 0) html.setAttribute("data-theme", t.theme);
             if (fonts.indexOf(t.heroFont) >= 0) html.setAttribute("data-hero-font", t.heroFont);
             if (widgets.indexOf(t.writingWidget) >= 0) html.setAttribute("data-writing-widget", t.writingWidget);
@@ -62,7 +68,7 @@ const isDev = import.meta.env.DEV;
               });
             }
           } catch (e) {
-            /* malformed localStorage — React island will fall back to DEFAULTS on hydrate */
+            /* Malformed storage leaves the page unchanged until a user edit. */
           }
         })();
       </script>

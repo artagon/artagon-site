@@ -12,4 +12,7 @@ ignores:
   - "**/*.test.ts"
   - "tests/**"
 rule:
-  pattern: jwt.decode($TOKEN)
+  # USMR 14.69 (site-2m1.69): decode options never verify a signature.
+  any:
+    - pattern: jwt.decode($TOKEN)
+    - pattern: jwt.decode($TOKEN, $$$OPTIONS)

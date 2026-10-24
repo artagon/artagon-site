@@ -2,8 +2,7 @@
 // USMR Phase 5.5.1 — /platform route. Mounts the PillarsIsland
 // directly per the canonical new-design/extracted/src/pages/platform.html
 // (line 848: `<App><Pillars/></App>` — no separate page hero). The
-// island ports Pillars.jsx's internal hero ("Platform" eyebrow +
-// "Three pillars, one coherent platform." h2), so any page-level
+// component renders its MDX-owned h1 and lede, so any page-level
 // hero here would duplicate that header.
 //
 // 5.2.5 originally shipped a `platform-hero` section + a
@@ -12,20 +11,21 @@
 // the island's own header, and /bridge now exists as a real route
 // (5.2.8) so the anchor stub is no longer needed.
 import Base from '../../layouts/BaseLayout.astro';
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-import PillarsIsland from '../../components/PillarsIsland.tsx';
+import PillarsIsland from '../../components/PillarsIsland.astro';
+import { getEntry } from 'astro:content';
+const entry = await getEntry('pages', 'platform');
+if (!entry) throw new Error('platform.mdx content entry not found');
 ---
 <Base
-  title="Platform — Artagon"
-  description="Three pillars, one coherent platform — high-assurance authentication, verifiable credentials, and graph-native authorization unified under one runtime."
+  title={entry.data.title}
+  description={entry.data.description}
   path="/platform"
 >
-  <Fragment slot="header"><Header /></Fragment>
+
 
   {/* USMR Phase 5.5.16-pt138 — drop redundant <main>; BaseLayout
       wraps the slot in <main id="main-content"> already. */}
-  <PillarsIsland client:visible />
+  <PillarsIsland copy={entry.data} />
 
-  <Fragment slot="footer"><Footer /></Fragment>
+
 </Base>

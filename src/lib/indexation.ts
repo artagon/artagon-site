@@ -18,10 +18,8 @@
 //   2. Run `rtk npm run test:vitest` + `rtk node scripts/validate-indexation.mjs`
 //      (once Phase 10.7 ships) to confirm sitemap, robots-meta, and
 //      redirects stay in sync.
-//   3. Per-page `<Base robots="noindex, nofollow">` on the route's
-//      `index.astro` is still expected today (BaseLayout doesn't
-//      auto-derive yet — pt417 / Phase 10.2 will consolidate); the
-//      list and the prop must agree until the consolidation lands.
+//   3. BaseLayout derives robots from this list (pt417); an explicit
+//      robots prop remains available for deliberate per-page overrides.
 //
 // Routes are matched via `endsWith()` (matching the pt146 sitemap-
 // filter convention), so both `/privacy` and any future nested

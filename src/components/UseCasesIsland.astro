@@ -1,0 +1,55 @@
+---
+// USMR 14.6: SSR matches the selected panel; scripting:none exposes all panels.
+import { USE_CASES } from '../data/use-cases';
+import { parseGlossaryText } from '../data/glossary';
+import type { MarketingCopy } from '../lib/marketing-copy';
+import HeadlineText from './HeadlineText.astro';
+import GlossaryText from './GlossaryText.astro';
+import './UseCasesIsland.css';
+interface Props { copy: MarketingCopy; }
+const { copy } = Astro.props;
+---
+<section class="use-cases" aria-labelledby="use-cases-heading" id="use-cases-island" data-manual-tabs>
+  <header class="use-cases__head">
+      <p class="use-cases__eyebrow eyebrow">{copy.eyebrow}</p>
+    <h1 id="use-cases-heading" class="use-cases__title display"><HeadlineText text={copy.headline} emphasisClass="use-cases__title-emphasis" /></h1>
+    <p class="use-cases__lede lead"><GlossaryText nodes={parseGlossaryText(copy.lede)} /></p>
+  </header>
+  <div class="use-cases__board">
+    <div role="tablist" aria-orientation="vertical" aria-label="Use-case scenarios" class="use-cases__rail">
+      {USE_CASES.map((scenario, i) => (
+        <button type="button" role="tab" id={`use-case-tab-${scenario.id}`}
+          aria-selected={i === 0} aria-controls={`use-case-panel-${scenario.id}`}
+          tabindex={i === 0 ? 0 : -1} data-use-case-idx={i}
+          class:list={['use-case-tab', { 'is-selected': i === 0 }]} disabled>
+          <span class="use-case-tab__short">{scenario.short}</span><span class="use-case-tab__label">{scenario.label}</span>
+        </button>
+      ))}
+    </div>
+    {USE_CASES.map((scenario, i) => (
+      <div role="tabpanel" id={`use-case-panel-${scenario.id}`} aria-labelledby={`use-case-tab-${scenario.id}`} hidden={i !== 0} class="use-cases__panel">
+        <div class="use-cases__panel-head">
+          <p class="use-cases__panel-eyebrow">Scenario · {scenario.short}</p>
+          <h2 class="use-cases__panel-title">{scenario.title}</h2>
+          <p class="use-cases__panel-body">{scenario.scenario}</p>
+        </div>
+        <div class="use-cases__metrics" role="list">
+          {scenario.metrics.map((metric) => (
+            <div class="use-cases__metric" role="listitem"><p class="use-cases__metric-key">{metric.key}</p><p class="use-cases__metric-value">{metric.value}</p></div>
+          ))}
+        </div>
+        <div class="use-cases__trace">
+          <p class="use-cases__trace-eyebrow">Protocol trace</p>
+          <ol class="use-cases__trace-body">
+            {scenario.trace.map((line, i) => (
+              <li class:list={['use-cases__trace-line', { 'is-decision': i === scenario.trace.length - 1 }]}>
+                <span class="use-cases__trace-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span><span class="use-cases__trace-text">{line}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+<script src="../scripts/marketing-interactions.ts"></script>

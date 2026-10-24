@@ -1,6 +1,7 @@
 /**
- * Tweaks panel — React island faithful to upstream
+ * Tweaks panel — React island based on upstream
  * `new-design/extracted/src/layouts/BaseLayout.jsx:312-359`.
+ * USMR 14.13: theme choices use the production vocabulary from THEMES.
  *
  * Mounts only in dev (gated by `import.meta.env.DEV` in `Tweaks.astro`).
  * State is persisted to localStorage and projected onto `data-*` attributes
@@ -22,6 +23,7 @@ import {
   STORAGE_KEY,
   THEMES,
   WRITING_WIDGETS,
+  isTheme,
   parse,
   type Tweaks,
 } from "../scripts/tweaks-state.ts";
@@ -43,17 +45,20 @@ function isExpectedStorageError(err: unknown): boolean {
 
 function loadInitial(): Tweaks {
   if (typeof window === "undefined") return { ...DEFAULTS };
+  // USMR 14.13 R1: pre-paint has already resolved the production choice.
+  // Invalid or absent Tweaks themes must highlight and retain that choice.
+  const pageTheme = document.documentElement.dataset.theme;
+  const fallbackTheme = isTheme(pageTheme) ? pageTheme : THEMES[0];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...DEFAULTS };
-    return parse(JSON.parse(raw));
+    return parse(raw ? JSON.parse(raw) : undefined, fallbackTheme);
   } catch (err) {
     // Dev-only panel: surface failures so a maintainer can tell
     // "JSON corrupted" from "storage blocked" from "parse() bug".
     if (!isExpectedStorageError(err)) {
-      console.warn("[TweaksPanel] loadInitial fell back to DEFAULTS:", err);
+      console.warn("[TweaksPanel] loadInitial fell back to the page theme:", err);
     }
-    return { ...DEFAULTS };
+    return parse(undefined, fallbackTheme);
   }
 }
 
@@ -86,14 +91,15 @@ function persist(t: Tweaks): void {
 }
 
 export default function TweaksPanel() {
-  const [tweaks, setTweaks] = useState<Tweaks>(loadInitial);
+  // USMR 14.13 R1: hydration starts with the same hidden panel markup as SSR.
+  // Restore after mount so React updates the selected radio instead of leaving
+  // mismatched server attributes in place. This never applies state to the page.
+  const [tweaks, setTweaks] = useState<Tweaks>(() => ({ ...DEFAULTS }));
   const [open, setOpen] = useState(false);
 
-  // Apply + persist whenever state changes.
   useEffect(() => {
-    applyToDom(tweaks);
-    persist(tweaks);
-  }, [tweaks]);
+    setTweaks(loadInitial());
+  }, []);
 
   // Keyboard: Esc closes; ⌘. / Ctrl+. toggles.
   useEffect(() => {
@@ -109,7 +115,12 @@ export default function TweaksPanel() {
   }, [open]);
 
   const setTweak = <K extends keyof Tweaks>(key: K, value: Tweaks[K]): void => {
-    setTweaks((prev) => ({ ...prev, [key]: value }));
+    // USMR 14.13: defaults belong to an explicit edit, never hydration.
+    // Tweaks.astro already restores saved choices before hydration.
+    const next = { ...tweaks, [key]: value };
+    setTweaks(next);
+    applyToDom(next);
+    persist(next);
   };
 
   return (
@@ -252,19 +263,11 @@ function Opt({
   onClick: () => void;
   children: ReactNode;
 }) {
-  // USMR Phase 5.5.16-pt422 — blur the button after a pointer click so
-  // Safari's `:focus-visible` heuristic doesn't leave a violet outline
-  // on the previously-clicked button (Safari applies `:focus-visible`
-  // on pointer clicks more aggressively than Chrome/Firefox; combined
-  // with the global `button:focus-visible { outline: 2px solid
-  // var(--accent) }` in theme.css, the residual outline on a
-  // not-active button looks like a stuck selection — the bug the
-  // user reported as "selection stays"). Keyboard users still get
-  // visible focus because Tab/Arrow nav re-applies `:focus-visible`
-  // before they release the key.
+  // site-2m1.58 — suppress Safari's residual pointer-focus outline,
+  // but keep keyboard focus after Enter or Space activation.
   function handleClick(e: MouseEvent<HTMLButtonElement>) {
     onClick();
-    e.currentTarget.blur();
+    if (e.detail > 0) e.currentTarget.blur();
   }
   return (
     <button

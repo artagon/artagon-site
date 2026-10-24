@@ -12,27 +12,13 @@
   margin-bottom: 56px;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 
 /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+/* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
 .use-cases__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-2);
   margin: 0 0 24px;
-}
-.use-cases__eyebrow::before {
-  content: "";
-  display: inline-block;
-  width: 18px;
-  height: 1px;
-  background: var(--accent);
 }
 
 .use-cases__title {
@@ -51,13 +37,18 @@
   font-style: italic;
 }
 
+.use-cases__lede {
+  max-width: 64ch;
+  margin: 24px 0 0;
+}
+
 .use-cases__board {
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 32px;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 
 @media (max-width: 720px) {
@@ -145,6 +136,19 @@
   display: none;
 }
 
+/* USMR 14.6 review R2: no-script stacking never affects a JS first paint. */
+@media (scripting: none) {
+  .use-cases__board {
+    display: block;
+  }
+  .use-cases__panel[hidden] {
+    display: flex;
+  }
+  .use-cases__panel {
+    margin-top: 32px;
+  }
+}
+
 @media (max-width: 720px) {
   .use-cases__panel {
     padding: 24px;
@@ -178,6 +182,7 @@
   font-size: clamp(24px, 3vw, 30px);
   letter-spacing: -0.02em;
   line-height: 1.1;
+  font-weight: 500;
   margin: 0 0 14px;
   max-width: 24ch;
   color: var(--fg);

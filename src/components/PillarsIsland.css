@@ -1,7 +1,7 @@
 /*
  * USMR Phase 5.2.4 — /platform pillars tablist styling.
  * Token-only port of new-design/extracted/src/components/Pillars.jsx
- * inline styles. The React island ships these via the Vite/Astro
+ * inline styles. The Astro component ships these via the Vite/Astro
  * bundle alongside the JS chunk, mirroring TrustChainIsland's
  * pattern.
  */
@@ -12,14 +12,11 @@
 }
 
 .pillars__head {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
   align-items: end;
   margin-bottom: 64px;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 
 /* Canonical .eyebrow contract — global.css:220-226. font 12 / fg-2 /
@@ -27,23 +24,9 @@
  * pre-canonical sizing (0.72rem / fg-3 / 0.12em / 0.5rem) appeared
  * across all 5 island eyebrows and was canonicalized in
  * USMR 5.5.16-pt16. */
+/* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
 .pillars__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-2);
   margin: 0 0 24px;
-}
-.pillars__eyebrow::before {
-  content: "";
-  display: inline-block;
-  width: 18px;
-  height: 1px;
-  background: var(--accent);
 }
 
 .pillars__title {
@@ -99,7 +82,7 @@
   border-top: 1px solid var(--line-soft);
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 
 .pillar-tab {
@@ -179,10 +162,20 @@
   align-items: start;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 .pillars__panel[hidden] {
   display: none;
+}
+
+/* USMR 14.6 review R2: JS users paint only the selected panel from SSR. */
+@media (scripting: none) {
+  .pillars__panel[hidden] {
+    display: grid;
+  }
+  .pillars__panel + .pillars__panel {
+    margin-top: 32px;
+  }
 }
 
 /* Canonical Pillars.jsx:132 — left column is just `<div>` with no

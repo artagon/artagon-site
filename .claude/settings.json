@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "enabledMcpjsonServers": ["context7", "playwright"],
+  "enabledMcpjsonServers": ["playwright"],
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | { read -r f; npx prettier --write --ignore-unknown \"$f\"; } 2>/dev/null || true",
+            "command": "node -e 'const fs = require(\"node:fs\");\n// USMR 14.72 (site-2m1.72): never acquire an edit-hook executable.\nfunction formatFiles(input, files) {\n  const path = require(\"node:path\");\n  const cp = require(\"node:child_process\");\n  const sessionCwd = path.resolve(input.cwd || process.cwd());\n  let root = sessionCwd;\n  // Stop at the nearest project marker; never borrow an ancestor install.\n  while (!fs.existsSync(path.join(root, \"node_modules\", \".bin\", \"prettier\")) && !fs.existsSync(path.join(root, \"package.json\"))) {\n    const parent = path.dirname(root);\n    if (parent === root) break;\n    root = parent;\n  }\n  const prettier = path.join(root, \"node_modules\", \".bin\", \"prettier\");\n  if (!fs.existsSync(prettier)) {\n    console.error(\"Skipping formatting: local node_modules/.bin/prettier is absent; install locked dependencies first.\");\n    return;\n  }\n  const targets = [...new Set(files.map(f => path.resolve(sessionCwd, f)))].filter(f => fs.existsSync(f));\n  if (targets.length === 0) return;\n  const result = cp.spawnSync(prettier, [\"--write\", \"--ignore-unknown\", \"--\", ...targets], { cwd: root, stdio: [\"ignore\", \"pipe\", \"pipe\"], encoding: \"utf8\" });\n  if (result.stdout) process.stderr.write(result.stdout);\n  if (result.stderr) process.stderr.write(result.stderr);\n  if (result.error) {\n    console.error(\"Local Prettier could not run: \" + result.error.message);\n    process.exit(1);\n  }\n  if (result.signal) {\n    console.error(\"Local Prettier terminated by \" + result.signal);\n    process.exit(1);\n  }\n  process.exit(result.status === 0 ? 0 : 1);\n}\ntry {\n  const input = JSON.parse(fs.readFileSync(0, \"utf8\"));\n  const file = input?.tool_input?.file_path;\n  if (typeof file !== \"string\" || !file.trim() || /[\\0\\r\\n]/.test(file)) throw new Error();\n  if (file.toLowerCase().includes(\".env\")) {\n    console.error(\"Skipping formatting: environment files are protected.\");\n  } else {\n    formatFiles(input, [file]);\n  }\n} catch {\n  console.error(\"Formatting failed: malformed Claude edit input.\");\n  process.exit(1);\n}'",
             "statusMessage": "Formatting with Prettier..."
           }
         ]
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | { read -r f; echo \"$f\" | grep -q '\\.env' && echo '{\"continue\":false,\"stopReason\":\"Blocked: .env files are protected\"}' && exit 1 || exit 0; }"
+            "command": "node -e '// USMR 14.65 (site-2m1.65): keep Claude file-path input and denial separate.\nconst fs = require(\"node:fs\");\nlet reason = \"\";\ntry {\n  const input = JSON.parse(fs.readFileSync(0, \"utf8\"));\n  const file = input?.tool_input?.file_path;\n  if (typeof file !== \"string\" || !file.trim() || /[\\0\\r\\n]/.test(file)) throw new Error();\n  if (file.toLowerCase().includes(\".env\")) reason = \"Blocked: environment files are protected.\";\n} catch {\n  reason = \"Blocked: malformed Claude edit input.\";\n}\nif (reason) {\n  console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: \"PreToolUse\", permissionDecision: \"deny\", permissionDecisionReason: reason } }));\n}'"
           }
         ]
       }

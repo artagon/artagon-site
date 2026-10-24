@@ -32,9 +32,11 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
-    env:
-      SPEC_VALIDATION_PATH: ${{ runner.temp }}/spec-validation.json
     steps:
+      # USMR 14.73 (site-2m1.73): runner.temp is not available at job scope.
+      - name: Set spec validation output path
+        run: printf 'SPEC_VALIDATION_PATH=%s/spec-validation.json\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
       # Checkout for local scripts
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
@@ -43,7 +45,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
           cache: "npm"
 
       - name: Validate spec reference
@@ -59,7 +61,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const core = require('@actions/core');
+            // USMR 14.73 (site-2m1.73): core is injected by github-script.
 
             const pr = context.payload.pull_request;
             if (!pr) {

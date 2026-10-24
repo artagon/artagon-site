@@ -11,14 +11,13 @@
 //     advances stage-by-stage on a timer. Each stage's evaluating moment
 //     shows a pulse on the number circle and a `chain-spinner` next to
 //     "checking…". Halts on a fail outcome (subsequent stages stay
-//     "skip"). Pauses while the user hovers/focuses any stage row OR a
-//     scenario dot. Resets when the active scenario changes.
+//     "skip"). Stage hover/focus pauses evaluation and scenario rotation.
+//     Scenario-control hover/focus pauses only rotation, so a chosen
+//     scenario evaluates while its control retains focus. Resets when
+//     the active scenario changes.
 //
-// SSR posture: SSR renders the fully-resolved scenario state (step =
-// STAGES.length). Hydration triggers a useEffect that resets step to 0
-// and walks it forward on a timer. Under `prefers-reduced-motion: reduce`
-// the timer is disabled and the rendered state stays at fully-resolved
-// (no flash, no animation).
+// SSR starts pending. Hydration settles immediately under reduced motion
+// or WebDriver; otherwise it advances the chain on a timer.
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SCENARIOS, STAGES, type StageOutcome } from "../data/trust-chain.js";
@@ -49,8 +48,7 @@ const KICKOFF_MS = 400;
 const FIRST_STAGE_MS = 1100;
 const PER_STAGE_MS = 900;
 // Auto-cycle: after a chain settles, wait this long, then advance to the
-// next scenario and re-animate. Stops once a user clicks any scenario or
-// stage (per `userInteractedRef`).
+// next scenario and re-animate. Pauses during inspection or a pressed claim.
 const CYCLE_DELAY_MS = 3400;
 
 function shouldSkipAutoProgression(): boolean {
@@ -68,10 +66,13 @@ function shouldSkipAutoProgression(): boolean {
 export default function TrustChainIsland() {
   const [scenarioIdx, setScenarioIdx] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [focusedStage, setFocusedStage] = useState<number | null>(null);
+  const [scenarioHovered, setScenarioHovered] = useState(false);
+  const [scenarioFocused, setScenarioFocused] = useState(false);
   // pressedIdx mirrors the hover affordance for touch users
   // (enhance-a11y-coverage Phase 1). Tapping a stage row toggles
   // pressed state; same idx → null, different idx → that idx.
-  // Decision-claim resolution priority: pressed > hovered > scenario
+  // Decision-claim resolution priority: pressed > hovered > focused > scenario
   // finalClaim. `aria-pressed` reflects whether `pressedIdx === i`.
   const [pressedIdx, setPressedIdx] = useState<number | null>(null);
   // step = number of stages currently evaluating-or-settled. step=0 →
@@ -89,9 +90,10 @@ export default function TrustChainIsland() {
   // pending paint, then the staggered evaluation animation runs as
   // intended (no flash).
   const [step, setStep] = useState<number>(0);
-  // Pause flag toggles when a user hovers/focuses anything inside the
-  // chain OR clicks a scenario dot. The timer effect respects it.
-  const [paused, setPaused] = useState(false);
+  // USMR 14.2 / 14.53: independent input state prevents pointer leave
+  // from releasing an active keyboard-focus pause (or its claim).
+  const stagePaused = hovered !== null || focusedStage !== null;
+  const cyclePaused = stagePaused || scenarioHovered || scenarioFocused;
   // Anchored ref for the scenario tablist — the keyboard handler walks
   // siblings via this ref instead of `event.currentTarget.parentElement`
   // so a future wrapper insertion doesn't silently break focus.
@@ -121,57 +123,29 @@ export default function TrustChainIsland() {
   }
   const scenario = inRange ? SCENARIOS[scenarioIdx]! : SCENARIOS[0]!;
 
-  // Auto-progression effect — animates the active scenario's chain
-  // stage-by-stage on a setTimeout chain. Plays on every scenario
-  // change. USMR Phase 5.5.5 — dropped the `userInteractedRef` freeze
-  // pattern that previously latched-after-first-click, restoring the
-  // canonical "always cycling" UX (Hero.jsx:116-121 — `setScenarioIdx`
-  // never gates on a user-interacted ref). Click on a scenario dot
-  // now resets the chain to that scenario and the animation
-  // continues; the auto-cycle eventually advances past the
-  // user-clicked scenario as well. Skipped under prefers-reduced-motion
-  // AND under navigator.webdriver (Playwright deterministic E2E).
+  // USMR 14.2 / 14.53: only a scenario change resets the chain and
+  // releases a latched claim. Pausing must preserve the current step.
   useEffect(() => {
-    if (shouldSkipAutoProgression()) {
-      setStep(STAGES.length);
+    setPressedIdx(null);
+    setStep(shouldSkipAutoProgression() ? STAGES.length : 0);
+  }, [scenarioIdx]);
+
+  useEffect(() => {
+    if (shouldSkipAutoProgression() || stagePaused || pressedIdx !== null)
       return;
-    }
-    setStep(0);
-    let cancelled = false;
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    const advance = (next: number) => {
-      if (cancelled || paused) return;
-      setStep(next);
-      if (next >= STAGES.length) return;
-      // `next` just became the new step value — that means the stage
-      // at index (next - 1) is currently rendering as "evaluating"
-      // (per stageState's `i === step - 1` branch). Inspect its
-      // ACTUAL outcome to decide what to schedule next.
-      const evaluatingOutcome = scenario.stages[next - 1];
-      if (evaluatingOutcome === "fail") {
-        // The currently-evaluating stage is the failing stage. Hold
-        // it on "checking…" for one more PER_STAGE_MS window so the
-        // spinner reads, then JUMP to fully settled (step =
-        // STAGES.length). Without the jump, step would stay mid-
-        // chain, the auto-cycle effect (gated on step >=
-        // STAGES.length) would never fire, and the chain would
-        // freeze on "checking…" forever — the bug visible at PR #46
-        // smoke screenshot for the `device_fail` scenario.
-        timeout = setTimeout(() => {
-          if (cancelled || paused) return;
-          setStep(STAGES.length);
-        }, PER_STAGE_MS);
-        return;
-      }
-      const delay = next === 0 ? FIRST_STAGE_MS : PER_STAGE_MS;
-      timeout = setTimeout(() => advance(next + 1), delay);
-    };
-    timeout = setTimeout(() => advance(0), KICKOFF_MS);
-    return () => {
-      cancelled = true;
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [scenarioIdx, paused, scenario]);
+    if (step >= STAGES.length) return;
+    const timeout = setTimeout(
+      () => {
+        // Hold a failing stage for one evaluation window, then settle the
+        // whole chain so later stages remain skipped and auto-cycle resumes.
+        setStep(
+          scenario.stages[step - 1] === "fail" ? STAGES.length : step + 1,
+        );
+      },
+      step === 0 ? KICKOFF_MS + FIRST_STAGE_MS : PER_STAGE_MS,
+    );
+    return () => clearTimeout(timeout);
+  }, [step, stagePaused, pressedIdx, scenario]);
 
   // Auto-cycle effect — once a chain has settled (step >= STAGES.length),
   // wait CYCLE_DELAY_MS then advance scenarioIdx to the next scenario.
@@ -180,13 +154,13 @@ export default function TrustChainIsland() {
   // dot resets the chain but does not stop the cycle.
   useEffect(() => {
     if (shouldSkipAutoProgression()) return;
-    if (paused) return;
+    if (cyclePaused || pressedIdx !== null) return;
     if (step < STAGES.length) return;
     const t = setTimeout(() => {
       setScenarioIdx((i) => (i + 1) % SCENARIOS.length);
     }, CYCLE_DELAY_MS);
     return () => clearTimeout(t);
-  }, [step, scenarioIdx, paused]);
+  }, [step, scenarioIdx, cyclePaused, pressedIdx]);
 
   // Halt index for the *displayed* state — once a stage fails, no
   // subsequent stage should advertise "evaluating".
@@ -243,9 +217,8 @@ export default function TrustChainIsland() {
   const decisionClass = scenario.decision.toLowerCase();
   // Pressed (touch) state takes precedence over hovered (mouse). The
   // aria-pressed attribute on each stage row reflects whether THIS
-  // particular stage is pressed; hover-only users still get the
-  // hovered-driven decision-claim swap unchanged.
-  const focusedIdx = pressedIdx ?? hovered;
+  // particular stage is pressed. Focus retains its claim after hover ends.
+  const focusedIdx = pressedIdx ?? hovered ?? focusedStage;
   const hoveredStage = focusedIdx != null ? STAGES[focusedIdx] : null;
   const hoveredOutcome =
     focusedIdx != null ? scenario.stages[focusedIdx] : null;
@@ -331,6 +304,13 @@ export default function TrustChainIsland() {
           className="trust-chain__scenarios"
           role="tablist"
           aria-label="Trust-chain scenarios"
+          onMouseEnter={() => setScenarioHovered(true)}
+          onMouseLeave={() => setScenarioHovered(false)}
+          onFocus={() => setScenarioFocused(true)}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget))
+              setScenarioFocused(false);
+          }}
         >
           {SCENARIOS.map((s, i) => (
             <button
@@ -352,10 +332,7 @@ export default function TrustChainIsland() {
               }`}
               onClick={() => {
                 setScenarioIdx(i);
-                setPaused(false);
               }}
-              onFocus={() => setPaused(true)}
-              onBlur={() => setPaused(false)}
               onKeyDown={(event) => {
                 // WAI-ARIA tablist keyboard pattern (USMR Phase 5.1q.6).
                 let next: number | null = null;
@@ -421,23 +398,18 @@ export default function TrustChainIsland() {
                   // enhance-a11y-coverage Phase 1 — touch tap-toggle.
                   // Same idx → release; different idx → press that idx.
                   setPressedIdx((current) => (current === i ? null : i));
-                  setPaused(true);
                 }}
                 onMouseEnter={() => {
                   setHovered(i);
-                  setPaused(true);
                 }}
                 onMouseLeave={() => {
                   setHovered(null);
-                  setPaused(false);
                 }}
                 onFocus={() => {
-                  setHovered(i);
-                  setPaused(true);
+                  setFocusedStage(i);
                 }}
                 onBlur={() => {
-                  setHovered(null);
-                  setPaused(false);
+                  setFocusedStage(null);
                 }}
                 aria-describedby="trust-chain-decision"
                 aria-label={`${stage.label} — ${

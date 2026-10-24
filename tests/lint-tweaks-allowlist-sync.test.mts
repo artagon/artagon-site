@@ -15,7 +15,10 @@
 //      context); has to duplicate the allow-lists as inline
 //      JS arrays.
 //
-// The dual-sourcing is unavoidable but creates a drift risk: if a
+// Inline scripts keep literal arrays to preserve synchronous execution.
+// USMR 14.13 also checks BOTH production BaseLayout allow-lists against
+// the single typed THEMES tuple and exercises divergent negative controls.
+// The dual-sourcing creates a drift risk: if a
 // contributor adds a new value to tweaks-state.ts (e.g. a fifth
 // hero-font), they have to remember to also update Tweaks.astro's
 // inline list. If they forget, the pre-paint silently drops the
@@ -53,6 +56,24 @@ function extractInlineArray(source: string, varName: string): string[] | null {
     .filter(Boolean);
 }
 
+function assertProductionThemeSync(state: string, boot: string, layout: string): void {
+  const canonical = extractInlineArray(state, "THEMES");
+  const dev = extractInlineArray(boot, "themes");
+  const production = [...layout.matchAll(/\bvar\s+ALLOWED\s*=\s*\[([^\]]*)\]/g)]
+    .map(match => extractInlineArray(`const themes = [${match[1]}]`, "themes"));
+  if (!canonical?.length || !dev?.length || production.length !== 2 ||
+      [dev, ...production].some(values => JSON.stringify(values) !== JSON.stringify(canonical))) {
+    throw new Error("Tweaks THEMES must match both production theme allow-lists in BaseLayout.astro");
+  }
+  // USMR 14.13 R2: both inline fallbacks and the SSR attribute share the tuple default.
+  const defaults = [...layout.matchAll(/\bDEF\s*=\s*(['"])([^'"]*)\1/g)]
+    .map(match => match[2]);
+  const rendered = layout.match(/<html\b[^>]*\bdata-theme=["']([^"']*)["']/)?.[1];
+  if (defaults.length !== 2 || defaults.some(value => value !== canonical[0]) || rendered !== canonical[0]) {
+    throw new Error("BaseLayout production theme defaults must match THEMES[0]");
+  }
+}
+
 describe("Tweaks pre-paint allow-list sync (pt165)", () => {
   const tweaksAstro = readFileSync(
     join(ROOT, "src", "components", "Tweaks.astro"),
@@ -62,6 +83,45 @@ describe("Tweaks pre-paint allow-list sync (pt165)", () => {
     join(ROOT, "src", "scripts", "tweaks-state.ts"),
     "utf8",
   );
+  const baseLayout = readFileSync(join(ROOT, "src", "layouts", "BaseLayout.astro"), "utf8");
+
+  test("THEMES, the Tweaks boot script, and both production allow-lists agree (USMR 14.13)", () => {
+    assertProductionThemeSync(tweaksState, tweaksAstro, baseLayout);
+  });
+
+  test("negative control: reverting BOTH Tweaks copies to dark/light fails against production", () => {
+    const divergedState = tweaksState.replace(/(const THEMES\s*=\s*)\[[^\]]*\]/, '$1["dark", "light"]');
+    const divergedBoot = tweaksAstro.replace(/(const themes\s*=\s*)\[[^\]]*\]/, '$1["dark", "light"]');
+    expect(divergedState).not.toBe(tweaksState);
+    expect(divergedBoot).not.toBe(tweaksAstro);
+    expect(() => assertProductionThemeSync(divergedState, divergedBoot, baseLayout))
+      .toThrow("production theme allow-lists");
+  });
+
+  test.each([0, 1])("negative control: production allow-list %s cannot diverge", (index) => {
+    let current = 0;
+    const diverged = baseLayout.replace(/\bvar\s+ALLOWED\s*=\s*\[[^\]]*\]/g, declaration =>
+      current++ === index ? "var ALLOWED = ['dark', 'light']" : declaration);
+    expect(diverged).not.toBe(baseLayout);
+    expect(() => assertProductionThemeSync(tweaksState, tweaksAstro, diverged))
+      .toThrow("production theme allow-lists");
+  });
+
+  test.each([0, 1])("negative control: inline DEF %s cannot diverge from THEMES[0]", index => {
+    let current = 0;
+    const diverged = baseLayout.replace(/\bDEF\s*=\s*(['"])[^'"]*\1/g, declaration =>
+      current++ === index ? "DEF='midnight'" : declaration);
+    expect(diverged).not.toBe(baseLayout);
+    expect(() => assertProductionThemeSync(tweaksState, tweaksAstro, diverged))
+      .toThrow("production theme defaults");
+  });
+
+  test("negative control: server-rendered theme cannot diverge from THEMES[0]", () => {
+    const diverged = baseLayout.replace(/(<html\b[^>]*\bdata-theme=)["'][^"']*["']/, '$1"midnight"');
+    expect(diverged).not.toBe(baseLayout);
+    expect(() => assertProductionThemeSync(tweaksState, tweaksAstro, diverged))
+      .toThrow("production theme defaults");
+  });
 
   // The 5 enums — pre-paint variable name -> canonical TS const.
   const enums: ReadonlyArray<{

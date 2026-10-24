@@ -18,3 +18,8 @@
 *.pdf binary
 *.mp4 binary
 *.mov binary
+
+# beads export: br writes the absolute checkout path into source_repo_path on
+# every row. The beads-relpath clean filter rewrites it to "." on `git add`.
+# Register the filter once per clone (see AGENTS.md, "Issue tracking — beads").
+.beads/issues.jsonl filter=beads-relpath

@@ -17,34 +17,17 @@
 }
 
 .bridge-flow__head {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
   align-items: start;
   margin-bottom: 56px;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 
 /* Canonical .eyebrow contract per USMR 5.5.16-pt16. */
+/* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
 .bridge-flow__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-2);
   margin: 0 0 24px;
-}
-.bridge-flow__eyebrow::before {
-  content: "";
-  display: inline-block;
-  width: 18px;
-  height: 1px;
-  background: var(--accent);
 }
 
 /* Canonical Bridge.jsx — bare h2 picks up the global h2 type scale
@@ -53,6 +36,9 @@
  * undersized the heading by ~13 % at the 60 px ceiling. */
 .bridge-flow__title {
   font-family: var(--f-display);
+  /* USMR 14.4: pin the former h2 scale when the route title is h1. */
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
   letter-spacing: var(--display-tracking, -0.02em);
   font-weight: var(--display-weight, 500);
   color: var(--fg);
@@ -265,7 +251,7 @@
   margin: 0;
   max-width: var(--maxw, 1240px);
   margin-inline: auto;
-  padding-inline: clamp(24px, 4vw, 40px);
+  padding-inline: var(--gutter);
 }
 .bridge-flow__result-accent {
   color: var(--accent);

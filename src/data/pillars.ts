@@ -1,21 +1,8 @@
 // USMR Phase 5.1c (initial) + 5.2.3 (extension) — Pillar registry.
-// Three consumers:
-//   1. The home page renders id/eyebrow/title/body as a 3-card overview
-//      (`src/pages/index.astro` pillar grid).
-//   2. The /platform page renders the FULL shape (tagline, body, bullets,
-//      specimen) as an interactive tablist via `<PillarsIsland>`
-//      (`src/components/PillarsIsland.tsx`).
-//   3. Vitest invariants assert shape + glossary-coverage in
-//      `tests/pillars-data.test.mts` (Phase 5.2.3 follow-on).
-//
-// Bullet structure: each bullet is a sequence of `BulletNode` tokens —
-// either plain text or a glossary `term`. The PillarsIsland resolves
-// `term` nodes via `lookupGlossary` and renders them as `.standard-chip`
-// links, mirroring the Astro `<Standard>` component. The home-page
-// 3-card overview ignores `bullets` + `specimen` entirely (those fields
-// are scoped to the /platform tablist).
+// /platform consumes the full panel shape (tagline, body, bullets,
+// specimen); tests/pillars-data.test.mts checks shape + glossary coverage.
 
-import type { GlossaryTerm } from "./glossary.js";
+import { term as t, text as txt, type GlossaryNode } from "./glossary.js";
 
 export type Pillar = {
   /** Stable id used for the rendered card id (#pillar-identity, etc.) and any future cross-route anchor convention. */
@@ -36,10 +23,8 @@ export type Pillar = {
    * Long-form body — sequence of text + glossary `term` nodes mirroring
    * the bullet shape. Renders inline glossary chips on /platform per
    * canonical Pillars.jsx:14-21,38-44,61-66 (USMR Phase 5.5.11 Task #29
-   * widened from `body: string`). The home-page 3-card overview
-   * flattens the nodes via `body.map(n => n.value).join("")`; the
-   * /platform tablist consumes the structured nodes via the same
-   * `<Tokenized>` / `<BulletLine>` renderer used for bullets.
+   * widened from `body: string`). The /platform tablist renders the
+   * structured nodes through the same path as its bullets.
    */
   body: Body;
   /** Bullet list rendered under the panel paragraph on /platform. */
@@ -51,9 +36,7 @@ export type Pillar = {
 /** A single bullet — sequence of text segments and glossary chips. */
 export type Bullet = readonly BulletNode[];
 
-export type BulletNode =
-  | { kind: "text"; value: string }
-  | { kind: "term"; value: string };
+export type BulletNode = GlossaryNode;
 
 /**
  * A body paragraph — same shape as a Bullet; sequence of text segments
@@ -83,13 +66,6 @@ export type Specimen = {
    */
   payload: string;
 };
-
-/** Convenience helper for inline bullet construction. */
-const t = (value: GlossaryTerm | string): BulletNode => ({
-  kind: "term",
-  value,
-});
-const txt = (value: string): BulletNode => ({ kind: "text", value });
 
 export const PILLARS: readonly Pillar[] = [
   {

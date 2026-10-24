@@ -11,9 +11,9 @@
 import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
 ---
 <section class="home-explore" id="playground" aria-labelledby="home-explore-h">
-  <div class="home-explore__head">
+  <div class="home-explore__head section-head">
     <div>
-      <p class="home-explore__eyebrow">Explore</p>
+      <p class="home-explore__eyebrow eyebrow">Explore</p>
       <h2 id="home-explore-h" class="home-explore__title display">
         One platform.<br /><span class="home-explore__emphasis">Six</span> things to dive into.
       </h2>
@@ -69,13 +69,11 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
     padding-block: clamp(80px, 8vw, 120px);
     max-width: var(--maxw, 1240px);
     margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 40px);
+    /* USMR 14.10: DESIGN.md §4 owns the shared density-aware gutter. */
+    padding-inline: var(--gutter);
   }
 
   .home-explore__head {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
     align-items: end;
     margin-bottom: 56px;
   }
@@ -91,23 +89,9 @@ import { PRIMARY, SECONDARY, isExternal } from '../data/home-explore.ts';
    * margin-bottom 24 / inline-flex with leading 18 px accent dash via
    * ::before. The pre-canonical home-explore__eyebrow used custom
    * sizing (0.72rem / fg-3 / 0.12em / 8 px margin) without the dash. */
+  /* USMR 14.10: .eyebrow owns the shared type and dash; keep local spacing. */
   .home-explore__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--fg-2);
     margin: 0 0 24px;
-  }
-  .home-explore__eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 18px;
-    height: 1px;
-    background: var(--accent);
   }
 
   .home-explore__title {

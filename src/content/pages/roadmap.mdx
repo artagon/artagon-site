@@ -1,8 +1,8 @@
 ---
 title: "Roadmap — Artagon"
-description: "Five phases over eighteen months — core trust first, then verifiable credentials, then federation and AI-agent authorization."
+description: "From authentication to authority. Five phases, eighteen months — core trust, verifiable credentials, policy engine, proofing & network, federation & AI."
 eyebrow: "Roadmap"
-headline: "From authentication to authority."
+headline: "From authentication\nto *authority.*"
 lede: "Five phases. Eighteen months. We ship core trust first, layer verifiable credentials on top, then scale into federation and AI-agent authorization."
 ctas:
   - label: "Request design-partner access"
@@ -18,6 +18,5 @@ tags:
 ---
 
 _Body intentionally empty._
-_Route `src/pages/roadmap/index.astro` does not call `getEntry("pages", "roadmap")`;_
-_it mounts `RoadmapTimeline.astro`, which reads `src/data/roadmap.ts` directly._
+_Route `src/pages/roadmap/index.astro` reads this frontmatter and mounts `RoadmapTimeline.astro`; timeline phases come from `src/data/roadmap.ts`._
 _The pre-pt231 placeholder for Phase-5.5 timeline-component delivery has shipped via that typed-data path._

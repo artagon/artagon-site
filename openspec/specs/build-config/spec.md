@@ -14,9 +14,11 @@ The capability also does NOT cross-reference the redesign's `Lighthouse CI Perfo
 
 All runtime build, cache, and report artifacts MUST live under the repo-root `.build/` directory, organized into three top-level subdirectories with distinct semantics:
 
-- `.build/cache/` — reusable across runs; CI cache key target; safe to nuke for fresh build without losing reports.
-- `.build/reports/` — per-run artifact outputs; CI uploads as a single artifact glob; per-run cleanup separate from cache cleanup.
+- `.build/cache/` — reusable locally; currently only Astro's configured cache; safe to nuke for a fresh build without losing reports. CI does not currently persist this directory.
+- `.build/reports/` — per-run artifact outputs; CI uploads tool-specific artifacts; per-run cleanup separate from cache cleanup.
 - `.build/dist/` — deploy artifact; produced by `astro build`, consumed by GitHub Pages.
+
+CLI-managed legacy caches (`.lighthouseci/` and the `.lycheecache` file) are current exceptions to this configured-path layout. They remain ignored in place and are not represented as unwired `BUILD.cache` leaves.
 
 The entire `.build/` tree MUST be a single `.gitignore` entry. Nested entries for individual tools' caches MUST NOT appear.
 
@@ -37,9 +39,9 @@ The entire `.build/` tree MUST be a single `.gitignore` entry. Nested entries fo
 
 ### Requirement: Single Source of Truth Path Config
 
-A single `build.config.json` at the repo root MUST be the canonical source of truth for every path under `.build/`. A typed `build.config.ts` MUST load the JSON via `fs.readFileSync` + `JSON.parse` (NOT via `with { type: 'json' }` import-attribute syntax, which requires `module: "nodenext"` and is inconsistently supported by Astro's Vite-based config loader at the time of this change), then expose a typed `BUILD` constant via the `satisfies BuildPaths` type assertion against a `DeepReadonly<typeof data>` wrapper. Tools that accept TS/JS configs (Astro, Playwright) MUST import `BUILD` from `build.config.ts`; they MUST NOT duplicate path strings. Tools that require JSON/YAML/TOML (Lighthouse CI, Lychee, GitHub Actions YAML) MUST consume paths via files generated from `build.config.json` by `scripts/sync-build-config.mjs`.
+A single `build.config.json` at the repo root MUST be the canonical source of truth for configured paths under `.build/`. A typed `build.config.ts` MUST load the JSON via `fs.readFileSync` + `JSON.parse` as `unknown`, validate required string leaves against `REQUIRED_SHAPE`, and validate every path before exporting `BUILD` as `DeepReadonly<BuildPaths>`. `BuildPaths` and `REQUIRED_SHAPE` MUST reflect active consumers. TS/JS configs (Astro, Playwright) MUST import `BUILD`; Lighthouse CI and Lychee MUST use generated configs. Hand-maintained workflow artifact paths MUST mirror the SSoT; workflow YAML is not regenerated today.
 
-The `tsconfig.json` at the repo root MUST set `"resolveJsonModule": true`, `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, and `"target": "ES2022"` (or stricter). Pre-build-config-change the project had no `tsconfig.json` at the repo root; the change-author created one, and the file now ships at `tsconfig.json` extending `astro/tsconfigs/strictest`. CI MUST run `astro check` post-rename to confirm typing.
+The `tsconfig.json` at the repo root MUST extend `astro/tsconfigs/strictest`, MUST set `"resolveJsonModule": true` and `"target": "ES2022"` (or stricter), and MUST inherit the preset's bundler resolution (`"module": "ESNext"`, `"moduleResolution": "Bundler"`). NodeNext resolution is not used because Vite bundles the project: under NodeNext, `astro check` reported 337 errors, mostly extension-required (TS2835) and resolution cascades (USMR 14.7). Node-executed TypeScript imports use explicit `.ts` extensions instead. Pre-build-config-change the project had no `tsconfig.json` at the repo root; the change-author created one, and the file now ships at `tsconfig.json` extending `astro/tsconfigs/strictest`. CI MUST run `astro check` post-rename to confirm typing.
 
 Path strings written to `build.config.json` MUST conform to the regex `^\.build/[a-z0-9/_-]+$`. The sync generator MUST validate every path string against this regex BEFORE writing any output file and MUST exit non-zero on violation. Paths containing `..`, newlines, backticks, `$()`, or absolute prefixes are rejected. This guards against path-traversal attacks where a malicious or typo'd path string is templated into committed workflow YAML.
 
@@ -61,7 +63,7 @@ Path strings written to `build.config.json` MUST conform to the regex `^\.build/
 #### Scenario: tsconfig.json supports JSON loading
 
 - **WHEN** `tsc --noEmit` runs against `build.config.ts`
-- **THEN** the type check passes; `tsconfig.json` declares `resolveJsonModule: true` and `module: "NodeNext"`; the `BUILD` export is typed as `DeepReadonly<BuildPaths>` (`string`-typed leaves, NOT literal-string types — `JSON.parse(...) as BuildPaths` widens to `string`; consumers MUST NOT depend on literal-string narrowing).
+- **THEN** the type check passes; `tsconfig.json` declares `resolveJsonModule: true` and inherits `moduleResolution: "Bundler"` from `astro/tsconfigs/strictest`; the `BUILD` export is typed as `DeepReadonly<BuildPaths>` (`string`-typed leaves, NOT literal-string types — `JSON.parse(...) as BuildPaths` widens to `string`; consumers MUST NOT depend on literal-string narrowing).
 
 #### Scenario: Path validator rejects traversal
 
@@ -70,9 +72,9 @@ Path strings written to `build.config.json` MUST conform to the regex `^\.build/
 
 ### Requirement: Sync Generator and Drift Gate
 
-`scripts/sync-build-config.mjs` MUST regenerate every JSON/YAML/TOML config that consumes BUILD paths from `build.config.json`. The script MUST be idempotent (re-running with no source change produces zero file system writes; verified by content-hash comparison before write). CI MUST run `npm run sync:build-config && git diff --exit-code` and fail the build if the post-sync diff is non-empty.
+`scripts/sync-build-config.mjs` MUST regenerate every implemented JSON/TOML config that consumes BUILD paths from `build.config.json`. The script MUST be idempotent (re-running with no source change produces zero file system writes; verified by content-hash comparison before write). CI MUST run sync in check-only mode (`GITHUB_ACTIONS=true` automatically selects it) and fail if expected generated bytes differ from committed outputs, without writing those outputs.
 
-The script MUST regenerate at minimum the configs that exist in the live tree today: `lighthouserc.json` (paths from `build.config.json` + assertion shape from `scripts/fixtures/lhci-assertions.json`; manual edits to `lighthouserc.json` are clobbered, assertion changes go through the fixture) and `lychee.toml` (cache_path).
+The script MUST support regeneration of at least the live `lighthouserc.json` (paths from `build.config.json` + assertion shape from `scripts/fixtures/lhci-assertions.json`; assertion changes go through the fixture) and `lychee.toml` (build-output entries of `exclude_path` from `build.config.json`, with `cache = true`; no `root_dir` or `cache_path` field). The link-check workflow supplies the checkout root through Lychee's `--root-dir` CLI option. Write-mode sync MAY skip manual output edits through its mtime fast path. The pre-commit hook and CI MUST catch those edits with `--check` (automatically selected under `GITHUB_ACTIONS=true`), comparing expected bytes regardless of mtimes without writing.
 
 Workflow YAML files (e.g., `.github/workflows/deploy.yml`, `.github/workflows/design-md-drift.yml`) are within scope of the generator surface, but the round-1 implementation does NOT regenerate workflow YAML; the generator's existing tolerance taxonomy and SHA-pinning enforcement clauses below describe how a future expansion will operate when workflow regeneration lands.
 
@@ -95,7 +97,7 @@ Workflow YAML files (e.g., `.github/workflows/deploy.yml`, `.github/workflows/de
 
 **CI write-block.** The sync generator MUST refuse to write workflow YAML when running under `GITHUB_ACTIONS=true`; sync mutations to `.github/` MUST originate from human-driven local invocation, not CI write-back. CI's drift gate runs sync in a read-only verification mode that diffs without committing.
 
-**Pre-commit safety net.** The repo MUST configure a pre-commit hook (via `husky` or `lefthook`) that runs `npm run sync:build-config` and aborts the commit if the post-sync diff is non-empty. `SKIP_BUILD_SYNC=1` opt-out applies to the hook only when explicitly set per-commit.
+**Pre-commit safety net.** The repo MUST configure a pre-commit hook (via `husky` or `lefthook`) that runs `npm run sync:build-config -- --check` and aborts the commit on a generated-byte mismatch regardless of mtimes. `SKIP_BUILD_SYNC=1` opt-out applies to the hook only when explicitly set per-commit.
 
 The script MUST run unit tests asserting byte-identical output across 10 successive invocations on the same input, verifying determinism.
 
@@ -107,7 +109,7 @@ The script MUST run unit tests asserting byte-identical output across 10 success
 #### Scenario: Drift gate fails on stale generated files
 
 - **WHEN** a contributor edits `build.config.json` and commits without running `sync:build-config`
-- **THEN** CI runs `npm run sync:build-config && git diff --exit-code`; the diff is non-empty; the build fails with "build config drift — run `npm run sync:build-config` locally and commit."
+- **THEN** CI's `npm run sync:build-config` checks expected generated bytes without writing, detects the mismatch, and fails with "build config drift — run `npm run sync:build-config` locally and commit."
 
 #### Scenario: Sync respects opt-out
 
@@ -145,7 +147,7 @@ To avoid implicit ordering coupling between this change and `add-brand-assets-an
 - `npm run clean:cache` — removes only `.build/cache/`.
 - `npm run clean:reports` — removes only `.build/reports/`.
 
-Mid-run race protection via a `.build/.run.lock` sentinel file is now LIVE per `scripts/clean.mjs` (line 2 docstring: "Lock-aware clean helper for .build/"; line 17 declares `LOCK = join(BUILD, ".run.lock")`). The clean scripts now route through `scripts/clean.mjs` taking a target argv (`all` / `cache` / `reports`); the script validates argv (exit 64 on bad input), reads the lock, refuses delete with exit 73 if held by a live PID on the same host, and auto-clears stale locks (dead PID OR mtime > 2 h OR foreign hostname). (Pre-pt411 cited the script invocation as "scripts/clean.mjs &lt;target&gt;" inside a backtick — the angle-bracket placeholder confused the `lint-openspec-spec-path-citations.test.mts` gate's path-extraction regex into treating the whole backticked literal as a filename to verify on disk; refactored to plain prose to clear the gate per its own fix-suggestion.) The pre-pt300 spec text said the lock-protocol "is tracked under a follow-up change" and described the round-1 scripts as unconditional-delete; both became stale when the lock-aware implementation shipped. The lock acquisition by Playwright `globalSetup` / LHCI wrapper is still evolving (some test runners acquire via `npm run` lifecycle, not yet via `globalSetup` hook), but the clean-side enforcement is fully in place.
+Mid-run race protection via a `.build/.run.lock` sentinel file is now LIVE per `scripts/clean.mjs` (line 2 docstring: "Lock-aware clean helper for .build/"; line 17 declares `LOCK = join(BUILD, ".run.lock")`). The clean scripts now route through `scripts/clean.mjs` taking a target argv (`all` / `cache` / `reports`); the script validates argv (exit 64 on bad input), reads the lock, refuses delete with exit 73 if held by a live PID on the same host, and auto-clears stale locks (dead PID OR mtime > 2 h OR foreign hostname). Earlier prose used an angle-bracket placeholder for the target; the current path-citation policy is maintained in `tests/lint-agents-md-path-citations.test.mts`. The pre-pt300 spec text said the lock-protocol "is tracked under a follow-up change" and described the round-1 scripts as unconditional-delete; both became stale when the lock-aware implementation shipped. The lock acquisition by Playwright `globalSetup` / LHCI wrapper is still evolving (some test runners acquire via `npm run` lifecycle, not yet via `globalSetup` hook), but the clean-side enforcement is fully in place.
 
 #### Scenario: clean nukes everything
 
@@ -159,9 +161,9 @@ Mid-run race protection via a `.build/.run.lock` sentinel file is now LIVE per `
 
 ### Requirement: CI Cache Strategy
 
-The CI cache step that mounts `.build/cache/` MUST use a semantic cache key that does NOT include cache contents. The key MUST be derived from `hashFiles('build.config.json', 'package-lock.json')`; `restore-keys` MAY add tool-version pins. Hashing `.build/cache/**` itself is forbidden — it produces a tautological self-hash that never invalidates.
+CI currently caches npm downloads and does not restore `.build/cache/`. If a future CI cache step mounts `.build/cache/`, it MUST derive its key from `hashFiles('build.config.json', 'package-lock.json')`, never the cache contents themselves.
 
-The CI workflow that runs Playwright MUST upload report artifacts (per-shard or consolidated) with `if: always()` so reports are accessible regardless of test outcome and `retention-days: 14` to bound storage growth against the 2 GB org artifact quota. The exact artifact shape (per-shard `playwright-report-shard-*` today vs a consolidated `reports-${{ github.sha }}` artifact in a future change) is NOT pinned by this Requirement; what IS required is the `if: always()` + retention floor.
+The Playwright workflow MUST upload per-shard blob reports from `BUILD.reports.playwright.blob` with `if: always()` and `retention-days: 14`. It MUST merge those blobs with the lockfile-pinned CLI and write HTML to `BUILD.reports.playwright.html`. Empty report uploads and merge failures MUST fail. Fourteen-day retention bounds artifact lifetime; storage quota headroom is not guaranteed.
 
 #### Scenario: Reports uploaded on failure
 
@@ -175,7 +177,8 @@ The CI workflow that runs Playwright MUST upload report artifacts (per-shard or 
 
 #### Scenario: Cache key is content-derived, not self-hashed
 
-- **WHEN** the CI workflow's cache step is inspected
+- **GIVEN** a future CI workflow persists `.build/cache/`
+- **WHEN** that cache step is inspected
 - **THEN** `key:` resolves to `hashFiles('build.config.json', 'package-lock.json')` (or includes those files); the key does NOT include `hashFiles('.build/cache/**')` or any other glob over the cache contents themselves.
 
 ### Requirement: CODEOWNERS Dual-Review for Generator-Adjacent Files

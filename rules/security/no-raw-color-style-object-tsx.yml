@@ -1,0 +1,34 @@
+id: no-raw-color-style-object-tsx
+language: tsx
+files:
+  - "src/**/*.tsx"
+severity: warning
+message: "Raw color literal in a style object. Use a CSS custom property from DESIGN.md."
+note: |
+  USMR 14.48 (site-2m1.48): cover TS/TSX object-style color literals.
+  Inspect CSS property/value pairs rather than arbitrary TypeScript strings.
+  The matching sibling rule covers the other parser selected by sgconfig.yml.
+  Hex and rgb/hsl/oklch/oklab/lab/lch/hwb color forms, including fallbacks and
+  shadows, must use tokens from public/assets/theme.css and DESIGN.md.
+  Dynamic values, aliases, and named CSS colors are not resolved by this rule.
+rule:
+  kind: pair
+  all:
+    - has:
+        field: key
+        regex: (?i)^["']?(color|[a-z-]+color|background(image)?|border([a-z-]+)?|outline|boxshadow|textshadow|textdecoration|fill|stroke|columnrule|--[\w-]+)["']?$
+    - has:
+        field: value
+        any:
+          - matches: raw-color-string
+          - has:
+              matches: raw-color-string
+              stopBy: end
+utils:
+  raw-color-string:
+    any:
+      - kind: string
+      - kind: template_string
+    # Consume url(...) as a unit so SVG fragments aren't colors. The other
+    # prefix alternatives cannot consume the start of a url(...) piecemeal.
+    regex: '(?i)^(url\([^)]*\)|u[^r]|ur[^l]|url[^(]|[^u])*(#[0-9a-f]{3}(?:[0-9a-f](?:[0-9a-f]{2}(?:[0-9a-f]{2})?)?)?\b|\b(rgb|rgba|hsl|hsla|oklch|oklab|lab|lch|hwb)\s*\()'

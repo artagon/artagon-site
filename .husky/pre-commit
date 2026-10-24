@@ -16,7 +16,7 @@ if [ "${SKIP_BUILD_SYNC:-0}" = "1" ]; then
   exit 0
 fi
 
-npm run sync:build-config || {
+npm run sync:build-config -- --check || {
   echo "husky/pre-commit: sync-build-config failed"
   exit 1
 }
@@ -35,6 +35,17 @@ if git diff --cached --name-only | grep -q "^DESIGN\.md$"; then
   echo "husky/pre-commit: DESIGN.md staged — running lint:design"
   npm run lint:design || {
     echo "husky/pre-commit: lint:design failed"
+    exit 1
+  }
+fi
+
+# USMR 14.81 (site-2m1.81): keep the CSS-to-DESIGN.md token mapping current
+# when any contract input is staged. This local Node script reads
+# the worktree and does not invoke a network-backed tool.
+if git diff --cached --name-only | grep -Eq '^(DESIGN[.]md|public/assets/theme[.]css|docs/design-md[.]md)$'; then
+  echo "husky/pre-commit: DESIGN.md/theme.css/docs/design-md.md staged — running check:design-drift"
+  npm run check:design-drift || {
+    echo "husky/pre-commit: check:design-drift failed"
     exit 1
   }
 fi

@@ -271,7 +271,7 @@ Phase 2.6 fluid type scale. `--fs-*` tokens use `clamp()` to interpolate between
 
 Tokens: `` `--ink-on-brand` ``, `` `--chip-bg-neutral` ``.
 
-Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklab, var(--nd-fg-2) 12%, transparent)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
+Two semantic aliases introduced by the Phase 2.1 migration to replace raw hex literals in components. `--ink-on-brand` is an alias for `var(--nd-accent-ink)` (near-black `oklch(0.18 0.04 185)` suitable for text on teal brand backgrounds); it exists as a named alias so callsites read as intent rather than palette reference. `--chip-bg-neutral` is `color-mix(in oklab, var(--fg-2) 12%, transparent)` — a subtly tinted neutral chip surface that stays legible across themes; it requires a `color-mix` expression rather than a flat OKLCH value and therefore cannot be expressed as a DESIGN.md frontmatter hex token without losing the dynamic theme-awareness. Both are deliberate aliases over already-documented palette tokens, not new colour decisions.
 
 ### 6.22 Glow component-private accent
 
@@ -302,6 +302,12 @@ USMR Phase 5.2.5 italic-span face token, paired with the `[data-hero-font]` swit
 Token: `` `--gutter` ``.
 
 USMR Phase 5.5.6 layout-density token, paired with the `[data-density]` attribute on `<body>`. Defaults to `32px` (`comfortable`); `[data-density="dense"]` tightens to `20px`, `[data-density="roomy"]` opens to `44px`. Mirrors the canonical `new-design/extracted/src/styles/{tokens.css:24-25,global.css:64-65}` shape exactly. Consumed by `.wrap` (DESIGN.md §4) for horizontal page padding; the canonical Tweaks panel surface (out-of-scope per project decision) toggles the attribute at runtime. Lives here on the allow-list rather than in DESIGN.md frontmatter because the upstream `tokens.spacing` namespace models a single base step (4 px / 8 px / etc.) and has no slot for an attribute-driven layout-padding variant. Promoting would require schema extension; same precedent as §6.24/§6.25. Companion test gate: `tests/contrast-tokens.test.mts` is unaffected (gutter is a layout token, not a contrast surface).
+
+### 6.27 Responsive small-page-title font size
+
+Token: `` `--fs-page-title` ``.
+
+USMR 14.10's shared small-page title scale is `clamp(40px, 5vw, 64px)` and is documented in DESIGN.md §3.2. The upstream typography map permits named font-size tokens, but `fontSize` is validated as a static dimension: `npm run lint:design` rejects this responsive `clamp()` value as invalid. Keep the live responsive value in `public/assets/theme.css` and allow-list it here rather than recording a false static size in frontmatter. This preserves the CSS/DESIGN.md drift gate while the §3.2 prose remains the human-readable contract.
 
 ## 7 · Accepted `lint:design` warnings
 

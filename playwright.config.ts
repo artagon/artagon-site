@@ -26,13 +26,14 @@ export default defineConfig({
   // Retry on CI only
   retries: process.env.CI ? 2 : 0,
 
-  // Opt out of parallel tests on CI
-  workers: process.env.CI ? 1 : undefined,
+  // USMR 14.43: two workers per CI shard; benchmark on hosted runners.
+  ...(process.env.CI ? { workers: 2 } : {}),
 
-  // HTML report under .build/reports/playwright/html/. GH annotations layered on CI.
+  // USMR 14.39: shards upload blobs; merge-reports renders the combined HTML.
   reporter: process.env.CI
     ? [
         ["github"],
+        ["blob", { outputDir: BUILD.reports.playwright.blob }],
         [
           "html",
           { outputFolder: BUILD.reports.playwright.html, open: "never" },

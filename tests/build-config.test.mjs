@@ -47,17 +47,20 @@ test("CI mode auto-promotes to --check (no writes under GITHUB_ACTIONS=true)", (
   assert.doesNotMatch(out, /✓ wrote /, "CI mode must not write files");
 });
 
-test("sync produces no diff against committed generated files", () => {
-  runSync();
+test("sync check mode accepts generated files in the working tree", () => {
   try {
     execFileSync(
-      "git",
-      ["diff", "--exit-code", "--", "lighthouserc.json", "lychee.toml"],
-      { cwd: ROOT, stdio: "pipe" },
+      process.execPath,
+      ["scripts/sync-build-config.mjs", "--check"],
+      {
+        cwd: ROOT,
+        stdio: "pipe",
+        env: { ...process.env, GITHUB_ACTIONS: "" },
+      },
     );
   } catch (err) {
     assert.fail(
-      `build config drift — run \`npm run sync:build-config\` locally and commit:\n${err.stdout?.toString() ?? err.message}`,
+      `build config drift — run \`npm run sync:build-config\` locally:\n${err.stderr?.toString() ?? err.message}`,
     );
   }
 });

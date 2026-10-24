@@ -1,8 +1,9 @@
 // USMR Phase 5.5.16-pt186 — orphan test imports gate.
 //
 // Sibling of pt185's `lint-orphan-script-imports.test.mts`. Test
-// files under `tests/**/*.{spec,test}.{mts,mjs,ts,js}` MUST not
-// carry orphan named or default imports — the project does not run
+// files under `tests/**/*.{spec,test}.{mts,mjs,ts,js}` and direct
+// TypeScript helpers under `tests/helpers/*.ts` MUST not carry orphan
+// named or default imports — the project does not run
 // strict TypeScript with `noUnusedLocals` over the tests/ tree
 // (vitest has its own loose tsconfig; Playwright bundles run via
 // Astro's tsc but with relaxed checks). This gate closes the gap.
@@ -25,27 +26,12 @@
 // matching imports.
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { walkFiles } from "./helpers/lint-discovery.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const TESTS_DIR = join(ROOT, "tests");
-
-function gather(dir: string, out: string[]) {
-  if (!existsSync(dir)) return;
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      // Skip fixtures/ — they're test inputs, not test code.
-      if (entry.name === "fixtures") continue;
-      gather(p, out);
-      continue;
-    }
-    if (/\.(spec|test)\.(mts|mjs|ts|js)$/.test(entry.name)) {
-      out.push(p);
-    }
-  }
-}
 
 // Anchoring imports to start-of-line is preferable to comment-
 // stripping. The naive `/\*…\*/` regex eats embedded JS regex
@@ -57,11 +43,17 @@ function gather(dir: string, out: string[]) {
 // excludes them.
 
 describe("orphan imports in tests/ (pt186)", () => {
-  test("every named or default import in tests/*.{spec,test}.{mts,mjs,ts,js} is referenced in its file", () => {
+  test("every named or default import in test and helper files is referenced", () => {
     expect(existsSync(TESTS_DIR), "tests/ must exist").toBe(true);
 
-    const files: string[] = [];
-    gather(TESTS_DIR, files);
+    // fixtures/ are test inputs, not test code.
+    const files = walkFiles(
+      TESTS_DIR,
+      (file) =>
+        /\.(spec|test)\.(mts|mjs|ts|js)$/.test(file) ||
+        /[/\\]helpers[/\\][^/\\]+\.ts$/.test(file),
+      (_directory, name) => name === "fixtures",
+    );
     expect(
       files.length,
       "expected at least one test file under tests/",

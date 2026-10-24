@@ -56,16 +56,28 @@ function pidStartTimeMs(pid) {
 }
 
 function checkLock() {
-  if (!existsSync(LOCK)) return { held: false };
   let content;
   try {
     content = readFileSync(LOCK, "utf8").trim();
-  } catch {
-    return { held: false };
+  } catch (err) {
+    if (err.code === "ENOENT") return { held: false };
+    return {
+      held: true,
+      reason: `cannot read run lock (${err.code ?? "unknown"})`,
+    };
   }
-  const [lockHost, pidStr, tsStr] = content.split(":");
-  const pid = parseInt(pidStr, 10);
-  const ts = parseInt(tsStr, 10);
+  const match = content.match(/^([^:\s]+):([1-9]\d*):([1-9]\d*)$/);
+  if (!match) return { held: true, reason: "malformed run lock" };
+  const [, lockHost, pidStr, tsStr] = match;
+  const pid = Number(pidStr);
+  const ts = Number(tsStr);
+  if (
+    !Number.isSafeInteger(pid) ||
+    pid > 0x7fffffff ||
+    !Number.isSafeInteger(ts)
+  ) {
+    return { held: true, reason: "malformed run lock" };
+  }
   const now = Date.now();
   const ageMs = now - ts;
 

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   ROADMAP_PHASES,
   ROADMAP_STATUS,
@@ -74,10 +75,25 @@ describe("roadmap — phases", () => {
 });
 
 describe("roadmap — status meta", () => {
-  test("every status has a colorToken matching a CSS custom property prefix", () => {
+  test("every status has a label and a scoped CSS color modifier", () => {
+    const source = readFileSync(
+      new URL("../src/components/RoadmapTimeline.astro", import.meta.url),
+      "utf8",
+    );
+    const css = source.split("<style>")[1]!.split("</style>")[0]!;
+    const colors: Record<RoadmapStatus, string> = {
+      shipping: "--ok",
+      "in-build": "--accent",
+      design: "--warn",
+      planned: "--fg-3",
+    };
     for (const [key, meta] of Object.entries(ROADMAP_STATUS)) {
-      expect(meta.colorToken, `${key}.colorToken`).toMatch(/^--/);
       expect(meta.label.trim(), `${key}.label`).not.toBe("");
+      expect(css, `${key} scoped color`).toMatch(
+        new RegExp(
+          `\\.roadmap-phase--${key}\\s*\\{\\s*--phase-color:\\s*var\\(${colors[key as RoadmapStatus]}\\)\\s*;?\\s*\\}`,
+        ),
+      );
     }
   });
 
