@@ -16,22 +16,38 @@ export async function waitForRealFonts(page: Page): Promise<void> {
       { timeout: REAL_FONT_WAIT_TIMEOUT_MS },
     );
     await page.evaluate(
-      (timeoutMs) =>
-        Promise.race([
-          document.fonts.ready.then(() => true),
-          new Promise<never>((_, reject) =>
-            setTimeout(
-              () => reject(new Error("fonts.ready timeout")),
-              timeoutMs,
-            ),
-          ),
-        ]),
+      async (timeoutMs) => {
+        let timeoutId: number | undefined;
+        const timeout = new Promise<never>((_, reject) => {
+          timeoutId = window.setTimeout(
+            () => reject(new Error("fonts.ready timeout")),
+            timeoutMs,
+          );
+        });
+
+        await Promise.race([
+          document.fonts.ready.then((fontFaces) => {
+            const failedFamilies = Array.from(fontFaces)
+              .filter((fontFace) => fontFace.status === "error")
+              .map((fontFace) => fontFace.family);
+            if (failedFamilies.length > 0) {
+              throw new Error(
+                `font face load failed: ${[...new Set(failedFamilies)].join(", ")}`,
+              );
+            }
+            return true;
+          }),
+          timeout,
+        ]).finally(() => {
+          if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+        });
+      },
       REAL_FONT_WAIT_TIMEOUT_MS,
     );
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Failed to load the production font stylesheet and document fonts within ${REAL_FONT_WAIT_TIMEOUT_MS} ms (${PRODUCTION_FONT_STYLESHEET}): ${detail}`,
+      `Failed while waiting for the production font stylesheet or document fonts (each wait has a ${REAL_FONT_WAIT_TIMEOUT_MS} ms timeout; ${PRODUCTION_FONT_STYLESHEET}): ${detail}`,
     );
   }
 }

@@ -17,7 +17,10 @@ test.describe("Styling architecture - keyboard navigation + focus indicators", (
       "Keyboard/focus checks run in chromium only.",
     );
     await page.goto("/vision", { waitUntil: "domcontentloaded" });
-    await page.locator("a.skip-link").first().waitFor();
+    await page
+      .locator("a.skip-link")
+      .first()
+      .waitFor({ state: "attached" });
   });
 
   // USMR 5.5.16-pt7 — skip-link visibility transition. The link is

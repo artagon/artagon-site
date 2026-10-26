@@ -214,7 +214,7 @@ test.describe("Home (/) — visual contracts (5.1p slices)", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const heroHeading = page.locator("#hero-h1");
-    await heroHeading.waitFor();
+    await heroHeading.waitFor({ state: "attached" });
     const animationName = await heroHeading.evaluate(
       (el) => getComputedStyle(el).animationName,
     );
@@ -226,7 +226,7 @@ test.describe("Home (/) — visual contracts (5.1p slices)", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const btn = page.locator(".hero .btn").first();
-    await btn.waitFor();
+    await btn.waitFor({ state: "attached" });
     const beforeContent = await btn.evaluate(
       (el) => getComputedStyle(el, "::before").content,
     );
@@ -277,7 +277,7 @@ test.describe("Home (/) — content split rendering (chromium)", () => {
     page,
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.locator("h1#hero-h1").waitFor();
+    await page.locator("h1#hero-h1").waitFor({ state: "attached" });
     const brCount = await page.locator("h1#hero-h1 br").count();
     // 3 sentence parts → 2 <br> elements between them. A regression to
     // a single-line headline produces 0 <br>s.
@@ -288,7 +288,10 @@ test.describe("Home (/) — content split rendering (chromium)", () => {
     page,
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.locator(".glow-amp").first().waitFor();
+    await page
+      .locator(".glow-amp")
+      .first()
+      .waitFor({ state: "attached" });
     // The eyebrow string in home.mdx contains exactly one `&` ("for
     // machines & humans"). The split logic in index.astro emits one
     // `<em class="glow-amp">&</em>` per ampersand. A regression that
@@ -362,7 +365,9 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
     page,
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.locator('html[data-accent="cyan"]').waitFor();
+    await page
+      .locator('html[data-accent="cyan"]')
+      .waitFor({ state: "attached" });
     const accent = await page.evaluate(() =>
       getComputedStyle(document.documentElement)
         .getPropertyValue("--accent")
@@ -392,7 +397,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const heroHeading = page.locator("#hero-h1");
-    await heroHeading.waitFor();
+    await heroHeading.waitFor({ state: "attached" });
     const heroFont = await heroHeading.evaluate(
       (el) => getComputedStyle(el).fontFamily,
     );
@@ -408,7 +413,7 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
   test("primary CTA paints the accent color as a solid", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const cta = page.locator(".site-nav .right .btn.primary").first();
-    await cta.waitFor();
+    await cta.waitFor({ state: "attached" });
     const bg = await cta.evaluate((el) => getComputedStyle(el).backgroundColor);
     // Computed bg should be a non-transparent rgb()/oklch() — a
     // regression that drops `[data-accent="cyan"]` collapses --accent

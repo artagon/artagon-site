@@ -46,7 +46,7 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const nav = page.locator(".site-nav");
-    await nav.waitFor();
+    await nav.waitFor({ state: "attached" });
     const filters = await nav.evaluate((el) => {
       const cs = getComputedStyle(el);
       return {
@@ -75,7 +75,7 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     const nav = page.locator(".site-nav");
-    await nav.waitFor();
+    await nav.waitFor({ state: "attached" });
     const bg = await nav.evaluate((el) => getComputedStyle(el).backgroundColor);
     // The nav uses `color-mix(in oklab, var(--bg) 72%, transparent)`.
     // Serialization varies per engine: chromium emits `rgba(...)`;
@@ -201,7 +201,10 @@ test.describe("Header — mobile hamburger menu", () => {
 test.describe("Header — canonical NAV_LINKS structure", () => {
   test("link list contains exactly 6 canonical entries", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.locator(".site-nav .links li > a").first().waitFor();
+    await page
+      .locator(".site-nav .links li > a")
+      .first()
+      .waitFor({ state: "attached" });
     const labels = (
       await page.locator(".site-nav .links li > a").allTextContents()
     ).map((s) => s.trim());

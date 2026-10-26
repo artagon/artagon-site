@@ -6,7 +6,7 @@ const runVisualRegression = process.env.VISUAL_REGRESSION === "1";
 test.describe("Vision Page - Content Collections", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/vision", { waitUntil: "domcontentloaded" });
-    await page.locator("article.vision-doc").waitFor({ state: "visible" });
+    await page.locator("article.vision-doc").waitFor({ state: "attached" });
   });
 
   test("should have correct page title and meta description", async ({
@@ -189,6 +189,8 @@ test.describe("Vision Page - Content Collections", () => {
   });
 
   test("should load without console errors", async ({ page }) => {
+    await page.waitForLoadState("load");
+
     const consoleErrors: string[] = [];
     // pt443 — `frame-ancestors` was the original ignored fragment
     // (the directive can't be enforced via `<meta>` and Chromium

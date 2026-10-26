@@ -97,7 +97,10 @@ test.describe("/roadmap — RoadmapTimeline", () => {
     await expect(page.locator(".roadmap-phase__dot")).toHaveCount(5);
 
     // V1..V5 mono prefixes.
-    await page.locator(".roadmap-phase__version").first().waitFor();
+    await page
+      .locator(".roadmap-phase__version")
+      .first()
+      .waitFor({ state: "attached" });
     const versions = await page
       .locator(".roadmap-phase__version")
       .allTextContents();

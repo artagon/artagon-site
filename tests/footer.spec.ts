@@ -12,7 +12,10 @@ test.describe("Footer (canonical 4×5 structure)", () => {
     page,
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await page.locator(".site-footer .footer-col-heading").first().waitFor();
+    await page
+      .locator(".site-footer .footer-col-heading")
+      .first()
+      .waitFor({ state: "attached" });
     const headings = await page
       .locator(".site-footer .footer-col-heading")
       .allTextContents();
@@ -38,7 +41,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
       .nth(0)
       .locator("ul li a")
       .first()
-      .waitFor();
+      .waitFor({ state: "attached" });
     const labels = (
       await page
         .locator(".site-footer .footer-col")
@@ -81,7 +84,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
       .nth(1)
       .locator("ul li a")
       .first()
-      .waitFor();
+      .waitFor({ state: "attached" });
     const labels = (
       await page
         .locator(".site-footer .footer-col")
@@ -138,7 +141,9 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.setViewportSize({ width: 1240, height: 800 });
-    await page.locator(".site-footer .footer-inner").waitFor();
+    await page
+      .locator(".site-footer .footer-inner")
+      .waitFor({ state: "attached" });
     const cols = await page.$eval(
       ".site-footer .footer-inner",
       (el) => getComputedStyle(el).gridTemplateColumns,
