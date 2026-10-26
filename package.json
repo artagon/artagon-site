@@ -79,7 +79,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@astrojs/mdx": "5.0.4",
+    "@astrojs/mdx": "8.1.1",
     "@astrojs/react": "5.0.4",
     "@astrojs/rss": "4.0.18",
     "@astrojs/sitemap": "3.7.2",
