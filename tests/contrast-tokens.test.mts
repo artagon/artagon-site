@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { readFileSync } from "node:fs";
 import { oklchToHex } from "../scripts/oklch-to-hex.mjs";
 
 // USMR Phase 5.5.6 — closes the phantom CI gate referenced in
@@ -17,29 +18,142 @@ import { oklchToHex } from "../scripts/oklch-to-hex.mjs";
 const NORMAL_TEXT_AA = 4.5;
 const LARGE_TEXT_AA = 3.0;
 
-// Canonical OKLCH triples — mirror DESIGN.md §2.1 + theme.css.
-// `--fg` / `--fg-1` / `--fg-2` / `--fg-3` are foreground roles; `--bg`
-// / `--bg-1` / `--bg-2` are background roles. The semantic accent /
-// status colors (`--accent`, `--ok`, `--bad`, `--warn`) are tested as
-// non-text contrast targets (3 : 1 against the canvas).
-const TOKENS: Record<string, { L: number; C: number; H: number }> = {
-  // Foreground
-  "--fg": { L: 0.96, C: 0.005, H: 85 },
-  "--fg-1": { L: 0.86, C: 0.008, H: 85 },
-  "--fg-2": { L: 0.72, C: 0.008, H: 85 }, // Phase 5.1p.8 a11y bump
-  "--fg-3": { L: 0.62, C: 0.008, H: 85 }, // Phase 5.1p.8 a11y bump
+// USMR site-g3f: read production values, including staging aliases and
+// theme overrides, so changing midnight CSS can actually fail this gate.
+const CSS = readFileSync(
+  new URL("../public/assets/theme.css", import.meta.url),
+  "utf8",
+);
+const THEMES = ["twilight", "midnight"] as const;
+type Theme = (typeof THEMES)[number];
+const COLOR_TOKENS = [
+  "--fg",
+  "--fg-1",
+  "--fg-2",
+  "--fg-3",
+  "--bg",
+  "--bg-1",
+  "--bg-2",
+  "--accent",
+  "--accent-ink",
+  "--ok",
+  "--bad",
+  "--warn",
+] as const;
+type ColorToken = (typeof COLOR_TOKENS)[number];
+type Palette = Record<ColorToken, string>;
 
-  // Background
-  "--bg": { L: 0.18, C: 0.008, H: 250 },
-  "--bg-1": { L: 0.22, C: 0.008, H: 250 },
-  "--bg-2": { L: 0.27, C: 0.008, H: 250 },
+interface CssRule {
+  selector: string;
+  body: string;
+  ancestors: string[];
+  offset: number;
+}
 
-  // Accent / status (non-text contrast targets)
-  "--accent": { L: 0.86, C: 0.14, H: 185 },
-  "--ok": { L: 0.78, C: 0.14, H: 155 },
-  "--bad": { L: 0.7, C: 0.18, H: 25 },
-  "--warn": { L: 0.82, C: 0.14, H: 65 },
-};
+// USMR site-g3f R1/R2: retain block ancestry so layers and media queries
+// stay distinct. Quoted braces and semicolons are declaration content.
+function cssRules(css: string): CssRule[] {
+  const source = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const stack: { selector: string; offset: number }[] = [];
+  const rules: CssRule[] = [];
+  let start = 0;
+  let quote = "";
+  for (let index = 0; index < source.length; index++) {
+    const char = source[index];
+    if (quote) {
+      if (char === "\\") index++;
+      else if (char === quote) quote = "";
+      continue;
+    }
+    if (char === '"' || char === "'") quote = char;
+    else if (char === "{") {
+      stack.push({
+        selector: source.slice(start, index).trim(),
+        offset: index + 1,
+      });
+      start = index + 1;
+    } else if (char === "}") {
+      const block = stack.pop();
+      if (!block) throw new Error("Unexpected CSS closing brace");
+      rules.push({
+        ...block,
+        body: source.slice(block.offset, index),
+        ancestors: stack.map((parent) => parent.selector),
+      });
+      start = index + 1;
+    } else if (char === ";") start = index + 1;
+  }
+  if (stack.length || quote) throw new Error("Unclosed CSS block or string");
+  return rules.sort((a, b) => a.offset - b.offset);
+}
+
+const THEME_SELECTOR = /^:root\[data-theme=(?:"[^"]+"|'[^']+'|[\w-]+)\]$/;
+
+function declarationsIn(block: string): Record<string, string> {
+  return Object.fromEntries(
+    Array.from(block.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g), (match) => [
+      match[1]!,
+      match[2]!.trim(),
+    ]),
+  );
+}
+
+function themeHex(css: string, theme: Theme): Palette {
+  const source = cssRules(css)
+    .filter(
+      (rule) => !rule.ancestors.some((parent) => /^@media\b/.test(parent)),
+    )
+    .filter(
+      (rule) =>
+        rule.selector === ":root" ||
+        THEME_SELECTOR.test(rule.selector) ||
+        rule.selector === '[data-accent="cyan"]',
+    )
+    .map((rule) => `${rule.selector}{${rule.body}}`)
+    .join("\n");
+  const themeBlocks = Array.from(
+    source.matchAll(
+      new RegExp(
+        `:root\\[data-theme=["']?${theme}["']?\\]\\s*\\{([^{}]*)\\}`,
+        "g",
+      ),
+    ),
+  );
+  const cyanBlocks = Array.from(
+    source.matchAll(/\[data-accent="cyan"\]\s*\{([^{}]*)\}/g),
+  );
+  if (!themeBlocks.length || !cyanBlocks.length)
+    throw new Error(`Missing production palette: ${theme}`);
+  // USMR site-g3f R2: collect every bare root outside @media, even after
+  // theme selectors, and merge every matching theme block in source order.
+  // The reader covers the production palette; browser checks verify cascade.
+  const blocks = [
+    ...Array.from(
+      source.matchAll(/:root\s*\{([^{}]*)\}/g),
+      (match) => match[1]!,
+    ),
+    ...cyanBlocks.map((match) => match[1]!),
+    ...themeBlocks.map((match) => match[1]!),
+  ];
+  const declarations = Object.assign(
+    {},
+    ...blocks.map(declarationsIn),
+  ) as Record<string, string>;
+  function resolve(name: string, seen = new Set<string>()): string {
+    if (seen.has(name)) throw new Error(`Cyclic token alias: ${name}`);
+    seen.add(name);
+    const value = declarations[name];
+    if (!value) throw new Error(`Missing color token: ${name}`);
+    const alias = value.match(/^var\((--[\w-]+)\)$/);
+    if (alias) return resolve(alias[1]!, seen);
+    const triple = value.match(/^oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)$/);
+    if (!triple) throw new Error(`Unsupported color token: ${name} = ${value}`);
+    return oklchToHex(Number(triple[1]), Number(triple[2]), Number(triple[3]));
+  }
+  return Object.fromEntries(
+    COLOR_TOKENS.map((name) => [name, resolve(name)]),
+  ) as Palette;
+}
 
 // ---- WCAG 2.x relative luminance + contrast ratio ----
 //
@@ -71,21 +185,11 @@ function contrastRatio(hexA: string, hexB: string): number {
   return (bright + 0.05) / (dark + 0.05);
 }
 
-// Pre-compute hex per token using the project's conversion utility —
-// stays in lockstep with `oklch-to-hex` so any drift in the conversion
-// math fails this test AND `check:oklch-hex-parity` in the same diff.
-const HEX = Object.fromEntries(
-  Object.entries(TOKENS).map(([name, { L, C, H }]) => [
-    name,
-    oklchToHex(L, C, H),
-  ]),
-) as Record<keyof typeof TOKENS, string>;
-
 // ----- Pairings under test -----
 
 interface Pair {
-  fg: keyof typeof TOKENS;
-  bg: keyof typeof TOKENS;
+  fg: ColorToken;
+  bg: ColorToken;
   /** WCAG AA threshold to apply. */
   threshold: number;
   /** Human label for failure messages. */
@@ -96,6 +200,12 @@ interface Pair {
 // with theme.css consumers — the contrast contract is enforced by the
 // pairs we ACTUALLY render, not the cartesian product.
 const NORMAL_TEXT_PAIRS: Pair[] = [
+  {
+    fg: "--accent-ink",
+    bg: "--accent",
+    threshold: NORMAL_TEXT_AA,
+    context: "button text on accent",
+  },
   {
     fg: "--fg",
     bg: "--bg",
@@ -179,32 +289,97 @@ const LARGE_OR_NONTEXT_PAIRS: Pair[] = [
   },
 ];
 
-// ----- Tests -----
+// USMR site-g3f: retain the default policy for decorative --line borders:
+// they were not 3:1 contrast targets, so neither theme adds that pairing.
+function assertContrast(pair: Pair, hex: Palette): void {
+  const fgHex = hex[pair.fg];
+  const bgHex = hex[pair.bg];
+  const ratio = contrastRatio(fgHex, bgHex);
+  expect(
+    ratio,
+    `${pair.fg} (${fgHex}) on ${pair.bg} (${bgHex}) = ${ratio.toFixed(2)}:1`,
+  ).toBeGreaterThanOrEqual(pair.threshold);
+}
 
-describe("WCAG AA — normal text (≥ 4.5:1)", () => {
-  for (const pair of NORMAL_TEXT_PAIRS) {
+describe.each(THEMES)("%s WCAG AA", (theme) => {
+  const hex = themeHex(CSS, theme);
+  for (const pair of [...NORMAL_TEXT_PAIRS, ...LARGE_OR_NONTEXT_PAIRS]) {
     test(`${pair.fg} on ${pair.bg} — ${pair.context}`, () => {
-      const fgHex = HEX[pair.fg]!;
-      const bgHex = HEX[pair.bg]!;
-      const ratio = contrastRatio(fgHex, bgHex);
-      expect(
-        ratio,
-        `${pair.fg} (${fgHex}) on ${pair.bg} (${bgHex}) = ${ratio.toFixed(2)}:1`,
-      ).toBeGreaterThanOrEqual(pair.threshold);
+      assertContrast(pair, hex);
     });
   }
 });
 
-describe("WCAG AA — large text + non-text (≥ 3:1)", () => {
-  for (const pair of LARGE_OR_NONTEXT_PAIRS) {
-    test(`${pair.fg} on ${pair.bg} — ${pair.context}`, () => {
-      const fgHex = HEX[pair.fg]!;
-      const bgHex = HEX[pair.bg]!;
-      const ratio = contrastRatio(fgHex, bgHex);
-      expect(
-        ratio,
-        `${pair.fg} (${fgHex}) on ${pair.bg} (${bgHex}) = ${ratio.toFixed(2)}:1`,
-      ).toBeGreaterThanOrEqual(pair.threshold);
-    });
+// USMR site-g3f R2: corrupt each pair in a separate later midnight block.
+// All real assertions above must reject the resulting 1:1 contrast.
+test.each([...NORMAL_TEXT_PAIRS, ...LARGE_OR_NONTEXT_PAIRS])(
+  "negative control: midnight $fg on $bg rejects a CSS regression",
+  (pair) => {
+    const brokenCss = `${CSS}\n:root[data-theme="midnight"] { ${pair.bg}: var(${pair.fg}); }`;
+    const hex = themeHex(brokenCss, "midnight");
+    expect(() => assertContrast(pair, hex)).toThrow(/= 1\.00:1/);
+  },
+);
+
+test("USMR site-g3f R2: a separate later midnight surface regression fails contrast", () => {
+  const brokenCss = `${CSS}\n:root[data-theme="midnight"] { --bg-1: oklch(0.55 0.020 195); }`;
+  const pair = NORMAL_TEXT_PAIRS.find(
+    (pair) => pair.fg === "--fg-2" && pair.bg === "--bg-1",
+  )!;
+  const hex = themeHex(brokenCss, "midnight");
+  expect(hex["--bg-1"]).toBe(oklchToHex(0.55, 0.02, 195));
+  expect(() => assertContrast(pair, hex)).toThrow(/= 1\.94:1/);
+});
+
+test("USMR site-g3f R2: later bare root defaults apply outside media only", () => {
+  const css = `${CSS}\n:root { --nd-fg-2: oklch(0.55 0.020 195); }
+    @media (forced-colors: active) { :root { --nd-fg-2: CanvasText; } }`;
+  for (const theme of THEMES) {
+    expect(themeHex(css, theme)["--fg-2"]).toBe(oklchToHex(0.55, 0.02, 195));
   }
+});
+
+function assertThemeLayering(css: string): void {
+  const rules = cssRules(css);
+  const mapped = new Set(
+    rules
+      .filter(
+        (rule) =>
+          rule.selector === ":root" &&
+          rule.ancestors.some((parent) =>
+            /^@media\b.*\(\s*forced-colors\s*:\s*active\s*\)/s.test(parent),
+          ),
+      )
+      .flatMap((rule) => Object.keys(declarationsIn(rule.body))),
+  );
+  expect(
+    mapped.size,
+    "Forced-colors token map must be present",
+  ).toBeGreaterThan(0);
+  // USMR site-g3f R1: preserve the pre-existing --bg exception (I1).
+  mapped.delete("--bg");
+  const violations = rules
+    .filter(
+      (rule) =>
+        THEME_SELECTOR.test(rule.selector) &&
+        !rule.ancestors.some((parent) => /^@layer\b/.test(parent)),
+    )
+    .flatMap((rule) =>
+      Object.keys(declarationsIn(rule.body))
+        .filter((name) => mapped.has(name))
+        .map((name) => `${rule.selector}: ${name}`),
+    );
+  expect(
+    violations,
+    `Unlayered theme tokens must not outrank the forced-colors map: ${violations.join(", ")}`,
+  ).toEqual([]);
+}
+
+test("USMR site-g3f R1: unlayered themes preserve forced-colors token precedence", () => {
+  assertThemeLayering(CSS);
+});
+
+test("USMR site-g3f R1: the layering assertion rejects an unlayered surface override", () => {
+  const brokenCss = `${CSS}\n:root[data-theme="midnight"] { --bg-1: oklch(0.15 0.020 195); }`;
+  expect(() => assertThemeLayering(brokenCss)).toThrow(/--bg-1/);
 });

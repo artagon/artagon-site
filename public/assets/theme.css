@@ -183,6 +183,16 @@
       transparent
     ); /* low-contrast neutral surface */
   }
+
+  /* USMR site-g3f R1: midnight surfaces stay in the token layer, like
+   * twilight defaults, so the unlayered forced-colors map still wins.
+   * Public surface aliases retain the canonical var(--nd-*) direction. */
+  :root[data-theme="midnight"] {
+    --nd-bg-1: oklch(0.15 0.020 195);
+    --nd-bg-2: oklch(0.18 0.020 195);
+    --nd-line: oklch(0.26 0.020 195);
+    --nd-line-soft: oklch(0.20 0.020 195);
+  }
 }
 
 /* USMR Phase 5.5.16-pt90 — canonical unlayered --bg fallback for unknown
@@ -261,7 +271,9 @@
 
 /* Midnight Teal */
 :root[data-theme="midnight"] {
-  --bg: oklch(0.14 0.008 260);
+  /* USMR site-g3f R1: only the canvas is unlayered, like twilight.
+   * The four other surfaces inherit the layered staging overrides above. */
+  --bg: oklch(0.12 0.020 195);
   --surface: var(--bg-1);
 
   --brand-teal: var(--accent);

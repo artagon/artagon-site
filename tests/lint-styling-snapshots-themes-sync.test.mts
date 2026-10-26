@@ -15,10 +15,11 @@ describe("styling-snapshots production themes (USMR 14.13)", () => {
   });
 
   test("live CSS root themes equal the complete production vocabulary", () => {
-    const live = [...css.matchAll(/^\s*:root\[data-theme="([a-z][a-z0-9-]*)"\]\s*\{/gm)]
-      .map(match => match[1]!);
+    // USMR site-g3f R3: a theme may have layered and unlayered blocks.
+    const live = new Set([...css.matchAll(/^\s*:root\[data-theme="([a-z][a-z0-9-]*)"\]\s*\{/gm)]
+      .map(match => match[1]!));
     expect([...live].sort()).toEqual([...THEMES].sort());
-    expect(live).toHaveLength(THEMES.length);
+    expect(live.size).toBe(THEMES.length);
   });
 
   test("no retired dark/light theme selector remains, including descendant and accent rules", () => {
