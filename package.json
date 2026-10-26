@@ -84,7 +84,7 @@
     "@astrojs/rss": "4.0.18",
     "@astrojs/sitemap": "3.7.2",
     "astro": "6.2.1",
-    "react": "19.2.5",
+    "react": "19.3.1",
     "react-dom": "19.2.5",
     "serialize-javascript": "7.0.5",
     "sharp": "0.34.5"
@@ -97,7 +97,7 @@
     "@lhci/cli": "0.15.1",
     "@playwright/cli": "0.1.22",
     "@playwright/test": "1.59.1",
-    "@types/react": "19.2.14",
+    "@types/react": "19.3.0",
     "@types/react-dom": "19.2.3",
     "cheerio": "1.2.0",
     "esbuild": "0.27.7",
