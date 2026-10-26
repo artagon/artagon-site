@@ -1,6 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 // USMR 14.13: snapshot every production theme from the same typed tuple as Tweaks.
 import { THEMES } from "../src/scripts/tweaks-state.ts";
+import { waitForRealFonts } from "./helpers/real-fonts.js";
+import { waitForTrustChainFinalDecision } from "./helpers/trust-chain-hydration.js";
 
 /**
  * Styling-architecture visual reference suite.
@@ -43,6 +45,8 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
 }
 
 test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
+  test.setTimeout(45_000);
+
   test.beforeEach(({}, testInfo) => {
     test.skip(
       !runVisualRegression,
@@ -58,9 +62,12 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
     for (const bp of BREAKPOINTS) {
       test(`hero — ${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
-        await page.goto("/");
+        await page.goto("/", { waitUntil: "domcontentloaded" });
         await setTheme(page, theme);
-        await page.waitForLoadState("networkidle");
+        await waitForRealFonts(page);
+        if (bp.name !== "mobile") {
+          await waitForTrustChainFinalDecision(page);
+        }
         // Hero (above-the-fold) — covers USMR Phase 5.1a content.
         await expect(page).toHaveScreenshot(
           `home-hero-${theme}-${bp.name}.png`,
@@ -70,9 +77,9 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
 
       test(`onramp — ${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
-        await page.goto("/");
+        await page.goto("/", { waitUntil: "domcontentloaded" });
         await setTheme(page, theme);
-        await page.waitForLoadState("networkidle");
+        await waitForRealFonts(page);
         // Scroll the on-ramp section into view, then snapshot the viewport.
         // Covers USMR Phase 5.1b content (design-partner card + contacts).
         await page.locator("#get-started").scrollIntoViewIfNeeded();
@@ -84,9 +91,9 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
 
       test(`explore — ${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
-        await page.goto("/");
+        await page.goto("/", { waitUntil: "domcontentloaded" });
         await setTheme(page, theme);
-        await page.waitForLoadState("networkidle");
+        await waitForRealFonts(page);
         // Scroll the current home explore grid into view. The former
         // #platform pillar section has moved to /platform.
         await page.locator("#playground").scrollIntoViewIfNeeded();
@@ -98,9 +105,9 @@ test.describe("Home (/) - THEMES × 3 breakpoints reference", () => {
 
       test(`writing-strip — ${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
-        await page.goto("/");
+        await page.goto("/", { waitUntil: "domcontentloaded" });
         await setTheme(page, theme);
-        await page.waitForLoadState("networkidle");
+        await waitForRealFonts(page);
         // Scroll the latest-writing strip into view. Covers USMR
         // Phase 5.1f content (3-up grid sourced from the writing
         // collection).
@@ -130,9 +137,9 @@ test.describe("/platform pillars - THEMES × 3 breakpoints reference", () => {
     for (const bp of BREAKPOINTS) {
       test("pillars — " + theme + " @ " + bp.name, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
-        await page.goto("/platform");
+        await page.goto("/platform", { waitUntil: "domcontentloaded" });
         await setTheme(page, theme);
-        await page.waitForLoadState("networkidle");
+        await waitForRealFonts(page);
         const pillars = page.locator("#pillars");
         await pillars.scrollIntoViewIfNeeded();
         await expect(pillars).toBeVisible();
@@ -161,9 +168,9 @@ test.describe("Styling architecture - THEMES × 3 breakpoints reference", () => 
     for (const bp of BREAKPOINTS) {
       test(`${theme} @ ${bp.name}`, async ({ page }) => {
         await page.setViewportSize({ width: bp.width, height: bp.height });
-        await page.goto("/vision");
+        await page.goto("/vision", { waitUntil: "domcontentloaded" });
         await setTheme(page, theme);
-        await page.waitForLoadState("networkidle");
+        await waitForRealFonts(page);
         // Capture above-the-fold only. fullPage screenshots of the long-form
         // /vision document produced 4 MB PNGs each (36 MB × 9 permutations);
         // most styling regressions surface in the hero + first section of

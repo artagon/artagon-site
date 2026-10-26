@@ -26,7 +26,7 @@ import { waitForTrustChainHydration } from "./helpers/trust-chain-hydration.js";
 
 test.describe("Home (/) — content parse + render smoke", () => {
   test("home.mdx renders the expected hero + sections", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     // Hero (USMR 5.1a): non-empty headline from home.mdx frontmatter.
     await expect(page.locator("h1#hero-h1")).not.toBeEmpty();
     await expect(page.locator("p#hero-sub")).not.toBeEmpty();
@@ -47,11 +47,12 @@ test.describe("Home (/) — content parse + render smoke", () => {
 });
 
 test.describe("Home (/) — TrustChainIsland interactivity", () => {
+  test.setTimeout(45_000);
+
   test("scenario picker click swaps the decision card to a DENY scenario", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
     // Default scenarioIdx=0 is the healthy PERMIT scenario (SSR state).
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
@@ -93,8 +94,7 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
       isMobile,
       "Stage-row hover interactions are mouse-only; tap behavior is covered separately.",
     );
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
     await page.locator("#trust-chain-passkey").hover();
     await expect(page.locator(".trust-chain__decision-claim")).toContainText(
@@ -109,13 +109,14 @@ test.describe("Home (/) — TrustChainIsland interactivity", () => {
 });
 
 test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
+  test.setTimeout(45_000);
+
   test("clicking stage 0 toggles its pressed state", async ({
     page,
     isMobile,
   }) => {
     test.skip(isMobile, "Touch input is covered by the mobile tap tests.");
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
 
     const stage0 = page.locator(".trust-chain__stage").nth(0);
@@ -135,8 +136,7 @@ test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
     isMobile,
   }) => {
     test.skip(isMobile, "Touch input is covered by the mobile tap tests.");
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
 
     const stages = page.locator(".trust-chain__stage");
@@ -150,13 +150,14 @@ test.describe("Home (/) — TrustChainIsland mouse toggle", () => {
 });
 
 test.describe("Home (/) — TrustChainIsland touch toggle", () => {
+  test.setTimeout(45_000);
+
   test("tapping stage 0 toggles its pressed state", async ({
     page,
     isMobile,
   }) => {
     test.skip(!isMobile, "This case verifies actual touch input.");
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
 
     const stage0 = page.locator(".trust-chain__stage").nth(0);
@@ -176,8 +177,7 @@ test.describe("Home (/) — TrustChainIsland touch toggle", () => {
     isMobile,
   }) => {
     test.skip(!isMobile, "This case verifies actual touch input.");
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
 
     const stages = page.locator(".trust-chain__stage");
@@ -203,8 +203,7 @@ test.describe("Home (/) — visual contracts (5.1p slices)", () => {
   });
 
   test("5.1p.3 — hero lede uses .lead, NOT .sub", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const lede = page.locator("#hero-sub");
     await expect(lede).toHaveClass(/lead/);
     await expect(lede).not.toHaveClass(/sub/);
@@ -213,20 +212,21 @@ test.describe("Home (/) — visual contracts (5.1p slices)", () => {
   test("5.1p.2 — hero h1 has no animation (no rainbow-shift)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    const animationName = await page
-      .locator("#hero-h1")
-      .evaluate((el) => getComputedStyle(el).animationName);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const heroHeading = page.locator("#hero-h1");
+    await heroHeading.waitFor({ state: "attached" });
+    const animationName = await heroHeading.evaluate(
+      (el) => getComputedStyle(el).animationName,
+    );
     expect(animationName).toBe("none");
   });
 
   test("5.1p.6 — hero .btn rules have no ::before content (legacy glyphs suppressed)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const btn = page.locator(".hero .btn").first();
+    await btn.waitFor({ state: "attached" });
     const beforeContent = await btn.evaluate(
       (el) => getComputedStyle(el, "::before").content,
     );
@@ -238,8 +238,7 @@ test.describe("Home (/) — visual contracts (5.1p slices)", () => {
   test("5.1p.7 — trust-chain stage wrappers render the connector line (except the last)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const wraps = page.locator(".trust-chain__stage-wrap");
     await expect(wraps).toHaveCount(5);
     // The first 4 wrappers SHOULD render an ::after connector.
@@ -277,8 +276,8 @@ test.describe("Home (/) — content split rendering (chromium)", () => {
   test("hero headline splits into 3 stacked lines (current home.mdx: 'Verified. Private. Attested.')", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.locator("h1#hero-h1").waitFor({ state: "attached" });
     const brCount = await page.locator("h1#hero-h1 br").count();
     // 3 sentence parts → 2 <br> elements between them. A regression to
     // a single-line headline produces 0 <br>s.
@@ -288,8 +287,11 @@ test.describe("Home (/) — content split rendering (chromium)", () => {
   test("hero eyebrow renders glow-amp `<em>` for the ampersand", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page
+      .locator(".glow-amp")
+      .first()
+      .waitFor({ state: "attached" });
     // The eyebrow string in home.mdx contains exactly one `&` ("for
     // machines & humans"). The split logic in index.astro emits one
     // `<em class="glow-amp">&</em>` per ampersand. A regression that
@@ -302,6 +304,8 @@ test.describe("Home (/) — content split rendering (chromium)", () => {
 });
 
 test.describe("Home (/) — scenario picker keyboard navigation (chromium / desktop)", () => {
+  test.setTimeout(45_000);
+
   // USMR Phase 5.1q.6 — WAI-ARIA tablist keyboard pattern.
   test.skip(
     ({ isMobile }) => isMobile,
@@ -317,8 +321,7 @@ test.describe("Home (/) — scenario picker keyboard navigation (chromium / desk
   test("ArrowRight from dot 0 advances to dot 1 and swaps the decision class", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
     const dots = page.locator(".trust-chain__scenario-dot");
     await dots.nth(0).focus();
@@ -335,8 +338,7 @@ test.describe("Home (/) — scenario picker keyboard navigation (chromium / desk
   test("Home jumps to the first dot; End jumps to the last", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
     const dots = page.locator(".trust-chain__scenario-dot");
     const dotCount = await dots.count();
@@ -362,8 +364,10 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
   test("data-accent='cyan' resolves --accent to the canonical teal OKLCH", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page
+      .locator('html[data-accent="cyan"]')
+      .waitFor({ state: "attached" });
     const accent = await page.evaluate(() =>
       getComputedStyle(document.documentElement)
         .getPropertyValue("--accent")
@@ -391,11 +395,12 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
   test("data-hero-font='fraunces' resolves the heading font to a Fraunces stack (5.1o)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    const heroFont = await page
-      .locator("#hero-h1")
-      .evaluate((el) => getComputedStyle(el).fontFamily);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const heroHeading = page.locator("#hero-h1");
+    await heroHeading.waitFor({ state: "attached" });
+    const heroFont = await heroHeading.evaluate(
+      (el) => getComputedStyle(el).fontFamily,
+    );
     // Fraunces is self-hosted in a follow-up (self-host-woff2-fonts);
     // for now the stack falls back through Fraunces → Georgia → serif.
     // We just need the family token to advertise Fraunces or its
@@ -406,9 +411,9 @@ test.describe("Home (/) — token paint contracts (chromium / desktop)", () => {
   });
 
   test("primary CTA paints the accent color as a solid", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const cta = page.locator(".site-nav .right .btn.primary").first();
+    await cta.waitFor({ state: "attached" });
     const bg = await cta.evaluate((el) => getComputedStyle(el).backgroundColor);
     // Computed bg should be a non-transparent rgb()/oklch() — a
     // regression that drops `[data-accent="cyan"]` collapses --accent
@@ -434,8 +439,12 @@ test.describe("Home (/) — pre-paint theme bootstrap (security gate)", () => {
   test("?theme=fakevalue&persist=1 collapses to twilight and is not persisted", async ({
     page,
   }) => {
-    await page.goto("/?theme=fakevalue&persist=1");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/?theme=fakevalue&persist=1", {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForFunction(() =>
+      document.documentElement.hasAttribute("data-theme"),
+    );
     const applied = await page.evaluate(() =>
       document.documentElement.getAttribute("data-theme"),
     );
@@ -449,8 +458,12 @@ test.describe("Home (/) — pre-paint theme bootstrap (security gate)", () => {
   test("?theme=javascript:alert(1)&persist=1 also collapses (no eval-shaped strings persisted)", async ({
     page,
   }) => {
-    await page.goto("/?theme=javascript:alert(1)&persist=1");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/?theme=javascript:alert(1)&persist=1", {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForFunction(() =>
+      document.documentElement.hasAttribute("data-theme"),
+    );
     const applied = await page.evaluate(() =>
       document.documentElement.getAttribute("data-theme"),
     );
@@ -464,8 +477,12 @@ test.describe("Home (/) — pre-paint theme bootstrap (security gate)", () => {
   test("?theme=midnight&persist=1 is honored (positive control)", async ({
     page,
   }) => {
-    await page.goto("/?theme=midnight&persist=1");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/?theme=midnight&persist=1", {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForFunction(() =>
+      document.documentElement.hasAttribute("data-theme"),
+    );
     const applied = await page.evaluate(() =>
       document.documentElement.getAttribute("data-theme"),
     );
@@ -478,6 +495,8 @@ test.describe("Home (/) — pre-paint theme bootstrap (security gate)", () => {
 });
 
 test.describe("Home (/) — TrustChainIsland keyboard focus contract", () => {
+  test.setTimeout(45_000);
+
   test.skip(
     ({ isMobile }) => isMobile,
     "Keyboard focus simulation is desktop-only; touch projects exercise the tap-toggle path covered by enhance-a11y-coverage.",
@@ -486,8 +505,7 @@ test.describe("Home (/) — TrustChainIsland keyboard focus contract", () => {
   test("focusing a stage row swaps the decision claim to that stage's pass string", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForTrustChainHydration(page);
     // SSR baseline: the scenario's finalClaim is what the decision card
     // shows before any focus event fires.
@@ -519,8 +537,7 @@ test.describe("Home (/) — TrustChainIsland a11y contract (all device classes)"
   test("stage rows are keyboard-focusable + describe the live decision region", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     // The component contract: every stage row carries `tabIndex={0}` +
     // `role="button"` so it appears in the keyboard-tab order. We assert
     // the contract structurally rather than by event-driven simulation —

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('FAQ Markdown rendering', () => {
   test('renders answers as markdown HTML', async ({ page }) => {
-    await page.goto('/faq');
+    await page.goto('/faq', { waitUntil: "domcontentloaded" });
 
     const firstItem = page.locator('.faq-item').first();
     await firstItem.locator('summary').click();
