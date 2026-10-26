@@ -319,8 +319,9 @@ test.describe("Feature Name", () => {
 
 3. **Wait for proper states**
 
+   Playwright specs must not wait for `networkidle`; wait on the locator, hydration marker, or response the test needs.
+
    ```typescript
-   await page.waitForLoadState("networkidle");
    await expect(element).toBeVisible();
    ```
 

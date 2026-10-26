@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
+import { waitForTrustChainHydration } from "./helpers/trust-chain-hydration.js";
 
 /**
  * Automated WCAG audit on `/`. Uses axe-core via the @axe-core/playwright
@@ -28,6 +29,8 @@ import { AxeBuilder } from "@axe-core/playwright";
  */
 
 test.describe("Home (/) — automated WCAG 2.1 AA audit (axe-core)", () => {
+  test.setTimeout(45_000);
+
   test.beforeEach(({}, testInfo) => {
     // USMR Phase 5.1p.8 — gate flipped from `AXE_AUDIT=1`-opt-in to
     // MANDATORY now that round-3 violations cleared (1 critical
@@ -49,8 +52,8 @@ test.describe("Home (/) — automated WCAG 2.1 AA audit (axe-core)", () => {
   });
 
   test("zero WCAG 2.1 AA violations on /", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForTrustChainHydration(page);
 
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])

@@ -38,6 +38,8 @@ The coordinator decided to keep the `playwright` MCP entry for exploratory work.
 
 Every Playwright project comes from `devices[...]` in `playwright.config.ts`, which creates an ephemeral context per test. Never call `chromium.launchPersistentContext` with a real profile path. That exposes the developer's browser keychain and cookies to the test run.
 
+Playwright specs must not wait for `networkidle`; wait on the locator, hydration marker, or response the test needs.
+
 ## Device matrix (15 projects)
 
 - Desktop: `chromium`, `firefox`, `webkit`, `Edge` (msedge channel), `Chrome` (chrome channel).

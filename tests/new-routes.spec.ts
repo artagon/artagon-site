@@ -11,8 +11,7 @@ test.describe("/bridge — BridgeFlow island", () => {
   test("renders the canonical hero + 3-party board + 4-step strip", async ({
     page,
   }) => {
-    await page.goto("/bridge");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/bridge", { waitUntil: "domcontentloaded" });
 
     // Static BridgeFlow.astro renders the MDX-owned headline, and its
     // emphasis span is serif italic via .bridge-flow__title-emphasis.
@@ -38,8 +37,7 @@ test.describe("/use-cases — UseCasesIsland tablist", () => {
   test("renders the canonical hero + 4 scenario tabs + active panel", async ({
     page,
   }) => {
-    await page.goto("/use-cases");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/use-cases", { waitUntil: "domcontentloaded" });
 
     // Canonical hero "The hard identity problems — solved cleanly."
     // with serif italic on "solved cleanly".
@@ -71,7 +69,7 @@ test.describe("/standards — StandardsWall", () => {
   test("renders the 3-column wall + 4-badge affiliation row", async ({
     page,
   }) => {
-    await page.goto("/standards");
+    await page.goto("/standards", { waitUntil: "domcontentloaded" });
 
     // Static Astro — no hydration to wait for.
     // Canonical hero "We don't invent protocols." per StandardsWall.astro.
@@ -89,7 +87,7 @@ test.describe("/standards — StandardsWall", () => {
 
 test.describe("/roadmap — RoadmapTimeline", () => {
   test("renders 5 phase cards V1..V5 with status dots", async ({ page }) => {
-    await page.goto("/roadmap");
+    await page.goto("/roadmap", { waitUntil: "domcontentloaded" });
 
     // 5-phase horizontal timeline (li.roadmap-phase children of the
     // roadmap-timeline__phases <ol>).
@@ -99,6 +97,7 @@ test.describe("/roadmap — RoadmapTimeline", () => {
     await expect(page.locator(".roadmap-phase__dot")).toHaveCount(5);
 
     // V1..V5 mono prefixes.
+    await page.locator(".roadmap-phase__version").first().waitFor();
     const versions = await page
       .locator(".roadmap-phase__version")
       .allTextContents();
@@ -110,8 +109,7 @@ test.describe("/platform — PillarsIsland tablist", () => {
   test("renders 3 pillar tabs with canonical taxonomy + Identity panel as default", async ({
     page,
   }) => {
-    await page.goto("/platform");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/platform", { waitUntil: "domcontentloaded" });
 
     // 3 pillar tabs — canonical taxonomy IDENTITY / CREDENTIALS / AUTHORIZATION.
     // PillarsIsland.astro renders static markup; a shared client script

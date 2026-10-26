@@ -34,8 +34,7 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
   test(".site-nav is position:sticky on every gated engine", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const nav = page.locator(".site-nav");
     await expect(nav).toBeVisible();
     const position = await nav.evaluate((el) => getComputedStyle(el).position);
@@ -45,9 +44,9 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
   test(".site-nav exposes a non-empty backdrop-filter (engine-prefixed)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const nav = page.locator(".site-nav");
+    await nav.waitFor();
     const filters = await nav.evaluate((el) => {
       const cs = getComputedStyle(el);
       return {
@@ -74,9 +73,9 @@ test.describe("Header — sticky + backdrop-filter contract", () => {
   test(".site-nav background is a translucent color-mix (not solid)", async ({
     page,
   }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const nav = page.locator(".site-nav");
+    await nav.waitFor();
     const bg = await nav.evaluate((el) => getComputedStyle(el).backgroundColor);
     // The nav uses `color-mix(in oklab, var(--bg) 72%, transparent)`.
     // Serialization varies per engine: chromium emits `rgba(...)`;
@@ -111,7 +110,7 @@ test.describe("Header — mobile hamburger menu", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const toggle = page.locator(".nav-toggle");
     await expect(toggle).toBeHidden();
 
@@ -128,7 +127,7 @@ test.describe("Header — mobile hamburger menu", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const toggle = page.locator(".nav-toggle");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
 
@@ -166,7 +165,7 @@ test.describe("Header — mobile hamburger menu", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const toggle = page.locator(".nav-toggle");
 
     await toggle.click();
@@ -201,7 +200,8 @@ test.describe("Header — mobile hamburger menu", () => {
 // canonical 6-item list surfaces here.
 test.describe("Header — canonical NAV_LINKS structure", () => {
   test("link list contains exactly 6 canonical entries", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.locator(".site-nav .links li > a").first().waitFor();
     const labels = (
       await page.locator(".site-nav .links li > a").allTextContents()
     ).map((s) => s.trim());
@@ -219,7 +219,7 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     // No GitHub label inside .links
     await expect(
       page.locator(".site-nav .links a", { hasText: "GitHub" }),
@@ -239,7 +239,7 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto("/platform");
+    await page.goto("/platform", { waitUntil: "domcontentloaded" });
     const active = page.locator(
       '.site-nav .links a.active[aria-current="page"]',
     );
@@ -271,7 +271,7 @@ test.describe("Header — canonical NAV_LINKS structure", () => {
   // /get-started) bypassed the canonical anchor pattern; /play is a
   // noindex shim and surfaced a "Placeholder page" landing.
   test("header CTAs route to canonical home anchors", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const playground = page.locator(".site-nav .right a.btn", {
       hasText: "Playground",
     });

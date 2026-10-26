@@ -11,7 +11,8 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("renders exactly 4 columns with the canonical headings", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.locator(".site-footer .footer-col-heading").first().waitFor();
     const headings = await page
       .locator(".site-footer .footer-col-heading")
       .allTextContents();
@@ -19,7 +20,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   });
 
   test("each column has exactly 5 links", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const cols = page.locator(".site-footer .footer-col");
     await expect(cols).toHaveCount(4);
     for (let i = 0; i < 4; i++) {
@@ -31,7 +32,13 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("Platform column lists the 3 pillars + Bridge + Use cases", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page
+      .locator(".site-footer .footer-col")
+      .nth(0)
+      .locator("ul li a")
+      .first()
+      .waitFor();
     const labels = (
       await page
         .locator(".site-footer .footer-col")
@@ -51,7 +58,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("Developers column has Standards (5.4) and external GitHub", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const col = page.locator(".site-footer .footer-col").nth(1);
     await expect(
       col.locator("ul li a", { hasText: "Standards" }),
@@ -68,7 +75,13 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("Developers column is canonical: Docs · SDKs · CLI · GitHub · Standards", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page
+      .locator(".site-footer .footer-col")
+      .nth(1)
+      .locator("ul li a")
+      .first()
+      .waitFor();
     const labels = (
       await page
         .locator(".site-footer .footer-col")
@@ -82,7 +95,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("Legal column placeholders use '#' anchors (canonical pattern)", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     // Per 5.5.4 — Terms / Trust center / DPA / Sub-processors point at
     // '#' until dedicated pages ship. Privacy is a real route. Anything
     // mapping to /privacy or /security with the wrong label would
@@ -108,7 +121,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("brand glyph is the canonical inline SVG (no raster)", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const brand = page.locator(".footer-wordmark");
     // ArtagonGlyph component renders an inline <svg>; the legacy
     // /icons/icon-64.png raster should NOT be present.
@@ -123,8 +136,9 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   test("footer-inner grid is canonical 1.4fr repeat(4, 1fr)", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await page.setViewportSize({ width: 1240, height: 800 });
+    await page.locator(".site-footer .footer-inner").waitFor();
     const cols = await page.$eval(
       ".site-footer .footer-inner",
       (el) => getComputedStyle(el).gridTemplateColumns,
@@ -150,7 +164,7 @@ test.describe("Footer (canonical 4×5 structure)", () => {
   // control into the footer brand cell would surface as a visible
   // control next to the wordmark.
   test("footer brand has no theme toggle control", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const brandToggles = page.locator(
       ".footer-brand [data-theme-toggle], .footer-brand button[aria-pressed]",
     );

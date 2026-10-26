@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { waitForRealFonts } from "./helpers/real-fonts.js";
 
 /**
  * Per-device "tour" screenshot of `/`. Captures one above-the-fold PNG
@@ -28,8 +29,9 @@ import { test } from "@playwright/test";
 
 test.describe("Device tour — / above-the-fold per project", () => {
   test("home page above-the-fold screenshot", async ({ page }, testInfo) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.locator("#hero-h1").waitFor({ state: "visible" });
+    await waitForRealFonts(page);
     const buf = await page.screenshot({
       fullPage: false,
       animations: "disabled",

@@ -1,10 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { waitForRealFonts } from "./helpers/real-fonts.js";
 
 const runVisualRegression = process.env.VISUAL_REGRESSION === "1";
 
 test.describe("Vision Page - Content Collections", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/vision");
+    await page.goto("/vision", { waitUntil: "domcontentloaded" });
+    await page.locator("article.vision-doc").waitFor({ state: "visible" });
   });
 
   test("should have correct page title and meta description", async ({
@@ -147,7 +149,7 @@ test.describe("Vision Page - Content Collections", () => {
   test("should be responsive on mobile viewport", async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/vision");
+    await page.goto("/vision", { waitUntil: "domcontentloaded" });
 
     // Check that section header stacks vertically on mobile
     const sectionHeader = page.locator(".ui-section-header").first();
@@ -224,8 +226,8 @@ test.describe("Vision Page - Content Collections", () => {
       }
     });
 
-    await page.goto("/vision");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/vision", { waitUntil: "domcontentloaded" });
+    await waitForRealFonts(page);
 
     expect(consoleErrors).toHaveLength(0);
   });
@@ -255,7 +257,7 @@ test.describe("Vision Page - Content Collections", () => {
       "Visual regression runs in a dedicated job.",
     );
     // Take full page screenshot for visual regression
-    await page.waitForLoadState("networkidle");
+    await waitForRealFonts(page);
 
     // Take screenshot
     await expect(page).toHaveScreenshot("vision-page-full.png", {
@@ -271,6 +273,7 @@ test.describe("Vision Page - Content Collections", () => {
       !runVisualRegression,
       "Visual regression runs in a dedicated job.",
     );
+    await waitForRealFonts(page);
     const hero = page.locator(".hero-section");
     await expect(hero).toHaveScreenshot("vision-hero-section.png");
   });
@@ -280,6 +283,7 @@ test.describe("Vision Page - Content Collections", () => {
       !runVisualRegression,
       "Visual regression runs in a dedicated job.",
     );
+    await waitForRealFonts(page);
     const domainsSection = page.locator(
       "#executive-summary .ui-grid:has(.ui-card--domain)",
     );
