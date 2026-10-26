@@ -225,6 +225,21 @@ Tokens: `` `--nd-bg` ``, `` `--nd-bg-1` ``, `` `--nd-bg-2` ``, `` `--nd-line` ``
 
 OKLCH-native colour primitives that power the new-design system being introduced by the `update-site-marketing-redesign` change. The `--nd-` prefix namespaces them away from the legacy `--brand-*` / `--teal-*` / `--surface-*` tokens to allow both palettes to coexist during the transition. These tokens intentionally bypass DESIGN.md's `colors` namespace because the upstream `@google/design.md` schema does not model OKLCH triples directly; the OKLCH values are the source of truth, and DESIGN.md hex entries (added in the Phase 2.1 frontmatter) are the derived representation. Once the legacy palette is retired (under the future `migrate-legacy-tokens-to-layer` OpenSpec change), the `--nd-*` prefix will be dropped and these will become the bare `colors.*` tokens.
 
+<!-- USMR site-g3f: production midnight surface variant, Default unchanged. -->
+
+The production `midnight` theme overrides only the five surface tokens listed
+in DESIGN.md §2.4. Like twilight, it sets `--bg` unlayered. The four staging
+surfaces `--nd-bg-1`, `--nd-bg-2`, `--nd-line`, and `--nd-line-soft` are overridden
+inside `@layer tokens`; the public surface aliases retain their `var(--nd-*)`
+direction. This lets the unlayered forced-colors map override the public surfaces
+in either theme. These existing staging names remain covered by this allow-list;
+no new frontmatter colors are needed. The upstream format has one flat palette,
+so frontmatter continues to represent default `twilight`. Theme comparison tables
+put the twilight OKLCH value immediately after the token name, followed by the
+midnight variant: the parity gate's single-value token map must continue comparing
+frontmatter with twilight. The contrast gate reads both palettes from production
+CSS independently of that frontmatter representation.
+
 ### 6.14 Elevation scale
 
 Tokens: `` `--elevation-0` ``, `` `--elevation-1` ``, `` `--elevation-2` ``, `` `--elevation-3` ``, `` `--elevation-4` ``, `` `--elevation-5` ``.

@@ -189,10 +189,14 @@ verbatim into the build output). `src/layouts/BaseLayout.astro` references
 the file via a `<link rel="stylesheet" href="/assets/theme.css">` tag, so
 every Astro page in `src/pages/*.astro` picks up the same token set.
 
-**Token aliasing.** The public tokens listed below (`--bg`, `--bg-1/2`,
+**Token aliasing.** Except for the unlayered `--bg` canvas token, the public tokens listed below (`--bg-1/2`,
 `--line`, `--line-soft`, `--fg`, `--fg-1/2/3`, `--accent`, `--accent-dim`,
 `--accent-ink`, `--ok`, `--warn`, `--bad`) are aliases over an internal
-`--nd-*` staging set defined earlier in `theme.css`. The aliases are the
+`--nd-*` staging set defined earlier in `theme.css`. Midnight overrides
+`--bg` unlayered, like twilight, and the four staging surface values inside
+`@layer tokens` (§2.4). Public surface aliases keep their `var(--nd-*)`
+direction so the unlayered forced-colors map can override them.
+The public names are the
 **stable contract** — components consume them. The `--nd-*` set is the
 new-design vocabulary verbatim; preserved so future palette experiments
 can revise OKLCH triples without touching every consumer. Never reference
@@ -210,7 +214,7 @@ names; raw legacy references are caught by `scripts/lint-tokens.mjs`
 (which walks `git ls-files`) and the `no-untraceable-token` ast-grep
 rule.
 
-### 2.1 Base palette (dark, default)
+### 2.1 Base palette (twilight, default)
 
 | Token         | OKLCH                   | Role                  |
 | ------------- | ----------------------- | --------------------- |
@@ -264,7 +268,32 @@ Semantic colors appear in the trust chain, logs, and status badges. They are
 Production and the dev-only Tweaks panel offer exactly `twilight` and
 `midnight`, with `twilight` as the default. The typed `THEMES` tuple in
 `src/scripts/tweaks-state.ts` owns this vocabulary; the inline pre-paint
-allow-lists are checked against it. Both themes retain the §2.1 base palette.
+allow-lists are checked against it.
+
+<!-- USMR site-g3f: owner-approved Default unchanged, 2026-10-26. -->
+
+| Production theme | Default | Palette contract |
+| ---------------- | ------- | ---------------- |
+| `twilight` | Yes | Exactly the §2.1–2.3 palette and its frontmatter hex equivalents. |
+| `midnight` | No | Deeper, teal-tinted surfaces; only the five tokens below change. |
+
+| Surface token | Twilight (default / frontmatter) | Midnight override |
+| ------------- | ------------------------------- | ----------------- |
+| `--bg` | `oklch(0.14 0.008 260)` | `oklch(0.12 0.020 195)` |
+| `--bg-1` | `oklch(0.17 0.008 260)` | `oklch(0.15 0.020 195)` |
+| `--bg-2` | `oklch(0.20 0.008 260)` | `oklch(0.18 0.020 195)` |
+| `--line` | `oklch(0.28 0.008 260)` | `oklch(0.26 0.020 195)` |
+| `--line-soft` | `oklch(0.22 0.008 260)` | `oklch(0.20 0.020 195)` |
+
+The `--fg` family, `--accent`, `--accent-dim`, `--accent-ink`, `--ok`,
+`--warn`, and `--bad` stay identical between themes. Midnight sets
+`--nd-bg-1`, `--nd-bg-2`, `--nd-line`, and `--nd-line-soft` to the four surface
+values above inside `@layer tokens`. The public surface tokens continue to
+alias those staging tokens. Only `--bg` is overridden unlayered, as in twilight;
+the other surfaces remain overridable by the unlayered forced-colors map.
+Both themes keep `--surface: var(--bg-1)`. Frontmatter stays the twilight
+palette; runtime variant values are documented under `docs/design-md.md` §6.13.
+
 Only a valid stored Tweaks theme overrides the production pre-paint choice.
 Missing, legacy (`dark`/`light`), or invalid Tweaks themes leave the page theme
 untouched. The panel uses that page theme if it is in `THEMES`, otherwise
@@ -273,7 +302,7 @@ and persist that resolved theme (USMR 14.13 R1).
 
 The retired `[data-theme="dark"]` and `[data-theme="light"]` blocks,
 including light-only glow and accent overrides, are removed. Frontmatter
-palette values and production theme styles are unchanged. The paper variants
+palette values and twilight theme styles are unchanged. The paper variants
 in §6.14 are standalone brand assets, separate from page theme selection.
 
 ---
