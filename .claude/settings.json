@@ -1,10 +1,64 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "enabledMcpjsonServers": ["playwright"],
+  "enabledMcpjsonServers": ["ast-grep", "playwright"],
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "pr-review-toolkit@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(rtk rg *)",
+      "Bash(rtk tgrep *)",
+      "Bash(rtk ripwire . *)",
+      "Bash(rtk ast-grep run *)",
+      "Bash(rtk ast-grep scan *)",
+      "mcp__ast-grep__dump_syntax_tree",
+      "mcp__ast-grep__find_code",
+      "mcp__ast-grep__find_code_by_rule",
+      "mcp__ast-grep__test_match_code_rule"
+    ],
+    "ask": [
+      "Bash(rtk rg *--pre*)",
+      "Bash(rtk rg *--hostname-bin*)",
+      "Bash(rtk rg *--search-zip*)",
+      "Bash(rtk rg -z*)",
+      "Bash(rtk rg * -z*)",
+      "Bash(rtk tgrep serve*)",
+      "Bash(rtk tgrep *--index-path*)",
+      "Bash(rtk ast-grep *--update-all*)",
+      "Bash(rtk ast-grep *-U*)",
+      "Bash(rtk ast-grep * -i*)",
+      "Bash(rtk ast-grep *--interactive*)",
+      "Bash(rtk ast-grep *--custom-languages*)",
+      "Bash(rtk ripwire *--run-trace*)",
+      "Bash(rtk ripwire *--note-add*)",
+      "Bash(rtk ripwire *--index-out*)",
+      "Bash(rtk ripwire *--export*)",
+      "Bash(rtk ripwire *--pin-census*)",
+      "Bash(rtk ripwire *--listen*)",
+      "Bash(rtk ripwire *--allow-remote-edits*)",
+      "Bash(rtk ripwire *--replace-symbol-body*)",
+      "Bash(rtk ripwire *--insert-before-symbol*)",
+      "Bash(rtk ripwire *--insert-after-symbol*)",
+      "Bash(rtk ripwire *--edit-plan*)",
+      "Bash(rtk ripwire *--quality-baseline*)",
+      "Bash(rtk ripwire *--quality-ack*)",
+      "Bash(rtk ripwire *--baseline*)",
+      "Bash(rtk ripwire *--html*)",
+      "Bash(rtk ripwire *--cache=*)"
+    ],
+    "deny": [
+      "Grep",
+      "Bash(grep *)",
+      "Bash(egrep *)",
+      "Bash(fgrep *)",
+      "Bash(rg *)",
+      "Bash(find *)",
+      "Bash(git grep *)",
+      "Bash(rtk grep *)",
+      "Bash(rtk git grep *)"
+    ]
   },
   "hooks": {
     "PostToolUse": [

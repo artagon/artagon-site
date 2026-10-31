@@ -45,11 +45,12 @@ This conversion depends on agent skills + a CLI tool from the design.md ecosyste
 
 ### Install skills (once per machine, or when refreshing)
 
-The `skills` CLI is the canonical installer. It writes skills to `.agents/skills/<name>/SKILL.md` and symlinks them into `.claude/skills/<name>` so Claude Code surfaces them alongside other project skills.
+The `skills` CLI is the canonical installer. It writes skills to `.agents/skills/<name>/SKILL.md` and symlinks them into `.claude/skills/<name>` so Claude Code surfaces them alongside other project skills. Keep only those relative links in `.claude/skills/`; delete any copies the CLI writes to `.codex/skills/` or `.gemini/skills/` (see `.agents/skills/README.md`).
 
 ```bash
-# Install all 4 skills from google-labs-code/design.md (publishes via .agents/skills directory)
-for s in agent-dx-cli-scale ink tdd typed-service-contracts; do
+# Install the 3 applicable skills from google-labs-code/design.md (publishes via .agents/skills directory).
+# `ink` is not-applicable (terminal UI) per .agents/AGENT_MANIFEST.yaml.
+for s in agent-dx-cli-scale tdd typed-service-contracts; do
   npx skills add google-labs-code/design.md --skill "$s" \
     -a claude-code -a codex -a gemini-cli -y
 done

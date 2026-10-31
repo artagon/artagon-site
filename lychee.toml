@@ -83,9 +83,10 @@ exclude = [
   "^file://.*/new-design/",
   # Local Claude/agent skill references — `.claude/skills` is in
   # exclude_path for input-scanning, but doc references like
-  # `./.claude/skills/<name>` still get checked as link targets. These
-  # name user-level skills installed outside the repo (e.g.
-  # review-verification-protocol); not all of them ship locally.
+  # `./.claude/skills/<name>` still get checked as link targets. The
+  # repo's .claude/skills/ holds only links into .agents/skills/ (USMR
+  # 14.84); a reference may still name a user-level skill that is not
+  # in the repo (e.g. review-verification-protocol).
   "^file://.*/\\.claude/skills/",
   # W3C / upstream spec mirrors that are known-flaky from CI runners
   # (connection-reset on GitHub-hosted infrastructure). The spec text

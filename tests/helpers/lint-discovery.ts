@@ -190,7 +190,9 @@ export function pathCitationSources(root: string): readonly PathCitationSource[]
         stripAtAlias: true,
         // Historical citation explains that this guide moved into opsx skills.
         allowPaths: ["openspec/AGENTS.md"],
-        // These are external trees on contributor machines, absent in CI.
+        // new-design/ is an external tree on contributor machines, absent in
+        // CI. .claude/skills/ holds links into .agents/skills/ (USMR 14.84);
+        // docs may still name user-level skills under it.
         allowPrefixes: ["new-design/", ".claude/skills/"],
       },
     },

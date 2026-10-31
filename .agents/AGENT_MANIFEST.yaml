@@ -11,6 +11,11 @@ skills:
     - typed-service-contracts # parse-don't-validate, Result<T, E> for data layer
     - agent-dx-cli-scale # score npm scripts >= 18/21
     - design-md # synthesize semantic design systems into DESIGN.md
+    - ripwire # callers, blast radius, affected tests (USMR 14.86)
+    - tgrep # indexed regex sweeps over an unchanged tree
+    - ripgrep # rtk rg live text search; replaces grep and find
+    - ast-grep # structural search, rewrites, and the lint:sg linter
+    - ast-grep-mcp # syntax-tree dumps and YAML rule tests over MCP
   not-applicable:
     - ink # terminal UI; project is web
 

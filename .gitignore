@@ -9,6 +9,11 @@ build.config.json.bak
 # Claude Code session-state (in-memory cron lock; should not be tracked).
 .claude/scheduled_tasks.lock
 
+# OpenSpec 1.6 still writes Codex copies of its skills here on every
+# `openspec update`. Codex reads .agents/skills/, which holds the only real
+# copies (USMR 14.84, site-y0k; see .agents/skills/README.md).
+.codex/skills/
+
 # Build umbrella — all runtime artifacts (cache, reports, dist) live here.
 # See openspec/specs/build-config/spec.md (originally authored in the
 # archived openspec/changes/archive/2026-05-05-standardize-build-artifacts/

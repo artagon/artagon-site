@@ -1,6 +1,6 @@
 # Review workflow
 
-Multi-agent review is the default for non-trivial changes. Every reviewer, sub-agent or direct, must load `.claude/skills/review-verification-protocol/` before reporting findings. The protocol requires reading the actual code (not only the diff), searching usages before calling anything unused, calibrating severity (Critical / Major / Minor / Informational), and downgrading net-new-code suggestions to Informational.
+Multi-agent review is the default for non-trivial changes. Every reviewer, sub-agent or direct, must load the `review-verification-protocol` skill before reporting findings. It is a user-level skill, not part of this repo; install it in your user skills directory (`~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex and Gemini CLI). The protocol requires reading the actual code (not only the diff), searching usages before calling anything unused, calibrating severity (Critical / Major / Minor / Informational), and downgrading net-new-code suggestions to Informational.
 
 ## Lenses
 

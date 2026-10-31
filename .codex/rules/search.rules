@@ -1,0 +1,47 @@
+# USMR 14.85 (site-dfn): block the search commands AGENTS.md forbids and name
+# the mandated tool in every rejection. Codex loads project rules only when
+# the project .codex/ layer is trusted. Check a command with:
+#   codex execpolicy check --rules .codex/rules/search.rules -- grep -rn x src
+# No allow rules here: an allow rule would run the command outside the
+# sandbox, and read-only searches already run inside it without a prompt.
+
+USE_INSTEAD = "Use rtk rg for text (rtk rg --files -g '<glob>' lists files instead of find), rtk tgrep for repeated sweeps, rtk ast-grep for code shape, and rtk ripwire for callers and impact (AGENTS.md, Code intelligence and search)."
+
+prefix_rule(
+    pattern = [["grep", "egrep", "fgrep", "rg", "find"]],
+    decision = "forbidden",
+    justification = USE_INSTEAD,
+    match = [
+        "grep -rn safeJsonLd src",
+        "egrep -n safeJsonLd src",
+        "fgrep -n safeJsonLd src",
+        "rg -n safeJsonLd src",
+        "find src -name Header.astro",
+    ],
+    not_match = [
+        "rtk rg -n safeJsonLd src",
+        "rtk tgrep safeJsonLd .",
+    ],
+)
+
+prefix_rule(
+    pattern = [["git", "rtk"], "grep"],
+    decision = "forbidden",
+    justification = USE_INSTEAD,
+    match = [
+        "git grep -n safeJsonLd",
+        "rtk grep safeJsonLd src",
+    ],
+    not_match = [
+        "git status",
+        "rtk rg -n safeJsonLd src",
+    ],
+)
+
+prefix_rule(
+    pattern = ["rtk", "git", "grep"],
+    decision = "forbidden",
+    justification = USE_INSTEAD,
+    match = ["rtk git grep -n safeJsonLd"],
+    not_match = ["rtk git status"],
+)
