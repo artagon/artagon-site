@@ -16,7 +16,7 @@ Sub-paths emitted today:
 
 ```
 .build/cache/astro/
-.build/reports/{playwright/{results,blob,html},playwright-cli,lhci,cloudflare-purge}/
+.build/reports/{playwright/{results,blob,html},playwright-cli,lhci,cloudflare-purge,icon-checksums}/
 .build/dist/                 # astro build output, deployed to Pages
 .build/.run.lock             # optional cleanup sentinel (hostname:pid:ts)
 ```

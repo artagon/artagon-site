@@ -67,10 +67,12 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 
 ## 10. PR 10: move icon checksum reports out of public
 
-- [ ] 10.1 (unit LAYOUT-10A) Add reports.iconChecksums = .build/reports/icon-checksums in build.config.json and its BuildPaths/REQUIRED_SHAPE declarations in build.config.ts; extend tests/build-config.test.mjs and document the leaf in docs/build-artifacts.md. Gate: valid config imports, missing/non-string/unsafe values fail, and tests prove the source-of-truth leaf is required.
-- [ ] 10.2 (unit LAYOUT-10B) Update scripts/icons/make-icons.sh's checksum mkdir/writes/message and obsolete checksum exclusion in its summary to consume the validated BUILD report leaf through a root-scoped Node bridge; preserve the image OUT option and image generation behavior. Gate: actual hex/base64 digests match each generated file at the report path, OUT overrides do not move reports into public, and invalid config fails before report creation.
+- [x] 10.1 (unit LAYOUT-10A) Add reports.iconChecksums = .build/reports/icon-checksums in build.config.json and its BuildPaths/REQUIRED_SHAPE declarations in build.config.ts; extend tests/build-config.test.mjs and document the leaf in docs/build-artifacts.md. Gate: valid config imports, missing/non-string/unsafe values fail, and tests prove the source-of-truth leaf is required.
+- [x] 10.2 (unit LAYOUT-10B) Update scripts/icons/make-icons.sh's checksum mkdir/writes/message and obsolete checksum exclusion in its summary to consume the validated BUILD report leaf through a root-scoped Node bridge; preserve the image OUT option and image generation behavior. Gate: actual hex/base64 digests match each generated file at the report path, OUT overrides do not move reports into public, and invalid config fails before report creation.
 - [ ] 10.3 (unit LAYOUT-10C) Update scripts/icons/README.md output tree, descriptions and checksum examples, scripts/icons/VERIFICATION.md commands, and README.md tooling migration notes; remove tracked public/icons/checksums only after the migration decision is recorded. Gate: documented verification commands work at the new path and any external report-URL dependency is resolved; no image deliverable is removed.
+  - README migration notice is delegated to the coordinator's integration.
 - [ ] 10.4 (unit LAYOUT-10D) Regenerate lighthouserc.json and lychee.toml from scripts/sync-build-config.mjs after the SSoT hash change, preserving modernize-build-pipeline edits; validate clean build output. Gate: sync check mode is clean, the public payload contains no checksum reports, all image URLs survive, and both affected OpenSpec changes validate after shared-file reconciliation.
+  - Cross-change validation remains pending integration of modernize-build-pipeline.
 
 ## 11. PR 11: replace/repair HTML enforcement without losing coverage
 

@@ -10,6 +10,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -83,6 +84,33 @@ function copyBuildGeneratorFixture(root: string) {
 }
 
 describe("developer tooling script regressions", () => {
+  // LAYOUT-10B: run the real generator with isolated image outputs.
+  it.skipIf(["sips", "rsvg-convert", "shasum", "xxd"].some((tool) => spawnSync("which", [tool]).status !== 0))(
+    "writes independently verifiable icon checksums to BUILD rather than OUT",
+    () => withTempDir("icon-checksums-", (root) => {
+      copyFileSync(join(ROOT, "build.config.ts"), join(root, "build.config.ts"));
+      const config = JSON.parse(readFileSync(join(ROOT, "build.config.json"), "utf8"));
+      writeFileSync(join(root, "build.config.json"), JSON.stringify(config));
+      const script = join(SCRIPTS, "icons", "make-icons.sh");
+      const env = { OUT: "custom-icons", SVG_MARK: join(ROOT, "public", "assets", "logo-mark.svg") };
+      const result = run("bash", [script], root, env);
+      expect(result.code, `${result.stdout}\n${result.stderr}`).toBe(0);
+      const reports = join(root, ".build", "reports", "icon-checksums");
+      for (const filename of readdirSync(join(root, "custom-icons")).filter((name) => /\.(png|svg|ico)$/.test(name))) {
+        const digest = createHash("sha256").update(readFileSync(join(root, "custom-icons", filename))).digest();
+        expect(readFileSync(join(reports, `${filename}.sha256.hex`), "utf8").trim()).toBe(digest.toString("hex"));
+        expect(readFileSync(join(reports, `${filename}.sha256.base64`), "utf8").trim()).toBe(digest.toString("base64"));
+      }
+      expect(readdirSync(join(root, "custom-icons"))).not.toContain("checksums");
+      delete config.reports.iconChecksums;
+      writeFileSync(join(root, "build.config.json"), JSON.stringify(config));
+      rmSync(reports, { recursive: true });
+      expect(run("bash", [script], root, env).code).not.toBe(0);
+      expect(() => readdirSync(reports)).toThrow();
+    }),
+    30_000,
+  );
+
   // LAYOUT-07B: exercise the actual helper and inspect the resulting ICO.
   it.skipIf(spawnSync("magick", ["-version"]).status !== 0)("writes multi-size favicons to the default and supplied directories", () => {
     withTempDir("favicon-", (root) => {

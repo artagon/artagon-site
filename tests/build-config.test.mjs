@@ -5,13 +5,34 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const GENERATED = [join(ROOT, "lighthouserc.json"), join(ROOT, "lychee.toml")];
+
+// LAYOUT-10A: validate the actual typed config against isolated inputs.
+test("icon checksum report path is required, typed and safe", () => {
+  const root = mkdtempSync(join(tmpdir(), "build-icon-config-"));
+  try {
+    copyFileSync(join(ROOT, "build.config.ts"), join(root, "build.config.ts"));
+    const config = JSON.parse(readFileSync(join(ROOT, "build.config.json"), "utf8"));
+    const load = () => execFileSync(process.execPath, ["--input-type=module", "-e", 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.iconChecksums)'], { cwd: root, encoding: "utf8", stdio: "pipe" });
+    writeFileSync(join(root, "build.config.json"), JSON.stringify(config));
+    assert.equal(load(), ".build/reports/icon-checksums");
+    for (const value of [undefined, 42, "../public/icons/checksums"]) {
+      if (value === undefined) delete config.reports.iconChecksums;
+      else config.reports.iconChecksums = value;
+      writeFileSync(join(root, "build.config.json"), JSON.stringify(config));
+      assert.throws(load);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 function sha256(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
