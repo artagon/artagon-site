@@ -47,4 +47,6 @@
 - Styling refactor gaps: made theme fallbacks theme-aware via `--brand-teal-rgb`, updated `Card`, `SectionHeader`, and `FeatureList` to merge `class`/`className` and forward attributes, and switched the vision hero mission statement to `Card` with `variant=\"solid\"`.
 - OpenSpec workflow tooling: added Copilot instruction files, spec/proposal issue templates, a spec-aware PR template, spec compliance and reminder workflows, labels configuration, and `scripts/validate-spec-reference.js`, plus `docs/CONTRIBUTING.md` and refreshed OpenSpec docs references.
 - Test run: `npx playwright test tests/vision-page.spec.ts` passes after installing Firefox (Playwright browser cache updated).
+
+- Repository layout plan: added `openspec/changes/standardize-repository-layout/` for the approved, ordered layout cleanup; its capabilities remain proposals until implementation and archive.
 - Manual check: verified the vision mission statement renders as a solid Card; spec validator updated to ESM imports for CI.
