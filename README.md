@@ -45,83 +45,31 @@ npm run format
 
 ```
 artagon-site/
-├── .agents/                 # AI agent configuration and policies
-├── .github/workflows/       # GitHub Actions CI/CD pipelines
-├── openspec/               # OpenSpec spec-driven development
-│   ├── changes/            # Proposed changes and features
-│   ├── specs/              # Current capability specifications
-│   ├── project.md          # Project conventions
-│   ├── contributing.md     # Contribution guidelines
-│   └── config.yaml         # OpenSpec CLI project descriptor
-├── public/                 # Static assets (copied as-is to .build/dist/)
-│   ├── .well-known/        # Well-known URIs (security.txt, etc.)
-│   ├── assets/             # Images, logos, OG images, theme.css, fonts/
-│   │   └── logos/          # Logo variants and documentation
-│   ├── icons/              # Favicons and app icons
-│   ├── robots.txt          # Search engine directives
-│   └── _redirects          # Cloudflare Pages redirect rules
-                            # (sitemap-index.xml is GENERATED to
-                            #  .build/dist/ at build time, NOT
-                            #  pre-existing in public/)
-├── scripts/                # Build, lint, verify, and asset scripts
-                            # (run `ls scripts/*.mjs scripts/*.sh`
-                            #  for the current count — frozen counts
-                            #  pre-pt380 (~14 .mjs + 8 .sh) drifted
-                            #  as new scripts landed; SSoT is the dir)
-│   ├── csp.mjs             # Content Security Policy injection (postbuild)
-│   ├── sri.mjs             # Subresource Integrity injection (postbuild)
-│   ├── minify-theme-css.mjs # Minifies the dist copy of the public theme stylesheet
-│   ├── lhci-serve.mjs      # LHCI local server with ready signal
-│   ├── verify-prerequisites.mjs       # USMR Phase 0.5 archive-ordering gate
-│   ├── verify-design-prerequisites.mjs # adopt-design-md-format archive gate
-│   ├── verify-font-self-hosting.mjs   # font-src 'self' postbuild gate
-│   ├── lint-skip-link.mjs  # Skip-link first-tabbable postbuild gate
-│   ├── lint-taglines.mjs   # Single-source tagline gate
-│   ├── lint-tokens.mjs     # Raw color literal gate
-│   ├── sync-build-config.mjs # Generates lighthouserc.json + lychee.toml
-│   ├── make-og-from-template.sh  # OG image generation
-│   ├── make-favicon.sh     # Favicon generation
-│   ├── icons/              # Icon generation utilities
-│   ├── lib/                # Internal helpers (e.g. openspec-archive.mjs)
-│   └── ...                 # Other helpers (oklch-to-hex, check-design-drift, etc.)
+├── .agents/                # Agent context, skills, and workflows
+├── .github/workflows/      # CI and deployment workflows
+├── assets/                 # OG authoring templates (moved by layout PR 3)
+├── deploy/                 # Static-server examples and operator guidance
+├── docs/                   # Human documentation
+├── openspec/               # Active changes, capability specs, and project context
+├── public/                 # Stable static URLs copied to .build/dist/
+├── scripts/                # Build, verification, and asset-generation tools
 ├── src/
-│   ├── components/         # Reusable Astro components
-│                           # (run `find src/components -maxdepth 2
-│                           #  -name '*.astro' -o -name '*.tsx' | wc -l`
-│                           #  for current count — pre-pt381 (~30) drifted
-│                           #  as the redesign added/retired surfaces;
-│                           #  SSoT is the dir tree)
-│   │   ├── Header.astro    # Main navigation
-│   │   ├── Footer.astro    # Site footer
-│   │   ├── SeoTags.astro   # SEO meta tags
-│   │   ├── FaqSearch.astro # FAQ search functionality
-│   │   ├── ui/             # UI primitives (Card, SectionHeader, FeatureList)
-│   │   └── ...
-│   ├── data/               # Typed structured-data registries (~11 modules)
-│   │   ├── faq.ts          # FAQ entries
-│   │   ├── roadmap.ts      # Roadmap horizontal-timeline registry
-│   │   ├── pillars.ts      # Three-pillars taxonomy
-│   │   ├── standards.ts    # Standards / specs registry
-│   │   ├── glossary.ts     # Acronym/term glossary (consumed by Standard chips)
-│   │   └── ...             # Other registries (organization, affiliations, bridge, etc.)
-│   ├── lib/                # Pure helpers (charset, markdown, reading-time)
-│   ├── scripts/            # Browser-side TS (tweaks-state, etc.)
-│   ├── content/            # Astro Content Collections (pages/, writing/, taglines.json)
-│   ├── layouts/
-│   │   └── BaseLayout.astro  # Main layout template
-│   └── pages/              # File-based routing
-│       ├── index.astro     # Homepage
-│       ├── platform/       # Platform features
-│       ├── roadmap/        # Product roadmap
-│       ├── faq/            # FAQ page
-│       ├── vision/         # Vision and strategy
-│       ├── docs/           # Docs shell
-│       ├── console/        # Console shell
-│       ├── search/         # Search interface
-│       └── ...
-├── astro.config.ts         # Astro configuration (TypeScript)
-├── lighthouserc.json       # Lighthouse CI thresholds
-├── lychee.toml             # Link checker configuration
+│   ├── components/         # Astro components and React islands
+│   ├── content.config.ts   # Content Collection loaders and Zod schemas
+│   ├── content/
+│   │   ├── authors/        # Author entries
+│   │   ├── pages/          # Marketing-route MDX
+│   │   ├── writing/        # Long-form posts
+│   │   └── taglines.json   # Shared tagline data
+│   ├── data/               # Typed registries, including standards.ts
+│   ├── layouts/            # Shared Astro layouts
+│   ├── lib/                # Server-side TypeScript helpers
+│   ├── pages/              # File-based Astro routes
+│   └── scripts/            # Browser-side TypeScript
+├── tests/                  # Playwright, Vitest, and node:test suites
+├── .nvmrc                  # Node version used by local and CI workflows
+├── astro.config.ts         # Astro configuration
+├── build.config.json       # Build paths and settings source of truth
 ├── package.json            # Dependencies and scripts
 └── README.md               # This file
 ```

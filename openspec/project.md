@@ -16,10 +16,10 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 
 ### Core
 
-- Astro 6 (ESM, static output; per `package.json` `"astro": "6.2.1"`)
-- Node 22.18.0+ and npm (per `.nvmrc` 22.18.0 and `package.json` engines.node `>=22.18.0`; plain Node entry points import TypeScript without a loader flag)
-- @astrojs/sitemap, @astrojs/mdx, @astrojs/react (for interactive islands only), @astrojs/rss (for `/writing/feed.xml`)
-- Astro Content Collections + Zod schemas (`src/content/`)
+- Astro 7.4.5 (ESM, static output; pinned in `package.json`)
+- Node 22.23.4+ and npm (per `.nvmrc` and `package.json` engines.node; plain Node entry points import TypeScript without a loader flag)
+- @astrojs/mdx, @astrojs/react (for interactive islands only), @astrojs/rss (for `/writing/feed.xml`), and @astrojs/sitemap (versions pinned in `package.json`)
+- Astro Content Collections + Zod schemas declared in `src/content.config.ts`: `pages` loads `src/content/pages/`, `writing` loads `src/content/writing/`, and `authors` loads `src/content/authors/`; shared tagline data is in `src/content/taglines.json`.
 
 ### Tooling
 
@@ -28,6 +28,7 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 - Lighthouse CI (performance and a11y thresholds)
 - Lychee (link checking)
 - Playwright (E2E + accessibility + visual regression)
+- Vitest (`*.test.mts`), Node's built-in test runner (the explicit `package.json` `test:node` list), and Playwright (`*.spec.ts`) are separate test runners.
 - ast-grep (`sg`) — primary linter; rules in `rules/security/*.yml` (no ESLint)
 
 ## Project Structure
@@ -35,8 +36,8 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 - `src/pages/` route pages (Astro). Live routes (22 total post-USMR-Phase-5.x): `/`, `/platform`, `/vision`, `/roadmap`, `/faq`, `/use-cases`, `/standards`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/bridge`, `/writing`, `/writing/[slug]`, `/writing/feed.xml`, `/404`. The `/use-cases`, `/standards`, `/writing/[slug]`, `/writing/feed.xml` routes were added by USMR (live since Phase 5.x); the RSS feed gained auto-discovery wiring in pt197.
 - `src/layouts/BaseLayout.astro` shared layout, SEO tags, and inline theme/menu scripts. USMR adds named slots: `json-ld`, `indexation`, `branding`.
 - `src/components/` UI components, navigation, and SEO helpers.
-- `src/content/` MDX/JSON content collections (`pages/`, `pages/writing/`, `taglines.json`, `standards.json`).
-- `src/data/` typed data for FAQ and roadmap content.
+- `src/content.config.ts` defines the `pages`, `writing`, and `authors` collections; their content is in `src/content/pages/`, `src/content/writing/`, and `src/content/authors/`. Shared tagline data is `src/content/taglines.json`.
+- `src/data/` typed registries, including the standards catalog in `src/data/standards.ts`, FAQ entries, and roadmap content.
 - `public/` static assets, icons, manifests, `_redirects`. (`_headers` generation is PLANNED — the in-flight `migrate-deploy-to-cloudflare-pages` proposal will extend `scripts/csp.mjs` to emit `dist/_headers` from the CSP source-of-truth; pre-pt387 the project.md said the generation was already wired but `scripts/csp.mjs` carries zero `_headers` references today — phantom-implementation drift. The proposal lands the wiring per its design.md D3.)
 - `scripts/` postbuild security scripts and asset generation helpers (`csp.mjs`, `sri.mjs`, `lint-tokens.mjs`, etc.).
 - `deploy/` sample server configs and HSTS guidance.
@@ -47,7 +48,7 @@ Live capabilities: `build-config`, `check-site-quality`, `configure-copilot-envi
 
 Capabilities introduced by `update-site-marketing-redesign` (deltas pending archive): `site-navigation`, `site-standards-registry`, `site-bridge-story`, `site-mobile-layout`, `site-structured-data`, `site-indexation`, `site-branding`. The change also MODIFIES `site-content` and `style-system`.
 
-Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive), `enhance-a11y-coverage` (NEW WCAG 2.1 AA contracts), `externalize-strings-and-add-i18n` (NEW capability `site-i18n` + MODIFIED `site-content`; authored as the parallel-track proposal during the USMR deep-audit ralph loop), `add-agent-skills-supply-chain` (NEW agent-skills capability: pinned agent skills plus the verify:skills and verify:stack gates), `adopt-tailwind-and-starlight` (draft for owner decision; NEW docs-site capability; would supersede ADR 0001).
+Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive), `enhance-a11y-coverage` (NEW WCAG 2.1 AA contracts), `externalize-strings-and-add-i18n` (NEW capability `site-i18n` + MODIFIED `site-content`; authored as the parallel-track proposal during the USMR deep-audit ralph loop), `add-agent-skills-supply-chain` (NEW agent-skills capability: pinned agent skills plus the verify:skills and verify:stack gates), `adopt-tailwind-and-starlight` (draft for owner decision; NEW docs-site capability; would supersede ADR 0001), and `standardize-repository-layout` (in flight; staged repository-layout cleanup with no live capability claim before archive).
 
 ## Merge order
 
