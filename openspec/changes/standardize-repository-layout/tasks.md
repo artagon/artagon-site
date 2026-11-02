@@ -17,8 +17,8 @@ Common PR gate: lifecycle-enabled build, Astro check, node:test, Vitest, relevan
 
 Cross-change ordering: this PR, including task 1.2, MUST land before modernize-build-pipeline task 1.4 in that change's PR 1. Its tracking assertion cannot pass until .lycheecache is untracked. Gate the integrated order with git ls-files .astro .lighthouseci .lycheecache returning no paths and check-ignore still matching .lycheecache. This plan does not transfer cache-removal ownership to the sibling change.
 
-- [ ] 1.1 (unit LAYOUT-01A) Remove tracked session.txt and add /session.txt to .gitignore. Gate: scoped git ls-files excludes it and check-ignore identifies the new rule.
-- [ ] 1.2 (unit LAYOUT-01B) Untrack .lycheecache while retaining its .gitignore rule and documented runtime location. Files: .lycheecache, .gitignore. Gate: ls-files excludes it, check-ignore matches it, and local recreation does not change tracked source; no BUILD cache leaf is introduced.
+- [x] 1.1 (unit LAYOUT-01A) Remove tracked session.txt and add /session.txt to .gitignore. Gate: scoped git ls-files excludes it and check-ignore identifies the new rule.
+- [x] 1.2 (unit LAYOUT-01B) Untrack .lycheecache while retaining its .gitignore rule and documented runtime location. Files: .lycheecache, .gitignore. Gate: ls-files excludes it, check-ignore matches it, and local recreation does not change tracked source; no BUILD cache leaf is introduced.
 
 ## 2. PR 2: make dependency intent explicit
 
