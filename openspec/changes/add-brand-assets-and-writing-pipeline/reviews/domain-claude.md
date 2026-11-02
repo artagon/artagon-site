@@ -1,5 +1,7 @@
 # Adversarial Domain-Completeness Review — `add-brand-assets-and-writing-pipeline`
 
+> Historical review evidence. Its findings and path citations are retained as written and do not define the current logo-guide location.
+
 Dimension: DOMAIN COMPLETENESS only. Hunting gaps against the user's stated intent: (A) icons + ALL artifacts adopted, (B) GitHub markdown writing pipeline rendered on PR-merge-to-main.
 
 ## Findings

@@ -556,7 +556,11 @@ Generates logo variants from source files.
 
 **Documentation:**
 
-- `public/assets/logos/README.md` - Logo usage guidelines and variant inventory
+- `docs/guides/logo-assets.md` - Logo usage guidelines and variant inventory
+
+Tooling migration: the public guide URL /assets/logos/README.md is retired;
+use `docs/guides/logo-assets.md`. The 15 PNG image URLs under `/assets/logos/`
+remain unchanged.
 
 #### Composite App Icons
 
@@ -946,7 +950,7 @@ Living guides (current state authoritative):
 
 Asset / icon references:
 
-- **`public/assets/logos/README.md`** - Logo file reference and variants.
+- **`docs/guides/logo-assets.md`** - Logo file reference and variants.
 - **`scripts/icons/README.md`** - Icon generation guide.
 - **`scripts/icons/VERIFICATION.md`** - Icon verification checklist.
 

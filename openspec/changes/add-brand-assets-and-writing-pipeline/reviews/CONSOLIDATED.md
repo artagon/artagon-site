@@ -1,5 +1,7 @@
 # Consolidated Adversarial Review — `add-brand-assets-and-writing-pipeline`
 
+> Historical review evidence. Its findings and path citations are retained as written and do not define the current logo-guide location.
+
 **Target:** OpenSpec change at `openspec/changes/add-brand-assets-and-writing-pipeline/`
 **Reviewers:** 4 parallel adversarial sub-agents (security, supply-chain/ops, openspec-authoring, domain-completeness).
 **Date:** 2026-05-01

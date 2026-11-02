@@ -58,9 +58,9 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 
 ## 9. PR 9: move the public logo guide after its contract amendment
 
-- [ ] 9.1 (unit LAYOUT-09A) Amend only the relevant location/adoption terms in openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md, tasks.md tasks 3.2 and 8.1a, and specs/site-branding/spec.md's 15-PNG requirement to make docs/guides/logo-assets.md the guide authority. Gate: strict validation of the amended branding change; all 15 image names/URLs and its feature merge prerequisites are preserved.
-- [ ] 9.2 (unit LAYOUT-09B) Move public/assets/logos/README.md to docs/guides/logo-assets.md; update README.md's two current guide references, .agents/context/glossary.md and the comment in tests/lint-orphan-public-svg.test.mts. Gate: retained guide content and all current links resolve; historical branding review records remain labeled history.
-- [ ] 9.3 (unit LAYOUT-09C) Document retirement of the old public guide URL in README.md's tooling migration notes and verify a clean build's output. Files: README.md and this change's evidence. Gate: the public README is absent, every contracted PNG URL remains, and any discovered external guide-URL dependency has a resolved migration decision before landing.
+- [x] 9.1 (unit LAYOUT-09A) Amend only the relevant location/adoption terms in openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md, tasks.md tasks 3.2 and 8.1a, and specs/site-branding/spec.md's 15-PNG requirement to make docs/guides/logo-assets.md the guide authority. Gate: strict validation of the amended branding change; all 15 image names/URLs and its feature merge prerequisites are preserved.
+- [x] 9.2 (unit LAYOUT-09B) Move public/assets/logos/README.md to docs/guides/logo-assets.md; update README.md's two current guide references, .agents/context/glossary.md and the comment in tests/lint-orphan-public-svg.test.mts. Gate: retained guide content and all current links resolve; historical branding review records remain labeled history.
+- [x] 9.3 (unit LAYOUT-09C) Document retirement of the old public guide URL in README.md's tooling migration notes and verify a clean build's output. Files: README.md and this change's evidence. Gate: the public README is absent, every contracted PNG URL remains, and any discovered external guide-URL dependency has a resolved migration decision before landing.
 
 ## 10. PR 10: move icon checksum reports out of public
 

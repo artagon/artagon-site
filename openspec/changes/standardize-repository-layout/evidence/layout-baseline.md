@@ -40,7 +40,6 @@ The path map follows D2 in `design.md` and was recorded before performing the co
 - Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).
 - The direct ImageMagick path is not verified on this macOS host: its SVG delegate fails on the original CSS font shorthand (`unable to read font ''`). The real conversion gate used the available `rsvg-convert` renderer with the original template bytes; this limitation is specific to the local ImageMagick converter path.
 
-
 ## PR 4 implementation evidence
 
 - Moved `deploy/cloudflare-hsts.md` to `docs/guides/cloudflare-hsts.md`; the source and target SHA-256 values match (`68a4cdfacb496549d50bfd287266e486c414ba65a9a3b1f7037c5b3444365ab6`). Updated the README living-guide index and `openspec/project.md` deploy description.
@@ -61,3 +60,12 @@ The path map follows D2 in `design.md` and was recorded before performing the co
 - Confirmed the editorial file exists in the checkout (`git ls-files src/content/pages/home.mdx`, exit 0). Its `eyebrow`, `headline`, `lede`, and `ctas` frontmatter are at lines 4–7. In `src/pages/index.astro`, line 17 calls `getEntry("pages", "home")` and line 19 consumes `home.data`.
 - Review-only gate passed: the old template-as-editorial-target instruction was removed, and no nonexistent target was introduced. The existing manifest skills-sync test is not evidence for this task entry; no new validator or app source change was added.
 - Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).
+
+## PR 9 implementation evidence
+
+- Before moving the guide, amended the branding proposal's current contract references, tasks 3.2 and 8.1a, and the `site-branding` 15-PNG requirement to name `docs/guides/logo-assets.md` as the guide authority. The 15 output names and `/assets/logos/` image paths are unchanged; the dependency on the redesign landing first remains. `rtk openspec validate --strict add-brand-assets-and-writing-pipeline` — exit 0.
+- Moved `public/assets/logos/README.md` to `docs/guides/logo-assets.md`. The source blob and target content hash match exactly: `32eafe67a0117c50977aa3e64e4db384815e69ff`.
+- Updated README's two guide references, added the public-guide retirement note while documenting stable image URLs, updated the glossary's current location pointer, and updated the orphan-SVG test comment while preserving its pt182 historical statement. Both branding review files now explicitly label their original path citations as historical evidence.
+- The configured offline link check over README, the moved guide and glossary (`rtk lychee --offline --root-dir <checkout> --config lychee.toml --no-progress ...`) — exit 0 (41 total, 0 errors). A search for external URLs to the retired guide URL returned no matches (exit 1), so no external URL migration dependency was discovered.
+- `rtk npx --no-install vitest run tests/lint-agents-md-path-citations.test.mts tests/lint-orphan-public-svg.test.mts` — exit 0 (2 files, 13 tests). `rtk npm run check`, `rtk npm run lint:sg`, and `rtk git diff --check` — exit 0.
+- `rtk npm run build --ignore-scripts=false` — exit 0 (23 pages; configured postbuild gates passed). A post-build assertion confirmed that `.build/dist/assets/logos/README.md` is absent and all 15 contracted PNGs exist under `.build/dist/assets/logos/`, preserving their `/assets/logos/` URLs. The existing 69 third-party font-reference warnings remain outside this group.
