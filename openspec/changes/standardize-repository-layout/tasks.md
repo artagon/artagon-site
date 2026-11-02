@@ -47,14 +47,17 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 
 ## 7. PR 7: repair favicon generation inputs
 
-- [ ] 7.1 (unit LAYOUT-07A) Fix scripts/make-favicon.sh to consume public/icons/icon-16.png, icon-32.png and icon-48.png. Preserve argument 1 as an existing output directory, default public, and always write <output-directory>/favicon.ico; do not reinterpret it as an output filename or introduce directory creation. Update README.md and openspec/contributing.md with no-argument and explicit-directory examples and PNG/tool prerequisites. Gate: real ImageMagick execution in a disposable repository fixture produces a valid 16/32/48 ICO at public/favicon.ico by default and at a pre-created custom-directory/favicon.ico with argument 1; missing inputs/tool or an unusable directory fails visibly.
-- [ ] 7.2 (unit LAYOUT-07B) Verify that directory contract and the unchanged public asset set using tests/scripts-tooling.test.mts where applicable and actual ICO-format/dimension inspection; record evidence. Gate: both default and explicit-directory destinations contain the intended ICO, the directory argument is never treated as a file, and the four other documented manual utilities remain available.
+- [x] 7.1 (unit LAYOUT-07A) Fix scripts/make-favicon.sh to consume public/icons/icon-16.png, icon-32.png and icon-48.png. Preserve argument 1 as an existing output directory, default public, and always write <output-directory>/favicon.ico; do not reinterpret it as an output filename or introduce directory creation. Update README.md and openspec/contributing.md with no-argument and explicit-directory examples and PNG/tool prerequisites. Gate: real ImageMagick execution in a disposable repository fixture produces a valid 16/32/48 ICO at public/favicon.ico by default and at a pre-created custom-directory/favicon.ico with argument 1; missing inputs/tool or an unusable directory fails visibly.
+- [x] 7.2 (unit LAYOUT-07B) Verify that directory contract and the unchanged public asset set using tests/scripts-tooling.test.mts where applicable and actual ICO-format/dimension inspection; record evidence. Gate: both default and explicit-directory destinations contain the intended ICO, the directory argument is never treated as a file, and the four other documented manual utilities remain available.
 
 ## 8. PR 8: correct static-server sample behavior
 
 - [ ] 8.1 (unit LAYOUT-08A) Repair deploy/Caddyfile's unknown-route handling while keeping known extensionless pages/assets and existing header/TLS settings. Gate: a real Caddy instance serving a copied build returns 200 for known resources and 404 with the site's error body for an unknown route.
+  - Runtime smoke pending: site-w1n.14.
 - [ ] 8.2 (unit LAYOUT-08B) Repair deploy/nginx.conf's unknown-route handling with equivalent preserved behavior. Gate: nginx configuration validation and a real-server HTTP smoke prove known page/asset 200 and unknown route 404; a status-200 homepage fallback fails the control.
+  - Runtime smoke pending: site-w1n.14.
 - [ ] 8.3 (unit LAYOUT-08C) Update .agents/workflows/deploy.md and openspec/project.md to distinguish .build/dist from the external document root and describe copying the built artifact. Gate: documented steps agree with both server samples; no root CNAME/_config.yml deletion or deployment-support retirement is included.
+  - openspec/project.md update is delegated to the coordinator's integration.
 
 ## 9. PR 9: move the public logo guide after its contract amendment
 
@@ -64,10 +67,12 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 
 ## 10. PR 10: move icon checksum reports out of public
 
-- [ ] 10.1 (unit LAYOUT-10A) Add reports.iconChecksums = .build/reports/icon-checksums in build.config.json and its BuildPaths/REQUIRED_SHAPE declarations in build.config.ts; extend tests/build-config.test.mjs and document the leaf in docs/build-artifacts.md. Gate: valid config imports, missing/non-string/unsafe values fail, and tests prove the source-of-truth leaf is required.
-- [ ] 10.2 (unit LAYOUT-10B) Update scripts/icons/make-icons.sh's checksum mkdir/writes/message and obsolete checksum exclusion in its summary to consume the validated BUILD report leaf through a root-scoped Node bridge; preserve the image OUT option and image generation behavior. Gate: actual hex/base64 digests match each generated file at the report path, OUT overrides do not move reports into public, and invalid config fails before report creation.
+- [x] 10.1 (unit LAYOUT-10A) Add reports.iconChecksums = .build/reports/icon-checksums in build.config.json and its BuildPaths/REQUIRED_SHAPE declarations in build.config.ts; extend tests/build-config.test.mjs and document the leaf in docs/build-artifacts.md. Gate: valid config imports, missing/non-string/unsafe values fail, and tests prove the source-of-truth leaf is required.
+- [x] 10.2 (unit LAYOUT-10B) Update scripts/icons/make-icons.sh's checksum mkdir/writes/message and obsolete checksum exclusion in its summary to consume the validated BUILD report leaf through a root-scoped Node bridge; preserve the image OUT option and image generation behavior. Gate: actual hex/base64 digests match each generated file at the report path, OUT overrides do not move reports into public, and invalid config fails before report creation.
 - [ ] 10.3 (unit LAYOUT-10C) Update scripts/icons/README.md output tree, descriptions and checksum examples, scripts/icons/VERIFICATION.md commands, and README.md tooling migration notes; remove tracked public/icons/checksums only after the migration decision is recorded. Gate: documented verification commands work at the new path and any external report-URL dependency is resolved; no image deliverable is removed.
+  - README migration notice is delegated to the coordinator's integration.
 - [ ] 10.4 (unit LAYOUT-10D) Regenerate lighthouserc.json and lychee.toml from scripts/sync-build-config.mjs after the SSoT hash change, preserving modernize-build-pipeline edits; validate clean build output. Gate: sync check mode is clean, the public payload contains no checksum reports, all image URLs survive, and both affected OpenSpec changes validate after shared-file reconciliation.
+  - Cross-change validation remains pending integration of modernize-build-pipeline.
 
 ## 11. PR 11: replace/repair HTML enforcement without losing coverage
 

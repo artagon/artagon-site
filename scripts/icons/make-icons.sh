@@ -13,6 +13,9 @@ BRAND_BG=${BRAND_BG:-#0B1220}
 MASK_BG=${MASK_BG:-#0B1220}
 PINNED_COLOR=${PINNED_COLOR:-#0EA5E9}
 
+# LAYOUT-10B: validate the configured report path before generating outputs.
+CHECKSUMS=$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.iconChecksums)')
+
 echo "🎨 Artagon Icon Pipeline"
 echo "========================"
 
@@ -111,23 +114,23 @@ fi
 
 # 9) Generate checksums for verification
 echo "→ Generating SHA-256 checksums..."
-mkdir -p "$OUT/checksums"
+mkdir -p "$CHECKSUMS"
 for file in "$OUT"/*.png "$OUT"/*.svg "$OUT"/*.ico; do
   [[ -f "$file" ]] || continue
   filename=$(basename "$file")
   # Base64 encoded SHA-256 (for SRI)
-  shasum -a 256 "$file" | awk '{print $1}' | xxd -r -p | base64 > "$OUT/checksums/${filename}.sha256.base64"
+  shasum -a 256 "$file" | awk '{print $1}' | xxd -r -p | base64 > "$CHECKSUMS/${filename}.sha256.base64"
   # Hex SHA-256
-  shasum -a 256 "$file" | awk '{print $1}' > "$OUT/checksums/${filename}.sha256.hex"
+  shasum -a 256 "$file" | awk '{print $1}' > "$CHECKSUMS/${filename}.sha256.hex"
 done
-echo "  ✓ Checksums written to $OUT/checksums/"
+echo "  ✓ Checksums written to $CHECKSUMS/"
 
 # 10) Summary
 echo ""
 echo "✅ Icon generation complete!"
 echo "   Output directory: $OUT"
 echo "   Generated files:"
-find "$OUT" -type f ! -path "*/checksums/*" -exec basename {} \; | sort | sed 's/^/     - /'
+find "$OUT" -type f -exec basename {} \; | sort | sed 's/^/     - /'
 
 # Cleanup temp files
 rm -rf tmp/icons

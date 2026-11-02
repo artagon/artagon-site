@@ -14,6 +14,7 @@ export interface BuildPaths {
     playwrightCli: string;
     lhci: string;
     cloudflarePurge: string;
+    iconChecksums: string; // LAYOUT-10A
   };
   dist: string;
 }
@@ -73,6 +74,7 @@ const REQUIRED_SHAPE = {
     playwrightCli: null,
     lhci: null,
     cloudflarePurge: null,
+    iconChecksums: null, // LAYOUT-10A
   },
   dist: null,
 } as const;
