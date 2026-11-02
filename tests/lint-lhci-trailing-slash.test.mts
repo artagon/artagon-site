@@ -100,8 +100,12 @@ function assertReports(dir: string, routes: string[], notBefore = 0) {
       expect(owners.get(file) ?? route, `report reused across routes: ${file}`).toBe(route);
       owners.set(file, route);
     }
-    const lhr = JSON.parse(readFileSync(resolve(entry.jsonPath), "utf8")) as { requestedUrl?: string };
+    const lhr = JSON.parse(readFileSync(resolve(entry.jsonPath), "utf8")) as { requestedUrl?: string; fetchTime?: unknown };
     expect(lhr.requestedUrl).toBe(entry.url);
+    // BUILD 1.2: fresh output files can still contain a re-uploaded old audit.
+    const fetchedAt = typeof lhr.fetchTime === "string" ? Date.parse(lhr.fetchTime) : NaN;
+    expect(Number.isFinite(fetchedAt), `invalid audit fetchTime for ${route}`).toBe(true);
+    expect(fetchedAt, `stale audit for ${route}`).toBeGreaterThanOrEqual(notBefore);
   }
   for (const route of routes) expect(seen.has(route), `missing report for ${route}`).toBe(true);
 }
@@ -208,16 +212,29 @@ describe("LHCI static collection contract", () => {
     const root = mkdtempSync(join(tmpdir(), "lhci-reports-"));
     try {
       expect(() => assertReports(root, routes)).toThrow(/missing uploaded manifest/);
+      const notBefore = Date.now() - 1_000;
       const entries = routes.map((route, index) => {
         const htmlPath = join(root, `${index}.html`);
         const jsonPath = join(root, `${index}.json`);
         const url = `http://localhost:1234${route}`;
         writeFileSync(htmlPath, "<html>report</html>");
-        writeFileSync(jsonPath, JSON.stringify({ requestedUrl: url }));
+        writeFileSync(jsonPath, JSON.stringify({ requestedUrl: url, fetchTime: new Date(notBefore + 500).toISOString() }));
         return { url, htmlPath, jsonPath };
       });
       writeFileSync(join(root, "manifest.json"), JSON.stringify(entries));
-      assertReports(root, routes);
+      assertReports(root, routes, notBefore);
+      for (const oldEntry of entries) {
+        writeFileSync(oldEntry.jsonPath, JSON.stringify({ requestedUrl: oldEntry.url, fetchTime: new Date(notBefore - 1).toISOString() }));
+        expect(statSync(oldEntry.jsonPath).mtimeMs).toBeGreaterThanOrEqual(notBefore);
+        expect(() => assertReports(root, routes, notBefore)).toThrow(/stale audit/);
+        writeFileSync(oldEntry.jsonPath, JSON.stringify({ requestedUrl: oldEntry.url, fetchTime: new Date(notBefore + 500).toISOString() }));
+      }
+      const oldEntry = entries[0]!;
+      writeFileSync(oldEntry.jsonPath, JSON.stringify({ requestedUrl: oldEntry.url, fetchTime: "not-a-date" }));
+      expect(() => assertReports(root, routes, notBefore)).toThrow(/invalid audit fetchTime/);
+      writeFileSync(oldEntry.jsonPath, JSON.stringify({ requestedUrl: oldEntry.url }));
+      expect(() => assertReports(root, routes, notBefore)).toThrow(/invalid audit fetchTime/);
+      writeFileSync(oldEntry.jsonPath, JSON.stringify({ requestedUrl: oldEntry.url, fetchTime: new Date(notBefore + 500).toISOString() }));
       expect(() => assertReports(root, routes, Date.now() + 60_000)).toThrow(/stale manifest/);
       writeFileSync(join(root, "manifest.json"), JSON.stringify(entries.map((entry, index) => index === 1 ? { ...entry, htmlPath: entries[0]!.htmlPath } : entry)));
       expect(() => assertReports(root, routes)).toThrow(/report reused across routes/);
