@@ -31,7 +31,7 @@ updates:
       time: "06:00"
       timezone: America/Los_Angeles
     groups:
-      # USMR 14.82 (site-o6a): keep the React runtime and type packages
+      # USMR 14.83 (site-o6a): keep the React runtime and type packages
       # together; this must precede dev-deps because the first matching group wins.
       react:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
