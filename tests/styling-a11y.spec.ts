@@ -160,3 +160,47 @@ test.describe("Styling architecture - keyboard navigation + focus indicators", (
     }
   });
 });
+
+test.describe("Forced colors mode", () => {
+  test(
+    "maps --bg to Canvas for twilight and midnight",
+    async ({ page }, testInfo) => {
+      test.skip(
+        testInfo.project.name !== "chromium",
+        "Forced-colors emulation check runs in chromium only.",
+      );
+
+      // USMR 14.90: compare a var(--bg) consumer with an explicit Canvas probe so
+      // browser paint substitution cannot hide a cascade regression.
+      await page.emulateMedia({ forcedColors: "active" });
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+
+      for (const theme of ["twilight", "midnight"] as const) {
+        const colors = await page.evaluate((themeName) => {
+          document.documentElement.setAttribute("data-theme", themeName);
+          const themedCanvas = document.createElement("div");
+          const systemCanvas = document.createElement("div");
+          themedCanvas.style.cssText =
+            "forced-color-adjust: none; background-color: var(--bg)";
+          systemCanvas.style.cssText =
+            "forced-color-adjust: none; background-color: Canvas";
+          document.body.append(themedCanvas, systemCanvas);
+          const result = {
+            token: getComputedStyle(document.documentElement)
+              .getPropertyValue("--bg")
+              .trim(),
+            themed: getComputedStyle(themedCanvas).backgroundColor,
+            system: getComputedStyle(systemCanvas).backgroundColor,
+          };
+          themedCanvas.remove();
+          systemCanvas.remove();
+          return result;
+        }, theme);
+        expect(
+          colors.themed,
+          `${theme} --bg (${colors.token}) should resolve to system Canvas`,
+        ).toBe(colors.system);
+      }
+    },
+  );
+});

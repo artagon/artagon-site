@@ -227,18 +227,19 @@ OKLCH-native colour primitives that power the new-design system being introduced
 
 <!-- USMR site-g3f: production midnight surface variant, Default unchanged. -->
 
-The production `midnight` theme overrides only the five surface tokens listed
-in DESIGN.md §2.4. Like twilight, it sets `--bg` unlayered. The four staging
-surfaces `--nd-bg-1`, `--nd-bg-2`, `--nd-line`, and `--nd-line-soft` are overridden
-inside `@layer tokens`; the public surface aliases retain their `var(--nd-*)`
-direction. This lets the unlayered forced-colors map override the public surfaces
-in either theme. These existing staging names remain covered by this allow-list;
-no new frontmatter colors are needed. The upstream format has one flat palette,
-so frontmatter continues to represent default `twilight`. Theme comparison tables
-put the twilight OKLCH value immediately after the token name, followed by the
-midnight variant: the parity gate's single-value token map must continue comparing
-frontmatter with twilight. The contrast gate reads both palettes from production
-CSS independently of that frontmatter representation.
+The production `midnight` theme overrides the five surface tokens listed in
+DESIGN.md §2.4. Base and theme-specific `--bg` canvas values, plus the four
+staging surfaces `--nd-bg-1`, `--nd-bg-2`, `--nd-line`, and `--nd-line-soft`,
+live inside `@layer tokens`; the public surface aliases retain their
+`var(--nd-*)` direction. This lets the unlayered forced-colors map override the
+canvas and public surfaces in either theme. These existing staging names remain
+covered by this allow-list; no new frontmatter colors are needed. The upstream
+format has one flat palette, so frontmatter continues to represent default
+`twilight`. Theme comparison tables put the twilight OKLCH value immediately
+after the token name, followed by the midnight variant: the parity gate's
+single-value token map must continue comparing frontmatter with twilight. The
+contrast gate reads both palettes from production CSS independently of that
+frontmatter representation.
 
 ### 6.14 Elevation scale
 

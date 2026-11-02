@@ -88,6 +88,8 @@ function cssRules(css: string): CssRule[] {
 }
 
 const THEME_SELECTOR = /^:root\[data-theme=(?:"[^"]+"|'[^']+'|[\w-]+)\]$/;
+// USMR 14.90: both selectors identify the theme-bearing document root.
+const ROOT_THEME_SELECTOR = /^(?::root|html)\[data-theme=(?:"[^"]+"|'[^']+'|[\w-]+)\]$/;
 
 function declarationsIn(block: string): Record<string, string> {
   return Object.fromEntries(
@@ -339,6 +341,16 @@ test("USMR site-g3f R2: later bare root defaults apply outside media only", () =
   }
 });
 
+// USMR 14.90: moving --bg into @layer tokens must preserve both normal canvases.
+test("USMR 14.90: layered canvas values preserve twilight and midnight colors", () => {
+  expect(themeHex(CSS, "twilight")["--bg"]).toBe(
+    oklchToHex(0.14, 0.008, 260),
+  );
+  expect(themeHex(CSS, "midnight")["--bg"]).toBe(
+    oklchToHex(0.12, 0.02, 195),
+  );
+});
+
 function assertThemeLayering(css: string): void {
   const rules = cssRules(css);
   const mapped = new Set(
@@ -356,12 +368,10 @@ function assertThemeLayering(css: string): void {
     mapped.size,
     "Forced-colors token map must be present",
   ).toBeGreaterThan(0);
-  // USMR site-g3f R1: preserve the pre-existing --bg exception (I1).
-  mapped.delete("--bg");
   const violations = rules
     .filter(
       (rule) =>
-        THEME_SELECTOR.test(rule.selector) &&
+        ROOT_THEME_SELECTOR.test(rule.selector) &&
         !rule.ancestors.some((parent) => /^@layer\b/.test(parent)),
     )
     .flatMap((rule) =>
@@ -382,4 +392,16 @@ test("USMR site-g3f R1: unlayered themes preserve forced-colors token precedence
 test("USMR site-g3f R1: the layering assertion rejects an unlayered surface override", () => {
   const brokenCss = `${CSS}\n:root[data-theme="midnight"] { --bg-1: oklch(0.15 0.020 195); }`;
   expect(() => assertThemeLayering(brokenCss)).toThrow(/--bg-1/);
+});
+
+// USMR 14.90: a theme-specific canvas value must stay in @layer tokens.
+test("USMR 14.90: the layering assertion rejects an unlayered canvas override", () => {
+  const brokenCss = `${CSS}\n:root[data-theme="midnight"] { --bg: oklch(0.12 0.020 195); }`;
+  expect(() => assertThemeLayering(brokenCss)).toThrow(/--bg/);
+});
+
+// USMR 14.90: `html[data-theme]` can also override the root forced-colors map.
+test("USMR 14.90: the layering assertion rejects an unlayered html canvas override", () => {
+  const brokenCss = `${CSS}\nhtml[data-theme="midnight"] { --bg: oklch(0.12 0.020 195); }`;
+  expect(() => assertThemeLayering(brokenCss)).toThrow(/--bg/);
 });

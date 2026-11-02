@@ -189,13 +189,16 @@ verbatim into the build output). `src/layouts/BaseLayout.astro` references
 the file via a `<link rel="stylesheet" href="/assets/theme.css">` tag, so
 every Astro page in `src/pages/*.astro` picks up the same token set.
 
-**Token aliasing.** Except for the unlayered `--bg` canvas token, the public tokens listed below (`--bg-1/2`,
+**Token aliasing.** Base and theme-specific declarations for the public tokens
+listed below (`--bg`, `--bg-1/2`,
 `--line`, `--line-soft`, `--fg`, `--fg-1/2/3`, `--accent`, `--accent-dim`,
-`--accent-ink`, `--ok`, `--warn`, `--bad`) are aliases over an internal
-`--nd-*` staging set defined earlier in `theme.css`. Midnight overrides
-`--bg` unlayered, like twilight, and the four staging surface values inside
-`@layer tokens` (§2.4). Public surface aliases keep their `var(--nd-*)`
-direction so the unlayered forced-colors map can override them.
+`--accent-ink`, `--ok`, `--warn`, `--bad`) live in `@layer tokens` in
+`theme.css`. Except for the theme-specific `--bg` canvas values, they are
+aliases over an internal `--nd-*` staging set defined earlier in `theme.css`.
+Midnight overrides `--bg` and the four staging surface values inside
+`@layer tokens` (§2.4); twilight declares its `--bg` value in the same layer.
+Public surface aliases keep their `var(--nd-*)` direction so the unlayered
+forced-colors map can override them.
 The public names are the
 **stable contract** — components consume them. The `--nd-*` set is the
 new-design vocabulary verbatim; preserved so future palette experiments
@@ -286,13 +289,13 @@ allow-lists are checked against it.
 | `--line-soft` | `oklch(0.22 0.008 260)` | `oklch(0.20 0.020 195)` |
 
 The `--fg` family, `--accent`, `--accent-dim`, `--accent-ink`, `--ok`,
-`--warn`, and `--bad` stay identical between themes. Midnight sets
-`--nd-bg-1`, `--nd-bg-2`, `--nd-line`, and `--nd-line-soft` to the four surface
-values above inside `@layer tokens`. The public surface tokens continue to
-alias those staging tokens. Only `--bg` is overridden unlayered, as in twilight;
-the other surfaces remain overridable by the unlayered forced-colors map.
-Both themes keep `--surface: var(--bg-1)`. Frontmatter stays the twilight
-palette; runtime variant values are documented under `docs/design-md.md` §6.13.
+`--warn`, and `--bad` stay identical between themes. Midnight sets `--bg` and
+`--nd-bg-1`, `--nd-bg-2`, `--nd-line`, and `--nd-line-soft` inside
+`@layer tokens`; twilight's `--bg` value is in that layer as well. The public
+surface tokens continue to alias the staging tokens. This keeps the canvas and
+surfaces overridable by the unlayered forced-colors map. Both themes keep
+`--surface: var(--bg-1)`. Frontmatter stays the twilight palette; runtime
+variant values are documented under `docs/design-md.md` §6.13.
 
 Palette-sensitive visual coverage (USMR 14.89, `site-ukx`) uses a shared screenshot policy: per-pixel color threshold `0.01`, differing-pixel ratio at most `0.001` (0.1%), and disabled animations. In-memory historical palette and bounded-patch controls exercise the installed Playwright comparator. Linux calibration and baseline reseeding remain pending in `site-grc`; these controls do not establish rendered baseline acceptance.
 
@@ -1408,6 +1411,9 @@ All of: `.glow-tag`, chain-spinner, shimmer, breathe, halo, ping are disabled un
 | `--ok`            | `Highlight`  |
 | `--bad`/`--warn`  | `Mark`       |
 | `--line`          | `CanvasText` |
+
+The base and theme-specific `--bg` values live in `@layer tokens`, so this
+unlayered map overrides the twilight and midnight canvas values consistently.
 
 All decorative `box-shadow` declarations and keyframe animations halt under forced-colors; component-scoped overrides (`TrustChainIsland.css`) handle composition-specific cases (pass border = `Highlight`, fail border = `Mark`).
 
