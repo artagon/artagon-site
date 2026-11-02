@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import { BUILD } from "./build.config.ts";
+import { VISUAL_SCREENSHOT_POLICY } from "./tests/helpers/visual-screenshot-policy.ts";
 
 /**
  * Playwright configuration for automated testing
@@ -16,6 +17,11 @@ export default defineConfig({
   // vitest files and crashes with @vitest/expect symbol collisions.
   testMatch: "**/*.spec.ts",
   outputDir: BUILD.reports.playwright.results,
+
+  // USMR 14.89 (site-ukx): detect dark palette shifts with a bounded pixel budget.
+  expect: {
+    toHaveScreenshot: VISUAL_SCREENSHOT_POLICY,
+  },
 
   // Run tests in parallel
   fullyParallel: true,
