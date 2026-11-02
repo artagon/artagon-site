@@ -66,6 +66,7 @@ The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
 
 - `npm run dev` local dev server.
 - `npm run build` produces `.build/dist/` (per `build.config.json`) and runs the postbuild chain (`scripts/sri.mjs`, `scripts/csp.mjs`, `lint:tokens`, etc.).
+- The site builds to `.build/dist/`; copy that directory's contents into the external server document root configured by `deploy/Caddyfile` or `deploy/nginx.conf`.
 - `npm run preview` serves the static output.
 - GitHub Actions deploys on pushes to `main` (GitHub Pages today; Cloudflare Pages parallel deploy planned per `migrate-deploy-to-cloudflare-pages`). Custom domain is `artagon.com` via `CNAME` and `public/CNAME`.
 

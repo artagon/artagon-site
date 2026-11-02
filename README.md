@@ -523,7 +523,7 @@ uses the text template. The default output destination is unchanged.
 ./scripts/make-favicon.sh
 ```
 
-Generates multi-size favicons from source SVG.
+Generates a multi-resolution favicon with ImageMagick: `./scripts/make-favicon.sh` (writes `public/favicon.ico`) or `./scripts/make-favicon.sh path/to/existing-directory` (writes `favicon.ico` there). Required inputs: `public/icons/icon-{16,32,48}.png`.
 
 #### Icon Generation
 
@@ -561,6 +561,8 @@ Generates logo variants from source files.
 Tooling migration: the public guide URL /assets/logos/README.md is retired;
 use `docs/guides/logo-assets.md`. The 15 PNG image URLs under `/assets/logos/`
 remain unchanged.
+
+Icon SHA-256 hex and base64 reports now live under `.build/reports/icon-checksums/`; `public/icons/checksums/` URLs are retired. Generate reports with `scripts/icons/make-icons.sh`.
 
 #### Composite App Icons
 
