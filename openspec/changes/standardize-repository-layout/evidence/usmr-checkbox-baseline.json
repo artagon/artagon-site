@@ -6319,57 +6319,15 @@
         ]
       },
       {
-        "segment": "loop-a-checkbox-narrative",
-        "original": "Run design.md lint",
-        "replacement": "Run ../design.md lint",
-        "sourceLine": 211,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " step. The narrative claimed \"10-step chain: verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness\" — but counting the arrows enumerates only 9 steps. Live ",
-        "replacement": " step. The narrative claimed \"10-step chain: verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → ../design.md → design-md-uniqueness\" — but counting the arrows enumerates only 9 steps. Live ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " Build & Deployment lifecycle parenthetical — same 10-step-chain enum drift as pt316 (AGENTS.md sibling). Step 4 of the build lifecycle list claimed \"10-step chain (verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → design.md → design-md-uniqueness — the canonical ordered list lives in the 'Build Scripts' subsection below)\". Counting the arrows enumerates 9 steps despite the \"10-step\" count claim. Missing: ",
-        "replacement": " Build & Deployment lifecycle parenthetical — same 10-step-chain enum drift as pt316 (AGENTS.md sibling). Step 4 of the build lifecycle list claimed \"10-step chain (verify-prereqs → lint-tokens → font-self-hosting → SRI → CSP → skip-link → taglines → ../design.md → design-md-uniqueness — the canonical ordered list lives in the 'Build Scripts' subsection below)\". Counting the arrows enumerates 9 steps despite the \"10-step\" count claim. Missing: ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
         "segment": "loop-a-continuation",
         "original": ") — proposal-narrative claim that doesn't match disk reality re: test runners. Different surface (cloudflare design.md Implementation-Plan Phase 1 vs proposal Affected-Workflows bullet) but identical pattern. The choice for this Phase 1 to use node:test (over vitest) is still legitimate — the existing CSP-test sibling ",
-        "replacement": ") — proposal-narrative claim that doesn't match disk reality re: test runners. Different surface (cloudflare ../design.md Implementation-Plan Phase 1 vs proposal Affected-Workflows bullet) but identical pattern. The choice for this Phase 1 to use node:test (over vitest) is still legitimate — the existing CSP-test sibling ",
+        "replacement": ") — proposal-narrative claim that doesn't match disk reality re: test runners. Different surface (cloudflare ../../migrate-deploy-to-cloudflare-pages/design.md Implementation-Plan Phase 1 vs proposal Affected-Workflows bullet) but identical pattern. The choice for this Phase 1 to use node:test (over vitest) is still legitimate — the existing CSP-test sibling ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
             "sameTarget": true
           }
         ]
@@ -6377,57 +6335,37 @@
       {
         "segment": "loop-a-continuation",
         "original": "adds more — but the third multiplicand (modernize-vitest) is a phantom. Same drift class as pt301/pt324/pt329 — phantom-change references in proposal narratives. Different surface (cloudflare tasks.md Phase 7.1 deferral text vs proposal Affected-Workflows / design.md Phase 1) but identical pattern. Notable: this is the FOURTH site within the migrate-deploy-to-cloudflare-pages directory specifically (pt324 was its proposal.md, pt329 its design.md, pt330 its tasks.md) where",
-        "replacement": "adds more — but the third multiplicand (modernize-vitest) is a phantom. Same drift class as pt301/pt324/pt329 — phantom-change references in proposal narratives. Different surface (cloudflare ../tasks.md Phase 7.1 deferral text vs proposal Affected-Workflows / ../design.md Phase 1) but identical pattern. Notable: this is the FOURTH site within the migrate-deploy-to-cloudflare-pages directory specifically (pt324 was its ../proposal.md, pt329 its ../design.md, pt330 its ../tasks.md) where",
+        "replacement": "adds more — but the third multiplicand (modernize-vitest) is a phantom. Same drift class as pt301/pt324/pt329 — phantom-change references in proposal narratives. Different surface (cloudflare ../../migrate-deploy-to-cloudflare-pages/tasks.md Phase 7.1 deferral text vs proposal Affected-Workflows / ../../migrate-deploy-to-cloudflare-pages/design.md Phase 1) but identical pattern. Notable: this is the FOURTH site within the migrate-deploy-to-cloudflare-pages directory specifically (pt324 was its ../../migrate-deploy-to-cloudflare-pages/proposal.md, pt329 its ../../migrate-deploy-to-cloudflare-pages/design.md, pt330 its ../tasks.md) where",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "tasks.md",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/tasks.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/tasks.md",
             "sameTarget": true
           },
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
             "sameTarget": true
           },
           {
             "reference": "proposal.md",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
             "sameTarget": true
           },
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
             "sameTarget": true
           },
           {
             "reference": "tasks.md",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": "). The Astro 5 → 6 migration along with the TypeScript-first config rewrite shipped this filename change earlier in USMR, but the design.md narrative cited the pre-migration filename. Same drift class as pt167/pt188/pt252 (post-rebrand archaeology that lagged) and pt325 (slate-retired theme-set in proposal narrative). Different surface (USMR design.md Coordination block vs CLAUDE.md / agent-context / migrate-legacy-tokens-to-layer proposal) but identical pattern. Fix: ",
-        "replacement": "). The Astro 5 → 6 migration along with the TypeScript-first config rewrite shipped this filename change earlier in USMR, but the ../design.md narrative cited the pre-migration filename. Same drift class as pt167/pt188/pt252 (post-rebrand archaeology that lagged) and pt325 (slate-retired theme-set in proposal narrative). Different surface (USMR ../design.md Coordination block vs CLAUDE.md / agent-context / migrate-legacy-tokens-to-layer proposal) but identical pattern. Fix: ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          },
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/tasks.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/tasks.md",
             "sameTarget": true
           }
         ]
@@ -6461,25 +6399,25 @@
       {
         "segment": "loop-a-continuation",
         "original": "(proposal.md:24,42,71,90 + design.md:150 + tasks.md:53,112) all cite",
-        "replacement": "(../proposal.md (lines 24,42,71,90) + ../design.md (line 150) + ../tasks.md (lines 53,112)) all cite",
+        "replacement": "(../../add-brand-assets-and-writing-pipeline/proposal.md (lines 24,42,71,90) + ../../add-brand-assets-and-writing-pipeline/design.md (line 150) + ../../add-brand-assets-and-writing-pipeline/tasks.md (lines 53,112)) all cite",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "proposal.md:24,42,71,90",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
             "sameTarget": true
           },
           {
             "reference": "design.md:150",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           },
           {
             "reference": "tasks.md:53,112",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
             "sameTarget": true
           }
         ]
@@ -6487,25 +6425,31 @@
       {
         "segment": "loop-a-continuation",
         "original": ". Sites: proposal.md (4 occurrences at lines 24, 42, 71, 90), design.md (1 occurrence at line 150), tasks.md (2 occurrences at lines 53, 112), specs/site-writing-pipeline/spec.md (1 occurrence at line 44). Used ",
-        "replacement": ". Sites: ../proposal.md (4 occurrences at lines 24, 42, 71, 90), ../design.md (1 occurrence at line 150), ../tasks.md (2 occurrences at lines 53, 112), specs/site-writing-pipeline/spec.md (1 occurrence at line 44). Used ",
+        "replacement": ". Sites: ../../add-brand-assets-and-writing-pipeline/proposal.md (4 occurrences at lines 24, 42, 71, 90), ../../add-brand-assets-and-writing-pipeline/design.md (1 occurrence at line 150), ../../add-brand-assets-and-writing-pipeline/tasks.md (2 occurrences at lines 53, 112), ../../add-brand-assets-and-writing-pipeline/specs/site-writing-pipeline/spec.md (1 occurrence at line 44). Used ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "proposal.md",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
             "sameTarget": true
           },
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           },
           {
             "reference": "tasks.md",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "sameTarget": true
+          },
+          {
+            "reference": "specs/site-writing-pipeline/spec.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/specs/site-writing-pipeline/spec.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/specs/site-writing-pipeline/spec.md",
             "sameTarget": true
           }
         ]
@@ -6513,13 +6457,13 @@
       {
         "segment": "loop-a-continuation",
         "original": ". Gap 7 (\"Focus indicators\") in the design.md gap analysis listed scenario-picker dots as having ",
-        "replacement": ". Gap 7 (\"Focus indicators\") in the ../design.md gap analysis listed scenario-picker dots as having ",
+        "replacement": ". Gap 7 (\"Focus indicators\") in the ../../enhance-a11y-coverage/design.md gap analysis listed scenario-picker dots as having ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/enhance-a11y-coverage/design.md",
+            "after": "openspec/changes/enhance-a11y-coverage/design.md",
             "sameTarget": true
           }
         ]
@@ -6527,13 +6471,13 @@
       {
         "segment": "loop-a-continuation",
         "original": "). Same drift class as pt354 (styling-guide example sites) — proposal text using retained-alias names instead of canonical tokens. Different surface (a11y proposal Gap-Analysis design.md vs styling-guide example block) but identical pattern. Notable: this drift is in a description of CURRENT state (what the design DOES today, that enhance-a11y-coverage extends). Wrong token names in the description weaken the change's archaeological grounding — same shape as pt325 (slate-retired theme-set in migrate-legacy-tokens-to-layer Why paragraph). Fix: rewrote to (1) cite the actual canonical token ",
-        "replacement": "). Same drift class as pt354 (styling-guide example sites) — proposal text using retained-alias names instead of canonical tokens. Different surface (a11y proposal Gap-Analysis ../design.md vs styling-guide example block) but identical pattern. Notable: this drift is in a description of CURRENT state (what the design DOES today, that enhance-a11y-coverage extends). Wrong token names in the description weaken the change's archaeological grounding — same shape as pt325 (slate-retired theme-set in migrate-legacy-tokens-to-layer Why paragraph). Fix: rewrote to (1) cite the actual canonical token ",
+        "replacement": "). Same drift class as pt354 (styling-guide example sites) — proposal text using retained-alias names instead of canonical tokens. Different surface (a11y proposal Gap-Analysis ../../enhance-a11y-coverage/design.md vs styling-guide example block) but identical pattern. Notable: this drift is in a description of CURRENT state (what the design DOES today, that enhance-a11y-coverage extends). Wrong token names in the description weaken the change's archaeological grounding — same shape as pt325 (slate-retired theme-set in migrate-legacy-tokens-to-layer Why paragraph). Fix: rewrote to (1) cite the actual canonical token ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/enhance-a11y-coverage/design.md",
+            "after": "openspec/changes/enhance-a11y-coverage/design.md",
             "sameTarget": true
           }
         ]
@@ -6617,27 +6561,13 @@
       {
         "segment": "loop-a-continuation",
         "original": "per pt86, not the canonical name. Same drift class as pt354/pt355 (retired-alias examples in styling-guide / a11y design.md). Different surface (AGENTS.md Accessibility bullet vs styling-guide example block / a11y proposal Gap 7) but identical pattern. Fix:",
-        "replacement": "per pt86, not the canonical name. Same drift class as pt354/pt355 (retired-alias examples in styling-guide / a11y ../design.md). Different surface (AGENTS.md Accessibility bullet vs styling-guide example block / a11y proposal Gap 7) but identical pattern. Fix:",
+        "replacement": "per pt86, not the canonical name. Same drift class as pt354/pt355 (retired-alias examples in styling-guide / a11y ../../enhance-a11y-coverage/design.md). Different surface (AGENTS.md Accessibility bullet vs styling-guide example block / a11y proposal Gap 7) but identical pattern. Fix:",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": ".\" Same drift class as pt372 (AGENTS.md:371 token-assignment anchor) and pt373 (AGENTS.md:370 phantom Color-tokens section) — phantom DESIGN.md section references + retired-alias citations. Different surface (docs/design-md.md design.md authoring guide allow-list entry vs AGENTS.md Accessibility bullets) but identical pattern. Notable: this is the third in a chain of phantom-DESIGN.md-section + retired-alias drifts in adjacent iters (pt372/pt373/pt374) — concentrated drift cluster around DESIGN.md anchor accuracy. Fix: rewrote the entry to (1) cite ",
-        "replacement": ".\" Same drift class as pt372 (AGENTS.md:371 token-assignment anchor) and pt373 (AGENTS.md:370 phantom Color-tokens section) — phantom DESIGN.md section references + retired-alias citations. Different surface (docs/design-md.md ../design.md authoring guide allow-list entry vs AGENTS.md Accessibility bullets) but identical pattern. Notable: this is the third in a chain of phantom-DESIGN.md-section + retired-alias drifts in adjacent iters (pt372/pt373/pt374) — concentrated drift cluster around DESIGN.md anchor accuracy. Fix: rewrote the entry to (1) cite ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/enhance-a11y-coverage/design.md",
+            "after": "openspec/changes/enhance-a11y-coverage/design.md",
             "sameTarget": true
           }
         ]
@@ -6659,13 +6589,13 @@
       {
         "segment": "loop-a-continuation",
         "original": " → 0 matches. The migrate-deploy-to-cloudflare-pages proposal explicitly describes this as a PLANNED extension: proposal.md:18 \"**Add ",
-        "replacement": " → 0 matches. The migrate-deploy-to-cloudflare-pages proposal explicitly describes this as a PLANNED extension: ../proposal.md (line 18) \"**Add ",
+        "replacement": " → 0 matches. The migrate-deploy-to-cloudflare-pages proposal explicitly describes this as a PLANNED extension: ../../migrate-deploy-to-cloudflare-pages/proposal.md (line 18) \"**Add ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "proposal.md:18",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
             "sameTarget": true
           }
         ]
@@ -6673,13 +6603,13 @@
       {
         "segment": "loop-a-continuation",
         "original": ")**\", proposal.md:28 \"**Build-time CSP/header generation**: extend ",
-        "replacement": ")**\", ../proposal.md (line 28) \"**Build-time CSP/header generation**: extend ",
+        "replacement": ")**\", ../../migrate-deploy-to-cloudflare-pages/proposal.md (line 28) \"**Build-time CSP/header generation**: extend ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "proposal.md:28",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
             "sameTarget": true
           }
         ]
@@ -6687,47 +6617,19 @@
       {
         "segment": "loop-a-continuation",
         "original": " body\", proposal.md:50 \"scripts/csp.mjs (EXTEND — also generate \\_headers body)\". The change is in-flight (not archived), so the wiring is future-state. This is exactly the failure mode AGENTS.md:165 warns about — \"OpenSpec changes claim work is done that hasn't shipped\". Drift class: phantom-implementation drift (different from comment-as-code pt383/pt384/pt386, frozen-counter pt380-pt382, missing-row pt385, phantom-anchor pt374-pt379). Fix: rewrote line 40 with present-tense \"PLANNED\" framing + archaeology note that pre-pt387 was claiming live wiring, plus pointer to the proposal's design.md D3 for the actual contract. Doc + spec-correction scope. Counters: 271+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (xxxxxxx) ",
-        "replacement": " body\", ../proposal.md (line 50) \"scripts/csp.mjs (EXTEND — also generate \\_headers body)\". The change is in-flight (not archived), so the wiring is future-state. This is exactly the failure mode AGENTS.md:165 warns about — \"OpenSpec changes claim work is done that hasn't shipped\". Drift class: phantom-implementation drift (different from comment-as-code pt383/pt384/pt386, frozen-counter pt380-pt382, missing-row pt385, phantom-anchor pt374-pt379). Fix: rewrote line 40 with present-tense \"PLANNED\" framing + archaeology note that pre-pt387 was claiming live wiring, plus pointer to the proposal's ../design.md D3 for the actual contract. Doc + spec-correction scope. Counters: 271+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (xxxxxxx) ",
+        "replacement": " body\", ../../migrate-deploy-to-cloudflare-pages/proposal.md (line 50) \"scripts/csp.mjs (EXTEND — also generate \\_headers body)\". The change is in-flight (not archived), so the wiring is future-state. This is exactly the failure mode AGENTS.md:165 warns about — \"OpenSpec changes claim work is done that hasn't shipped\". Drift class: phantom-implementation drift (different from comment-as-code pt383/pt384/pt386, frozen-counter pt380-pt382, missing-row pt385, phantom-anchor pt374-pt379). Fix: rewrote line 40 with present-tense \"PLANNED\" framing + archaeology note that pre-pt387 was claiming live wiring, plus pointer to the proposal's ../../migrate-deploy-to-cloudflare-pages/design.md D3 for the actual contract. Doc + spec-correction scope. Counters: 271+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (xxxxxxx) ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "proposal.md:50",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
             "sameTarget": true
           },
           {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " — design.md drift detection (run by ",
-        "replacement": " — ../design.md drift detection (run by ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " weekly cron)\". Two drift items: (1) \"design.md drift detection\" is misleading — the script does ORPHAN-TOKEN detection (every CSS custom property in ",
-        "replacement": " weekly cron)\". Two drift items: (1) \"../design.md drift detection\" is misleading — the script does ORPHAN-TOKEN detection (every CSS custom property in ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "reference": "design.md D3",
+            "before": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
+            "after": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
             "sameTarget": true
           }
         ]
@@ -6755,13 +6657,13 @@
       {
         "segment": "loop-a-continuation",
         "original": " exists\") satisfied. Same drift class as pt398 (tasks-vs-disk drift in another in-flight change's tasks.md). Audit also reviewed the broader tasks-list for similar drift: task 0.3 (culori) is correctly unchecked because the contrast implementation uses ",
-        "replacement": " exists\") satisfied. Same drift class as pt398 (tasks-vs-disk drift in another in-flight change's ../tasks.md). Audit also reviewed the broader tasks-list for similar drift: task 0.3 (culori) is correctly unchecked because the contrast implementation uses ",
+        "replacement": " exists\") satisfied. Same drift class as pt398 (tasks-vs-disk drift in another in-flight change's ../../enhance-a11y-coverage/tasks.md). Audit also reviewed the broader tasks-list for similar drift: task 0.3 (culori) is correctly unchecked because the contrast implementation uses ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "tasks.md",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/enhance-a11y-coverage/tasks.md",
+            "after": "openspec/changes/enhance-a11y-coverage/tasks.md",
             "sameTarget": true
           }
         ]
@@ -6829,7 +6731,7 @@
       {
         "segment": "loop-a-continuation",
         "original": "); only the inner \"repo-root\" parenthetical was drift. Both fixes in same drift class as pt402 (filename-rename drift in path citations). Cross-cutting cleanup: 5 files now in sync with the pt342 rename — astro.config.ts (disk), USMR proposal.md:83 + design.md:144 (✓), USMR tasks.md:475+478 (pt402 ✓), add-brand-assets design.md:129 + tasks.md:55 (✓ already), add-brand-assets spec.md:144 (pt403 ✓), FINAL-CROSS-CUTTING-REVIEW.md:25 (pt403 ✓). The ",
-        "replacement": "); only the inner \"repo-root\" parenthetical was drift. Both fixes in same drift class as pt402 (filename-rename drift in path citations). Cross-cutting cleanup: 5 files now in sync with the pt342 rename — astro.config.ts (disk), USMR ../proposal.md (line 83) + ../design.md (line 144) (✓), USMR ../tasks.md (lines 475 + 478 )(pt402 ✓), add-brand-assets ../design.md (line 129) + ../tasks.md (line 55) (✓ already), add-brand-assets spec.md:144 (pt403 ✓), FINAL-CROSS-CUTTING-REVIEW.md:25 (pt403 ✓). The ",
+        "replacement": "); only the inner \"repo-root\" parenthetical was drift. Both fixes in same drift class as pt402 (filename-rename drift in path citations). Cross-cutting cleanup: 5 files now in sync with the pt342 rename — astro.config.ts (disk), USMR ../proposal.md (line 83) + ../design.md (line 144) (✓), USMR ../tasks.md (lines 475 + 478 )(pt402 ✓), add-brand-assets ../../add-brand-assets-and-writing-pipeline/design.md (line 129) + ../tasks.md (line 55) (✓ already), add-brand-assets spec.md:144 (pt403 ✓), FINAL-CROSS-CUTTING-REVIEW.md:25 (pt403 ✓). The ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
@@ -6852,14 +6754,14 @@
           },
           {
             "reference": "design.md:129",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           },
           {
             "reference": "tasks.md:55",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
             "sameTarget": true
           }
         ]
@@ -6867,19 +6769,19 @@
       {
         "segment": "loop-a-continuation",
         "original": ")\", but the spec delta itself was authored before the rename and never updated. Internal inconsistency similar to pt403 (where add-brand-assets spec.md disagreed with its own design.md + tasks.md). Drift class: component-rename drift in change-spec delta — sub-class of the broader retired-canonical drift class (pt396 architectural-trio brief naming, pt397 --brand-teal Scenario, pt395 SearchAction Scenario). Per OpenSpec discipline, this is a change-spec delta (working doc, not a live spec) so direct correction is appropriate scope; live-spec amendment-gating doesn't apply. Fix: replaced ",
-        "replacement": ")\", but the spec delta itself was authored before the rename and never updated. Internal inconsistency similar to pt403 (where add-brand-assets spec.md disagreed with its own ../design.md + ../tasks.md). Drift class: component-rename drift in change-spec delta — sub-class of the broader retired-canonical drift class (pt396 architectural-trio brief naming, pt397 --brand-teal Scenario, pt395 SearchAction Scenario). Per OpenSpec discipline, this is a change-spec delta (working doc, not a live spec) so direct correction is appropriate scope; live-spec amendment-gating doesn't apply. Fix: replaced ",
+        "replacement": ")\", but the spec delta itself was authored before the rename and never updated. Internal inconsistency similar to pt403 (where add-brand-assets spec.md disagreed with its own ../../add-brand-assets-and-writing-pipeline/design.md + ../../add-brand-assets-and-writing-pipeline/tasks.md). Drift class: component-rename drift in change-spec delta — sub-class of the broader retired-canonical drift class (pt396 architectural-trio brief naming, pt397 --brand-teal Scenario, pt395 SearchAction Scenario). Per OpenSpec discipline, this is a change-spec delta (working doc, not a live spec) so direct correction is appropriate scope; live-spec amendment-gating doesn't apply. Fix: replaced ",
         "sourceLine": 213,
         "resolvedTargets": [
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           },
           {
             "reference": "tasks.md",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
             "sameTarget": true
           }
         ]
@@ -6997,7 +6899,7 @@
       {
         "segment": "loop-a-continuation",
         "original": ", MDX, CSS background images)\". All three sites cite the retired Nav.astro name where Header.astro is the canonical surface today. Each site got cross-reference to USMR proposal.md:75 archaeology + verification anchor. Drift class: cross-change retired-component-name drift — sub-class of pt405's component-rename drift but spanning two in-flight changes (one's archaeology hasn't propagated to the dependent change). Cross-cutting cleanup status: 9 sites in 7 files now in sync with USMR proposal.md:75 — pt404 (1 site, USMR site-bridge-story), pt405 (5 sites, USMR site-navigation/site-branding/site-structured-data/site-standards-registry/×2), pt406 (3 sites, add-brand-assets design.md/proposal.md/specs/site-branding). The pt403 add-brand-assets spec.md:144 fix (",
-        "replacement": ", MDX, CSS background images)\". All three sites cite the retired Nav.astro name where Header.astro is the canonical surface today. Each site got cross-reference to USMR ../proposal.md (line 75) archaeology + verification anchor. Drift class: cross-change retired-component-name drift — sub-class of pt405's component-rename drift but spanning two in-flight changes (one's archaeology hasn't propagated to the dependent change). Cross-cutting cleanup status: 9 sites in 7 files now in sync with USMR ../proposal.md (line 75) — pt404 (1 site, USMR site-bridge-story), pt405 (5 sites, USMR site-navigation/site-branding/site-structured-data/site-standards-registry/×2), pt406 (3 sites, add-brand-assets design.md/proposal.md/specs/site-branding). The pt403 add-brand-assets spec.md:144 fix (",
+        "replacement": ", MDX, CSS background images)\". All three sites cite the retired Nav.astro name where Header.astro is the canonical surface today. Each site got cross-reference to USMR ../proposal.md (line 75) archaeology + verification anchor. Drift class: cross-change retired-component-name drift — sub-class of pt405's component-rename drift but spanning two in-flight changes (one's archaeology hasn't propagated to the dependent change). Cross-cutting cleanup status: 9 sites in 7 files now in sync with USMR ../proposal.md (line 75) — pt404 (1 site, USMR site-bridge-story), pt405 (5 sites, USMR site-navigation/site-branding/site-structured-data/site-standards-registry/×2), pt406 (3 sites, add-brand-assets ../../add-brand-assets-and-writing-pipeline/design.md/proposal.md/specs/site-branding). The pt403 add-brand-assets spec.md:144 fix (",
         "sourceLine": 213,
         "resolvedTargets": [
           {
@@ -7014,62 +6916,8 @@
           },
           {
             "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " rule's per-line allow-list pragma. Drift class: stale-claim drift in design.md (working doc) — sub-class of spec-vs-implementation but in design.md scope (vs pt395/pt397 live-spec Purpose-backfill). Same broader cluster as pt404/pt405/pt406 retired-component-name and pt395/pt397 live-spec drift, but addresses design.md's own claims rather than spec deltas. Fix: rewrote both sites with archaeology context referencing pt152 (SearchAction shipping) and pt395 (KNOWN SPEC DRIFT note added) and the parallel pt405 spec.md:47 fix. Doc + design-md-correction scope. Counters: 302+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (rrrrrrrr) ",
-        "replacement": " rule's per-line allow-list pragma. Drift class: stale-claim drift in ../design.md (working doc) — sub-class of spec-vs-implementation but in ../design.md scope (vs pt395/pt397 live-spec Purpose-backfill). Same broader cluster as pt404/pt405/pt406 retired-component-name and pt395/pt397 live-spec drift, but addresses design.md's own claims rather than spec deltas. Fix: rewrote both sites with archaeology context referencing pt152 (SearchAction shipping) and pt395 (KNOWN SPEC DRIFT note added) and the parallel pt405 spec.md:47 fix. Doc + design-md-correction scope. Counters: 302+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (rrrrrrrr) ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          },
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          },
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " \"is generated\" claim — phantom-implementation drift in present-tense framing). Per OpenSpec discipline, design.md is a working doc that describes intended design; using present-tense \"lives in\" for unshipped state mis-directs contributors. Fix: split into \"**Planned**: ... will live in ",
-        "replacement": " \"is generated\" claim — phantom-implementation drift in present-tense framing). Per OpenSpec discipline, ../design.md is a working doc that describes intended design; using present-tense \"lives in\" for unshipped state mis-directs contributors. Fix: split into \"**Planned**: ... will live in ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
-        "segment": "loop-a-continuation",
-        "original": " prop already emits the noindex meta today. Drift class: phantom-implementation drift in design.md scope (continuation of pt387 in openspec/project.md scope). Doc + design-md-correction scope. Counters: 303+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (ssssssss) ",
-        "replacement": " prop already emits the noindex meta today. Drift class: phantom-implementation drift in ../design.md scope (continuation of pt387 in openspec/project.md scope). Doc + design-md-correction scope. Counters: 303+ surfaces · 66 permanent regression gates · 9 of 9 live specs validated · vitest count holds. (ssssssss) ",
-        "sourceLine": 213,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           }
         ]
@@ -7123,20 +6971,6 @@
         ]
       },
       {
-        "segment": "loop-b-checkbox-narrative",
-        "original": "Run design.md lint",
-        "replacement": "Run ../design.md lint",
-        "sourceLine": 423,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
         "segment": "loop-b-continuation",
         "original": "without @scope) — only USMR tasks.md narrative quotes (already allow-listed by pt222 NARRATIVE_ARCHAEOLOGY); (b) GitHub Actions workflow Node-version pins — agents-check.yml / link-check.yml / spec-review-reminder.yml don't pin Node (don't run JS), copilot-setup-steps.yml uses",
         "replacement": "without @scope) — only USMR ../tasks.md narrative quotes (already allow-listed by pt222 NARRATIVE_ARCHAEOLOGY); (b) GitHub Actions workflow Node-version pins — agents-check.yml / link-check.yml / spec-review-reminder.yml don't pin Node (don't run JS), copilot-setup-steps.yml uses",
@@ -7165,35 +6999,45 @@
         ]
       },
       {
-        "segment": "loop-b-continuation",
-        "original": "gate). The pre-pt271 summary at lines 337-338 created an inconsistency with the pt266 expanded section. Replaced with a single bullet referencing the 10-step chain + naming the highlights (SRI, CSP, skip-link, taglines, design.md, font-self-hosting). (3) Lines 369-374 deploy.yml step list cited",
-        "replacement": "gate). The pre-pt271 summary at lines 337-338 created an inconsistency with the pt266 expanded section. Replaced with a single bullet referencing the 10-step chain + naming the highlights (SRI, CSP, skip-link, taglines, ../design.md, font-self-hosting). (3) Lines 369-374 deploy.yml step list cited",
-        "sourceLine": 425,
-        "resolvedTargets": [
-          {
-            "reference": "design.md",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
-            "sameTarget": true
-          }
-        ]
-      },
-      {
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "openspec/changes/self-host-woff2-fonts/{proposal.md:58,design.md:152,tasks.md:24,37,42,64}",
-        "replacement": "openspec/changes/self-host-woff2-fonts/{proposal.md:58,../design.md (line 152),../tasks.md (lines 24,37,42,64)}",
+        "replacement": "[self-host-woff2-fonts/proposal.md:58](../../self-host-woff2-fonts/proposal.md#L58), [self-host-woff2-fonts/design.md:152](../../self-host-woff2-fonts/design.md#L152), [self-host-woff2-fonts/tasks.md:24](../../self-host-woff2-fonts/tasks.md#L24), [37](../../self-host-woff2-fonts/tasks.md#L37), [42](../../self-host-woff2-fonts/tasks.md#L42), [64](../../self-host-woff2-fonts/tasks.md#L64)",
         "resolvedTargets": [
           {
-            "reference": "design.md:152",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "reference": "proposal.md:58",
+            "before": "openspec/changes/self-host-woff2-fonts/proposal.md",
+            "after": "openspec/changes/self-host-woff2-fonts/proposal.md",
             "sameTarget": true
           },
           {
-            "reference": "tasks.md:24,37,42,64",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "reference": "design.md:152",
+            "before": "openspec/changes/self-host-woff2-fonts/design.md",
+            "after": "openspec/changes/self-host-woff2-fonts/design.md",
+            "sameTarget": true
+          },
+          {
+            "reference": "tasks.md:24",
+            "before": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "after": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "sameTarget": true
+          },
+          {
+            "reference": "tasks.md:37",
+            "before": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "after": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "sameTarget": true
+          },
+          {
+            "reference": "tasks.md:42",
+            "before": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "after": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "sameTarget": true
+          },
+          {
+            "reference": "tasks.md:64",
+            "before": "openspec/changes/self-host-woff2-fonts/tasks.md",
+            "after": "openspec/changes/self-host-woff2-fonts/tasks.md",
             "sameTarget": true
           }
         ]
@@ -7398,12 +7242,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "proposal.md:24",
-        "replacement": "../proposal.md (line 24)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/proposal.md (line 24)",
         "resolvedTargets": [
           {
             "reference": "proposal.md:24",
-            "before": "openspec/changes/update-site-marketing-redesign/proposal.md",
-            "after": "openspec/changes/update-site-marketing-redesign/proposal.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
             "sameTarget": true
           }
         ]
@@ -7412,12 +7256,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "tasks.md:53",
-        "replacement": "../tasks.md (line 53)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/tasks.md (line 53)",
         "resolvedTargets": [
           {
             "reference": "tasks.md:53",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
             "sameTarget": true
           }
         ]
@@ -7426,12 +7270,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "design.md:104",
-        "replacement": "../design.md (line 104)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/design.md (line 104)",
         "resolvedTargets": [
           {
             "reference": "design.md:104",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           }
         ]
@@ -7440,12 +7284,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "design.md:125",
-        "replacement": "../design.md (line 125)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/design.md (line 125)",
         "resolvedTargets": [
           {
             "reference": "design.md:125",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           }
         ]
@@ -7487,7 +7331,7 @@
       "fakingArchivePresenceRejected": true,
       "actualUsmrArchiveHelperResult": false
     },
-    "relativeTargetOccurrenceCount": 100,
+    "relativeTargetOccurrenceCount": 90,
     "lineAnnotationRepairs": [
       {
         "where": "implementation-history.md",
@@ -7507,17 +7351,17 @@
       {
         "where": "implementation-history.md",
         "from": "../proposal.md:24,42,71,90",
-        "to": "../proposal.md (lines 24,42,71,90)"
+        "to": "../../add-brand-assets-and-writing-pipeline/proposal.md (lines 24,42,71,90)"
       },
       {
         "where": "implementation-history.md",
         "from": "../design.md:150",
-        "to": "../design.md (line 150)"
+        "to": "../../add-brand-assets-and-writing-pipeline/design.md (line 150)"
       },
       {
         "where": "implementation-history.md",
         "from": "../tasks.md:53,112",
-        "to": "../tasks.md (lines 53,112)"
+        "to": "../../add-brand-assets-and-writing-pipeline/tasks.md (lines 53,112)"
       },
       {
         "where": "implementation-history.md",
@@ -7537,17 +7381,17 @@
       {
         "where": "implementation-history.md",
         "from": "../proposal.md:18",
-        "to": "../proposal.md (line 18)"
+        "to": "../../migrate-deploy-to-cloudflare-pages/proposal.md (line 18)"
       },
       {
         "where": "implementation-history.md",
         "from": "../proposal.md:28",
-        "to": "../proposal.md (line 28)"
+        "to": "../../migrate-deploy-to-cloudflare-pages/proposal.md (line 28)"
       },
       {
         "where": "implementation-history.md",
         "from": "../proposal.md:50",
-        "to": "../proposal.md (line 50)"
+        "to": "../../migrate-deploy-to-cloudflare-pages/proposal.md (line 50)"
       },
       {
         "where": "implementation-history.md",
@@ -7572,12 +7416,12 @@
       {
         "where": "implementation-history.md",
         "from": "../design.md:129",
-        "to": "../design.md (line 129)"
+        "to": "../../add-brand-assets-and-writing-pipeline/design.md (line 129)"
       },
       {
         "where": "implementation-history.md",
         "from": "../tasks.md:55",
-        "to": "../tasks.md (line 55)"
+        "to": "../../add-brand-assets-and-writing-pipeline/tasks.md (line 55)"
       },
       {
         "where": "implementation-history.md",
@@ -7662,17 +7506,17 @@
       {
         "where": "loop-a-continuation",
         "from": "../proposal.md:24,42,71,90",
-        "to": "../proposal.md (lines 24,42,71,90)"
+        "to": "../../add-brand-assets-and-writing-pipeline/proposal.md (lines 24,42,71,90)"
       },
       {
         "where": "loop-a-continuation",
         "from": "../design.md:150",
-        "to": "../design.md (line 150)"
+        "to": "../../add-brand-assets-and-writing-pipeline/design.md (line 150)"
       },
       {
         "where": "loop-a-continuation",
         "from": "../tasks.md:53,112",
-        "to": "../tasks.md (lines 53,112)"
+        "to": "../../add-brand-assets-and-writing-pipeline/tasks.md (lines 53,112)"
       },
       {
         "where": "loop-a-continuation",
@@ -7692,17 +7536,17 @@
       {
         "where": "loop-a-continuation",
         "from": "../proposal.md:18",
-        "to": "../proposal.md (line 18)"
+        "to": "../../migrate-deploy-to-cloudflare-pages/proposal.md (line 18)"
       },
       {
         "where": "loop-a-continuation",
         "from": "../proposal.md:28",
-        "to": "../proposal.md (line 28)"
+        "to": "../../migrate-deploy-to-cloudflare-pages/proposal.md (line 28)"
       },
       {
         "where": "loop-a-continuation",
         "from": "../proposal.md:50",
-        "to": "../proposal.md (line 50)"
+        "to": "../../migrate-deploy-to-cloudflare-pages/proposal.md (line 50)"
       },
       {
         "where": "loop-a-continuation",
@@ -7727,12 +7571,12 @@
       {
         "where": "loop-a-continuation",
         "from": "../design.md:129",
-        "to": "../design.md (line 129)"
+        "to": "../../add-brand-assets-and-writing-pipeline/design.md (line 129)"
       },
       {
         "where": "loop-a-continuation",
         "from": "../tasks.md:55",
-        "to": "../tasks.md (line 55)"
+        "to": "../../add-brand-assets-and-writing-pipeline/tasks.md (line 55)"
       },
       {
         "where": "loop-a-continuation",
@@ -7900,13 +7744,14 @@
       ],
       "proseSegmentsExactAfterUndoingRecordedRepairs": true,
       "proseSegmentCount": 5,
-      "relativeRepairSpans": 70,
-      "resolvedTargetOccurrences": 100,
+      "relativeRepairSpans": 58,
+      "resolvedTargetOccurrences": 90,
       "lineAnnotationRepairs": 79,
       "unqualifiedPathRefs": 0,
       "nonPathLabelsRetained": [
-        "design.md",
-        "design.md"
+        "Run design.md lint",
+        "design.md in the historical step-count labels",
+        "design.md in build highlights"
       ],
       "lineAnnotationsStillAttachedToTargets": 0,
       "preExtractionStalePathSearchExit": 1,
@@ -7916,6 +7761,136 @@
         "changingCheckboxStateRejected": true,
         "fakingArchivePresenceRejected": true,
         "actualUsmrArchiveHelperResult": false
+      }
+    },
+    "originalExtractionSummary": {
+      "relativeRepairSpans": 70,
+      "resolvedTargetOccurrences": 100,
+      "lineAnnotationRepairs": 79,
+      "sourceSegmentSha256s": [
+        {
+          "name": "loop-a-checkbox-narrative",
+          "sha256": "7b57e3590d7251e699f73fc04525c34475863eb30e6aac9f93d94d0885230684"
+        },
+        {
+          "name": "loop-a-continuation",
+          "sha256": "0ef20581b26d462ff841354cda504a951fba18e6d8be209bde62b5efe2d2f989"
+        },
+        {
+          "name": "loop-b-checkbox-narrative",
+          "sha256": "618519d238ed81de486b0d144f318794a22fd3e2ee6429538b3f7bd8cc94a168"
+        },
+        {
+          "name": "loop-b-continuation",
+          "sha256": "9705cfb48eb0d38a0fd699817a06b47c2298e129883d03548a06fd55a1bb842a"
+        },
+        {
+          "name": "pt72-segment",
+          "sha256": "0aae3719d3dc1bae0a4afea666037b3db8e595981e97127c5b71983b0af1bccd"
+        }
+      ]
+    },
+    "fixRound": {
+      "reviewedLinks": [
+        {
+          "url": "../../migrate-deploy-to-cloudflare-pages/design.md",
+          "target": "openspec/changes/migrate-deploy-to-cloudflare-pages/design.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../migrate-deploy-to-cloudflare-pages/proposal.md",
+          "target": "openspec/changes/migrate-deploy-to-cloudflare-pages/proposal.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../migrate-deploy-to-cloudflare-pages/tasks.md",
+          "target": "openspec/changes/migrate-deploy-to-cloudflare-pages/tasks.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../self-host-woff2-fonts/proposal.md#L58",
+          "target": "openspec/changes/self-host-woff2-fonts/proposal.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../self-host-woff2-fonts/design.md#L152",
+          "target": "openspec/changes/self-host-woff2-fonts/design.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../self-host-woff2-fonts/tasks.md#L24",
+          "target": "openspec/changes/self-host-woff2-fonts/tasks.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../self-host-woff2-fonts/tasks.md#L37",
+          "target": "openspec/changes/self-host-woff2-fonts/tasks.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../self-host-woff2-fonts/tasks.md#L42",
+          "target": "openspec/changes/self-host-woff2-fonts/tasks.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../self-host-woff2-fonts/tasks.md#L64",
+          "target": "openspec/changes/self-host-woff2-fonts/tasks.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../add-brand-assets-and-writing-pipeline/proposal.md",
+          "target": "openspec/changes/add-brand-assets-and-writing-pipeline/proposal.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../add-brand-assets-and-writing-pipeline/design.md",
+          "target": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../add-brand-assets-and-writing-pipeline/tasks.md",
+          "target": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+          "sameTarget": true
+        },
+        {
+          "url": "../../add-brand-assets-and-writing-pipeline/specs/site-writing-pipeline/spec.md",
+          "target": "openspec/changes/add-brand-assets-and-writing-pipeline/specs/site-writing-pipeline/spec.md",
+          "sameTarget": true
+        }
+      ],
+      "narrativeConservation": {
+        "preFixHistoryCommit": "4f3eaec",
+        "sourceHead": "b969b0fa8c39d0b5ca7975a0c4c5e2e6bbc20e6e",
+        "preExtractionSourceHashesVerified": true,
+        "normalizedArchiveAnchorOutOfNarrative": true,
+        "segmentComparisons": [
+          {
+            "segment": "loop-a-checkbox-narrative",
+            "changedWordChunks": 1,
+            "currentSha256": "fbdaddda2738a5e9e3dffc9c6d0818c63c014b6408bb7e8bc830220dbe71627e"
+          },
+          {
+            "segment": "loop-a-continuation",
+            "changedWordChunks": 121,
+            "currentSha256": "5e75bada631ca2aadc26069ca76ecd15c9c833d9a4b75f2f464e6de9bbb40a0d"
+          },
+          {
+            "segment": "loop-b-checkbox-narrative",
+            "changedWordChunks": 1,
+            "currentSha256": "f2a29b71c25f0c122bc441618069ded9fea1c17582cf1272f724590b6693cc7f"
+          },
+          {
+            "segment": "loop-b-continuation",
+            "changedWordChunks": 1,
+            "currentSha256": "846c51bbf260e002aaeb387d9f7f6f2ddb09eeb5c2f5ad17a01b94c3e2c107b2"
+          },
+          {
+            "segment": "pt72-segment",
+            "changedWordChunks": 0,
+            "currentSha256": "0aae3719d3dc1bae0a4afea666037b3db8e595981e97127c5b71983b0af1bccd"
+          }
+        ],
+        "interpretation": "The normalized diff from the reviewed extraction is limited to the accepted citation-context corrections, restoration of non-path design.md labels, and archive-citation-sweep anchor relocation; the earlier five source-segment hashes match the named pre-extraction Git blob."
       }
     }
   }
