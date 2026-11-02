@@ -60,7 +60,7 @@ lychee --config lychee.toml './**/*.md' './public/**/*.html' './src/**/*.astro'
 
 ## Assets and Media
 
-- Use `scripts/make-og-from-template.sh` to generate OG images from the SVG template.
+- Use `scripts/make-og-from-template.sh` to generate OG images from the SVG templates in `scripts/templates/og/`. It uses the image-plus-logo template when both that template and the selected logo file exist; otherwise it falls back to the text template. Its default output destination is unchanged.
 - Use `scripts/make-favicon.sh` or `scripts/svg-to-pngs.sh` for icon updates.
 - Keep filenames and sizes consistent with existing assets in `public/assets`.
 

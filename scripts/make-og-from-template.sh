@@ -4,8 +4,9 @@ TITLE=${1:-"Artagon — The provable identity cloud"}
 SUBTITLE=${2:-"OIDC 2.1 + GNAP • VCs • Zanzibar"}
 OUT=${3:-public/assets/og-image.png}
 LOGO=${5:-public/assets/logo-lockup.png}
-TEMPLATE_IMG="assets/og-template-image.svg"
-TEMPLATE_TXT="assets/og-template.svg"
+# LAYOUT-03A: Keep generator-owned SVG inputs under scripts/templates/og/.
+TEMPLATE_IMG="scripts/templates/og/og-template-image.svg"
+TEMPLATE_TXT="scripts/templates/og/og-template.svg"
 if [[ "${4-}" != "--logo" && -n "${4-}" ]]; then echo "Usage: $0 \"Title\" \"Subtitle\" out.png [--logo path]"; exit 1; fi
 esc(){ printf '%s' "$1" | sed -e 's/[&/]/\\&/g'; }
 mkdir -p "$(dirname "$OUT")"

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   copyFileSync,
+  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -314,6 +315,96 @@ describe("developer tooling script regressions", () => {
       expect(`${invalid.stdout}${invalid.stderr}`).toContain("Usage:");
     });
   });
+
+  it("uses the relocated OG templates for real image and text-fallback conversions", () => {
+    // LAYOUT-03C: A real render with the text template absent proves the image input was consumed.
+    withTempDir("og-templates-", (root) => {
+      const script = join(root, "scripts", "make-og-from-template.sh");
+      const templates = join(root, "scripts", "templates", "og");
+      const textTemplate = join(templates, "og-template.svg");
+      const imageTemplate = join(templates, "og-template-image.svg");
+      const logo = join(root, "public", "assets", "logos", "logo-horizontal-800.png");
+      const rsvg = run("bash", ["-c", "command -v rsvg-convert"], ROOT).stdout.trim();
+      mkdirSync(dirname(script), { recursive: true });
+      mkdirSync(templates, { recursive: true });
+      mkdirSync(dirname(logo), { recursive: true });
+      copyFileSync(join(SCRIPTS, "make-og-from-template.sh"), script);
+      copyFileSync(join(SCRIPTS, "templates", "og", "og-template.svg"), textTemplate);
+      copyFileSync(join(SCRIPTS, "templates", "og", "og-template-image.svg"), imageTemplate);
+      copyFileSync(join(ROOT, "public", "assets", "logos", "logo-horizontal-800.png"), logo);
+
+      const conversionEnv: NodeJS.ProcessEnv = {};
+      if (rsvg) {
+        const bin = join(root, "bin");
+        const adapter = writeFile(
+          root,
+          "bin/inkscape",
+          "#!/bin/sh\nprintf 'called\\n' >> \"$OG_CONVERTER_LOG\"\ninput=$1\nshift\nwidth=1200\nheight=630\nwhile [ \"$#\" -gt 0 ]; do\n  case \"$1\" in\n    -w) width=$2; shift 2 ;;\n    -h) height=$2; shift 2 ;;\n    -o) output=$2; shift 2 ;;\n    *) shift ;;\n  esac\ndone\nexec rsvg-convert -w \"$width\" -h \"$height\" -o \"$output\" \"$input\"\n",
+        );
+        chmodSync(adapter, 0o755);
+        conversionEnv.PATH = `${bin}:${process.env.PATH ?? ""}`;
+        conversionEnv.OG_CONVERTER_LOG = join(root, "converter.log");
+      }
+
+      rmSync(textTemplate);
+      const imageBranch = run(
+        "bash",
+        [script, "", "", "", "--logo", logo],
+        root,
+        conversionEnv,
+      );
+      expect(imageBranch.code, `${imageBranch.stdout}${imageBranch.stderr}`).toBe(0);
+      const assertRenderedPng = (path: string) => {
+        const png = readFileSync(path);
+        expect(png.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+        expect(png.readUInt32BE(16)).toBe(1200);
+        expect(png.readUInt32BE(20)).toBe(630);
+      };
+      assertRenderedPng(join(root, "public", "assets", "og-image.png"));
+
+      copyFileSync(join(SCRIPTS, "templates", "og", "og-template.svg"), textTemplate);
+      rmSync(logo);
+      writeFile(root, "scripts/templates/og/og-template-image.svg", "<svg>invalid branch control");
+      const missingLogoFallback = run(
+        "bash",
+        [script, "Text fallback", "Subtitle", "public/assets/no-logo.png"],
+        root,
+        conversionEnv,
+      );
+      expect(missingLogoFallback.code).toBe(0);
+      assertRenderedPng(join(root, "public", "assets", "no-logo.png"));
+
+      copyFileSync(join(ROOT, "public", "assets", "logos", "logo-horizontal-800.png"), logo);
+      rmSync(imageTemplate);
+      const missingImageFallback = run(
+        "bash",
+        [script, "Text fallback", "Subtitle", "public/assets/no-image-template.png"],
+        root,
+        conversionEnv,
+      );
+      expect(missingImageFallback.code).toBe(0);
+      assertRenderedPng(join(root, "public", "assets", "no-image-template.png"));
+
+      rmSync(textTemplate);
+      const converterCallsBeforeMissingText = rsvg
+        ? readFileSync(join(root, "converter.log"), "utf8")
+        : undefined;
+      const missingTextTemplate = run(
+        "bash",
+        [script, "No template", "Subtitle", "public/assets/no-text-template.png"],
+        root,
+        conversionEnv,
+      );
+      expect(missingTextTemplate.code).not.toBe(0);
+      expect(missingTextTemplate.stderr).toContain("scripts/templates/og/og-template.svg");
+      expect(readdirSync(join(root, "public", "assets"))).not.toContain("no-text-template.png");
+      if (rsvg) {
+        expect(readFileSync(join(root, "converter.log"), "utf8")).toBe(
+          converterCallsBeforeMissingText,
+        );
+      }
+    });
+  }, 30_000);
 
   it("rejects tracked new-design duplicates of DESIGN.md", () => {
     withTempDir("design-unique-", (root) => {

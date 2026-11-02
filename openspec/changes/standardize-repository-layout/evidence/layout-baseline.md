@@ -31,3 +31,11 @@ Strict validation passed for the approved PR 0–12 change. The source inventory
 | 6: no source move; correct editorial/template ownership | `.agents/workflows/update-hero.md` and `id: update-hero` in `.agents/AGENT_MANIFEST.yaml`; editorial copy belongs in `src/content/pages/home.mdx`, while template changes belong in `src/pages/index.astro`. | Review-only: record exact manifest/workflow file lines, verify the content path exists, and trace `getEntry("pages", "home")` plus `home.data` in `src/pages/index.astro`. No permanent broad validator is part of this task. |
 
 The path map follows D2 in `design.md` and was recorded before performing the corresponding moves. Each group must repeat its path/reference search against the implementation head before its own commit.
+
+## PR 3 implementation evidence
+
+- Moved both templates with `git mv` and changed only the generator's two template paths. Their before/after SHA-256 values match: text `caae5520cb7150d62c705814b82f0ecb0c479a96ee1966dae5fca7ed197a0bb4`; image `b4af1e7f37de66c965b50cb450a2eef538e2e86bc0fcbf54a961c6fb146f3be4`.
+- `rtk npx --no-install vitest run tests/scripts-tooling.test.mts` — exit 0 (15 tests). Its disposable fixture converts the unchanged moved SVG inputs and a real logo to 1200×630 PNGs with the installed `rsvg-convert` via a test-local Inkscape-compatible adapter. It proves image selection without a text template, text fallback for missing logo and missing image template, unchanged default output, and no converter call when the selected text template is missing.
+- `rtk npx --no-install vitest run tests/lint-agents-md-path-citations.test.mts` — exit 0 (12 tests). `rtk rg` over README, contribution/project docs, DESIGN, config, scripts, and tests found no stale OG-template source path (exit 1, no matches). `_config.yml` retains only the `scripts` exclusion among `assets` / `scripts` (exit 0).
+- Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).
+- The direct ImageMagick path is not verified on this macOS host: its SVG delegate fails on the original CSS font shorthand (`unable to read font ''`). The real conversion gate used the available `rsvg-convert` renderer with the original template bytes; this limitation is specific to the local ImageMagick converter path.
