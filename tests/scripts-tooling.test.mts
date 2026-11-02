@@ -83,6 +83,29 @@ function copyBuildGeneratorFixture(root: string) {
 }
 
 describe("developer tooling script regressions", () => {
+  // LAYOUT-07B: exercise the actual helper and inspect the resulting ICO.
+  it.skipIf(spawnSync("magick", ["-version"]).status !== 0)("writes multi-size favicons to the default and supplied directories", () => {
+    withTempDir("favicon-", (root) => {
+      const icons = join(root, "public", "icons");
+      mkdirSync(icons, { recursive: true });
+      mkdirSync(join(root, "custom"));
+      for (const size of [16, 32, 48]) {
+        copyFileSync(join(ROOT, "public", "icons", `icon-${size}.png`), join(icons, `icon-${size}.png`));
+      }
+      const script = join(SCRIPTS, "make-favicon.sh");
+      for (const [args, output] of [[[], "public/favicon.ico"], [["custom"], "custom/favicon.ico"]] as const) {
+        const result = run("bash", [script, ...args], root);
+        expect(result.code, result.stderr).toBe(0);
+        const inspect = run("magick", ["identify", "-format", "%m %wx%h\n", output], root);
+        expect(inspect.code, inspect.stderr).toBe(0);
+        expect(inspect.stdout.trim().split("\n")).toEqual(["ICO 16x16", "ICO 32x32", "ICO 48x48"]);
+      }
+      expect(run("bash", [script, "missing-directory"], root).code).not.toBe(0);
+      rmSync(join(icons, "icon-16.png"));
+      expect(run("bash", [script, "custom"], root).code).not.toBe(0);
+    });
+  });
+
   it("skips missing tracked CSS inputs but exits 2 on other read failures", () => {
     withTempDir("lint-tokens-enoent-", (root) => {
       initGit(root);
