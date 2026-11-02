@@ -53,8 +53,11 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 ## 8. PR 8: correct static-server sample behavior
 
 - [ ] 8.1 (unit LAYOUT-08A) Repair deploy/Caddyfile's unknown-route handling while keeping known extensionless pages/assets and existing header/TLS settings. Gate: a real Caddy instance serving a copied build returns 200 for known resources and 404 with the site's error body for an unknown route.
+  - Runtime smoke pending: site-w1n.14.
 - [ ] 8.2 (unit LAYOUT-08B) Repair deploy/nginx.conf's unknown-route handling with equivalent preserved behavior. Gate: nginx configuration validation and a real-server HTTP smoke prove known page/asset 200 and unknown route 404; a status-200 homepage fallback fails the control.
+  - Runtime smoke pending: site-w1n.14.
 - [ ] 8.3 (unit LAYOUT-08C) Update .agents/workflows/deploy.md and openspec/project.md to distinguish .build/dist from the external document root and describe copying the built artifact. Gate: documented steps agree with both server samples; no root CNAME/_config.yml deletion or deployment-support retirement is included.
+  - openspec/project.md update is delegated to the coordinator's integration.
 
 ## 9. PR 9: move the public logo guide after its contract amendment
 

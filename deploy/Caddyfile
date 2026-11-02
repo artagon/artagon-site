@@ -12,5 +12,10 @@ artagon.com, www.artagon.com {
   }
   root * /var/www/artagon-web/dist
   file_server
-  try_files {path} {path}/ /index.html
+  # LAYOUT-08A: serve the static error document with the original 404 status.
+  try_files {path} {path}/ =404
+  handle_errors {
+    rewrite * /{err.status_code}.html
+    file_server
+  }
 }
