@@ -39,3 +39,9 @@ The path map follows D2 in `design.md` and was recorded before performing the co
 - `rtk npx --no-install vitest run tests/lint-agents-md-path-citations.test.mts` — exit 0 (12 tests). `rtk rg` over README, contribution/project docs, DESIGN, config, scripts, and tests found no stale OG-template source path (exit 1, no matches). `_config.yml` retains only the `scripts` exclusion among `assets` / `scripts` (exit 0).
 - Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).
 - The direct ImageMagick path is not verified on this macOS host: its SVG delegate fails on the original CSS font shorthand (`unable to read font ''`). The real conversion gate used the available `rsvg-convert` renderer with the original template bytes; this limitation is specific to the local ImageMagick converter path.
+
+## PR 4 implementation evidence
+
+- Moved `deploy/cloudflare-hsts.md` to `docs/guides/cloudflare-hsts.md`; the source and target SHA-256 values match (`68a4cdfacb496549d50bfd287266e486c414ba65a9a3b1f7037c5b3444365ab6`). Updated the README living-guide index and `openspec/project.md` deploy description.
+- `rtk npx --no-install vitest run tests/lint-agents-md-path-citations.test.mts` — exit 0 (12 tests). The exact old source path search across current README/project/docs/deploy sources returned no matches (exit 1). `rtk git diff --stat -- deploy/Caddyfile deploy/nginx.conf` — exit 0 with no changes.
+- Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).

@@ -940,6 +940,7 @@ Living guides (current state authoritative):
 - **`docs/build-artifacts.md`** - SSoT contract for `.build/{cache,reports,dist}/`, generated-file inventory, "add a tool" contributor checklist; governed by `openspec/specs/build-config/spec.md`.
 - **`docs/design-md.md`** - design.md authoring guide (token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook).
 - **`docs/decisions/0001-no-tailwind.md`** - Architecture-decision record on the no-Tailwind contract.
+- **`docs/guides/cloudflare-hsts.md`** - Operator note for enabling HSTS at the Cloudflare edge.
 - **`docs/guides/styling-guide.md`** - Component-vs-utility decision tree, theme-variable reference, post-archive distilled record from `refactor-styling-architecture`.
 - **`docs/guides/new-design-conversion.md`** - Conversion guide from `new-design/extracted/` mocks to live Astro routes; consumed by USMR Phase 5.x work.
 

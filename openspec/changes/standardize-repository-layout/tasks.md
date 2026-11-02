@@ -34,7 +34,7 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 
 ## 4. PR 4: relocate the HSTS operator note
 
-- [ ] 4.1 (unit LAYOUT-04A) Move deploy/cloudflare-hsts.md to docs/guides/cloudflare-hsts.md and update the README.md guide index and openspec/project.md deploy description. Gate: note content is byte-preserved, its link resolves, docs/path checks pass, and deploy/Caddyfile plus deploy/nginx.conf remain untouched in this PR.
+- [x] 4.1 (unit LAYOUT-04A) Move deploy/cloudflare-hsts.md to docs/guides/cloudflare-hsts.md and update the README.md guide index and openspec/project.md deploy description. Gate: note content is byte-preserved, its link resolves, docs/path checks pass, and deploy/Caddyfile plus deploy/nginx.conf remain untouched in this PR.
 
 ## 5. PR 5: retain the historical audit under docs/archive
 
