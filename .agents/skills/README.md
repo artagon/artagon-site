@@ -81,7 +81,7 @@ Already wired in `package.json:58`: `"lint:design": "npm run check:oklch-hex-par
 
 ## Refresh skills
 
-Third-party skills listed in `skills-lock.json` with a `commit` are never refreshed in place: follow `docs/agents/skills-supply-chain.md`. The loop below covers only the legacy mirrors.
+Third-party skills listed in `skills-lock.json` with a `commit` are never refreshed in place: follow `docs/agents/skills-supply-chain.md`. The steps below cover only the legacy design.md skills and the Playwright CLI skill.
 
 Reinstall the design.md skills with the `skills` CLI, as "Install skills" in `docs/guides/new-design-conversion.md` describes (`ink` stays uninstalled). The download commands live there, not in this directory: `ripwire wrap` scans skill directories and refuses to emit its agent recipe when a skill file contains a download command.
 

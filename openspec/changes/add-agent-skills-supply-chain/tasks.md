@@ -42,7 +42,7 @@
 ## 6. Review and land
 
 - [ ] 6.1 Owner sign-off on every third-party lock entry (replace `reviewedBy: "pending owner sign-off"` with the reviewer).
-- [ ] 6.2 Rebase onto `chore/consolidate-skills` and reconcile with `tests/lint-skills-layout.test.mts` from that branch.
+- [x] 6.2 Rebase onto `chore/consolidate-skills` and reconcile with `tests/lint-skills-layout.test.mts` from that branch: lock entries for the five search-tool skills (`ripwire`, `tgrep`, `ripgrep`, `ast-grep`, `ast-grep-mcp`), stale `unlocked` and `mirrorExceptions` entries removed.
 - [ ] 6.3 Adversarial reviews (NTM swarm): supply chain (Claude Opus 5.5), correctness (Claude Fable 5.1), red team (Codex gpt-6-astra). Fix every Critical and Major finding.
 - [ ] 6.4 Triage the owner's GitHub stars against this stack; vendor any further skill through the same procedure.
 - [x] 6.6 Skill evals: seven with-skill vs baseline cases under `evals/skills/` and trigger evals for the four `artagon-*` skills; results in `evals/skills/results/2026-11-02/`.

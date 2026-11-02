@@ -24,7 +24,7 @@ Version 1. Three maps:
 
 - `skills`: directory name under `.agents/skills/` → its lock entry.
 - `unlocked`: directory with no entry → a reason string, or `{ "reason", "execution", "network", "acknowledged" }` when its content needs a class (legacy mirrors, OpenSpec scaffolds, the `playwright-cli` package skill).
-- `mirrorExceptions`: per mirror tree (`.claude/skills`, `.codex/skills`, `.gemini/skills`), entries that are not a link to `../../.agents/skills/<same name>`, each with a reason. Examples are real OpenSpec scaffold copies, and links into the external `artagon-ai-skills` checkout that `chore/consolidate-skills` removes.
+- `mirrorExceptions`: per mirror tree (`.claude/skills`, `.codex/skills`, `.gemini/skills`), entries that are not a link to `../../.agents/skills/<same name>`, each with a reason. Empty since the skill-tree consolidation: every mirror entry is a canonical link.
 
 | Field                           | Required for                                              | Meaning                                                                                                                                                                                                                           |
 | ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
