@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: anchored-tooltip
+expected_outcome: |
+  Uses the vendored local guides (position-aware tooltip / popover / anchor positioning), a native popover-or-anchor approach with an accessible name and keyboard support, no CDN polyfill, and no network call to the modern-web-guidance CLI.

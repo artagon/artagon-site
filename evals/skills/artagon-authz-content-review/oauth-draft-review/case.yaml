@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: oauth-draft-review
+expected_outcome: |
+  The review flags every planted error (OAuth 2.1 called an RFC, implicit flow recommended, tokens in localStorage, token in URL, invented OIDC 2.1 certification, zookie wording) with authority levels and fixes, and does not flag the correct DPoP and PKCE statements.
+context:
+  scaffold_script: place-files.sh
