@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   copyFileSync,
+  existsSync,
   chmodSync,
   mkdirSync,
   mkdtempSync,
@@ -316,8 +317,22 @@ describe("developer tooling script regressions", () => {
     });
   });
 
-  it("uses the relocated OG templates for real image and text-fallback conversions", () => {
-    // LAYOUT-03C: A real render with the text template absent proves the image input was consumed.
+  it("uses the relocated OG templates for real image and text-fallback conversions", (context) => {
+    // LAYOUT-03C / R5A-01: Vitest stays usable without optional native renderers.
+    const rendererAvailable = run(
+      "bash",
+      [
+        "-c",
+        "command -v rsvg-convert >/dev/null 2>&1 || command -v inkscape >/dev/null 2>&1 || command -v magick >/dev/null 2>&1",
+      ],
+      ROOT,
+    ).code === 0;
+    context.skip(
+      !rendererAvailable,
+      "real OG conversion requires rsvg-convert, Inkscape, or ImageMagick; no supported renderer is installed",
+    );
+
+    // A real render with the text template absent proves the image input was consumed.
     withTempDir("og-templates-", (root) => {
       const script = join(root, "scripts", "make-og-from-template.sh");
       const templates = join(root, "scripts", "templates", "og");
@@ -374,16 +389,47 @@ describe("developer tooling script regressions", () => {
       expect(missingLogoFallback.code).toBe(0);
       assertRenderedPng(join(root, "public", "assets", "no-logo.png"));
 
+      // LAYOUT-03C / R5A-02: keep a valid selected logo while the image template is absent.
       copyFileSync(join(ROOT, "public", "assets", "logos", "logo-horizontal-800.png"), logo);
+      expect(existsSync(logo)).toBe(true);
+      expect(readFileSync(logo).subarray(0, 8)).toEqual(
+        Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+      );
       rmSync(imageTemplate);
       const missingImageFallback = run(
         "bash",
-        [script, "Text fallback", "Subtitle", "public/assets/no-image-template.png"],
+        [script, "Text fallback", "Subtitle", "public/assets/no-image-template.png", "--logo", logo],
         root,
         conversionEnv,
       );
       expect(missingImageFallback.code).toBe(0);
       assertRenderedPng(join(root, "public", "assets", "no-image-template.png"));
+
+      const guardedCondition = '[[ -f "$TEMPLATE_IMG" && -f "$LOGO" ]]';
+      const scriptSource = readFileSync(script, "utf8");
+      expect(scriptSource).toContain(guardedCondition);
+      const unguardedScript = writeFile(
+        root,
+        "scripts/make-og-without-image-guard.sh",
+        scriptSource.replace(guardedCondition, '[[ -f "$LOGO" ]]'),
+      );
+      const missingImageGuardControl = run(
+        "bash",
+        [
+          unguardedScript,
+          "Text fallback",
+          "Subtitle",
+          "public/assets/no-image-template-control.png",
+          "--logo",
+          logo,
+        ],
+        root,
+        conversionEnv,
+      );
+      expect(missingImageGuardControl.code).not.toBe(0);
+      expect(readdirSync(join(root, "public", "assets"))).not.toContain(
+        "no-image-template-control.png",
+      );
 
       rmSync(textTemplate);
       const converterCallsBeforeMissingText = rsvg
