@@ -51,7 +51,7 @@ tests/device-tour.spec.ts-snapshots/*.png
 tests/vision-page.spec.ts-snapshots/*.png
 !tests/vision-page.spec.ts-snapshots/*-chromium-linux.png
 
-# Lychee cache file. `lychee.toml` enables caching and the link-check workflow
+# LAYOUT-01B (standardize-repository-layout 1.2): Lychee caching is enabled; the workflow
 # does not pass `--cache-dir`, so Lychee writes the default `.lycheecache`
 # file at the repo root. Keep it out of version control.
 .lycheecache
@@ -110,3 +110,6 @@ new-design/
 /*-state.json
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
+
+# LAYOUT-01A (standardize-repository-layout 1.1): local session scratch.
+/session.txt

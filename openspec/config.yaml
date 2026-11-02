@@ -64,6 +64,8 @@ context: |
     agent skills, skills-lock.json integrity, verify:skills and verify:stack CI gates. Sequencing-independent.
   - adopt-tailwind-and-starlight — draft for owner decision; NEW capability docs-site. Would supersede
     ADR 0001 (no Tailwind) and requires an Astro 7 upgrade first.
+  - standardize-repository-layout — staged repository-layout cleanup; no new live capability is
+    claimed before the change is implemented and archived.
 
   Merge order: refactor-styling-architecture (archived 2026-05-04) →
   adopt-design-md-format (archived 2026-05-05) → update-site-marketing-redesign (in flight) →
