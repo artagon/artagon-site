@@ -38,8 +38,8 @@ Cross-change ordering: this PR, including task 1.2, MUST land before modernize-b
 
 ## 5. PR 5: retain the historical audit under docs/archive
 
-- [ ] 5.1 (unit LAYOUT-05A) Move docs/SITE_AUDIT.md to docs/archive/2025-11-12-site-audit.md and update its self-path; repair README.md's path/date, .agents/context/glossary.md, and every matching path occurrence in openspec/changes/update-site-marketing-redesign/tasks.md. Gate: all current citations resolve, the historical date/findings remain, and no checkbox ID/state changes.
-- [ ] 5.2 (unit LAYOUT-05B) Verify the moved audit and all reference repairs with tests/lint-agents-md-path-citations.test.mts, the link checker and exact-path search; retain comparison evidence with this change. Gate: no dangling current old-path reference and no deletion of historical claims. Do not introduce a generic old-document purge.
+- [x] 5.1 (unit LAYOUT-05A) Move docs/SITE_AUDIT.md to docs/archive/2025-11-12-site-audit.md and update its self-path; repair README.md's path/date, .agents/context/glossary.md, and every matching path occurrence in openspec/changes/update-site-marketing-redesign/tasks.md. Gate: all current citations resolve, the historical date/findings remain, and no checkbox ID/state changes.
+- [x] 5.2 (unit LAYOUT-05B) Verify the moved audit and all reference repairs with tests/lint-agents-md-path-citations.test.mts, the link checker and exact-path search; retain comparison evidence with this change. Gate: no dangling current old-path reference and no deletion of historical claims. Do not introduce a generic old-document purge.
 
 ## 6. PR 6: correct the editorial hero workflow
 

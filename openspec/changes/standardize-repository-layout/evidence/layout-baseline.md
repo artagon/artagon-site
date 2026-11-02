@@ -38,6 +38,13 @@ The path map follows D2 in `design.md` and was recorded before performing the co
 - `rtk npx --no-install vitest run tests/scripts-tooling.test.mts` — exit 0 (15 tests). Its disposable fixture converts the unchanged moved SVG inputs and a real logo to 1200×630 PNGs with the installed `rsvg-convert` via a test-local Inkscape-compatible adapter. It proves image selection without a text template, text fallback for missing logo and missing image template, unchanged default output, and no converter call when the selected text template is missing.
 - `rtk npx --no-install vitest run tests/lint-agents-md-path-citations.test.mts` — exit 0 (12 tests). `rtk rg` over README, contribution/project docs, DESIGN, config, scripts, and tests found no stale OG-template source path (exit 1, no matches). `_config.yml` retains only the `scripts` exclusion among `assets` / `scripts` (exit 0).
 - Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).
+
+## PR 5 implementation evidence
+
+- Moved `docs/SITE_AUDIT.md` to `docs/archive/2025-11-12-site-audit.md`; the only audit-content change is its self-path. The document still states `2025-11-12`, and the README index now uses that date.
+- Before the move, exact `docs/SITE_AUDIT.md` references were: README 1, glossary 1, audit self-path 1, and active USMR `tasks.md` 7 occurrences (on lines 211, 213, 423, and five on 425). After the move, the old path has no matches in the current README, glossary, archived audit, or active USMR tasks (search exit 1); all seven USMR task references resolve to the new path. The USMR task diff is four lines changed / four lines replaced, each due only to the path substitution; task IDs and checkbox states were not edited.
+- `rtk npx --no-install vitest run tests/lint-agents-md-path-citations.test.mts` — exit 0 (12 tests). Full configured Lychee exited 2 because outbound network requests to unrelated external URLs failed (99 external errors); `rtk lychee --root-dir <worktree> --config lychee.toml --no-progress --offline` — exit 0 with zero local-link errors. External URL reachability is unverified in this environment; the coordinator was notified.
+- Strict OpenSpec validation, `npm run check`, `npm run lint:sg`, and `git diff --check` passed for this group (exit 0; recorded with the group report).
 - The direct ImageMagick path is not verified on this macOS host: its SVG delegate fails on the original CSS font shorthand (`unable to read font ''`). The real conversion gate used the available `rsvg-convert` renderer with the original template bytes; this limitation is specific to the local ImageMagick converter path.
 
 ## PR 4 implementation evidence

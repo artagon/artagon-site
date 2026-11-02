@@ -68,7 +68,7 @@ Comprehensive site audit and improvements implemented to enhance SEO, performanc
 1. `astro.config.mjs` - Added sitemap integration
 2. `public/robots.txt` - Updated canonical domain
 3. `src/pages/platform/index.astro` - Enhanced hero with chart and chips
-4. `docs/SITE_AUDIT.md` - This document
+4. `docs/archive/2025-11-12-site-audit.md` - This document
 
 ### New Features
 

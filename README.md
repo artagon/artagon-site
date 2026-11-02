@@ -952,7 +952,7 @@ Asset / icon references:
 
 Historical snapshots (read-only):
 
-- **`docs/SITE_AUDIT.md`** - Phase-1-era audit dated 2026-05-04 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
+- **`docs/archive/2025-11-12-site-audit.md`** - Phase-1-era audit dated 2025-11-12 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
 
 ## License
 
