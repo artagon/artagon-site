@@ -146,17 +146,19 @@ Performance thresholds enforced in CI:
 - **Best Practices**: ≥90% (error)
 - **SEO**: ≥95% (error)
 
-Runs 2 times per URL and uploads to temporary public storage.
+Collects the configured routes and writes reports to `.build/reports/lhci/`.
 
 Local usage:
 
 ```bash
 npm run build
-npx -y @lhci/cli@0.15.x autorun --config=lighthouserc.json
+npx --no-install lhci autorun --config=lighthouserc.json --fail-on-upload-failure
 ```
 
-The LHCI config starts `scripts/lhci-serve.mjs`, which prints `READY` once the
-static server responds. Override the port with `LHCI_PORT` if needed.
+The generated `lighthouserc.json` uses `ci.collect.staticDistDir` set to
+`.build/dist`; LHCI serves that directory with its built-in static server.
+`scripts/lhci-serve.mjs` is an optional standalone local helper; it prints
+`READY` and accepts `LHCI_PORT`, but LHCI does not start it.
 
 ### Link Checker Configuration
 
@@ -635,8 +637,8 @@ Other build-related scripts not in the postbuild chain:
   configs (`lighthouserc.json`, `lychee.toml`) from
   `build.config.json` SSoT (run via `prebuild` before
   `astro build`).
-- `scripts/lhci-serve.mjs` — Lighthouse CI local server with
-  `READY` signal (consumed by `lighthouserc.json`).
+- `scripts/lhci-serve.mjs` — optional standalone local server with a `READY`
+  signal; `lighthouserc.json` instead uses `staticDistDir`.
 - `scripts/check-design-drift.mjs` — orphan-token detection. Every
   CSS custom property declared in `public/assets/theme.css` MUST
   resolve to a token in `DESIGN.md` YAML frontmatter, OR appear on
@@ -678,7 +680,7 @@ Other build-related scripts not in the postbuild chain:
 **Process:**
 
 1. Build site
-2. Start HTTP server on port 8081 (via `scripts/lhci-serve.mjs`)
+2. Serve `.build/dist` via LHCI's `staticDistDir` server
 3. Run Lighthouse audits
 4. Assert score thresholds against `lighthouserc.json` `assertMatrix`
 5. Upload results

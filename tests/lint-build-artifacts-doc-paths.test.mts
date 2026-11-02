@@ -29,6 +29,8 @@
 // documentation gates.
 
 import { describe, expect, test } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   inspectPathCitationSource,
   pathCitationSources,
@@ -47,4 +49,20 @@ describe("docs/build-artifacts.md path citations vs disk (pt200)", () => {
   test("every literal repo-rooted path resolves on disk", () => {
     expect(inspectPathCitationSource(ROOT, SOURCE)).toEqual([]);
   });
+});
+
+// BUILD 1.3: the framework-managed root is distinct from the configured cache.
+function assertAstroException(body: string) {
+  expect(body).toMatch(/CLI-managed `\.astro\/` root directory is an exception/);
+  expect(body).toMatch(/`astro dev` stores `data-store\.json` there/i);
+  expect(body).toMatch(/Production builds store `data-store\.json` in `BUILD\.cache\.astro`\s*\(`\.build\/cache\/astro`\) instead/i);
+  expect(body).toContain("node_modules/astro/dist/core/config/settings.js");
+  expect(body).toContain("node_modules/astro/dist/content/paths.js");
+}
+
+test("documents the Astro root exception and production cache separately", () => {
+  const body = readFileSync(join(ROOT, "docs/build-artifacts.md"), "utf8");
+  assertAstroException(body);
+  expect(() => assertAstroException(body.replaceAll(".astro/", ".other/"))).toThrow();
+  expect(() => assertAstroException(body.replace("Production builds store", "All builds store"))).toThrow();
 });

@@ -5,14 +5,34 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BUILD } from "../build.config.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const GENERATED = [join(ROOT, "lighthouserc.json"), join(ROOT, "lychee.toml")];
+
+// BUILD 1.4: after astro sync and build, framework metadata and cache stay ignored.
+test("Astro metadata and production cache occupy their ignored paths", () => {
+  const ignoreLines = readFileSync(join(ROOT, ".gitignore"), "utf8").split(/\r?\n/);
+  for (const entry of [".build/", ".astro/", ".lycheecache", ".lighthouseci/"]) {
+    assert.ok(ignoreLines.includes(entry), `missing .gitignore entry ${entry}`);
+  }
+  const gitEnv = { ...process.env };
+  for (const key of ["GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE"]) delete gitEnv[key];
+  const git = (...args) => execFileSync("git", args, { cwd: ROOT, env: gitEnv, encoding: "utf8" });
+  assert.equal(git("ls-files", "--", ".astro", ".lighthouseci", ".lycheecache").trim(), "");
+  assert.ok(["types.d.ts", "content.d.ts"].some((file) => {
+    const candidate = join(ROOT, ".astro", file);
+    return existsSync(candidate) && statSync(candidate).isFile();
+  }), "run astro sync before this check");
+  const store = join(ROOT, BUILD.cache.astro, "data-store.json");
+  assert.ok(existsSync(store) && statSync(store).isFile(), "run npm build before this check");
+  assert.equal(git("status", "--porcelain=v1", "--untracked-files=all", "--", ".astro", BUILD.cache.astro).trim(), "");
+});
 
 // LAYOUT-10A: validate the actual typed config against isolated inputs.
 test("icon checksum report path is required, typed and safe", () => {

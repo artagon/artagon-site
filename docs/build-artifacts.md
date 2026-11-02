@@ -6,6 +6,14 @@
 
 Configured build artifacts live under `.build/` at the repo root, covered by one `.gitignore` line. CLI-managed legacy caches are listed below as exceptions.
 
+Astro's CLI-managed `.astro/` root directory is an exception alongside
+`.lighthouseci/` and `.lycheecache`. Astro hardcodes `.astro/` for generated
+type declarations and settings; `astro dev` stores `data-store.json` there.
+Production builds store `data-store.json` in `BUILD.cache.astro`
+(`.build/cache/astro`) instead.
+See `node_modules/astro/dist/core/config/settings.js` and
+`node_modules/astro/dist/content/paths.js` for the respective paths.
+
 | Subdir            | Lifetime            | CI behavior               | Local cleanup                                            |
 | ----------------- | ------------------- | ------------------------- | -------------------------------------------------------- |
 | `.build/cache/`   | reusable locally    | not persisted by CI       | `npm run clean:cache` (fast iter without losing reports) |
@@ -64,7 +72,7 @@ Worked examples:
 
 | Tool                     | Cache                                           | Reports                                        | Config strategy                        |
 | ------------------------ | ----------------------------------------------- | ---------------------------------------------- | -------------------------------------- |
-| Astro                    | `BUILD.cache.astro`                             | —                                              | TS import in `astro.config.ts`         |
+| Astro                    | `BUILD.cache.astro`; CLI-managed `.astro/`      | —                                              | TS import in `astro.config.ts`         |
 | Playwright               | no configured cache                             | `BUILD.reports.playwright.{results,blob,html}` | TS import in `playwright.config.ts`    |
 | Playwright CLI           | —                                               | `BUILD.reports.playwrightCli`                  | Vitest assertion binds JSON config     |
 | Lighthouse CI            | CLI-managed `.lighthouseci/`                    | `BUILD.reports.lhci`                           | Generated `lighthouserc.json`          |
