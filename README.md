@@ -562,7 +562,7 @@ Tooling migration: the public guide URL /assets/logos/README.md is retired;
 use `docs/guides/logo-assets.md`. The 15 PNG image URLs under `/assets/logos/`
 remain unchanged.
 
-Icon SHA-256 hex and base64 reports now live under `.build/reports/icon-checksums/`; `public/icons/checksums/` URLs are retired. Generate reports with `scripts/icons/make-icons.sh`.
+Reports use `BUILD.reports.iconChecksums` (`.build/reports/icon-checksums/`); `/icons/checksums/*` URLs are retired; `/icons/*` image URLs remain unchanged.
 
 #### Composite App Icons
 
