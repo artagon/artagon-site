@@ -14,6 +14,8 @@ export interface BuildPaths {
     playwrightCli: string;
     lhci: string;
     cloudflarePurge: string;
+    // modernize-build-pipeline 3.1 (site-j2l.4): same-run artifact provenance.
+    buildProvenance: string;
   };
   dist: string;
 }
@@ -73,6 +75,7 @@ const REQUIRED_SHAPE = {
     playwrightCli: null,
     lhci: null,
     cloudflarePurge: null,
+    buildProvenance: null,
   },
   dist: null,
 } as const;

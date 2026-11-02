@@ -22,6 +22,9 @@ type Step = {
 };
 type Job = {
   name?: string;
+  if?: string;
+  needs?: string[];
+  strategy?: { matrix?: { shard?: number[] } };
   permissions?: Record<string, string>;
   steps: Step[];
 };
@@ -276,6 +279,195 @@ describe("unambiguous required check names", () => {
     duplicate.jobs.check!.name = "agents-check";
     expect(() => assertNames(agents, duplicate)).toThrow();
   });
+});
+
+// modernize-build-pipeline 3.3 (site-j2l.4): execute the actual final enforcement shell.
+describe("fail-closed browser required checks", () => {
+  const pw = workflow("playwright.yml");
+  const merge = pw.jobs["merge-reports"]!;
+  const enforceStep = step(
+    merge,
+    "Enforce upstream build and browser job success",
+  );
+  const expectedReportGuard =
+    "${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}";
+
+  test("keeps merge-reports always-run and preserves reports after failed shards", () => {
+    expect(merge.if).toBe("${{ always() }}");
+    expect(merge.needs).toEqual([
+      "build",
+      "test",
+      "visual-regression",
+      "accessibility",
+    ]);
+    expect(enforceStep.if).toBe("${{ always() }}");
+    expect(merge.steps.at(-1)).toBe(enforceStep);
+    expect(enforceStep.env).toEqual({
+      EVENT_NAME: "${{ github.event_name }}",
+      BUILD_RESULT: "${{ needs.build.result }}",
+      TEST_RESULT: "${{ needs.test.result }}",
+      VISUAL_RESULT: "${{ needs.visual-regression.result }}",
+      ACCESSIBILITY_RESULT: "${{ needs.accessibility.result }}",
+    });
+    expect(enforceStep.run).not.toContain("${{");
+    for (const name of [
+      "Download all reports",
+      "Merge reports",
+      "Upload merged report",
+    ]) {
+      const report = step(merge, name);
+      expect(report.if).toBe(expectedReportGuard);
+      // The condition remains true for failed shards, and contains a status function
+      // so Actions does not inject its implicit success() guard after a merge failure.
+      expect(report.if).not.toContain("needs.test.result == 'success'");
+    }
+  });
+
+  function assertRequiredNames(candidate: Workflow) {
+    const required = [
+      "agents-check",
+      "design-md-lint",
+      "lhci",
+      "lychee",
+      "test (1)",
+      "test (2)",
+      "test (3)",
+      "test (4)",
+      "test (5)",
+      "accessibility",
+      "visual-regression",
+      "merge-reports",
+      "spec-compliance",
+    ];
+    const names = readdirSync(workflowDir)
+      .filter((file) => /\.ya?ml$/.test(file))
+      .flatMap((file) => {
+        const parsed = file === "playwright.yml" ? candidate : workflow(file);
+        return Object.entries(parsed.jobs).flatMap(([id, job]) => {
+          const shards = job.strategy?.matrix?.shard;
+          return shards
+            ? shards.map((shard) => `${job.name ?? id} (${shard})`)
+            : [job.name ?? id];
+        });
+      });
+    expect(required).toHaveLength(13);
+    for (const name of required)
+      expect(
+        names.filter((actual) => actual === name),
+        name,
+      ).toHaveLength(1);
+    const docs = readFileSync(
+      new URL("../docs/build-artifacts.md", import.meta.url),
+      "utf8",
+    );
+    const documented = docs
+      .split("\n")
+      .find((line) => line.includes("All 13 checks are required:"))!;
+    expect(
+      [...documented.matchAll(/`([^`]+)`/g)].map((match) => match[1]),
+    ).toEqual(required);
+  }
+
+  test("preserves all 13 required contexts and rejects renamed/omitted checks", () => {
+    assertRequiredNames(pw);
+    const renamed = structuredClone(pw);
+    renamed.jobs["merge-reports"]!.name = "merge-reports-new";
+    expect(() => assertRequiredNames(renamed)).toThrow();
+    const shardMissing = structuredClone(pw);
+    shardMissing.jobs.test!.strategy!.matrix!.shard = [1, 2, 3, 4];
+    expect(() => assertRequiredNames(shardMissing)).toThrow();
+  });
+
+  const events = [
+    ["pull_request", "refs/pull/1/merge"],
+    ["push", "refs/heads/main"],
+    ["workflow_dispatch", "refs/heads/main"],
+    ["workflow_dispatch", "refs/heads/fixture"],
+  ] as const;
+  const results = ["success", "failure", "cancelled", "skipped"];
+  const cases: {
+    event: string;
+    ref: string;
+    build: string;
+    testResult: string;
+    visual: string;
+    accessibility: string;
+  }[] = [];
+  for (const [event, ref] of events) {
+    for (const build of results) {
+      for (const testResult of results) {
+        for (const visual of results) {
+          for (const accessibility of results) {
+            cases.push({
+              event,
+              ref,
+              build,
+              testResult,
+              visual,
+              accessibility,
+            });
+          }
+        }
+      }
+    }
+  }
+  test.each(cases)(
+    "$event $ref build=$build test=$testResult visual=$visual a11y=$accessibility",
+    ({ event, ref, build, testResult, visual, accessibility }) => {
+      const values: Record<string, string> = {
+        "${{ github.event_name }}": event,
+        "${{ needs.build.result }}": build,
+        "${{ needs.test.result }}": testResult,
+        "${{ needs.visual-regression.result }}": visual,
+        "${{ needs.accessibility.result }}": accessibility,
+      };
+      const env = Object.fromEntries(
+        Object.entries(enforceStep.env!).map(([key, expression]) => [
+          key,
+          values[expression]!,
+        ]),
+      );
+      const result = spawnSync("bash", ["-e", "-o", "pipefail"], {
+        input: enforceStep.run!,
+        encoding: "utf8",
+        env: { ...process.env, ...env, GITHUB_REF: ref },
+      });
+      const accepted =
+        build === "success" &&
+        testResult === "success" &&
+        accessibility === "success" &&
+        (visual === "success" ||
+          (event === "workflow_dispatch" && visual === "skipped"));
+      expect(result.status, result.stderr).toBe(accepted ? 0 : 1);
+    },
+  );
+
+  test.each(["", "unknown", "neutral"])(
+    "rejects unexpected upstream state %j",
+    (value) => {
+      for (const key of [
+        "BUILD_RESULT",
+        "TEST_RESULT",
+        "VISUAL_RESULT",
+        "ACCESSIBILITY_RESULT",
+      ]) {
+        const result = spawnSync("bash", ["-e", "-o", "pipefail"], {
+          input: enforceStep.run!,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            EVENT_NAME: "pull_request",
+            BUILD_RESULT: "success",
+            TEST_RESULT: "success",
+            VISUAL_RESULT: "success",
+            ACCESSIBILITY_RESULT: "success",
+            [key]: value,
+          },
+        });
+        expect(result.status).toBe(1);
+      }
+    },
+  );
 });
 
 async function enforce(

@@ -5,7 +5,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -123,3 +130,39 @@ test("path validator rejects traversal", () => {
     "expected path-traversal rejection in stderr",
   );
 });
+
+// modernize-build-pipeline 3.1 (site-j2l.4): the report leaf is required and validated.
+for (const control of ["valid", "missing", "non-string", "unsafe"]) {
+  test(`BUILD.reports.buildProvenance: ${control}`, () => {
+    const dir = mkdtempSync(join(tmpdir(), "site-build-provenance-config-"));
+    try {
+      copyFileSync(join(ROOT, "build.config.ts"), join(dir, "build.config.ts"));
+      const config = JSON.parse(
+        readFileSync(join(ROOT, "build.config.json"), "utf8"),
+      );
+      assert.equal(
+        config.reports.buildProvenance,
+        ".build/reports/build-provenance",
+      );
+      if (control === "missing") delete config.reports.buildProvenance;
+      if (control === "non-string") config.reports.buildProvenance = 42;
+      if (control === "unsafe") config.reports.buildProvenance = "../outside";
+      writeFileSync(join(dir, "build.config.json"), JSON.stringify(config));
+      const run = () =>
+        execFileSync(
+          process.execPath,
+          [
+            "--input-type=module",
+            "-e",
+            'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.buildProvenance)',
+          ],
+          { cwd: dir, encoding: "utf8", stdio: "pipe" },
+        );
+      if (control === "valid")
+        assert.equal(run(), ".build/reports/build-provenance");
+      else assert.throws(run, /reports\.buildProvenance/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+}

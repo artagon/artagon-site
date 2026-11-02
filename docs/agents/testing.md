@@ -74,6 +74,16 @@ Prerequisite: **Allow GitHub Actions to create and approve pull requests** must 
 
 The owner chose PRs with zero required approvals, admin bypass, blocked force-pushes and deletions, and disabled squash merging on 2026-10-26. The coordinator applies protection after this workflow change merges; see [the branch-protection configuration](../build-artifacts.md#generator-adjacent-codeowners).
 
+## Same-run Playwright build reuse
+
+`modernize-build-pipeline` tasks 3.1–3.3 (`site-j2l.4`) give the Playwright workflow one read-only `build` producer in the same pinned container and Node runtime as its browser consumers. It performs the initial lifecycle build once. The five `test` shards, `visual-regression`, and `accessibility` download the exact `needs.build.outputs.artifact-id` into `.build` and verify it before any suite runs. The four isolated schema-validation builds in `tests/content-collections.spec.ts` remain intentional. Trusted-main `update-snapshots`, deployment, and Lighthouse keep their own independent builds; they never consume a PR build artifact.
+
+`node scripts/verify-build-provenance.mjs --write` writes `provenance.json` under `BUILD.reports.buildProvenance` (`.build/reports/build-provenance`) and publishes its SHA-256 and producer attempt through job outputs. `--verify` checks the manifest digest, checkout SHA, workflow run ID, producer attempt, actual Node version, SHA-256 digests of `package-lock.json`, `build.config.json`, and `astro.config.ts`, and the complete recursive build-output file set and hashes. A missing, modified, extra, or non-regular file fails before tests; this is byte/provenance verification within one run, not a signed cross-workflow attestation.
+
+The required `merge-reports` check always runs after `build`, `test`, `visual-regression`, and `accessibility`. Report download/merge/upload still runs after failed shards when the build succeeded and the workflow was not cancelled. Its final enforcement step always runs: build, test, and accessibility must succeed on every event; visual regression must also succeed on PRs and pushes. Manual `workflow_dispatch` may accept the intentional visual-regression skip on either main or another ref. Every other upstream skip, failure, or cancellation fails enforcement. Report errors also fail the job. All 13 required check names stay unchanged.
+
+The build artifact has **1-day retention**. For **Re-run failed jobs**, the consumer verifies against `needs.build.outputs.producer-run-attempt`, not its own newer `GITHUB_RUN_ATTEMPT`; an attempt-2 consumer can therefore use a valid attempt-1 producer artifact. If download fails because that artifact expired, choose **Re-run all jobs** to regenerate it. Do not substitute another run's artifact or bypass verification.
+
 ## Gotchas
 
 - `lint:tokens` walks `git ls-files`, so a new untracked CSS file looks clean. Re-run the gate after `git add`.
