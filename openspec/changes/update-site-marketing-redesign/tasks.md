@@ -607,6 +607,7 @@
 - [x] 14.89 (`site-ukx`) Make visual snapshots sensitive to dark-surface palette shifts with one screenshot policy (`threshold: 0.01`, `maxDiffPixelRatio: 0.001`, animations disabled), guarded by `tests/visual-palette-threshold.test.mjs` using the installed Playwright comparator and in-memory palette/patch controls. Linux calibration and baseline reseeding remain pending in `site-grc`.
 - [x] 14.90 (`site-ojz`) Move the base and twilight/midnight palette `--bg` declarations into `@layer tokens` so the forced-colors map overrides both themes. Acceptance: `themeHex()` preserves both normal canvas values, root-selector negative controls reject unlayered `--bg` overrides, and `tests/styling-a11y.spec.ts` verifies `Canvas` under forced-colors emulation.
 - [x] 14.91 (`site-4pg`) Synchronize all browser theme-color metadata with the selected theme on bootstrap, runtime changes, and dev Tweaks; guard the canvas map against token drift and test theme resolution and CSP.
+- [x] 14.92 (`site-5to`) Verify search-tool permission semantics; gate tgrep index/serve, alternate ast-grep configuration, and ripwire server/quality modes; narrow immediate extra-root approval; mirror representable Codex prefixes and align skill markers/regressions. General short-flag clustering and complete root validation require an argument-aware hook and remain outside this glob-only change.
 
 ## Parallelism notes
 
