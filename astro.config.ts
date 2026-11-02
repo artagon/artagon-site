@@ -16,6 +16,21 @@ export default defineConfig({
   // strips whitespace between inline elements by JSX rules and ran words
   // together on every page ("ArtagonSkip to content…"). Keep HTML rules.
   compressHTML: true,
+  // USMR 14.87: Astro 7 leaves Vite's build.cssTarget unset, so Lightning
+  // CSS minifies without browser targets and drops -webkit- prefixes that
+  // Safari < 18 needs (for example -webkit-backdrop-filter on .site-nav).
+  // Pin Vite's own "baseline widely available" set.
+  vite: {
+    build: {
+      cssTarget: [
+        "chrome111",
+        "edge111",
+        "firefox114",
+        "safari16.4",
+        "ios16.4",
+      ],
+    },
+  },
   integrations: [
     mdx(),
     react(),
