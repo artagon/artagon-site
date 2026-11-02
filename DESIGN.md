@@ -299,6 +299,9 @@ variant values are documented under `docs/design-md.md` §6.13.
 
 Palette-sensitive visual coverage (USMR 14.89, `site-ukx`) uses a shared screenshot policy: per-pixel color threshold `0.01`, differing-pixel ratio at most `0.001` (0.1%), and disabled animations. In-memory historical palette and bounded-patch controls exercise the installed Playwright comparator. Linux calibration and baseline reseeding remain pending in `site-grc`; these controls do not establish rendered baseline acceptance.
 
+Browser chrome `theme-color` follows the selected theme's canvas, using the
+sRGB values in `src/data/theme-colors.ts` (USMR 14.91).
+
 Only a valid stored Tweaks theme overrides the production pre-paint choice.
 Missing, legacy (`dark`/`light`), or invalid Tweaks themes leave the page theme
 untouched. The panel uses that page theme if it is in `THEMES`, otherwise

@@ -21,6 +21,8 @@
  * future consumer importing this component without props.
  */
 
+import { THEME_COLORS } from '../data/theme-colors';
+
 interface Props {
   pinnedColor?: string;
   themeColor?: string;
@@ -28,7 +30,7 @@ interface Props {
 
 const {
   pinnedColor = '#3ceedd',
-  themeColor = '#07090c'
+  themeColor = THEME_COLORS.twilight
 } = Astro.props;
 ---
 
@@ -74,7 +76,7 @@ const {
 
 <!-- Theme Colors — media-aware for dark/light browser UI tinting -->
 <meta name="theme-color" content={themeColor} media="(prefers-color-scheme: dark)" />
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content={themeColor} media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content={themeColor} />
 
 <!-- Microsoft Tiles — TileColor + TileImage -->

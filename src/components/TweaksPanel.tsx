@@ -66,7 +66,10 @@ function applyToDom(t: Tweaks): void {
   const html = document.documentElement;
   html.setAttribute("data-accent", t.accent);
   html.setAttribute("data-density", t.density);
-  html.setAttribute("data-theme", t.theme);
+  // USMR 14.91: keep metadata in sync without persisting the dev choice.
+  const setTheme = (window as Window & { __setTheme?: (theme: string, persist?: boolean) => void }).__setTheme;
+  if (setTheme) setTheme(t.theme, false);
+  else html.setAttribute("data-theme", t.theme);
   html.setAttribute("data-hero-font", t.heroFont);
   // pt108 + pt109 — writingWidget projected to data-writing-widget
   // on <html>; pt109 wired the per-variant rendering via :global()
