@@ -44,14 +44,13 @@ describe("repository documentation path citations vs disk", () => {
   });
 
   test("directly resolves moved audit citations and rejects the old path", () => {
-    // LAYOUT-05B / R5A-03: directly check every occurrence Lychee may not extract.
+    // USMR site-w1n.6: resolve each complete moved-audit citation through the same
+    // parser used by the negative control; Lychee may not extract every occurrence.
     const citations = AUDIT_CITATION_SOURCES.flatMap((sourcePath) => {
       const source = readFileSync(resolve(ROOT, sourcePath), "utf8");
-      const occurrenceCount = source.split(MOVED_AUDIT_PATH).length - 1;
-      return Array.from({ length: occurrenceCount }, () => ({
-        sourcePath,
-        path: MOVED_AUDIT_PATH,
-      }));
+      return [...source.matchAll(/`([^`]*docs\/archive\/2025-11-12-site-audit\.md[^`]*)`/g)].map(
+        (match) => ({ sourcePath, token: match[0] }),
+      );
     });
     const sourcesWithCitations = [...new Set(citations.map(({ sourcePath }) => sourcePath))].sort();
 
@@ -64,8 +63,26 @@ describe("repository documentation path citations vs disk", () => {
       ),
     ).toHaveLength(7);
     for (const citation of citations) {
-      expect(existsSync(resolve(ROOT, citation.path)), citation.sourcePath).toBe(true);
+      expect(
+        findPathCitationDrifts(ROOT, citation.sourcePath, citation.token, {
+          pathPrefixes: ["docs/"],
+        }),
+        citation.token,
+      ).toEqual([]);
     }
+
+    const validCitation = citations[0]!;
+    const missingCitation = validCitation.token.replace(
+      MOVED_AUDIT_PATH,
+      `${MOVED_AUDIT_PATH}-missing`,
+    );
+    expect(
+      findPathCitationDrifts(ROOT, "moved-audit-negative-control.md", missingCitation, {
+        pathPrefixes: ["docs/"],
+      }),
+    ).toEqual([
+      `moved-audit-negative-control.md: ${MOVED_AUDIT_PATH}-missing`,
+    ]);
 
     const oldPath = "docs/SITE_AUDIT.md";
     expect(existsSync(resolve(ROOT, oldPath))).toBe(false);
