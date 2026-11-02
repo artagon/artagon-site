@@ -11,9 +11,9 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6.0.0
       - name: Setup Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6.0.0
         with: { node-version-file: .nvmrc, cache: "npm" }
       # Use the npm bundled with the runner's Node version (deterministic +
       # avoids unpinned `npm install -g npm@latest` supply-chain surface).
@@ -46,7 +46,7 @@ jobs:
           writeFileSync(join(BUILD.reports.cloudflarePurge, 'urls.json'), JSON.stringify([...urls].sort()));
           NODE
       - name: Upload cache purge URLs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: cloudflare-purge-urls
           path: .build/reports/cloudflare-purge/
@@ -69,14 +69,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Download cache purge URLs
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: cloudflare-purge-urls
           path: purge-urls
 
       - name: Deploy to Pages
         id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
       # USMR 14.42 (site-2m1.42): GH Pages soak-window-only purge.
       # Use CLOUDFLARE_CACHE_PURGE_TOKEN (Zone.Cache Purge on the DNS
