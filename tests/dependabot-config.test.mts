@@ -30,6 +30,7 @@ type Group = {
 type Ignore = {
   "dependency-name": string;
   "update-types"?: string[];
+  versions?: string[];
 };
 
 type Update = {
@@ -95,6 +96,23 @@ function hasMajorIgnore(update: Update, name: string): boolean {
   );
 }
 
+// Any ignore entry at all for a package (all versions, a range, or majors).
+function ignoreEntries(update: Update, name: string): Ignore[] {
+  return (update.ignore ?? []).filter((ignore) =>
+    patternMatches(ignore["dependency-name"], name),
+  );
+}
+
+const ASTRO_PACKAGES = [
+  "astro",
+  "@astrojs/mdx",
+  "@astrojs/react",
+  "@astrojs/rss",
+  "@astrojs/sitemap",
+  "@astrojs/check",
+  "@astrojs/markdown-remark",
+];
+
 function withoutIgnore(update: Update, name: string): Update {
   return {
     ...update,
@@ -114,7 +132,7 @@ const legacyNpmUpdate: Update = {
   ],
 };
 
-describe("Dependabot npm update policy (USMR 14.83)", () => {
+describe("Dependabot npm update policy (USMR 14.83, 14.88)", () => {
   test("groups all React packages first for every dependency type", () => {
     const reactGroup = npmUpdate.groups?.react;
     const validReactGroup =
@@ -170,25 +188,61 @@ describe("Dependabot npm update policy (USMR 14.83)", () => {
     ).not.toBe("react");
   });
 
-  test.each([
-    ["typescript", "TypeScript major upgrades are tracked by site-xt4"],
-    ["@astrojs/mdx", "@astrojs major upgrades are tracked by site-yy1"],
-  ])("ignores semver-major updates for %s", (name, reason) => {
-    expect(hasMajorIgnore(npmUpdate, name), reason).toBe(true);
+  // USMR 14.88 (site-yy1): React and Astro are never held back.
+  test.each([...REACT_PACKAGES, ...ASTRO_PACKAGES])(
+    "does not hold back %s",
+    (name) => {
+      expect(
+        ignoreEntries(npmUpdate, name),
+        `${name} must have no ignore entry`,
+      ).toEqual([]);
+      expect(
+        ignoreEntries(legacyNpmUpdate, "astro").length,
+        "legacy config negative control",
+      ).toBeGreaterThan(0);
+    },
+  );
+
+  test("groups astro with every @astrojs package, ahead of dev-deps", () => {
     expect(
-      hasMajorIgnore(legacyNpmUpdate, name),
-      `${name} legacy config negative control`,
+      ASTRO_PACKAGES.every(
+        (name) => firstMatchingGroup(npmUpdate, name) === "astro",
+      ),
+      "astro and @astrojs/* must first match the astro group",
+    ).toBe(true);
+    expect(
+      npmUpdate.groups?.astro?.["update-types"],
+      "majors are included",
+    ).toBeUndefined();
+    // Negative control: without the group, @astrojs/check falls into dev-deps.
+    const { astro: _astro, ...withoutAstro } = npmUpdate.groups ?? {};
+    expect(
+      firstMatchingGroup(
+        { ...npmUpdate, groups: withoutAstro },
+        "@astrojs/check",
+      ),
+    ).toBe("dev-deps");
+  });
+
+  test("holds TypeScript only at 7.x, which @astrojs/check cannot accept yet (site-xt4)", () => {
+    const entries = ignoreEntries(npmUpdate, "typescript");
+    expect(entries).toEqual([
+      { "dependency-name": "typescript", versions: [">=7.0.0"] },
+    ]);
+    expect(
+      hasMajorIgnore(npmUpdate, "typescript"),
+      "TypeScript 6 must not be blocked",
     ).toBe(false);
   });
 
-  test.each([
-    ["astro", "the existing Astro major ignore remains"],
-    ["@playwright/test", "the existing Playwright major ignore remains"],
-  ])("retains the semver-major ignore for %s", (name, reason) => {
-    expect(hasMajorIgnore(npmUpdate, name), reason).toBe(true);
+  test("retains the semver-major ignore for @playwright/test", () => {
+    expect(hasMajorIgnore(npmUpdate, "@playwright/test")).toBe(true);
     expect(
-      hasMajorIgnore(withoutIgnore(npmUpdate, name), name),
-      `${name} removal negative control`,
+      hasMajorIgnore(
+        withoutIgnore(npmUpdate, "@playwright/test"),
+        "@playwright/test",
+      ),
+      "removal negative control",
     ).toBe(false);
   });
 });
