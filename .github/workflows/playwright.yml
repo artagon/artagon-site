@@ -23,7 +23,7 @@ env:
   TOTAL_SHARDS: 5
 
 # HOME=/root is set at the job level on each containerized job
-# (test, visual-regression, accessibility) — NOT at workflow scope.
+# (build, test, visual-regression, accessibility) — NOT at workflow scope.
 # Workflow-scope leaks into the non-container `merge-reports` job and
 # action runner Docker calls, producing "/root/.docker/config.json:
 # permission denied" warnings. Job-scope keeps the override surgical.
@@ -59,7 +59,59 @@ env:
 #   4. Verify with `npx playwright --version` inside the new container.
 
 jobs:
+  # modernize-build-pipeline 3.2 (site-j2l.4): one read-only producer per run.
+  build:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
+    env:
+      HOME: /root
+    permissions:
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.upload-dist.outputs.artifact-id }}
+      producer-run-attempt: ${{ steps.provenance.outputs.producer-run-attempt }}
+      manifest-sha256: ${{ steps.provenance.outputs.manifest-sha256 }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        with:
+          persist-credentials: false
+
+      - name: Trust workspace inside container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Write build provenance
+        id: provenance
+        run: node scripts/verify-build-provenance.mjs --write
+
+      - name: Upload built site
+        id: upload-dist
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-dist-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .build/dist/
+            .build/reports/build-provenance/provenance.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
   test:
+    needs: [build]
     timeout-minutes: 20
     runs-on: ubuntu-latest
     container:
@@ -101,6 +153,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # modernize-build-pipeline 3.2: verify the exact producer artifact before suites.
+      - name: Download built site
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: .build
+
+      - name: Verify build provenance
+        run: node scripts/verify-build-provenance.mjs --verify
+        env:
+          EXPECTED_PRODUCER_RUN_ATTEMPT: ${{ needs.build.outputs.producer-run-attempt }}
+          EXPECTED_MANIFEST_SHA256: ${{ needs.build.outputs.manifest-sha256 }}
+
       # The base mcr.microsoft.com/playwright image ships chromium /
       # firefox / webkit. Microsoft Edge (channel: msedge) and Google
       # Chrome stable (channel: chrome) are NOT included — both
@@ -115,9 +180,6 @@ jobs:
 
       - name: Install Google Chrome channel
         run: npx playwright install chrome
-
-      - name: Build site
-        run: npm run build
 
       # Run all node:test suites once on shard 1 only — the other shards are
       # for Playwright parallelism, not node:test (which runs in <2s and
@@ -169,8 +231,9 @@ jobs:
           retention-days: 7
 
   merge-reports:
-    if: ${{ !cancelled() && needs.test.result != 'skipped' }}
-    needs: [test]
+    # modernize-build-pipeline 3.2: skipped dependencies must not satisfy protection.
+    if: ${{ always() }}
+    needs: [build, test, visual-regression, accessibility]
     timeout-minutes: 10
     runs-on: ubuntu-latest
     permissions:
@@ -178,20 +241,24 @@ jobs:
     steps:
       # USMR 14.39: use the lockfile-pinned CLI and BUILD's HTML output path.
       - name: Checkout code
+        if: ${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
         with:
           persist-credentials: false
 
       - name: Setup Node.js
+        if: ${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
 
       - name: Install dependencies
+        if: ${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}
         run: npm ci
 
       - name: Download all reports
+        if: ${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: playwright-blob-shard-*
@@ -199,6 +266,7 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
+        if: ${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}
         # The CLI defaults to playwright-report/ unless this env is set.
         run: |
           PLAYWRIGHT_HTML_OUTPUT_DIR="$(node --input-type=module -e 'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.playwright.html)')"
@@ -208,7 +276,7 @@ jobs:
 
       - name: Upload merged report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        if: always()
+        if: ${{ !cancelled() && needs.build.result == 'success' && needs.test.result != 'skipped' }}
         with:
           name: playwright-report-merged
           path: .build/reports/playwright/html/
@@ -216,7 +284,31 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Enforce upstream build and browser job success
+        if: ${{ always() }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          VISUAL_RESULT: ${{ needs.visual-regression.result }}
+          ACCESSIBILITY_RESULT: ${{ needs.accessibility.result }}
+        run: |
+          set -Eeuo pipefail
+          if [[ "$BUILD_RESULT" != 'success' || "$TEST_RESULT" != 'success' || "$ACCESSIBILITY_RESULT" != 'success' ]]; then
+            echo 'Build, test, and accessibility must all succeed.' >&2
+            exit 1
+          fi
+          if [[ "$VISUAL_RESULT" == 'success' ]]; then
+            exit 0
+          fi
+          if [[ "$EVENT_NAME" == 'workflow_dispatch' && "$VISUAL_RESULT" == 'skipped' ]]; then
+            exit 0
+          fi
+          echo 'Visual regression must succeed; only dispatch may skip it.' >&2
+          exit 1
+
   visual-regression:
+    needs: [build]
     # USMR 14.67 (site-2m1.67): PR code only receives a read-only token.
     if: github.event_name != 'workflow_dispatch'
     timeout-minutes: 20
@@ -250,8 +342,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build site
-        run: npm run build
+      - name: Download built site
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: .build
+
+      - name: Verify build provenance
+        run: node scripts/verify-build-provenance.mjs --verify
+        env:
+          EXPECTED_PRODUCER_RUN_ATTEMPT: ${{ needs.build.outputs.producer-run-attempt }}
+          EXPECTED_MANIFEST_SHA256: ${{ needs.build.outputs.manifest-sha256 }}
 
       # USMR 14.38b: 39 Chromium Linux baselines are tracked, including the
       # masked /vision footer. A mismatch fails the visual-regression job;
@@ -355,6 +456,7 @@ jobs:
           retention-days: 7
 
   accessibility:
+    needs: [build]
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.59.1-jammy@sha256:8a0360d39d1973be506dd59002904a774f6d697d4946c94063b3fd006461c8ff
@@ -383,8 +485,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build site
-        run: npm run build
+      - name: Download built site
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: .build
+
+      - name: Verify build provenance
+        run: node scripts/verify-build-provenance.mjs --verify
+        env:
+          EXPECTED_PRODUCER_RUN_ATTEMPT: ${{ needs.build.outputs.producer-run-attempt }}
+          EXPECTED_MANIFEST_SHA256: ${{ needs.build.outputs.manifest-sha256 }}
 
       # USMR 14.40: target the axe and a11y specs on chromium + webkit + Mobile
       # Safari. Most a11y regressions show up cross-engine identically

@@ -15,6 +15,8 @@ export interface BuildPaths {
     lhci: string;
     cloudflarePurge: string;
     iconChecksums: string; // LAYOUT-10A
+    // modernize-build-pipeline 3.1 (site-j2l.4): same-run artifact provenance.
+    buildProvenance: string;
   };
   dist: string;
 }
@@ -75,6 +77,7 @@ const REQUIRED_SHAPE = {
     lhci: null,
     cloudflarePurge: null,
     iconChecksums: null, // LAYOUT-10A
+    buildProvenance: null,
   },
   dist: null,
 } as const;

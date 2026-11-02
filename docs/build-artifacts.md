@@ -16,7 +16,7 @@ Sub-paths emitted today:
 
 ```
 .build/cache/astro/
-.build/reports/{playwright/{results,blob,html},playwright-cli,lhci,cloudflare-purge,icon-checksums}/
+.build/reports/{playwright/{results,blob,html},playwright-cli,lhci,cloudflare-purge,icon-checksums,build-provenance}/
 .build/dist/                 # astro build output, deployed to Pages
 .build/.run.lock             # optional cleanup sentinel (hostname:pid:ts)
 ```
@@ -62,17 +62,18 @@ When adding a new tool to the project (Vitest, Storybook, etc.), pick the path c
 
 Worked examples:
 
-| Tool                     | Cache                                           | Reports                                        | Config strategy                        |
-| ------------------------ | ----------------------------------------------- | ---------------------------------------------- | -------------------------------------- |
-| Astro                    | `BUILD.cache.astro`                             | —                                              | TS import in `astro.config.ts`         |
-| Playwright               | no configured cache                             | `BUILD.reports.playwright.{results,blob,html}` | TS import in `playwright.config.ts`    |
-| Playwright CLI           | —                                               | `BUILD.reports.playwrightCli`                  | Vitest assertion binds JSON config     |
-| Lighthouse CI            | CLI-managed `.lighthouseci/`                    | `BUILD.reports.lhci`                           | Generated `lighthouserc.json`          |
-| Lychee                   | default `.lycheecache` file; not restored in CI | —                                              | Generated `lychee.toml`                |
-| Cloudflare soak purge    | —                                               | `BUILD.reports.cloudflarePurge` (`urls.json`)  | Inline workflow imports `BUILD`        |
-| Vitest (hypothetical)    | `BUILD.cache.vitest`                            | `BUILD.reports.vitest`                         | TS import in `vitest.config.ts`        |
-| Storybook (hypothetical) | `BUILD.cache.storybook`                         | —                                              | Generated `.storybook/main.ts` partial |
-| Husky (no paths)         | —                                               | —                                              | No `BUILD.*` entry; just install.      |
+| Tool                        | Cache                                           | Reports                                             | Config strategy                                       |
+| --------------------------- | ----------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| Astro                       | `BUILD.cache.astro`                             | —                                                   | TS import in `astro.config.ts`                        |
+| Playwright                  | no configured cache                             | `BUILD.reports.playwright.{results,blob,html}`      | TS import in `playwright.config.ts`                   |
+| Playwright CLI              | —                                               | `BUILD.reports.playwrightCli`                       | Vitest assertion binds JSON config                    |
+| Lighthouse CI               | CLI-managed `.lighthouseci/`                    | `BUILD.reports.lhci`                                | Generated `lighthouserc.json`                         |
+| Lychee                      | default `.lycheecache` file; not restored in CI | —                                                   | Generated `lychee.toml`                               |
+| Cloudflare soak purge       | —                                               | `BUILD.reports.cloudflarePurge` (`urls.json`)       | Inline workflow imports `BUILD`                       |
+| Playwright build provenance | —                                               | `BUILD.reports.buildProvenance` (`provenance.json`) | `scripts/verify-build-provenance.mjs` imports `BUILD` |
+| Vitest (hypothetical)       | `BUILD.cache.vitest`                            | `BUILD.reports.vitest`                              | TS import in `vitest.config.ts`                       |
+| Storybook (hypothetical)    | `BUILD.cache.storybook`                         | —                                                   | Generated `.storybook/main.ts` partial                |
+| Husky (no paths)            | —                                               | —                                                   | No `BUILD.*` entry; just install.                     |
 
 ## Tree-sitter exclusion
 
@@ -96,6 +97,12 @@ All three route through `scripts/clean.mjs <target>` which:
 Bare `rm -rf .build/...` is forbidden — it crashes mid-test runs.
 
 ## CI artifact retention
+
+The Playwright workflow's read-only `build` job performs one initial lifecycle build for its five test shards, visual-regression job, and accessibility job (`modernize-build-pipeline` 3.1–3.3, `site-j2l.4`). It uploads `.build/dist/` and `provenance.json` from `BUILD.reports.buildProvenance` (`.build/reports/build-provenance`) together, including hidden files, with **1-day retention**. Their common archive root is `.build`; downloading the exact producer artifact ID into `.build` restores both paths. Consumers run `node scripts/verify-build-provenance.mjs --verify` before suites. Missing artifacts, a manifest digest/checkout SHA/run ID/producer attempt/Node version/input digest mismatch, or missing/modified/extra build files fail closed. The manifest stays outside the deployed output and is removed by `npm run clean:reports`.
+
+**Re-run failed jobs** can reuse a still-retained producer artifact: verification binds to the producer's `producer-run-attempt` and `manifest-sha256` job outputs rather than the retrying consumer's attempt number. After expiry, download must fail; recover with **Re-run all jobs**. Artifact reuse is restricted to the same workflow run and read-only consumers, including fork PRs. Trusted-main `update-snapshots` and the separate deployment/Lighthouse workflows build independently.
+
+The required `merge-reports` check declares all four producer/browser dependencies and `if: always()`. It merges and uploads reports after failed shards when build succeeded and the workflow is not cancelled, then always enforces upstream success. Build, test, and accessibility must succeed on every event. Visual regression must succeed on PR/push; only `workflow_dispatch` may intentionally skip it (both main and other refs). Other skips, failures, and cancellations fail the check. Existing report/merge failures also remain failures; the 13 required check names listed below are unchanged.
 
 Playwright shards emit GitHub annotations, HTML, and blob reports. CI uploads each shard's blob directory (including hidden parent directories) and the merge job installs the lockfile-pinned CLI, downloads those blobs, and writes combined HTML to `BUILD.reports.playwright.html`. Empty report uploads and merge failures fail the job. Report artifacts use `retention-days: 14`; failure screenshots use 7 days and the deploy purge manifest uses 1 day. Retention bounds lifetime, not total storage; quota headroom depends on report size and run frequency and has not been measured here.
 
