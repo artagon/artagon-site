@@ -36,9 +36,9 @@ Every path string above is declared once, in `build.config.json`. Two consumer s
 
 `npm run sync:build-config` regenerates from `build.config.json` plus `scripts/fixtures/lhci-assertions.json`:
 
-| Generated file      | Source                                                                                  |
-| ------------------- | --------------------------------------------------------------------------------------- |
-| `lighthouserc.json` | `build.config.json` (paths) + `scripts/fixtures/lhci-assertions.json` (assertion shape) |
+| Generated file      | Source                                                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `lighthouserc.json` | `build.config.json` (paths) + `scripts/fixtures/lhci-assertions.json` (assertion shape)                                                                |
 | `lychee.toml`       | `build.config.json` (build-output entries of `exclude_path`); caching enabled by `cache = true`; checkout root passed by the workflow via `--root-dir` |
 
 GitHub workflows are hand-edited. Their artifact paths mirror `build.config.json`; they are not generator outputs. Workflow YAML mutation is a future design, with no scaffold wired into sync today.
@@ -62,17 +62,17 @@ When adding a new tool to the project (Vitest, Storybook, etc.), pick the path c
 
 Worked examples:
 
-| Tool                     | Cache                                       | Reports                                        | Config strategy                        |
-| ------------------------ | ------------------------------------------- | ---------------------------------------------- | -------------------------------------- |
-| Astro                    | `BUILD.cache.astro`                         | —                                              | TS import in `astro.config.ts`         |
-| Playwright               | no configured cache                         | `BUILD.reports.playwright.{results,blob,html}` | TS import in `playwright.config.ts`    |
-| Playwright CLI           | —                                           | `BUILD.reports.playwrightCli`                 | Vitest assertion binds JSON config     |
-| Lighthouse CI            | CLI-managed `.lighthouseci/`                | `BUILD.reports.lhci`                           | Generated `lighthouserc.json`          |
+| Tool                     | Cache                                           | Reports                                        | Config strategy                        |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------------- | -------------------------------------- |
+| Astro                    | `BUILD.cache.astro`                             | —                                              | TS import in `astro.config.ts`         |
+| Playwright               | no configured cache                             | `BUILD.reports.playwright.{results,blob,html}` | TS import in `playwright.config.ts`    |
+| Playwright CLI           | —                                               | `BUILD.reports.playwrightCli`                  | Vitest assertion binds JSON config     |
+| Lighthouse CI            | CLI-managed `.lighthouseci/`                    | `BUILD.reports.lhci`                           | Generated `lighthouserc.json`          |
 | Lychee                   | default `.lycheecache` file; not restored in CI | —                                              | Generated `lychee.toml`                |
-| Cloudflare soak purge    | —                                           | `BUILD.reports.cloudflarePurge` (`urls.json`)  | Inline workflow imports `BUILD`        |
-| Vitest (hypothetical)    | `BUILD.cache.vitest`                        | `BUILD.reports.vitest`                         | TS import in `vitest.config.ts`        |
-| Storybook (hypothetical) | `BUILD.cache.storybook`                     | —                                              | Generated `.storybook/main.ts` partial |
-| Husky (no paths)         | —                                           | —                                              | No `BUILD.*` entry; just install.      |
+| Cloudflare soak purge    | —                                               | `BUILD.reports.cloudflarePurge` (`urls.json`)  | Inline workflow imports `BUILD`        |
+| Vitest (hypothetical)    | `BUILD.cache.vitest`                            | `BUILD.reports.vitest`                         | TS import in `vitest.config.ts`        |
+| Storybook (hypothetical) | `BUILD.cache.storybook`                         | —                                              | Generated `.storybook/main.ts` partial |
+| Husky (no paths)         | —                                               | —                                              | No `BUILD.*` entry; just install.      |
 
 ## Tree-sitter exclusion
 
@@ -103,7 +103,7 @@ Only Astro's cache is configured under `BUILD.cache`. CI currently caches npm do
 
 ## Generator-adjacent CODEOWNERS
 
-The SSoT generator surface is dual-review-gated to close the workflow-injection vector — a single-reviewer rubber-stamp on `build.config.json` would otherwise bypass `.github/workflows/` review via the generator pathway. CODEOWNERS pairs `@artagon/owners` (admin team) with `@trumpyla` for:
+The SSoT generator surface can change workflows indirectly through `build.config.json`, so CODEOWNERS identifies the reviewers for both generators and workflows. It pairs `@artagon/owners` (admin team) with `@trumpyla` for:
 
 - `build.config.{json,ts}`, `tsconfig.json`, `package.json`
 - `scripts/sync-build-config.mjs`, `scripts/clean.mjs`
@@ -112,7 +112,13 @@ The SSoT generator surface is dual-review-gated to close the workflow-injection 
 - `.github/workflows/`, `.github/dependabot.yml`, `.github/CODEOWNERS`
 - `.gitignore`, `.gitattributes`, `.nvmrc`
 
-Branch protection on `main` should enforce `required_approving_review_count: 2` + `require_code_owner_reviews: true`.
+On 2026-10-26 the owner chose the following configuration for `main` (USMR 14.82, `site-pep`). The coordinator applies it after the prerequisite workflow changes merge; this document does not verify the live GitHub settings:
+
+- A pull request is required, with `required_approving_review_count: 0` and `require_code_owner_reviews: false`. A sole maintainer cannot satisfy two approvals or approve their own PR. CODEOWNERS stays advisory until a second human reviewer exists; then restore two required approvals and required code-owner reviews.
+- All 13 checks are required: `agents-check`, `design-md-lint`, `lhci`, `lychee`, `test (1)`, `test (2)`, `test (3)`, `test (4)`, `test (5)`, `accessibility`, `visual-regression`, `merge-reports`, and `spec-compliance`.
+- `actionlint`, `copilot-setup-steps`, and `pr-diff` (from `design-md-pr-diff.yml`) are path-filtered, so they are not required checks: they would leave unrelated PRs waiting for checks that never run.
+- Admin bypass is allowed (`enforce_admins: false`); force-pushes and branch deletion are blocked. Squash merging is disabled, as recorded in archived task 5.7, to preserve commit ancestry used by prerequisite checks.
+- Snapshot PR creation requires **Allow GitHub Actions to create and approve pull requests** in the repository's Actions settings. The coordinator verified it was enabled on 2026-10-26 (`can_approve_pull_request_reviews: true`). If PR creation fails after the branch is pushed, delete the orphan `ci/update-snapshots-<run_id>` branch, then dispatch again using [the snapshot PR procedure](agents/testing.md#intentional-visual-changes).
 
 ## Drift gate + bypass set
 

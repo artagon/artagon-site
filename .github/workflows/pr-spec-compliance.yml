@@ -50,6 +50,8 @@ jobs:
 
       - name: Validate spec reference
         id: validate
+        # USMR 14.82 (site-pep): Dependabot needs no spec or validation API calls.
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -66,6 +68,12 @@ jobs:
             const pr = context.payload.pull_request;
             if (!pr) {
               // Not triggered by a pull_request event; nothing to enforce.
+              return;
+            }
+
+            // USMR 14.82 (site-pep): trust only the PR author, before any API writes.
+            if (context.payload.pull_request.user.login === 'dependabot[bot]') {
+              await core.summary.addRaw('Dependabot dependency update: spec reference not required.').write();
               return;
             }
 

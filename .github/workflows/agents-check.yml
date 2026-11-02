@@ -9,6 +9,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   check:
+    # USMR 14.82 (site-pep): required checks need unique display names.
+    name: agents-check
     runs-on: ubuntu-latest
     permissions:
       contents: read

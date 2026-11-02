@@ -61,7 +61,16 @@ Adding a device project means updating `projects[]` in `playwright.config.ts` an
 
 ### Intentional visual changes
 
-Merge the visual change to main, dispatch `update-snapshots` on main, then push a follow-up commit to main or open/update a PR to trigger a fresh comparison against the new baselines. The update job's `GITHUB_TOKEN` commit does not trigger another workflow run. A mismatch fails the visual-regression job; that job is not a required status check on main.
+The snapshot update job runs only on trusted main (USMR 14.82, `site-pep`):
+
+Prerequisite: **Allow GitHub Actions to create and approve pull requests** must be enabled in the repository's Actions settings. The coordinator verified it was enabled on 2026-10-26 (`can_approve_pull_request_reviews: true`). If PR creation fails after the branch is pushed, delete the orphan `ci/update-snapshots-<run_id>` branch, then dispatch the workflow again.
+
+1. Dispatch the **Playwright Tests** workflow on `main` after the intended visual change is available there. An intentional mismatch may require the owner's admin bypass to merge that change before regenerating baselines.
+2. When baselines change, `update-snapshots` commits them to `ci/update-snapshots-<run_id>` and opens a PR to `main`. With no snapshot changes, it creates no branch or PR.
+3. Select **Approve workflows to run** in the merge box (or close and reopen the PR). GitHub documents approval-required runs for a PR opened with `GITHUB_TOKEN`; see [GITHUB_TOKEN — When GITHUB_TOKEN triggers workflow runs](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs).
+4. Review the updated baselines and merge the PR after all 13 required checks pass. A mismatch fails the required `visual-regression` check.
+
+The owner chose PRs with zero required approvals, admin bypass, blocked force-pushes and deletions, and disabled squash merging on 2026-10-26. The coordinator applies protection after this workflow change merges; see [the branch-protection configuration](../build-artifacts.md#generator-adjacent-codeowners).
 
 ## Gotchas
 
@@ -72,6 +81,6 @@ Merge the visual change to main, dispatch `update-snapshots` on main, then push 
 
 From the 2026-10-20 review (beads under epic `site-2m1`):
 
-- The trusted-main `workflow_dispatch` update-snapshots job seeded 39 Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the visual-regression job. This job is not a required status check on main. `site-2m1.38` uses `#playground` for the home explore snapshot, restores `#pillars` coverage on `/platform`, and scopes the vision domain-card snapshot to `#executive-summary`.
+- The trusted-main `workflow_dispatch` update-snapshots job seeded 39 Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete. Snapshot updates now use the PR procedure above, and `visual-regression` is among the owner's selected required checks. `site-2m1.38` uses `#playground` for the home explore snapshot, restores `#pillars` coverage on `/platform`, and scopes the vision domain-card snapshot to `#executive-summary`.
 - The active `self-host-woff2-fonts` change will require a full visual-baseline re-seed after the font files move into the repository.
 - The header hit-area tests are `test.fixme`, and the GitHub icon is 34 × 34 px (`site-2m1.32`).

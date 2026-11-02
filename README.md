@@ -659,7 +659,7 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs these 12 ste
 9. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
    source for tagline strings via `src/content/taglines.json`.
 10. `lint:design` — `design.md lint DESIGN.md` per
-   `@google/design.md@0.1.1`.
+    `@google/design.md@0.1.1`.
 11. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
     guards against duplicate DESIGN.md FILES — exactly one at the
     repo root, none under `src/`, `new-design/`, or any other
@@ -784,7 +784,7 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 
 **Trigger:** Push to `main`, pull request to `main`, manual dispatch
 
-**Process:** Runs the full Playwright project matrix in five shards with two workers per shard. Each shard uploads a blob report; a lockfile-pinned merge job creates the combined HTML report (14-day retention). The accessibility job targets `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium / webkit / Mobile Safari. Visual comparison is read-only and Chromium-only, with 39 tracked Linux baselines including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the visual-regression job. This job is not a required status check on main. Manual dispatch on `main` runs a separate snapshot-update job with write permission; its verified pathspec stages only Chromium Linux PNGs and push failures fail the job. Hosted timing remains pending. See `playwright.config.ts` for the full project matrix.
+**Process:** Runs the full Playwright project matrix in five shards with two workers per shard. Each shard uploads a blob report; a lockfile-pinned merge job creates the combined HTML report (14-day retention). The accessibility job targets `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium / webkit / Mobile Safari. Visual comparison is read-only and Chromium-only, with 39 tracked Linux baselines including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the required `visual-regression` status check on main. Manual dispatch on `main` runs a separate snapshot-update job that commits only Chromium Linux PNGs to a new branch and opens a PR; follow [the snapshot PR procedure](docs/agents/testing.md#intentional-visual-changes) to approve CI and merge. Hosted timing remains pending. See `playwright.config.ts` for the full project matrix.
 
 #### Design.md Lint (`design-md-lint.yml`)
 

@@ -96,13 +96,14 @@ Tests Content Collections schema enforcement:
 3. **visual-regression** - Visual regression suite (`VISUAL_REGRESSION=1`)
    - Compares `tests/vision-page.spec.ts` and `tests/styling-snapshots.spec.ts` on Chromium only, with read-only repository permission and no persisted checkout credentials
    - Runs on push/PR events with 39 tracked Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete
-   - A mismatch fails the visual-regression job. The job is not a required status check on main
+   - A mismatch fails the visual-regression job. The job is a required status check on main; see [the full required-check list](build-artifacts.md#generator-adjacent-codeowners).
    - Uploads the diff artifact after comparison failures
 
 4. **update-snapshots** - Manual baseline update
    - Runs only on `workflow_dispatch` of `main`, with write permission
    - Uses the same two specs on Chromium with `--update-snapshots`
-   - Stages only Chromium Linux PNGs through the verified pathspec; commit/push failures fail the job
+   - Commits only Chromium Linux PNGs to `ci/update-snapshots-<run_id>` and opens a PR to main; commit, push, and PR failures fail the job
+   - Follow [the snapshot PR procedure](agents/testing.md#intentional-visual-changes) to approve CI and merge the baselines
 
 5. **accessibility** - Accessibility audit
    - Explicitly selects `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium, webkit, and Mobile Safari

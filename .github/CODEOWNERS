@@ -1,6 +1,7 @@
-# CODEOWNERS — required reviewers for protected file paths.
-# Branch protection on `main` requires `required_approving_review_count: 2`
-# AND `require_code_owner_reviews: true`.
+# CODEOWNERS — reviewer routing for protected file paths.
+# Owner policy (2026-10-26): main requires a PR with 0 approvals while there
+# is one human maintainer; CODEOWNERS is advisory until a second human reviewer exists.
+# Then restore 2 required approvals and required code-owner reviews.
 #
 # Team-handle policy (per the build-config capability spec at
 # `openspec/specs/build-config/spec.md`; originally authored in the
@@ -8,7 +9,7 @@
 # proposal):
 # Org has `commiters`, `owners`, `read-only-team`. No `security` or
 # `maintainers` slug. Fallback: pair `@artagon/owners` (admin team)
-# with named individual `@trumpyla` to enforce two-distinct-reviewer rule.
+# with named individual `@trumpyla` for advisory routing until dual review is restored.
 
 # Default owner for everything in the repo
 * @trumpyla
@@ -16,7 +17,7 @@
 # Agent configuration and workflows
 /.agents/ @trumpyla
 
-# SSoT generator surface — DUAL REVIEW required (workflow-injection vector)
+# SSoT generator surface — advisory now; dual review when a second human reviewer exists.
 /build.config.json @artagon/owners @trumpyla
 /build.config.ts @artagon/owners @trumpyla
 /scripts/sync-build-config.mjs @artagon/owners @trumpyla

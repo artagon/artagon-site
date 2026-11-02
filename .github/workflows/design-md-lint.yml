@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   check:
+    # USMR 14.82 (site-pep): required checks need unique display names.
+    name: design-md-lint
     runs-on: ubuntu-latest
     permissions:
       contents: read

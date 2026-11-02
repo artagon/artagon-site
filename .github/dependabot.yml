@@ -31,6 +31,10 @@ updates:
       time: "06:00"
       timezone: America/Los_Angeles
     groups:
+      # USMR 14.82 (site-o6a): keep the React runtime and type packages
+      # together; this must precede dev-deps because the first matching group wins.
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
       dev-deps:
         dependency-type: development
     open-pull-requests-limit: 5
@@ -40,9 +44,10 @@ updates:
       prefix: "chore(deps)"
       include: scope
     ignore:
-      # Major bumps gated on manual review. Live versions today:
-      # `astro` = 6.2.1 (USMR Phase 5.x is on Astro 6; the 5 → 6
-      # migration shipped mid-USMR), `@playwright/test` = 1.59.1.
+      # Major bumps gated on manual review. Live versions today (package.json):
+      # astro=6.2.1, @astrojs/check=0.9.11, @astrojs/mdx=5.0.4,
+      # @astrojs/react=5.0.4, @astrojs/rss=4.0.18, @astrojs/sitemap=3.7.2,
+      # @playwright/test=1.59.1, typescript=5.9.3.
       # Future Astro 6 → 7 / Playwright 1.x → 2.x bumps need a
       # human reviewer per the build-config capability spec at
       # openspec/specs/build-config/spec.md (originally authored
@@ -50,6 +55,13 @@ updates:
       # standardize-build-artifacts/ proposal — its `Sync
       # Generator and Drift Gate` Requirement is the SSoT
       # contract referenced here).
+      # site-xt4: TypeScript 6/7 majors hit ERESOLVE because
+      # @astrojs/check 0.9.x accepts TypeScript 5.x only.
+      # site-yy1: @astrojs major upgrades are gated on the Astro 7 migration.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@astrojs/*"
+        update-types: ["version-update:semver-major"]
       - dependency-name: "astro"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@playwright/test"
