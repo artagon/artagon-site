@@ -82,7 +82,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6.0.0
 
       # The Microsoft Playwright image runs as root, but the checkout files
       # are owned by a different UID — git refuses to operate on the tree
@@ -93,7 +93,7 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6.0.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -151,7 +151,7 @@ jobs:
         run: npm run test:ci -- --shard=${{ matrix.shard }}/${{ env.TOTAL_SHARDS }}
 
       - name: Upload test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: playwright-blob-shard-${{ strategy.job-index }}
@@ -161,7 +161,7 @@ jobs:
           retention-days: 14
 
       - name: Upload screenshots on failure
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: playwright-screenshots-shard-${{ strategy.job-index }}
@@ -178,12 +178,12 @@ jobs:
     steps:
       # USMR 14.39: use the lockfile-pinned CLI and BUILD's HTML output path.
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6.0.0
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6.0.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -192,7 +192,7 @@ jobs:
         run: npm ci
 
       - name: Download all reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: playwright-blob-shard-*
           path: .build/reports/playwright/blob/
@@ -207,7 +207,7 @@ jobs:
           npx --no-install playwright merge-reports --reporter html "$BLOB_DIR"
 
       - name: Upload merged report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: playwright-report-merged
@@ -229,7 +229,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6.0.0
         with:
           persist-credentials: false
 
@@ -242,7 +242,7 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6.0.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -262,7 +262,7 @@ jobs:
           VISUAL_REGRESSION: "1"
 
       - name: Upload visual diffs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: visual-regression-diffs
@@ -282,13 +282,13 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6.0.0
 
       - name: Trust workspace inside container
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6.0.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -314,7 +314,7 @@ jobs:
           git push
 
       - name: Upload visual diffs
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: snapshot-update-failures
@@ -331,7 +331,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6.0.0
 
       # The Microsoft Playwright image runs as root, but the checkout files
       # are owned by a different UID — git refuses to operate on the tree
@@ -342,7 +342,7 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v6.0.0
         with:
           node-version-file: .nvmrc
           cache: "npm"
@@ -363,7 +363,7 @@ jobs:
         run: npx playwright test tests/home-axe.spec.ts tests/styling-a11y.spec.ts --project=chromium --project=webkit --project="Mobile Safari"
 
       - name: Upload a11y results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: accessibility-failures
