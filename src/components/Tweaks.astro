@@ -58,7 +58,11 @@ const isDev = import.meta.env.DEV;
             if (densities.indexOf(t.density) >= 0) html.setAttribute("data-density", t.density);
             // USMR 14.13 R1: only valid Tweaks themes override the production choice.
             // Legacy, missing, and invalid themes leave the pre-paint result untouched.
-            if (themes.indexOf(t.theme) >= 0) html.setAttribute("data-theme", t.theme);
+            if (themes.indexOf(t.theme) >= 0) {
+              // USMR 14.91: do not persist a dev-only override as a production choice.
+              if (typeof window !== "undefined" && typeof window.__setTheme === "function") window.__setTheme(t.theme, false);
+              else html.setAttribute("data-theme", t.theme);
+            }
             if (fonts.indexOf(t.heroFont) >= 0) html.setAttribute("data-hero-font", t.heroFont);
             if (widgets.indexOf(t.writingWidget) >= 0) html.setAttribute("data-writing-widget", t.writingWidget);
             if (t.showGrid === false && document.body) document.body.classList.add("no-grid");

@@ -6,6 +6,7 @@ import Tweaks from '../components/Tweaks.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { PRODUCTION_FONT_STYLESHEET } from '../data/font-stylesheets';
+import { THEME_COLORS } from '../data/theme-colors';
 import { isNoindexRoute } from '../lib/indexation';
 // Re-export `SeoProps` so BaseLayout's prop contract tracks SeoTags
 // at compile time (USMR Phase 5.1q post-review fix). Drift between
@@ -40,6 +41,7 @@ const seoProps: SeoProps = effectiveRobots === undefined
 <html
   lang="en"
   data-theme="twilight"
+  data-theme-colors={JSON.stringify(THEME_COLORS)}
   data-accent="cyan"
   data-hero-font="fraunces"
 >
@@ -49,7 +51,7 @@ const seoProps: SeoProps = effectiveRobots === undefined
     <Seo {...seoProps} />
     {/* pinnedColor remains the canonical brand accent. themeColor uses
         DESIGN.md's bg token so browser chrome matches the page background. */}
-    <SeoIcons pinnedColor="#3ceedd" themeColor="#07090c" />
+    <SeoIcons pinnedColor="#3ceedd" themeColor={THEME_COLORS.twilight} />
     <script is:inline>
 (function(){
   // USMR site-navigation §"Theme Toggle with Pre-Paint Bootstrap":
@@ -62,6 +64,16 @@ const seoProps: SeoProps = effectiveRobots === undefined
   function apply(v){
     var safe = ALLOWED.indexOf(v) === -1 ? DEF : v;
     document.documentElement.setAttribute('data-theme', safe);
+    // USMR 14.91: a missing map leaves the server-rendered tags unchanged.
+    try {
+      var raw = document.documentElement.getAttribute('data-theme-colors');
+      var colors = raw ? JSON.parse(raw) : null;
+      if (colors && typeof colors[safe] === 'string') {
+        document.querySelectorAll('meta[name="theme-color"]').forEach(function(meta){
+          meta.setAttribute('content', colors[safe]);
+        });
+      }
+    } catch(e){}
     return safe;
   }
   // Preview override via URL (?theme=twilight[&persist=1])
@@ -70,7 +82,9 @@ const seoProps: SeoProps = effectiveRobots === undefined
     var override = sp.get('theme');
     if (override) {
       var applied = apply(override);
-      if (sp.get('persist') === '1') localStorage.setItem(KEY, applied);
+      if (sp.get('persist') === '1') {
+        try { localStorage.setItem(KEY, applied); } catch(e){}
+      }
       return;
     }
   } catch(e){}
@@ -102,7 +116,7 @@ const seoProps: SeoProps = effectiveRobots === undefined
          `[data-nav-toggle]` handler + `body.nav-open` pivot per
          canonical index.html:387-421. -->
     <script is:inline>
-window.__setTheme = function(t){
+window.__setTheme = function(t, persist){
   // Validate against the allow-list before applying. Anything outside
   // the list collapses to the project default ('twilight'). Theme
   // assignment is via setAttribute only, never innerHTML / outerHTML.
@@ -110,12 +124,18 @@ window.__setTheme = function(t){
   var ALLOWED = ['twilight', 'midnight'];
   var safe = ALLOWED.indexOf(t) === -1 ? DEF : t;
   document.documentElement.setAttribute('data-theme', safe);
-  try { localStorage.setItem(KEY, safe); } catch(e){}
-  // Sync browser UI with --bg
+  if (persist !== false) {
+    try { localStorage.setItem(KEY, safe); } catch(e){}
+  }
+  // USMR 14.91: keep every media-qualified and fallback tag in sync.
   try {
-    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0B1220';
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', bg);
+    var raw = document.documentElement.getAttribute('data-theme-colors');
+    var colors = raw ? JSON.parse(raw) : null;
+    if (colors && typeof colors[safe] === 'string') {
+      document.querySelectorAll('meta[name="theme-color"]').forEach(function(meta){
+        meta.setAttribute('content', colors[safe]);
+      });
+    }
   } catch(e){}
   // pt227 — defensive sync hook for `[data-theme-toggle]` buttons.
   // The standalone `ThemeToggle` component was deleted as orphan

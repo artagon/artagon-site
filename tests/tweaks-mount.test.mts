@@ -123,6 +123,22 @@ describe("Tweaks hydration and explicit edits (USMR 14.13)", () => {
     expect(setItem).toHaveBeenCalledExactlyOnceWith(STORAGE_KEY, JSON.stringify({ ...DEFAULTS, theme: "midnight" }));
   });
 
+  it("uses the theme setter without persisting the production preference", () => {
+    storage.set("artagon.theme", "twilight");
+    const setTheme = vi.fn((theme: string, persist?: boolean) => {
+      attrs.set("data-theme", theme);
+      if (persist !== false) setItem("artagon.theme", theme);
+    });
+    Object.assign(window, { __setTheme: setTheme });
+    const tree = mountPanel();
+    expect(clickChoice(tree, "midnight")).toBe(true);
+    expect(setTheme).toHaveBeenCalledExactlyOnceWith("midnight", false);
+    expect(attrs.get("data-theme")).toBe("midnight");
+    expect(storage.get("artagon.theme")).toBe("twilight");
+    expect(setItem).not.toHaveBeenCalledWith("artagon.theme", expect.anything());
+    expect(JSON.parse(storage.get(STORAGE_KEY)!)).toMatchObject({ theme: "midnight" });
+  });
+
   it("offers exactly the production themes", () => {
     for (const theme of THEMES) expect(clickChoice(mountPanel(), theme)).toBe(true);
     for (const theme of ["dark", "light"]) expect(clickChoice(mountPanel(), theme)).toBe(false);
