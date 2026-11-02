@@ -48,11 +48,15 @@ describe("repository documentation path citations vs disk", () => {
     // parser used by the negative control; Lychee may not extract every occurrence.
     const citations = AUDIT_CITATION_SOURCES.flatMap((sourcePath) => {
       const source = readFileSync(resolve(ROOT, sourcePath), "utf8");
-      return [...source.matchAll(/`([^`]*docs\/archive\/2025-11-12-site-audit\.md[^`]*)`/g)].map(
-        (match) => ({ sourcePath, token: match[0] }),
-      );
+      return [
+        ...source.matchAll(
+          /`([^`]*docs\/archive\/2025-11-12-site-audit\.md[^`]*)`/g,
+        ),
+      ].map((match) => ({ sourcePath, token: match[0] }));
     });
-    const sourcesWithCitations = [...new Set(citations.map(({ sourcePath }) => sourcePath))].sort();
+    const sourcesWithCitations = [
+      ...new Set(citations.map(({ sourcePath }) => sourcePath)),
+    ].sort();
 
     expect(sourcesWithCitations).toEqual([...AUDIT_CITATION_SOURCES].sort());
     expect(
@@ -77,12 +81,15 @@ describe("repository documentation path citations vs disk", () => {
       `${MOVED_AUDIT_PATH}-missing`,
     );
     expect(
-      findPathCitationDrifts(ROOT, "moved-audit-negative-control.md", missingCitation, {
-        pathPrefixes: ["docs/"],
-      }),
-    ).toEqual([
-      `moved-audit-negative-control.md: ${MOVED_AUDIT_PATH}-missing`,
-    ]);
+      findPathCitationDrifts(
+        ROOT,
+        "moved-audit-negative-control.md",
+        missingCitation,
+        {
+          pathPrefixes: ["docs/"],
+        },
+      ),
+    ).toEqual([`moved-audit-negative-control.md: ${MOVED_AUDIT_PATH}-missing`]);
 
     const oldPath = "docs/SITE_AUDIT.md";
     expect(existsSync(resolve(ROOT, oldPath))).toBe(false);
