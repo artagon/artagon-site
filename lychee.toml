@@ -58,12 +58,12 @@ exclude = [
   # text still cites this bare path-prefix. jsDelivr returns 400 because it
   # is not a directory listing.
   "^https?://cdn\\.jsdelivr\\.net/npm/@docsearch/?$",
-  # USMR rolling tasks.md narrative occasionally references
+  # USMR retained implementation history occasionally references
   # relative paths in backticks that lychee resolves to bogus
   # file:// URLs (e.g. `writing/feed.xml`, `ink/SKILL.md`, `url`).
   # The narrative is documentation, not navigable links — exclude
-  # the misresolved file:// forms targeted at the USMR change dir.
-  "^file://.*/openspec/changes/update-site-marketing-redesign/(ink/SKILL\\.md|url|writing/feed\\.xml)$",
+  # the misresolved file:// forms targeted at the history evidence dir.
+  "^file://.*/openspec/changes/update-site-marketing-redesign/evidence/(ink/SKILL\\.md|url|writing/feed\\.xml)$",
   # The workflow's absolute --root-dir resolves /writing/feed.xml against
   # the repository, but the route only exists in the built artifact. Exclude
   # its resolved file:// form so the source-tree scan does not flag it.
