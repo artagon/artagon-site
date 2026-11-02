@@ -46,5 +46,5 @@
 - [ ] 6.3 Adversarial reviews (NTM swarm): supply chain (Claude Opus 5.5), correctness (Claude Fable 5.1), red team (Codex gpt-6-astra). Fix every Critical and Major finding.
 - [ ] 6.4 Triage the owner's GitHub stars against this stack; vendor any further skill through the same procedure.
 - [x] 6.6 Skill evals: seven with-skill vs baseline cases under `evals/skills/` and trigger evals for the four `artagon-*` skills; results in `evals/skills/results/2026-11-02/`.
-- [ ] 6.7 Act on the eval findings: rewrite the four `artagon-*` descriptions to fix under-triggering; list Starlight 0.39.3 (Astro 6) as an option in `adopt-tailwind-and-starlight` and `artagon-stack-guard`; verify the anchor-positioning support data in the `modern-web-guidance` fork; add discriminating assertions (frontmatter schema, zookie, border contrast, stacking context).
+- [ ] 6.7 Act on the eval findings: rewrite the four `artagon-*` descriptions to fix under-triggering; verify the anchor-positioning support data in the `modern-web-guidance` fork; add discriminating assertions (frontmatter schema, zookie, border contrast, stacking context).
 - [ ] 6.5 `npm run check`, `npm run test:node`, `npm run test:vitest`, `npm run lint:sg:ci`, `npm run verify:skills`, `npm run verify:stack` green in CI.

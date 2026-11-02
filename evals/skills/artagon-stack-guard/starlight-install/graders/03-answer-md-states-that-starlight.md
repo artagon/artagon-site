@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-answer.md states that Starlight 0.42 needs Astro 7 while the repo is on Astro 6
+answer.md checks the installed Astro major (7) against the Starlight peer range instead of assuming an Astro upgrade is still needed

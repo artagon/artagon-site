@@ -130,7 +130,7 @@ artagon-site/
 
 ### Core Framework
 
-- **[Astro](https://astro.build/)** v6.2.1 - Static site generator with zero JS by default (per `package.json` `"astro": "6.2.1"`)
+- **[Astro](https://astro.build/)** v7.4.5 - Static site generator with zero JS by default (per `package.json` `"astro": "7.4.5"`)
 - **Static Output** - Pure HTML/CSS/JS, no server required
 - **File-based Routing** - Pages in `src/pages/` map to routes
 
@@ -147,7 +147,7 @@ The four `@astrojs/*` integrations declared in `package.json` (versions accurate
 
 ### Build Tools
 
-- **Node.js** 22.18.0+ (per `.nvmrc` 22.18.0 and `package.json` engines.node `>=22.18.0`; this floor enables plain Node entry points to import TypeScript without a loader flag). npm warns on unsupported engines; this repository does not enable `engine-strict`.
+- **Node.js** 22.23.4+ (per `.nvmrc` 22.23.4 and `package.json` engines.node `>=22.23.4`, the floor Astro 7 requires; this floor enables plain Node entry points to import TypeScript without a loader flag). npm warns on unsupported engines; this repository does not enable `engine-strict`.
 - **npm** - Package manager
 - **Prettier** 3.8.3 - Code formatting (per `package.json` `"prettier": "3.8.3"`)
 
@@ -448,7 +448,7 @@ build job:
      "per pt? CODEOWNERS rule" — stale TODO placeholder; CODEOWNERS
      doesn't enforce SHA-pinning, the security-audit + Dependabot pair
      does.)
-  2. Setup Node.js from `.nvmrc` (22.18.0, actions/setup-node)
+  2. Setup Node.js from `.nvmrc` (22.23.4, actions/setup-node)
   3. Install deps with `npm ci` (frozen lockfile — NOT `npm install`)
   4. `npm run build` (runs prebuild → astro build → postbuild chain)
   5. Upload `.build/dist/` Pages artifact
@@ -721,7 +721,7 @@ Other build-related scripts not in the postbuild chain:
 1. **Build** - Install deps, build site, upload artifact
 2. **Deploy** - Deploy to GitHub Pages
 
-**Node version:** 22.18.0 (from `.nvmrc`)
+**Node version:** 22.23.4 (from `.nvmrc`)
 
 #### Lighthouse CI (`lighthouse.yml`)
 

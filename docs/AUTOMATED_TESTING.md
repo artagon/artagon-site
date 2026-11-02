@@ -141,7 +141,7 @@ Added to `package.json`:
 
 **playwright.config.ts:**
 
-- Node runtime: 22.18.0 from `.nvmrc`; `engines.node` declares `>=22.18.0`
+- Node runtime: 22.23.4 from `.nvmrc`; `engines.node` declares `>=22.23.4`
 - Test directory: `./tests`
 - Base URL: `http://localhost:4321`
 - Auto-start preview server before tests

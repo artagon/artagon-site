@@ -27,7 +27,7 @@ If approved, in this order:
 
    The recommendation is (a) first, then (b) only if the docs need it. Record the decision in a new ADR that supersedes ADR 0001.
 
-2. **Upgrade Astro 6.2 → 7.x first.** Starlight 0.42 requires Astro 7 (its MDX 8 peer needs `astro@^7.2.10`, and Starlight and Astro must be upgraded together). Astro 7.4 requires Node ≥ 22.22.0, and `.nvmrc` pins 22.18.0 today.
+2. **Upgrade Astro 6.2 → 7.x first.** Done in USMR 14.87 (Astro 7.4.5, `@astrojs/mdx` 8.1.2, Node 22.23.4). Starlight 0.42 requires Astro 7 (its MDX 8 peer needs `astro@^7.2.10`), so that prerequisite is met; Starlight and Astro must still be upgraded together from here on.
 3. **Starlight for `/docs`.** Keep the site's CSP model: `scripts/csp.mjs` already hashes inline scripts and styles after the build, which matches how other Starlight sites reach a strict `script-src`. Expressive Code emits inline `style` attributes for token colours, which needs `style-src-attr` hashes or a reviewed exception. Pagefind needs `'wasm-unsafe-eval'`.
 4. **Tailwind v4** (only for option b or c): `tailwindcss` + `@tailwindcss/vite`, `@import "tailwindcss"`, and a `@theme` generated from DESIGN.md tokens so `public/assets/theme.css` stays the single source of truth. `ast-grep` rules for raw colors in class strings.
 5. **Relax the guards in the same change.** Update `scripts/verify-stack.mjs`, its tests, the `artagon-stack-guard` skill, the AGENTS.md stack contract and the `agent-skills` spec.

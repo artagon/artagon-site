@@ -1,6 +1,6 @@
 ## Context
 
-- Stack today: Astro 6.2.1 static output, MDX, React islands, scoped `<style>` plus cascade-layer OKLCH tokens in `public/assets/theme.css`, DESIGN.md (google design.md 0.1.1) as the visual source of truth, postbuild CSP and SRI (`scripts/csp.mjs`, `scripts/sri.mjs`), Node 22.18.0 (`.nvmrc`).
+- Stack today: Astro 7.4.5 static output (upgraded in USMR 14.87), MDX, React islands, scoped `<style>` plus cascade-layer OKLCH tokens in `public/assets/theme.css`, DESIGN.md (google design.md 0.1.1) as the visual source of truth, postbuild CSP and SRI (`scripts/csp.mjs`, `scripts/sri.mjs`), Node 22.18.0 (`.nvmrc`).
 - ADR 0001 rejects Tailwind with five reasons; any adoption must answer them.
 - Evidence gathered on 2026-10-27 and 2026-10-31 (agent research; re-verify each in task 0.2):
   - Astro 7.4 shipped 15 Oct 2026 and requires Node ≥ 22.22.0.

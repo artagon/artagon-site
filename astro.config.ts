@@ -12,6 +12,10 @@ export default defineConfig({
   trailingSlash: "never",
   outDir: BUILD.dist,
   cacheDir: BUILD.cache.astro,
+  // USMR 14.87 (site-yy1): Astro 7 changed the default to "jsx", which
+  // strips whitespace between inline elements by JSX rules and ran words
+  // together on every page ("ArtagonSkip to content…"). Keep HTML rules.
+  compressHTML: true,
   integrations: [
     mdx(),
     react(),

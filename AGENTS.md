@@ -1,6 +1,6 @@
 # artagon-site agent guide
 
-This repo is an Astro 6 static marketing site with React islands, TypeScript, MDX, and Playwright. `CLAUDE.md` and `GEMINI.md` symlink to this file. It holds the rules every agent needs on every task. The reference detail lives in `docs/agents/`; read the matching page before working in its area.
+This repo is an Astro 7 static marketing site with React islands, TypeScript, MDX, and Playwright. `CLAUDE.md` and `GEMINI.md` symlink to this file. It holds the rules every agent needs on every task. The reference detail lives in `docs/agents/`; read the matching page before working in its area.
 
 | Area                                                     | Read                                 |
 | -------------------------------------------------------- | ------------------------------------ |
@@ -75,7 +75,7 @@ Project servers live in `.mcp.json` (Claude Code) and `.codex/config.toml` (Code
 
 | Server            | Use for                                                                                                                                                       |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `context7`        | Current Astro, Playwright, and library docs. The project is on Astro 6, and Astro 5 → 6 changed real APIs, so check docs instead of memory.                   |
+| `context7`        | Current Astro, Playwright, and library docs. The project is on Astro 7, and each major (5 → 6 → 7) changed real APIs, so check docs instead of memory.        |
 | `serena`          | Semantic navigation and symbol edits (see above).                                                                                                             |
 | `ast-grep`        | Structural search and rule testing: `dump_syntax_tree`, `test_match_code_rule`, `find_code`, `find_code_by_rule`.                                             |
 | `playwright`      | Exploratory browser work and long-running interactive flows. Global `playwright-mcp`, not pinned here.                                                        |

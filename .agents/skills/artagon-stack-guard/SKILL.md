@@ -15,7 +15,7 @@ integrations, `react` and Node from `package.json`, `package-lock.json` and `.nv
 patterns this stack forbids. Treat its version list as the truth for this task. Never hardcode a
 version into code comments, docs or another skill.
 
-Today the contract (AGENTS.md "Stack contract") is: Astro 6 static output, MDX, React islands only,
+Today the contract (AGENTS.md "Stack contract") is: Astro static output (the installed major is whatever `verify:stack` prints), MDX, React islands only,
 scoped Astro `<style>` plus semantic tokens from `public/assets/theme.css`, **no Tailwind**
 (`docs/decisions/0001-no-tailwind.md`), **no Starlight**. A Tailwind v4 and Starlight adoption is only
 proposed (`openspec/changes/adopt-tailwind-and-starlight/`). Until that change is approved and its
@@ -24,8 +24,11 @@ tasks land, write nothing that assumes either.
 ## 2. Get framework facts from live documentation
 
 For any Astro, MDX or integration API you are not certain of in the installed major version, ask the
-Astro Docs MCP (`astro-docs`, tool `search_astro_docs`) or `context7`. Do not rely on memory: Astro 5
-→ 6 changed real APIs, and Astro 7 changes more.
+Astro Docs MCP (`astro-docs`, tool `search_astro_docs`) or `context7`. Do not rely on memory: every
+major (5 → 6 → 7) changed real APIs. Astro 7 in particular: the Rust compiler rejects unclosed tags
+and no longer repairs invalid nesting; `.md`/`.mdx` render through Sätteri unless a file uses
+`@astrojs/markdown-remark` directly; and this repo pins `compressHTML: true` because the new
+`"jsx"` default runs inline words together. Do not remove that setting without a rendered-text diff.
 
 ## 3. Hard failures (`npm run verify:stack` exits 1)
 

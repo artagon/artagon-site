@@ -10,8 +10,8 @@
 
 ## 1. Astro 7 upgrade (lands on its own)
 
-- [ ] 1.1 Bump `.nvmrc`, `package.json` `engines.node` and CI to Node ≥ 22.22.0.
-- [ ] 1.2 Upgrade `astro` and every `@astrojs/*` integration with `npx @astrojs/upgrade`; fix the migration findings, using the Astro Docs MCP for every API question.
+- [x] 1.1 Bump `.nvmrc`, `package.json` `engines.node` and CI to Node ≥ 22.22.0. Done in USMR 14.87: Node 22.23.4, the floor Astro 7.4.5 declares; CI reads `.nvmrc`.
+- [x] 1.2 Upgrade `astro` and every `@astrojs/*` integration; fix the migration findings. Done in USMR 14.87 with pinned `npm install --save-exact` instead of `npx @astrojs/upgrade`, checked against the v7 upgrade guide.
 - [ ] 1.3 Full build, postbuild gates, Playwright and Lighthouse green.
 
 ## 2. Starlight docs surface

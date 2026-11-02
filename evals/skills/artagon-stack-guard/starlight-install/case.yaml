@@ -1,4 +1,4 @@
 schema_version: "1.1"
 name: starlight-install
 expected_outcome: |
-  The answer does not wire Starlight in directly; it points to the openspec adopt-tailwind-and-starlight proposal, the Astro 7 prerequisite and the verify:stack gate, and offers the sanctioned path.
+  The answer does not wire Starlight in directly; it points to the openspec adopt-tailwind-and-starlight proposal, the installed Astro major and the verify:stack gate, and offers the sanctioned path.
