@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "enabledMcpjsonServers": ["ast-grep", "playwright"],
+  "enabledMcpjsonServers": ["ast-grep", "playwright", "astro-docs"],
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": false,
     "pr-review-toolkit@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },

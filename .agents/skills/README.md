@@ -43,6 +43,21 @@ OpenSpec 1.6 has no `.agents` target. `openspec update` writes the Claude skills
 | [ast-grep](ast-grep/SKILL.md)                               | Structural search, rewrite previews, and the `lint:sg` linter                      | Code shape, codemods, `rules/security/`                                |
 | [ast-grep-mcp](ast-grep-mcp/SKILL.md)                       | The ast-grep MCP tools: syntax-tree dumps, rule tests, rule search                 | Writing and proving YAML rules; class and attribute searches           |
 
+### UX, quality and domain skills (add-agent-skills-supply-chain)
+
+Pinned in `skills-lock.json` and checked by `npm run verify:skills`. Routing and the vendoring procedure: `docs/agents/skills-supply-chain.md`.
+
+| Skill                                                                                                                                                                                                                                      | Source                                     | Purpose                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------- |
+| [artagon-stack-guard](artagon-stack-guard/SKILL.md)                                                                                                                                                                                        | repo                                       | Installed-stack check and migration guard (`npm run verify:stack`)  |
+| [artagon-design-system](artagon-design-system/SKILL.md)                                                                                                                                                                                    | repo                                       | DESIGN.md precedence; resolves conflicts with generic design skills |
+| [artagon-docs-authoring](artagon-docs-authoring/SKILL.md)                                                                                                                                                                                  | repo                                       | Long-form, MDX, code samples, diagrams                              |
+| [artagon-authz-content-review](artagon-authz-content-review/SKILL.md)                                                                                                                                                                      | repo                                       | Identity and authorization accuracy, standards status               |
+| [frontend-design](frontend-design/SKILL.md)                                                                                                                                                                                                | anthropics/skills                          | Design direction (yields to DESIGN.md)                              |
+| [modern-web-guidance](modern-web-guidance/SKILL.md)                                                                                                                                                                                        | GoogleChrome/modern-web-guidance (fork)    | Local modern HTML/CSS/JS platform guides                            |
+| [web-interface-review](web-interface-review/SKILL.md)                                                                                                                                                                                      | vercel-labs/web-interface-guidelines rules | UI review against interface guidelines                              |
+| [web-quality-audit](web-quality-audit/SKILL.md), [accessibility](accessibility/SKILL.md), [performance](performance/SKILL.md), [core-web-vitals](core-web-vitals/SKILL.md), [seo](seo/SKILL.md), [best-practices](best-practices/SKILL.md) | addyosmani/web-quality-skills              | Evidence-led quality audits                                         |
+
 ## Mandate
 
 When working on this project:
@@ -65,6 +80,8 @@ When working on this project:
 Already wired in `package.json:58`: `"lint:design": "npm run check:oklch-hex-parity && design.md lint DESIGN.md"`.
 
 ## Refresh skills
+
+Third-party skills listed in `skills-lock.json` with a `commit` are never refreshed in place: follow `docs/agents/skills-supply-chain.md`. The loop below covers only the legacy mirrors.
 
 Reinstall the design.md skills with the `skills` CLI, as "Install skills" in `docs/guides/new-design-conversion.md` describes (`ink` stays uninstalled). The download commands live there, not in this directory: `ripwire wrap` scans skill directories and refuses to emit its agent recipe when a skill file contains a download command.
 

@@ -17,10 +17,10 @@
     },
     "playwright": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@0.0.73"
-      ]
+      "args": ["-y", "@playwright/mcp@0.0.73"]
+    },
+    "astro-docs": {
+      "httpUrl": "https://mcp.docs.astro.build/mcp"
     }
   },
   "enabledPlugins": {

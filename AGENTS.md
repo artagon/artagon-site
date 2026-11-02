@@ -2,16 +2,17 @@
 
 This repo is an Astro 6 static marketing site with React islands, TypeScript, MDX, and Playwright. `CLAUDE.md` and `GEMINI.md` symlink to this file. It holds the rules every agent needs on every task. The reference detail lives in `docs/agents/`; read the matching page before working in its area.
 
-| Area                                                     | Read                               |
-| -------------------------------------------------------- | ---------------------------------- |
-| Code-intelligence recipes, analysis boundaries, evidence | `docs/agents/code-intelligence.md` |
-| MCP servers, context7, adding servers                    | `docs/agents/mcp-servers.md`       |
-| DESIGN.md pins and precondition gates                    | `docs/agents/design-contract.md`   |
-| ast-grep linter config, rule authoring, coverage gaps    | `docs/agents/static-analysis.md`   |
-| Test runners, device matrix, snapshots                   | `docs/agents/testing.md`           |
-| Multi-agent and multi-model review                       | `docs/agents/review-workflow.md`   |
-| Accessibility contracts                                  | `docs/agents/accessibility.md`     |
-| Build artifacts and the `build.config.json` SSoT         | `docs/build-artifacts.md`          |
+| Area                                                     | Read                                 |
+| -------------------------------------------------------- | ------------------------------------ |
+| Code-intelligence recipes, analysis boundaries, evidence | `docs/agents/code-intelligence.md`   |
+| MCP servers, context7, adding servers                    | `docs/agents/mcp-servers.md`         |
+| DESIGN.md pins and precondition gates                    | `docs/agents/design-contract.md`     |
+| ast-grep linter config, rule authoring, coverage gaps    | `docs/agents/static-analysis.md`     |
+| Test runners, device matrix, snapshots                   | `docs/agents/testing.md`             |
+| Multi-agent and multi-model review                       | `docs/agents/review-workflow.md`     |
+| Accessibility contracts                                  | `docs/agents/accessibility.md`       |
+| Agent skills: routing, lock file, vendoring, review      | `docs/agents/skills-supply-chain.md` |
+| Build artifacts and the `build.config.json` SSoT         | `docs/build-artifacts.md`            |
 
 <!-- CODE-INTEL:START -->
 
@@ -72,13 +73,14 @@ Shell rules:
 
 Project servers live in `.mcp.json` (Claude Code) and `.codex/config.toml` (Codex; loaded only when the project is trusted). Shared servers such as `context7` come from each client's user-level config through the local MCP controller. Gemini CLI reads `.gemini/settings.json`, which sync does not manage.
 
-| Server            | Use for                                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `context7`        | Current Astro, Playwright, and library docs. The project is on Astro 6, and Astro 5 → 6 changed real APIs, so check docs instead of memory. |
-| `serena`          | Semantic navigation and symbol edits (see above).                                                                                           |
-| `ast-grep`        | Structural search and rule testing: `dump_syntax_tree`, `test_match_code_rule`, `find_code`, `find_code_by_rule`.                           |
-| `playwright`      | Exploratory browser work and long-running interactive flows. Global `playwright-mcp`, not pinned here.                                      |
-| `chrome-devtools` | Claude only: traces, Lighthouse, network and console. Global `chrome-devtools-mcp`, not pinned here.                                        |
+| Server            | Use for                                                                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `context7`        | Current Astro, Playwright, and library docs. The project is on Astro 6, and Astro 5 → 6 changed real APIs, so check docs instead of memory.                   |
+| `serena`          | Semantic navigation and symbol edits (see above).                                                                                                             |
+| `ast-grep`        | Structural search and rule testing: `dump_syntax_tree`, `test_match_code_rule`, `find_code`, `find_code_by_rule`.                                             |
+| `playwright`      | Exploratory browser work and long-running interactive flows. Global `playwright-mcp`, not pinned here.                                                        |
+| `chrome-devtools` | Claude only: traces, Lighthouse, network and console. Pinned to `chrome-devtools-mcp@1.12.0`, isolated profile, CrUX, usage statistics and update checks off. |
+| `astro-docs`      | Official Astro docs search. The authority for Astro and integration APIs at the installed major; check it before acting on memory or a skill.                 |
 
 ### Playwright lanes
 
@@ -113,6 +115,21 @@ This repo does **not** use Tailwind CSS; see `docs/decisions/0001-no-tailwind.md
 - Keep logic in `.ts` modules (`src/lib/`, `src/data/`), not in Astro frontmatter: ast-grep rules and ripwire cannot see frontmatter.
 
 <!-- STACK-CONTRACT:END -->
+
+<!-- SKILLS:START -->
+
+## Agent skills
+
+Skills in `.agents/skills/` (Codex and Gemini read it; `.claude/skills/` links to it for Claude Code) are pinned and checked by `npm run verify:skills`. Routing, the lock file and the vendoring procedure: `docs/agents/skills-supply-chain.md`.
+
+- Before changing components, pages, styles, integrations or dependencies, load `artagon-stack-guard` and run `npm run verify:stack`.
+- For UI or copy, load `artagon-design-system` first. DESIGN.md outranks `frontend-design` and every other generic design skill.
+- For HTML, CSS and client-side patterns, check `modern-web-guidance` (local guides). For UI review, `web-interface-review`. For audits, the `web-quality-audit` family with the `chrome-devtools` MCP and the repo's pinned `@lhci/cli` and `@axe-core/playwright`; never `npx` or global installs a skill suggests.
+- Any identity or authorization statement goes through `artagon-authz-content-review`; long-form and docs follow `artagon-docs-authoring`.
+- Never install a skill with `npx skills add`, a marketplace, or a skill's own installer, and never let a skill fetch its instructions at run time. Vendor it through the procedure in `docs/agents/skills-supply-chain.md`.
+- Tailwind v4 and Starlight are only proposed (`openspec/changes/adopt-tailwind-and-starlight/`); their skills are not installed.
+
+<!-- SKILLS:END -->
 
 <!-- OPENSPEC:START -->
 
@@ -233,20 +250,20 @@ Do not attribute commits to Claude, Gemini, Codex, OpenAI, Anthropic, Google, or
 
 Canonical artifacts, each maintained as its own source of truth. When you change one of these areas, update the implementation and the artifact in the same change.
 
-| Artifact                           | Path                                                                                | Owns                                                                                                                                                                                                                                                                        |
-| ---------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Visual identity                    | [`DESIGN.md`](./DESIGN.md)                                                          | Tokens, typography, components, color contracts. Pinned to upstream commit `97b4df92901b9353fbc71cfe1b51dad1ece01708` and `@google/design.md@0.1.1`.                                                                                                                        |
-| design.md spec mirror              | [`openspec/.cache/design-md-spec.md`](./openspec/.cache/design-md-spec.md)          | `npx @google/design.md spec --format markdown` snapshot, refreshed weekly by `design-md-drift.yml`.                                                                                                                                                                         |
-| design.md authoring guide          | [`docs/design-md.md`](./docs/design-md.md)                                          | Token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook.                                                                                                                                                                                                       |
-| Build SSoT                         | [`build.config.json`](./build.config.json) → [`build.config.ts`](./build.config.ts) | `.build/{cache,reports,dist}` paths. JSON/YAML/TOML configs are generated.                                                                                                                                                                                                  |
-| Token source                       | [`public/assets/theme.css`](./public/assets/theme.css)                              | Canonical aliases (`--bg`, `--bg-1/2`, `--line`, `--line-soft`, `--fg`, `--fg-1/2/3`, `--accent`, `--accent-dim`, `--accent-ink`, `--bad`, `--ok`, `--warn`, plus retained `--brand-teal` / `--surface`) over the staging `--nd-*` set. Consumers use canonical names only. |
-| Security rules                     | [`rules/security/`](./rules/security/)                                              | ast-grep YAML rules; the "Rules in force" table above is kept 1:1 with disk by `tests/lint-sg-rules-doc-sync.test.mts`.                                                                                                                                                     |
-| OpenSpec changes (active)          | [`openspec/changes/`](./openspec/changes/)                                          | `update-site-marketing-redesign`, `enhance-a11y-coverage`, `add-brand-assets-and-writing-pipeline`, `migrate-deploy-to-cloudflare-pages`, `migrate-legacy-tokens-to-layer`, `self-host-woff2-fonts`, `externalize-strings-and-add-i18n`.                                    |
-| OpenSpec specs (live capabilities) | [`openspec/specs/`](./openspec/specs/)                                              | `build-config`, `check-site-quality`, `configure-copilot-environment`, `design-system-format`, `github-pages-deployment`, `manage-site-links`, `openspec-workflow`, `site-content`, `style-system`.                                                                         |
-| Project skills                     | [`.agents/skills/`](./.agents/skills/)                                              | Every project skill (OpenSpec `opsx:*`, the search-tool skills, design-md, playwright-cli, tdd, and others). `.claude/skills/` holds one relative link per skill, because Claude Code reads only that directory.                                                            |
-| Review skills                      | `review-verification-protocol` (user-level skill, not in this repo)                 | False-positive reduction rules; mandatory before any review report.                                                                                                                                                                                                         |
-| Agent reference docs               | [`docs/agents/`](./docs/agents/README.md)                                           | Detail behind every section of this file; path citations gated with this file.                                                                                                                                                                                              |
-| CI workflow                        | [`.github/workflows/playwright.yml`](./.github/workflows/playwright.yml)            | Sharded test matrix, visual-regression, accessibility, and merge-reports jobs (open issues in `docs/agents/testing.md`).                                                                                                                                                    |
+| Artifact                           | Path                                                                                | Owns                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Visual identity                    | [`DESIGN.md`](./DESIGN.md)                                                          | Tokens, typography, components, color contracts. Pinned to upstream commit `97b4df92901b9353fbc71cfe1b51dad1ece01708` and `@google/design.md@0.1.1`.                                                                                                                                                                                                                                                                 |
+| design.md spec mirror              | [`openspec/.cache/design-md-spec.md`](./openspec/.cache/design-md-spec.md)          | `npx @google/design.md spec --format markdown` snapshot, refreshed weekly by `design-md-drift.yml`.                                                                                                                                                                                                                                                                                                                  |
+| design.md authoring guide          | [`docs/design-md.md`](./docs/design-md.md)                                          | Token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook.                                                                                                                                                                                                                                                                                                                                                |
+| Build SSoT                         | [`build.config.json`](./build.config.json) → [`build.config.ts`](./build.config.ts) | `.build/{cache,reports,dist}` paths. JSON/YAML/TOML configs are generated.                                                                                                                                                                                                                                                                                                                                           |
+| Token source                       | [`public/assets/theme.css`](./public/assets/theme.css)                              | Canonical aliases (`--bg`, `--bg-1/2`, `--line`, `--line-soft`, `--fg`, `--fg-1/2/3`, `--accent`, `--accent-dim`, `--accent-ink`, `--bad`, `--ok`, `--warn`, plus retained `--brand-teal` / `--surface`) over the staging `--nd-*` set. Consumers use canonical names only.                                                                                                                                          |
+| Security rules                     | [`rules/security/`](./rules/security/)                                              | ast-grep YAML rules; the "Rules in force" table above is kept 1:1 with disk by `tests/lint-sg-rules-doc-sync.test.mts`.                                                                                                                                                                                                                                                                                              |
+| OpenSpec changes (active)          | [`openspec/changes/`](./openspec/changes/)                                          | `update-site-marketing-redesign`, `enhance-a11y-coverage`, `add-brand-assets-and-writing-pipeline`, `migrate-deploy-to-cloudflare-pages`, `migrate-legacy-tokens-to-layer`, `self-host-woff2-fonts`, `externalize-strings-and-add-i18n`, `add-agent-skills-supply-chain`, `adopt-tailwind-and-starlight`.                                                                                                            |
+| OpenSpec specs (live capabilities) | [`openspec/specs/`](./openspec/specs/)                                              | `build-config`, `check-site-quality`, `configure-copilot-environment`, `design-system-format`, `github-pages-deployment`, `manage-site-links`, `openspec-workflow`, `site-content`, `style-system`.                                                                                                                                                                                                                  |
+| Project skills                     | [`.agents/skills/`](./.agents/skills/)                                              | Every project skill: OpenSpec `opsx:*`, the search-tool skills, design-md, playwright-cli, tdd, vendored third-party skills pinned in [`skills-lock.json`](./skills-lock.json), and the repo-authored `artagon-*` skills. `.claude/skills/` holds one relative link per skill, because Claude Code reads only that directory. Gated by `scripts/verify-skills.mjs`; routing in `docs/agents/skills-supply-chain.md`. |
+| Review skills                      | `review-verification-protocol` (user-level skill, not in this repo)                 | False-positive reduction rules; mandatory before any review report.                                                                                                                                                                                                                                                                                                                                                  |
+| Agent reference docs               | [`docs/agents/`](./docs/agents/README.md)                                           | Detail behind every section of this file; path citations gated with this file.                                                                                                                                                                                                                                                                                                                                       |
+| CI workflow                        | [`.github/workflows/playwright.yml`](./.github/workflows/playwright.yml)            | Sharded test matrix, visual-regression, accessibility, and merge-reports jobs (open issues in `docs/agents/testing.md`).                                                                                                                                                                                                                                                                                             |
 
 The OpenSpec rows are kept 1:1 with disk by `tests/lint-agents-md-symbolic-refs-sync.test.mts`.
 

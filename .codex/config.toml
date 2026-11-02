@@ -8,3 +8,8 @@ args = []
 
 [mcp_servers.serena]
 url = "http://127.0.0.1:9141/mcp"
+
+# Official Astro documentation search (remote, read-only). Authoritative source
+# for Astro and integration API facts; see docs/agents/mcp-servers.md.
+[mcp_servers.astro-docs]
+url = "https://mcp.docs.astro.build/mcp"

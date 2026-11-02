@@ -21,3 +21,13 @@ jobs:
           test -f .agents/llm-config.json
           test -f .agents/policies/guardrails.md
           test -f .agents/context/vision-and-roadmap-full.md
+      # add-agent-skills-supply-chain 2.4: skill provenance, integrity and
+      # content gate, plus the stack-contract gate behind artagon-stack-guard.
+      # Both scripts use only Node built-ins, so no `npm ci` is needed.
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.0.0
+        with: { node-version-file: .nvmrc }
+      - name: Verify agent skills (skills-lock.json)
+        run: node scripts/verify-skills.mjs
+      - name: Verify stack contract
+        run: node scripts/verify-stack.mjs
