@@ -2,25 +2,35 @@
 
 ### Requirement: Skill Tree Accounting
 
-Every directory under `.agents/skills/` MUST either have an entry in `skills-lock.json` `skills` or be listed in `skills-lock.json` `unlocked` with a non-empty reason. Every lock entry and every `unlocked` name MUST exist on disk. `scripts/verify-skills.mjs` MUST exit 1 on any violation.
+Every entry under `.agents/skills/` MUST be a real directory (not a symlink) with an entry in `skills-lock.json` `skills` or a reason in `unlocked`. Every entry under `.claude/skills/`, `.codex/skills/` and `.gemini/skills/` MUST be a symlink to `../../.agents/skills/<same name>` of an existing skill, or be listed in `mirrorExceptions` for that tree with a reason. Every lock entry, `unlocked` name and mirror exception MUST exist on disk. Name lookups MUST use own properties only. `scripts/verify-skills.mjs` MUST exit 1 on any violation.
 
 #### Scenario: A new skill directory without a lock entry fails
 
 - **WHEN** a contributor adds `.agents/skills/new-skill/` without a `skills-lock.json` entry or `unlocked` reason
 - **THEN** `npm run verify:skills` exits 1 with `new-skill: unaccounted`
 
+#### Scenario: A skill placed only in a mirror tree fails
+
+- **WHEN** a contributor adds `.claude/skills/new-skill/SKILL.md` as a real directory
+- **THEN** `npm run verify:skills` exits 1 with `mirror-unaccounted`, and the directory's content is still scanned
+
 ### Requirement: Vendored Skill Integrity
 
-A third-party lock entry with a `files` map MUST match the skill directory exactly: every file's sha256 equals its listed digest, no listed file is missing, and no unlisted file is present. Third-party entries MUST record `source`, `sourceType`, `commit`, `license`, `execution` and `network`. Updating a vendored skill MUST go through a reviewed diff that updates the lock in the same change; skills MUST NOT update themselves at run time.
+`sourceType` MUST be `github` or `local`, and `local` MUST be used only with `source: "artagon/artagon-site"`. A `github` entry MUST record `commit`, `license`, `execution`, `network` and a `files` map; only `design-md` is grandfathered without `files`. The `files` map MUST match the skill directory exactly: every file's sha256 equals its listed digest, no listed file is missing, and no unlisted file is present. Updating a vendored skill MUST go through a reviewed diff that updates the lock in the same change; skills MUST NOT update themselves at run time.
 
 #### Scenario: Editing a vendored file without updating the lock fails
 
 - **WHEN** a vendored `SKILL.md` changes and its digest in `skills-lock.json` does not
 - **THEN** `npm run verify:skills` exits 1 with `<skill>: hash-drift: SKILL.md`
 
+#### Scenario: A third-party entry without hashes is rejected
+
+- **WHEN** a lock entry for a third-party skill omits `files`, `commit`, `license` or a class, or claims `sourceType: "local"` for another source
+- **THEN** `npm run verify:skills` exits 2 naming the entry and the missing field
+
 ### Requirement: Skill Content Safety
 
-`scripts/verify-skills.mjs` MUST reject hidden Unicode (zero-width characters, bidi controls, tag characters; a leading byte-order mark is allowed) and base64 runs of 200 or more characters in any file of any skill directory, locked or not.
+In every scanned directory (locked, unlocked, or a mirror exception), `scripts/verify-skills.mjs` MUST reject: Unicode format characters (`\p{Cf}`, which includes zero-width characters, bidi marks, embeddings, overrides and isolates, the soft hyphen and tag characters), line and paragraph separators, filler characters and variation selectors, except a leading byte-order mark and a single emoji presentation selector after a pictograph; base64 runs of 200 or more characters, also when split across lines; symlinks and special files; files over 5 MB; binary files unless the class is `binary`; `allowed-tools` frontmatter; and moving `@latest` references. UTF-16 text with a byte-order mark MUST be decoded and scanned.
 
 #### Scenario: A zero-width character in a skill fails
 
@@ -29,17 +39,17 @@ A third-party lock entry with a `files` map MUST match the skill directory exact
 
 ### Requirement: Declared Execution and Network Class
 
-A lock entry that declares `execution` MUST declare at least the class its content needs: `script` for any script or executable file, `binary` for any binary file, `hook` for any hook manifest. A lock entry that declares `network: "none"` MUST NOT contain an agent instruction that reaches the network (`curl`, `wget`, `npx`, `pnpx`, `bunx`, `WebFetch`, `git clone`, `pip install`, `npm install`) or a network call in a script file. Any entry MUST NOT reference a moving `@latest` version. A reviewed exception MUST be listed in the entry's `acknowledged` map with a reason, and an acknowledgement that matches nothing MUST fail.
+A skill's content MUST NOT need more than its declared `execution` class (undeclared means `text-only`): any file that is not a known text or image type, a shebang, an executable bit or `package.json` scripts needs `script`; a binary needs `binary`; a hook manifest, `.mcp.json`, a manifest with `hooks` or `mcpServers`, or frontmatter `hooks:` needs `hook`. Network instructions (shell and package-runner commands that reach the network, network calls and URLs in scripts, URLs in shell code fences) MUST NOT appear under `network: "none"` (the default), and under `{ "allowlist": [...] }` every host they reach MUST be listed. A reviewed exception MUST be listed in `acknowledged` as `"path:line"` with the sha256 of that exact line and a reason; a changed line or an acknowledgement that matches nothing MUST fail.
 
 #### Scenario: A text-only skill that ships a script fails
 
 - **WHEN** a lock entry declares `execution: "text-only"` and its directory contains `scripts/run.sh`
 - **THEN** `npm run verify:skills` exits 1 with `execution-class`
 
-#### Scenario: A stale acknowledgement fails
+#### Scenario: Swapping an acknowledged line fails
 
-- **WHEN** an `acknowledged` key no longer matches a finding after a re-vendor
-- **THEN** `npm run verify:skills` exits 1 with `stale-ack`
+- **WHEN** an acknowledged sample line is replaced with a real network instruction and the file hash is updated
+- **THEN** `npm run verify:skills` exits 1 with `ack-mismatch`
 
 ### Requirement: Stack Contract Gate
 

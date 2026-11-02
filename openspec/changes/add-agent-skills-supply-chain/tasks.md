@@ -18,6 +18,8 @@
 - [x] 2.3 `tests/verify-skills.test.mjs` (node:test, temp-dir fixtures) covering each finding code and the exit codes; added to `test:node`.
 - [x] 2.4 Run `node scripts/verify-skills.mjs` in `.github/workflows/agents-check.yml`; add `npm run verify:skills`.
 - [x] 2.5 Document the lock format, the review procedure, updates, and the Impeccable opt-in in `docs/agents/skills-supply-chain.md`.
+- [x] 2.6 Harden the gate after the 2026-11-02 red-team review (13 reproduced bypasses): strict lock shape (`github` entries need commit, license, classes and hashes; `local` only for this repo), own-property lookups, mirror-tree accounting for `.claude/skills`, `.codex/skills` and `.gemini/skills`, line-hash-bound acknowledgements, enforced network allowlists, wider network-command and hidden-Unicode coverage, UTF-16 decoding, binary and special-file and symlink rejection, inverted execution rule with frontmatter `hooks:` and `allowed-tools:`, `@latest` everywhere, split-line base64. A negative test for each in `tests/verify-skills.test.mjs`.
+- [x] 2.7 Fix what the hardened gate found in existing skills: remove the `allowed-tools` frontmatter (which pre-approved `web_fetch`) from `design-md`, delete the dangling `.claude/skills/ink` link, declare `playwright-cli` as `network: "arbitrary"`, and record mirror exceptions for the external `artagon-ai-skills` links and OpenSpec scaffold copies.
 
 ## 3. Stack gate
 

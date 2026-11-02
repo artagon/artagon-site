@@ -5,7 +5,13 @@
       "source": "google-labs-code/stitch-skills",
       "sourceType": "github",
       "skillPath": "skills/design-md/SKILL.md",
-      "computedHash": "d3a4c7d2f2715a33662c8b06ffc16035d01965a8b4ed81c2958fb22ae94760f8"
+      "computedHash": "d3a4c7d2f2715a33662c8b06ffc16035d01965a8b4ed81c2958fb22ae94760f8",
+      "acknowledged": {
+        "README.md:6": {
+          "reason": "human install note from upstream; AGENTS.md forbids npx skills add",
+          "sha256": "230f9775b40a7ed29300fbcee3f1393df6921b154ddba0283d750fa26940b487"
+        }
+      }
     },
     "frontend-design": {
       "source": "anthropics/skills",
@@ -36,12 +42,22 @@
       "reviewedBy": "pending owner sign-off (agent pre-review 2026-11-02)",
       "reviewedAt": "2026-11-02",
       "modified": false,
-      "note": "SKILL.md suggests `npx lighthouse` and a global @axe-core/cli install; AGENTS.md routes agents to the repo's pinned @lhci/cli and @axe-core/playwright instead",
       "files": {
         "LICENSE": "c122223ac43e86421958e18623979942c21b642951e2e3736dcb63eff13587c3",
         "references/A11Y-PATTERNS.md": "f10e238dd4dd3c4f51134c2056bc02d3dd4f8fb6ccc9145c2c1ba7aab4d58140",
         "references/WCAG.md": "16683e025e3833d931c9d880645d98a448827f97e10189b6c8f12c832e7a2361",
         "SKILL.md": "267fb2a0707d6142f2871f22688203a42ba21291a2aa200fb740936e41362b5d"
+      },
+      "note": "SKILL.md suggests `npx lighthouse` and a global @axe-core/cli install; AGENTS.md routes agents to the repo's pinned @lhci/cli and @axe-core/playwright instead",
+      "acknowledged": {
+        "SKILL.md:413": {
+          "reason": "audit command against a placeholder target; the runner host is allowlisted and AGENTS.md routes audits to pinned tools",
+          "sha256": "8f34a5898dbd768d7029abb97515c9103baa15f6443b8bf77bd94fec196a832d"
+        },
+        "SKILL.md:417": {
+          "reason": "audit command against a placeholder target; the runner host is allowlisted and AGENTS.md routes audits to pinned tools",
+          "sha256": "828bd1a4f3cb7c97392bbeffbff17b4c7f965fec2273a1c2e0f82bb47924a0d7"
+        }
       }
     },
     "best-practices": {
@@ -130,6 +146,12 @@
         "LICENSE": "c122223ac43e86421958e18623979942c21b642951e2e3736dcb63eff13587c3",
         "scripts/analyze.sh": "b1b28663af412f746baf5008618e3ae798e322b10ff5ab7ae1830826a6d8e4e2",
         "SKILL.md": "1903cfb4dcba987d50dc7a51f6c19ec43830ff924c2c8f78979d8775fbe20f91"
+      },
+      "acknowledged": {
+        "scripts/analyze.sh:65": {
+          "reason": "grep pattern that detects http:// URLs in scanned HTML; no request is made",
+          "sha256": "7c5e3fc336d9ca8cc2e57c90a891a0a280943b3de74719e0aece7ff176adf707"
+        }
       }
     },
     "modern-web-guidance": {
@@ -143,27 +165,6 @@
       "reviewedBy": "pending owner sign-off (agent pre-review 2026-11-02)",
       "reviewedAt": "2026-11-02",
       "modified": true,
-      "acknowledged": {
-        "FORK.md:*": "documents the removed upstream npx behaviour; not an instruction",
-        "guides/html/html.md:129": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
-        "guides/ui-behaviors/custom-button-actions.md:91": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
-        "guides/visual-design/apply-webgl-shaders.md:270": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
-        "guides/visual-design/expose-canvas-content-to-browser-features.md:425": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
-        "guides/visual-design/interactive-content-in-3d-scenes.md:440": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
-        "guides/webmcp/agentic-javascript-tools.md:365": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
-        "guides/ui-atoms/position-aware-tooltips.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-atoms/viewport-aware-dropdowns.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-behaviors/animate-to-from-top-layer.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-behaviors/declarative-dialog-popover-control.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-behaviors/interest-triggered-action-previews.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-behaviors/interest-triggered-tooltips.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-behaviors/physics-based-easing.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-components/dialog.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-components/hovercard.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-components/menu.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-components/persistent-app-tours.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
-        "guides/ui-components/persistent-toast-notifications.md:*": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)"
-      },
       "files": {
         "FORK.md": "96ea3b43bf6ad1b9be10255e1b655d03db5f09962aceda9913d435729184cb6a",
         "guides/accessibility/accessibility.md": "ac9f2d8de26c899fdf1318287d2624f93f6f1db949746fe4d9b52fdd9afd168e",
@@ -361,6 +362,108 @@
         "guides/webmcp/webmcp.md": "19c5a3ad84ebe9dcdf798b925a8b603343cbcaeb58a88ad49e9bd27225d60d11",
         "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
         "SKILL.md": "6ce2002037c5e42128733786ee1e4245ebfef1b04fac0d74d6d9f6f4af557484"
+      },
+      "acknowledged": {
+        "FORK.md:15": {
+          "reason": "documents the removed upstream npx behaviour; not an instruction",
+          "sha256": "6c80b9eec8d281cc7e2c38ea33c3677ca67127f1f21e625827af3d5a42a010c6"
+        },
+        "FORK.md:16": {
+          "reason": "documents the removed upstream npx behaviour; not an instruction",
+          "sha256": "57a0a3d69a80b8f5708ecea97f4e99cce5acaa955895aa2a17d0869142bff637"
+        },
+        "guides/html/html.md:129": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "e4f5df802d1db1a4e0ed71262f0dcb9156eb85e90bfd4e6cea865cacae4aac7e"
+        },
+        "guides/ui-atoms/position-aware-tooltips.md:143": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-atoms/viewport-aware-dropdowns.md:91": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-behaviors/animate-to-from-top-layer.md:227": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-behaviors/custom-button-actions.md:91": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "789562b8dfbc667ecd05217324c1077ffcd4fd1f54d98af63b869275f399f687"
+        },
+        "guides/ui-behaviors/declarative-dialog-popover-control.md:76": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "06b7a0b58bcdf017191a7304c237e63e4917f36473985feed96b40e5c160cdc3"
+        },
+        "guides/ui-behaviors/declarative-dialog-popover-control.md:105": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "789562b8dfbc667ecd05217324c1077ffcd4fd1f54d98af63b869275f399f687"
+        },
+        "guides/ui-behaviors/declarative-dialog-popover-control.md:219": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-behaviors/interest-triggered-action-previews.md:66": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "02755a75a0a092c26de429cf66a9131ccffb342142fa70af4a321e5ef52b98f1"
+        },
+        "guides/ui-behaviors/interest-triggered-tooltips.md:77": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "02755a75a0a092c26de429cf66a9131ccffb342142fa70af4a321e5ef52b98f1"
+        },
+        "guides/ui-behaviors/interest-triggered-tooltips.md:129": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-behaviors/physics-based-easing.md:102": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "4e99a1980928574064ed3ec61ad9737ef868250ae77748cd3cee24fc5f673d2c"
+        },
+        "guides/ui-components/dialog.md:184": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "cd51200f1752a59f201ba2ae7d42185229bd72f378677978678e6bc9251ef0f4"
+        },
+        "guides/ui-components/dialog.md:213": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-components/hovercard.md:211": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-components/hovercard.md:244": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "02755a75a0a092c26de429cf66a9131ccffb342142fa70af4a321e5ef52b98f1"
+        },
+        "guides/ui-components/menu.md:365": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-components/persistent-app-tours.md:80": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/ui-components/persistent-toast-notifications.md:39": {
+          "reason": "CDN polyfill import inside a site code sample; SKILL.md forbids copying it (CSP/SRI)",
+          "sha256": "e511bcfe3cdd1ce616e32f9fbadbcc1165abe5143af2009c284db941533eae1d"
+        },
+        "guides/visual-design/apply-webgl-shaders.md:270": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "b5a57b43ebe0708d9d6119a61d93b801950b7457caabd9650081277f12033081"
+        },
+        "guides/visual-design/expose-canvas-content-to-browser-features.md:425": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "b5a57b43ebe0708d9d6119a61d93b801950b7457caabd9650081277f12033081"
+        },
+        "guides/visual-design/interactive-content-in-3d-scenes.md:440": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "b5a57b43ebe0708d9d6119a61d93b801950b7457caabd9650081277f12033081"
+        },
+        "guides/webmcp/agentic-javascript-tools.md:365": {
+          "reason": "dependency-install suggestion in a guide; adding a dependency is a reviewed package.json change, never run from a skill",
+          "sha256": "1da7ec18a01e3d3f286e7ee888594378eea361454749e8e4f034bdebda10630e"
+        }
       }
     },
     "web-interface-review": {
@@ -422,7 +525,20 @@
     "openspec-propose": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
     "openspec-sync-specs": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
     "openspec-verify-change": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
-    "playwright-cli": "installed from the pinned @playwright/cli@0.1.22 package (AGENT_MANIFEST.yaml)",
+    "playwright-cli": {
+      "reason": "installed from the pinned @playwright/cli@0.1.22 package (AGENT_MANIFEST.yaml)",
+      "network": "arbitrary",
+      "acknowledged": {
+        "SKILL.md:410": {
+          "reason": "AGENTS.md forbids @latest installs and npm init playwright; the repo pins @playwright/cli 0.1.22",
+          "sha256": "3a2103a82d15cde041b9c728f54706cceba52fea0aee2d98a1826f87b6690bae"
+        },
+        "references/test-generation.md:159": {
+          "reason": "AGENTS.md forbids @latest installs and npm init playwright; the repo pins @playwright/cli 0.1.22",
+          "sha256": "c7402bb94a6f0b00113ac08f8a6f42ea8780969b31b2836def726e763eeb48b0"
+        }
+      }
+    },
     "source-command-opsx-apply": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
     "source-command-opsx-archive": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
     "source-command-opsx-bulk-archive": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
@@ -436,5 +552,187 @@
     "source-command-opsx-verify": "generated by the OpenSpec CLI (opsx workflow scaffolds)",
     "tdd": "mirrored from google-labs-code/design.md .agents/skills before the lock existed; see .agents/skills/README.md",
     "typed-service-contracts": "mirrored from google-labs-code/design.md .agents/skills before the lock existed; see .agents/skills/README.md"
+  },
+  "mirrorExceptions": {
+    ".claude/skills": {
+      "agent-cli-doctor": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "agent-local-otel-observability": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "autorefine": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-advanced-module-composition": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-advanced-workflow": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-bootstrap-fewshot": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-custom-module-design": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-debugging-observability": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-evaluation-suite": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-finetune-bootstrap": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-fundamentals": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-gepa-reflective": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-haystack-integration": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-miprov2-optimizer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-optimize-anything": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-output-refinement-constraints": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-rag-pipeline": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-react-agent-builder": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-rlm-module": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-signature-designer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-simba-optimizer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "fastapi-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "gh-meta-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "gh-workflow-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "implement-review-test-bench": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "junit5-authoring-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "openspec-apply-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-archive-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-bulk-archive-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-continue-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-explore": "OpenSpec CLI scaffold copy for this client",
+      "openspec-ff-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-new-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-onboard": "OpenSpec CLI scaffold copy for this client",
+      "openspec-propose": "OpenSpec CLI scaffold copy for this client",
+      "openspec-sync-specs": "OpenSpec CLI scaffold copy for this client",
+      "openspec-verify-change": "OpenSpec CLI scaffold copy for this client",
+      "postgres-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-code-health": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-complexity": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-git-hooks": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-modernize": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-quality-setup": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-refactor": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-security": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-test-quality": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "pytest-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "python-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "review-python": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "review-verification-protocol": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "search-toolchain": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "shell-authoring": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "shell-testing": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-eval-adapter": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-evaluator-bjulius": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-forge": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-lifecycle": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "sqlalchemy-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills"
+    },
+    ".codex/skills": {
+      "agent-cli-doctor": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "agent-local-otel-observability": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "autorefine": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-advanced-module-composition": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-advanced-workflow": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-bootstrap-fewshot": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-custom-module-design": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-debugging-observability": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-evaluation-suite": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-finetune-bootstrap": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-fundamentals": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-gepa-reflective": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-haystack-integration": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-miprov2-optimizer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-optimize-anything": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-output-refinement-constraints": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-rag-pipeline": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-react-agent-builder": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-rlm-module": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-signature-designer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-simba-optimizer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "fastapi-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "gh-meta-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "gh-workflow-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "implement-review-test-bench": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "junit5-authoring-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "openspec-apply-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-archive-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-bulk-archive-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-continue-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-explore": "OpenSpec CLI scaffold copy for this client",
+      "openspec-ff-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-new-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-onboard": "OpenSpec CLI scaffold copy for this client",
+      "openspec-propose": "OpenSpec CLI scaffold copy for this client",
+      "openspec-sync-specs": "OpenSpec CLI scaffold copy for this client",
+      "openspec-verify-change": "OpenSpec CLI scaffold copy for this client",
+      "postgres-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-code-health": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-complexity": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-git-hooks": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-modernize": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-quality-setup": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-refactor": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-security": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-test-quality": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "pytest-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "python-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "review-python": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "review-verification-protocol": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "search-toolchain": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "shell-authoring": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "shell-testing": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-eval-adapter": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-evaluator-bjulius": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-forge": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-lifecycle": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "sqlalchemy-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills"
+    },
+    ".gemini/skills": {
+      "agent-cli-doctor": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "agent-local-otel-observability": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "autorefine": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-advanced-module-composition": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-advanced-workflow": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-bootstrap-fewshot": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-custom-module-design": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-debugging-observability": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-evaluation-suite": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-finetune-bootstrap": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-fundamentals": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-gepa-reflective": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-haystack-integration": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-miprov2-optimizer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-optimize-anything": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-output-refinement-constraints": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-rag-pipeline": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-react-agent-builder": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-rlm-module": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-signature-designer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "dspy-simba-optimizer": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "fastapi-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "gh-meta-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "gh-workflow-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "implement-review-test-bench": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "junit5-authoring-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "openspec-apply-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-archive-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-bulk-archive-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-continue-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-explore": "OpenSpec CLI scaffold copy for this client",
+      "openspec-ff-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-new-change": "OpenSpec CLI scaffold copy for this client",
+      "openspec-onboard": "OpenSpec CLI scaffold copy for this client",
+      "openspec-propose": "OpenSpec CLI scaffold copy for this client",
+      "openspec-sync-specs": "OpenSpec CLI scaffold copy for this client",
+      "openspec-verify-change": "OpenSpec CLI scaffold copy for this client",
+      "postgres-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-code-health": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-complexity": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-git-hooks": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-modernize": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-quality-setup": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-refactor": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-security": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "py-test-quality": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "pytest-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "python-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "review-python": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "review-verification-protocol": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "search-toolchain": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "shell-authoring": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "shell-testing": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-eval-adapter": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-evaluator-bjulius": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-forge": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "skill-lifecycle": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills",
+      "sqlalchemy-code-review": "link into the owner's external artagon-ai-skills checkout; absent in CI and not reviewable here; removed by chore/consolidate-skills"
+    }
   }
 }

@@ -2,29 +2,33 @@
 /**
  * verify-skills.mjs — agent-skill supply-chain gate.
  *
- * OpenSpec: add-agent-skills-supply-chain (tasks 2.1–2.4). The skill tree
- * under `.agents/skills/` is executable supply-chain input for every agent
- * that works in this repo, so its provenance and content are checked here,
- * in CI, and never left to a skill to police itself.
+ * OpenSpec: add-agent-skills-supply-chain (tasks 2.1–2.4, 2.6). Every
+ * `SKILL.md` an agent can load is executable supply-chain input, so the skill
+ * trees are checked here, in CI, and never left to a skill to police itself.
+ * Lock format and procedure: docs/agents/skills-supply-chain.md.
  *
- * Checks, per `skills-lock.json` (format: docs/agents/skills-supply-chain.md):
- *   1. Accounting. Every directory under `.agents/skills/` is either a lock
- *      entry or listed in `unlocked` with a reason. Lock entries must exist
- *      on disk.
- *   2. Integrity. An entry with `files` (relative path -> sha256) must match
- *      the disk exactly: no hash drift, no missing file, no unlisted file.
- *      Third-party entries without `files` (the legacy `npx skills` entries)
- *      are reported as `legacy` and not hash-checked. Repo-authored skills
- *      (`sourceType: "local"`) are reviewed through git and carry no hashes.
- *   3. Content (every skill directory, locked or not): hidden Unicode
- *      (zero-width, bidi controls, tag characters) and long base64 runs.
- *   4. Declared class (entries that declare `execution` / `network`):
- *      a script, binary or hook manifest raises the minimum execution class;
- *      a mutable `@latest` reference, or a fetch/download/package-runner
- *      instruction, needs a network class other than "none". A reviewed
- *      hit (sample code, not an agent action) is listed in the entry's
- *      `acknowledged` map ("path:line" or "path:*" -> reason); an
- *      acknowledgement that no longer matches anything is itself a finding.
+ * 1. Lock shape. `sourceType` is `github` or `local`; `local` is only this
+ *    repo. A `github` entry records `commit`, `license`, `execution`,
+ *    `network` and a `files` hash map (only `design-md` is grandfathered).
+ * 2. Accounting. Every entry under `.agents/skills/` is a real directory with
+ *    a lock entry or an `unlocked` reason. Every entry under a mirror tree
+ *    (`.claude/skills`, `.codex/skills`, `.gemini/skills`) is a symlink to
+ *    `../../.agents/skills/<same name>` or is listed in `mirrorExceptions`.
+ * 3. Integrity. A `files` map matches the directory exactly.
+ * 4. Content, for every scanned directory (locked, unlocked, mirror-only):
+ *    hidden Unicode (format characters, bidi marks, variation selectors,
+ *    filler characters), base64 runs (also split across lines), binary or
+ *    special files, symlinks, `allowed-tools` frontmatter, moving `@latest`
+ *    references.
+ * 5. Classes. Content that executes (anything that is not a known text or
+ *    image type, shebangs, executable bits, package scripts) needs
+ *    `execution: script`; binaries `binary`; hook manifests, `.mcp.json` and
+ *    frontmatter `hooks:` need `hook`. Network instructions need a network
+ *    class: under `none` every hit fails, under `{ allowlist }` every host a
+ *    hit reaches must be listed. Undeclared means `text-only` and `none`.
+ * 6. Acknowledgements. A reviewed hit is listed as "path:line" with the
+ *    sha256 of that exact line, so changing the line voids it. A stale or
+ *    mismatched acknowledgement is itself a finding.
  *
  * Usage: node scripts/verify-skills.mjs [--root <repo>] [--json]
  *
@@ -35,32 +39,108 @@
  */
 
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  readFileSync,
+  readdirSync,
+  readlinkSync,
+} from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { argv, exit, stdout, stderr } from "node:process";
+import { argv, exit, stderr, stdout } from "node:process";
 
-const EXECUTION_RANK = { "text-only": 0, script: 1, binary: 2, hook: 3 };
-const NETWORK_KEYWORDS = ["none", "docs-only", "arbitrary"];
+const SELF_SOURCE = "artagon/artagon-site";
+const LEGACY_UNHASHED = new Set(["design-md"]);
+const MIRRORS = [".claude/skills", ".codex/skills", ".gemini/skills"];
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const EXECUTION_RANK = new Map([
+  ["text-only", 0],
+  ["script", 1],
+  ["binary", 2],
+  ["hook", 3],
+]);
+const RANK_NAME = [...EXECUTION_RANK.keys()];
 
-// Zero-width, bidi embedding/override/isolate controls, BOM/ZWNBSP, tag chars.
-const HIDDEN_UNICODE = /[​-‍⁠⁦-⁩‪-‮﻿]|[\u{E0000}-\u{E007F}]/u;
-const BASE64_RUN = /[A-Za-z0-9+/]{200,}={0,2}/;
-const SCRIPT_EXT =
-  /\.(sh|bash|zsh|fish|js|mjs|cjs|ts|mts|py|rb|pl|ps1|cmd|bat)$/i;
-const HOOK_FILE = /(^|\/)(hooks\.json|hooks\/[^/]+\.json)$/i;
-const PLUGIN_MANIFEST =
-  /(^|\/)(plugin\.json|marketplace\.json|settings(\.local)?\.json)$/i;
-const MUTABLE_REF = /@latest\b/;
-// An instruction an agent would run that reaches the network, in any file.
-const NETWORK_ACTION =
-  /\b(curl|wget|npx|pnpx|bunx|WebFetch)\b|\bgit\s+clone\b|\bpip\s+install\b|\bnpm\s+(i|install|exec)\b/;
-// A network call in shipped code. Only checked in script files: in Markdown,
-// `fetch(` is sample code for a web page, not something the agent runs.
-const SCRIPT_NETWORK_CALL =
-  /\bfetch\s*\(|\bhttps?\.request\s*\(|\bXMLHttpRequest\b/;
+const TEXT_FILE = /\.(md|markdown|txt|csv|tsv|ya?ml|json|toml)$/i;
+const TEXT_NAME =
+  /^(LICENSE|LICENCE|NOTICE|COPYING|README|CHANGELOG|AUTHORS)(\.[A-Za-z0-9]+)?$/i;
+const IMAGE_FILE = /\.(png|jpe?g|gif|webp|avif|ico)$/i;
+const HOOK_FILE = /(^|\/)(hooks\.json|hooks\/[^/]+\.json|\.mcp\.json)$/i;
+const MANIFEST_FILE =
+  /(^|\/)(plugin\.json|marketplace\.json|settings(\.local)?\.json|gemini-extension\.json)$/i;
+
+// Format characters (incl. zero-width, bidi marks/embeddings/isolates, soft
+// hyphen, tag characters), line/paragraph separators, combining grapheme
+// joiner, Hangul and halfwidth fillers, variation selectors.
+const HIDDEN_UNICODE =
+  /[\p{Cf}\u2028\u2029\u034F\u115F\u1160\u3164\uFFA0\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/u;
+// A single emoji presentation selector right after a pictograph is ordinary
+// text (U+26A0 U+FE0F, a warning sign); runs of selectors are how variation-selector smuggling hides data.
+const EMOJI_PRESENTATION =
+  /(\p{Extended_Pictographic})[\uFE0E\uFE0F](?![\uFE00-\uFE0F\u{E0100}-\u{E01EF}])/gu;
+const BASE64_RUN = /[A-Za-z0-9+/_-]{200,}={0,2}/g;
+// Encoded data mixes letters with other symbols; a ruler of dashes or one
+// repeated letter does not count.
+const looksEncoded = (s) => /[A-Za-z]/.test(s) && new Set(s).size >= 4;
+const BASE64_LINE = /^[A-Za-z0-9+/_=-]{40,}$/;
+const MUTABLE_REF = /@latest\b/i;
+
+// Commands an agent would run that reach the network. Case-insensitive.
+const NETWORK_COMMAND = new RegExp(
+  [
+    String.raw`\b(curl|wget|aria2c|npx|pnpx|bunx|uvx|pipx|webfetch|iwr|irm|ncat|nc|ssh|scp|sftp|rsync|telnet)\b`,
+    String.raw`\binvoke-(webrequest|restmethod)\b`,
+    String.raw`\bbun\s+x\b`,
+    String.raw`\b(npm|pnpm|yarn)\s+(i|install|add|exec|x|dlx|create|init)\b`,
+    String.raw`\bpip3?\s+install\b`,
+    String.raw`\b(cargo|go|gem|composer)\s+(install|get|require)\b`,
+    String.raw`\bgit\s+(clone|fetch|pull|ls-remote|submodule)\b`,
+    String.raw`\bgh\s+(api|repo|release|gist|extension)\b`,
+    String.raw`\bdeno\s+(run|install)\s+\S*https?:`,
+    // Inline interpreter evaluation can do anything, including network access.
+    String.raw`\b(node|deno|bun)\s+(-e|--eval|-p|--print)\b`,
+    String.raw`\b(python3?|perl|ruby|php)\s+-[ce]\b`,
+    // Network modules named in prose or samples an agent might paste and run.
+    String.raw`require\(\s*["'](node:)?(https?|net|dgram|tls)["']\s*\)`,
+    String.raw`\burllib\.request\b`,
+  ].join("|"),
+  "i",
+);
+// Network calls in shipped code; checked only in script files.
+const SCRIPT_NETWORK = new RegExp(
+  [
+    String.raw`\bfetch\s*\(`,
+    String.raw`\bhttps?\.(get|request)\s*\(`,
+    String.raw`require\(\s*["'](node:)?(https?|net|dgram|tls)["']\s*\)`,
+    String.raw`from\s+["'](node:)?(https?|net|dgram|tls)["']`,
+    String.raw`\bXMLHttpRequest\b`,
+    String.raw`\bWebSocket\s*\(`,
+    String.raw`\burllib\b`,
+    String.raw`\brequests\.(get|post|put|request)\b`,
+    String.raw`\bsocket\.(socket|create_connection)\b`,
+    String.raw`https?://`,
+  ].join("|"),
+  "i",
+);
+const FENCE = /^\s*(```|~~~)\s*([A-Za-z0-9_-]*)/;
+const SHELL_LANG =
+  /^(sh|bash|zsh|fish|shell|console|terminal|powershell|ps1|pwsh|cmd|bat)$/i;
+const URL_HOST = /https?:\/\/([^/\s"'`)<>\]]+)/gi;
+const IMPLIED_HOSTS = [
+  [/\b(npx|pnpx|bunx|bun\s+x|npm|pnpm|yarn)\b/i, "registry.npmjs.org"],
+  [/\b(pip3?|pipx|uvx)\b/i, "pypi.org"],
+  [/\bcargo\b/i, "crates.io"],
+  [/\bgo\s+(install|get)\b/i, "proxy.golang.org"],
+  [/\bgh\b/i, "api.github.com"],
+];
 
 /** @typedef {{ skill: string, code: string, detail: string }} Finding */
+
+const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+const own = (o, k) => isObj(o) && Object.hasOwn(o, k);
+const sha256 = (data) => createHash("sha256").update(data).digest("hex");
+const posix = (p) => p.split(sep).join("/");
 
 function parseArgs(args) {
   const opts = { root: null, json: false };
@@ -77,6 +157,53 @@ function parseArgs(args) {
   return { ok: true, value: opts };
 }
 
+function checkClasses(where, e) {
+  if (e.execution !== undefined && !EXECUTION_RANK.has(e.execution)) {
+    return `${where}.execution must be one of ${RANK_NAME.join("|")}`;
+  }
+  if (e.network !== undefined) {
+    const n = e.network;
+    const ok =
+      n === "none" ||
+      n === "arbitrary" ||
+      (isObj(n) &&
+        Array.isArray(n.allowlist) &&
+        n.allowlist.length > 0 &&
+        n.allowlist.every(
+          (h) => typeof h === "string" && /^[a-z0-9.-]+(:\d+)?$/i.test(h),
+        ));
+    if (!ok)
+      return `${where}.network must be "none", "arbitrary" or { "allowlist": [hosts] }`;
+  }
+  if (e.acknowledged !== undefined) {
+    if (!isObj(e.acknowledged))
+      return `${where}.acknowledged must map "path:line" -> { reason, sha256 }`;
+    for (const [k, v] of Object.entries(e.acknowledged)) {
+      if (!/^[^:]+:\d+$/.test(k))
+        return `${where}.acknowledged["${k}"]: key must be "path:line" (whole-file keys are not allowed)`;
+      if (
+        !isObj(v) ||
+        typeof v.reason !== "string" ||
+        !v.reason.trim() ||
+        !/^[0-9a-f]{64}$/.test(String(v.sha256))
+      ) {
+        return `${where}.acknowledged["${k}"] must be { "reason": "...", "sha256": "<sha256 of the line>" }`;
+      }
+    }
+  }
+  return null;
+}
+
+/** Normalize an `unlocked` or mirror-exception value to { reason, ...classes }. */
+function parseException(where, v) {
+  const e = typeof v === "string" ? { reason: v } : v;
+  if (!isObj(e) || typeof e.reason !== "string" || !e.reason.trim()) {
+    return { ok: false, error: `${where} needs a non-empty reason` };
+  }
+  const bad = checkClasses(where, e);
+  return bad ? { ok: false, error: bad } : { ok: true, value: e };
+}
+
 /** Parse and shape-check the lock file. Returns { ok, value | error }. */
 export function parseLock(text) {
   let raw;
@@ -85,142 +212,323 @@ export function parseLock(text) {
   } catch (e) {
     return { ok: false, error: `skills-lock.json is not JSON: ${e.message}` };
   }
-  if (!raw || typeof raw !== "object" || raw.version !== 1) {
+  if (!isObj(raw) || raw.version !== 1)
     return {
       ok: false,
       error: "skills-lock.json: expected { version: 1, ... }",
     };
-  }
-  if (
-    !raw.skills ||
-    typeof raw.skills !== "object" ||
-    Array.isArray(raw.skills)
-  ) {
+  if (!isObj(raw.skills))
     return { ok: false, error: "skills-lock.json: `skills` must be an object" };
-  }
-  const unlocked = raw.unlocked ?? {};
-  if (typeof unlocked !== "object" || Array.isArray(unlocked)) {
-    return {
-      ok: false,
-      error: "skills-lock.json: `unlocked` must be an object of name -> reason",
-    };
-  }
-  for (const [name, reason] of Object.entries(unlocked)) {
-    if (typeof reason !== "string" || !reason.trim()) {
-      return {
-        ok: false,
-        error: `skills-lock.json: unlocked.${name} needs a non-empty reason`,
-      };
-    }
-    if (name in raw.skills) {
-      return {
-        ok: false,
-        error: `skills-lock.json: ${name} is both locked and unlocked`,
-      };
-    }
-  }
+
+  const skills = new Map();
   for (const [name, e] of Object.entries(raw.skills)) {
-    if (!e || typeof e !== "object")
-      return { ok: false, error: `skills.${name} must be an object` };
-    if (typeof e.source !== "string" || typeof e.sourceType !== "string") {
+    const where = `skills.${name}`;
+    if (!isObj(e)) return { ok: false, error: `${where} must be an object` };
+    if (e.sourceType !== "github" && e.sourceType !== "local") {
       return {
         ok: false,
-        error: `skills.${name}: source and sourceType are required strings`,
+        error: `${where}.sourceType must be "github" or "local"`,
       };
     }
-    if (e.commit !== undefined && !/^[0-9a-f]{40}$/.test(e.commit)) {
-      return { ok: false, error: `skills.${name}.commit must be a 40-hex SHA` };
-    }
-    if (e.execution !== undefined && !(e.execution in EXECUTION_RANK)) {
+    if (typeof e.source !== "string" || !e.source)
+      return { ok: false, error: `${where}.source is required` };
+    if (e.sourceType === "local" && e.source !== SELF_SOURCE) {
       return {
         ok: false,
-        error: `skills.${name}.execution must be one of ${Object.keys(EXECUTION_RANK).join("|")}`,
+        error: `${where}: sourceType "local" is only for ${SELF_SOURCE}`,
       };
     }
-    if (e.network !== undefined) {
-      const n = e.network;
-      const okKeyword = typeof n === "string" && NETWORK_KEYWORDS.includes(n);
-      const okAllow =
-        n &&
-        typeof n === "object" &&
-        Array.isArray(n.allowlist) &&
-        n.allowlist.length > 0 &&
-        n.allowlist.every((h) => typeof h === "string" && h);
-      if (!okKeyword && !okAllow) {
-        return {
-          ok: false,
-          error: `skills.${name}.network must be none|docs-only|arbitrary or { allowlist: [hosts] }`,
-        };
-      }
+    const legacy =
+      e.sourceType === "github" &&
+      LEGACY_UNHASHED.has(name) &&
+      e.files === undefined;
+    const required =
+      e.sourceType === "local"
+        ? ["execution", "network"]
+        : legacy
+          ? []
+          : ["commit", "license", "execution", "network", "files"];
+    for (const k of required)
+      if (!own(e, k)) return { ok: false, error: `${where}.${k} is required` };
+    if (e.commit !== undefined && !/^[0-9a-f]{40}$/.test(e.commit))
+      return { ok: false, error: `${where}.commit must be a 40-hex SHA` };
+    if (
+      e.license !== undefined &&
+      (typeof e.license !== "string" || !e.license.trim())
+    ) {
+      return {
+        ok: false,
+        error: `${where}.license must be a non-empty string`,
+      };
     }
-    if (e.acknowledged !== undefined) {
-      if (
-        !e.acknowledged ||
-        typeof e.acknowledged !== "object" ||
-        Array.isArray(e.acknowledged)
-      ) {
-        return {
-          ok: false,
-          error: `skills.${name}.acknowledged must map "path:line" or "path:*" -> reason`,
-        };
-      }
-      for (const [k, why] of Object.entries(e.acknowledged)) {
-        if (
-          !/^[^:]+:(\d+|\*)$/.test(k) ||
-          typeof why !== "string" ||
-          !why.trim()
-        ) {
-          return {
-            ok: false,
-            error: `skills.${name}.acknowledged["${k}"] needs a "path:line" or "path:*" key and a reason`,
-          };
-        }
-      }
-    }
+    const bad = checkClasses(where, e);
+    if (bad) return { ok: false, error: bad };
     if (e.files !== undefined) {
-      if (!e.files || typeof e.files !== "object" || Array.isArray(e.files)) {
-        return {
-          ok: false,
-          error: `skills.${name}.files must map path -> sha256`,
-        };
-      }
+      if (!isObj(e.files) || Object.keys(e.files).length === 0)
+        return { ok: false, error: `${where}.files must map path -> sha256` };
       for (const [p, h] of Object.entries(e.files)) {
-        if (!/^[0-9a-f]{64}$/.test(String(h))) {
+        if (!/^[0-9a-f]{64}$/.test(String(h)))
           return {
             ok: false,
-            error: `skills.${name}.files["${p}"] must be a sha256 hex digest`,
+            error: `${where}.files["${p}"] must be a sha256 hex digest`,
           };
-        }
         if (p.startsWith("/") || p.split("/").includes("..")) {
           return {
             ok: false,
-            error: `skills.${name}.files["${p}"] must be a relative path inside the skill`,
+            error: `${where}.files["${p}"] must be a relative path inside the skill`,
           };
         }
       }
     }
+    skills.set(name, { ...e, legacy });
   }
-  return { ok: true, value: { skills: raw.skills, unlocked } };
+
+  const unlocked = new Map();
+  if (raw.unlocked !== undefined) {
+    if (!isObj(raw.unlocked))
+      return {
+        ok: false,
+        error: "skills-lock.json: `unlocked` must be an object",
+      };
+    for (const [name, v] of Object.entries(raw.unlocked)) {
+      if (skills.has(name))
+        return {
+          ok: false,
+          error: `skills-lock.json: ${name} is both locked and unlocked`,
+        };
+      const p = parseException(`unlocked.${name}`, v);
+      if (!p.ok) return p;
+      unlocked.set(name, p.value);
+    }
+  }
+
+  const mirrorExceptions = new Map(MIRRORS.map((m) => [m, new Map()]));
+  if (raw.mirrorExceptions !== undefined) {
+    if (!isObj(raw.mirrorExceptions))
+      return {
+        ok: false,
+        error: "skills-lock.json: `mirrorExceptions` must be an object",
+      };
+    for (const [mirror, names] of Object.entries(raw.mirrorExceptions)) {
+      if (!mirrorExceptions.has(mirror))
+        return {
+          ok: false,
+          error: `mirrorExceptions: unknown mirror ${mirror}`,
+        };
+      if (!isObj(names))
+        return {
+          ok: false,
+          error: `mirrorExceptions["${mirror}"] must be an object`,
+        };
+      for (const [name, v] of Object.entries(names)) {
+        const p = parseException(`mirrorExceptions["${mirror}"].${name}`, v);
+        if (!p.ok) return p;
+        mirrorExceptions.get(mirror).set(name, p.value);
+      }
+    }
+  }
+  return { ok: true, value: { skills, unlocked, mirrorExceptions } };
 }
 
-function walk(dir) {
+/** Decode a text file; UTF-16 with a BOM is decoded, NUL bytes otherwise mean binary. */
+function decode(buf) {
+  if (buf.length >= 2 && buf[0] === 0xff && buf[1] === 0xfe)
+    return { text: buf.subarray(2).toString("utf16le") };
+  if (buf.length >= 2 && buf[0] === 0xfe && buf[1] === 0xff) {
+    const swapped = Buffer.from(buf.subarray(2));
+    swapped.swap16();
+    return { text: swapped.toString("utf16le") };
+  }
+  if (buf.includes(0)) return { binary: true };
+  return { text: buf.toString("utf8").replace(/^\uFEFF/, "") };
+}
+
+function frontmatter(text) {
+  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  return m ? m[1] : "";
+}
+
+function hostsOf(line) {
+  const hosts = new Set();
+  for (const m of line.matchAll(URL_HOST))
+    hosts.add(m[1].toLowerCase().replace(/^.*@/, ""));
+  for (const [re, host] of IMPLIED_HOSTS) if (re.test(line)) hosts.add(host);
+  return hosts;
+}
+
+/** Walk a skill directory with lstat; report symlinks and special files instead of following them. */
+function walk(dir, base, add) {
   const out = [];
-  for (const ent of readdirSync(dir, { withFileTypes: true })) {
-    const p = join(dir, ent.name);
-    if (ent.isDirectory()) out.push(...walk(p));
-    else if (ent.isFile() || ent.isSymbolicLink()) out.push(p);
+  for (const name of readdirSync(dir).sort()) {
+    const abs = join(dir, name);
+    const rel = posix(relative(base, abs));
+    const st = lstatSync(abs);
+    if (st.isSymbolicLink())
+      add("symlink", `${rel} is a symlink (vendor the file instead)`);
+    else if (st.isDirectory()) out.push(...walk(abs, base, add));
+    else if (st.isFile()) out.push({ abs, rel, size: st.size, mode: st.mode });
+    else add("special-file", `${rel} is not a regular file`);
   }
   return out;
 }
 
-function isBinary(buf) {
-  const n = Math.min(buf.length, 8000);
-  for (let i = 0; i < n; i++) if (buf[i] === 0) return true;
-  return false;
-}
+/** Scan one skill directory against its declared entry (or {} for defaults). */
+function scanSkill(label, dir, entry, add) {
+  const files = walk(dir, dir, (code, detail) => add(label, code, detail));
+  let needed = 0;
+  const hits = [];
 
-const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
-const posix = (p) => p.split(sep).join("/");
+  if (entry.files) {
+    const listed = new Set(Object.keys(entry.files));
+    for (const f of files)
+      if (!listed.has(f.rel)) add(label, "unlisted-file", f.rel);
+    const present = new Set(files.map((f) => f.rel));
+    for (const rel of listed)
+      if (!present.has(rel)) add(label, "missing-file", rel);
+  }
+
+  for (const f of files) {
+    if (f.size > MAX_FILE_BYTES) {
+      add(label, "too-large", `${f.rel} (${f.size} bytes)`);
+      continue;
+    }
+    const buf = readFileSync(f.abs);
+    if (
+      entry.files &&
+      own(entry.files, f.rel) &&
+      sha256(buf) !== entry.files[f.rel]
+    )
+      add(label, "hash-drift", f.rel);
+
+    const executable = (f.mode & 0o111) !== 0;
+    if (IMAGE_FILE.test(f.rel) && !executable) continue;
+    const decoded = decode(buf);
+    if (decoded.binary) {
+      needed = Math.max(needed, EXECUTION_RANK.get("binary"));
+      if (entry.execution !== "binary")
+        add(
+          label,
+          "binary-file",
+          `${f.rel} (declare execution "binary" or remove it)`,
+        );
+      continue;
+    }
+    const text = decoded.text;
+    const base = f.rel.split("/").pop();
+    const textType =
+      (TEXT_FILE.test(base) || TEXT_NAME.test(base)) &&
+      !executable &&
+      !text.startsWith("#!");
+    if (!textType) needed = Math.max(needed, EXECUTION_RANK.get("script"));
+    if (base === "package.json" && /"scripts"\s*:/.test(text))
+      needed = Math.max(needed, EXECUTION_RANK.get("script"));
+    if (
+      HOOK_FILE.test(f.rel) ||
+      (MANIFEST_FILE.test(f.rel) && /"(hooks|mcpServers)"\s*:/.test(text))
+    ) {
+      needed = Math.max(needed, EXECUTION_RANK.get("hook"));
+    }
+    if (/\.md$/i.test(base)) {
+      const fm = frontmatter(text);
+      if (/^\s*hooks\s*:/m.test(fm))
+        needed = Math.max(needed, EXECUTION_RANK.get("hook"));
+      if (/^\s*allowed-tools\s*:/m.test(fm))
+        add(
+          label,
+          "allowed-tools",
+          `${f.rel} pre-approves tools in frontmatter`,
+        );
+    }
+
+    let run = 0;
+    let runStart = 0;
+    let fence = null; // null outside a fence, else the fence language
+    text.split("\n").forEach((line, i) => {
+      const where = `${f.rel}:${i + 1}`;
+      if (HIDDEN_UNICODE.test(line.replace(EMOJI_PRESENTATION, "$1")))
+        add(label, "hidden-unicode", where);
+      for (const m of line.matchAll(BASE64_RUN)) {
+        if (looksEncoded(m[0])) add(label, "base64-blob", where);
+      }
+      const t = line.trim();
+      if (BASE64_LINE.test(t) && looksEncoded(t)) {
+        if (run === 0) runStart = i;
+        run += t.length;
+        if (run >= 200 && run - t.length < 200)
+          add(
+            label,
+            "base64-blob",
+            `${f.rel}:${runStart + 1} (split across lines)`,
+          );
+      } else run = 0;
+
+      const fm = line.match(FENCE);
+      if (fm) fence = fence === null ? fm[2] : null;
+
+      const reasons = [];
+      if (MUTABLE_REF.test(line)) reasons.push("mutable-ref");
+      const inShellFence = fence !== null && SHELL_LANG.test(fence);
+      if (
+        NETWORK_COMMAND.test(line) ||
+        (!textType && SCRIPT_NETWORK.test(line)) ||
+        (inShellFence && /https?:\/\//i.test(line))
+      ) {
+        reasons.push("network");
+      }
+      if (reasons.length)
+        hits.push({ where, line, reasons, hosts: hostsOf(line) });
+    });
+  }
+
+  const declared = EXECUTION_RANK.get(entry.execution ?? "text-only");
+  if (needed > declared) {
+    add(
+      label,
+      "execution-class",
+      `declared ${entry.execution ?? "text-only (default)"}, content needs ${RANK_NAME[needed]}`,
+    );
+  }
+
+  const acks = entry.acknowledged ?? {};
+  const used = new Set();
+  const network = entry.network ?? "none";
+  for (const hit of hits) {
+    if (own(acks, hit.where)) {
+      used.add(hit.where);
+      if (acks[hit.where].sha256 !== sha256(hit.line))
+        add(
+          label,
+          "ack-mismatch",
+          `${hit.where} changed since it was acknowledged`,
+        );
+      continue;
+    }
+    if (hit.reasons.includes("mutable-ref"))
+      add(label, "mutable-ref", `${hit.where} (pin an exact version)`);
+    if (!hit.reasons.includes("network") || network === "arbitrary") continue;
+    if (network === "none") {
+      add(
+        label,
+        "network-class",
+        `${hit.where} reaches the network but network is "none"`,
+      );
+      continue;
+    }
+    const allowed = new Set(network.allowlist.map((h) => h.toLowerCase()));
+    if (hit.hosts.size === 0)
+      add(label, "network-host", `${hit.where} reaches an unknown host`);
+    for (const h of hit.hosts)
+      if (!allowed.has(h))
+        add(
+          label,
+          "network-host",
+          `${hit.where} reaches ${h}, not in the allowlist`,
+        );
+  }
+  for (const k of Object.keys(acks))
+    if (!used.has(k))
+      add(label, "stale-ack", `${k} is acknowledged but matches no finding`);
+}
 
 /** Run every check against a repo root. Pure apart from reading files. */
 export function verifySkills(root) {
@@ -231,154 +539,125 @@ export function verifySkills(root) {
     return { ok: false, error: `missing ${skillsDir}` };
   const parsed = parseLock(readFileSync(lockPath, "utf8"));
   if (!parsed.ok) return parsed;
-  const { skills, unlocked } = parsed.value;
+  const { skills, unlocked, mirrorExceptions } = parsed.value;
 
   /** @type {Finding[]} */
   const findings = [];
   const legacy = [];
+  const external = [];
   const add = (skill, code, detail) => findings.push({ skill, code, detail });
 
-  const onDisk = readdirSync(skillsDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory() || d.isSymbolicLink())
-    .map((d) => d.name)
-    .sort();
-
-  for (const name of onDisk) {
-    if (!(name in skills) && !(name in unlocked)) {
+  const canonical = new Set();
+  for (const name of readdirSync(skillsDir).sort()) {
+    const abs = join(skillsDir, name);
+    const st = lstatSync(abs);
+    if (st.isFile() && name === "README.md") continue;
+    if (st.isSymbolicLink()) {
+      add(
+        name,
+        "symlinked-skill",
+        ".agents/skills entries must be real directories",
+      );
+      continue;
+    }
+    if (!st.isDirectory()) {
+      add(
+        name,
+        "stray-file",
+        "only skill directories and README.md belong in .agents/skills/",
+      );
+      continue;
+    }
+    canonical.add(name);
+    const entry = skills.get(name) ?? unlocked.get(name);
+    if (!entry) {
       add(
         name,
         "unaccounted",
         "directory has no skills-lock.json entry and is not in `unlocked`",
       );
+      scanSkill(name, abs, {}, add);
+      continue;
     }
+    if (entry.legacy) legacy.push(name);
+    scanSkill(name, abs, entry, add);
   }
-  for (const name of Object.keys(skills)) {
-    if (!onDisk.includes(name))
+  for (const name of skills.keys())
+    if (!canonical.has(name))
       add(
         name,
         "missing",
         "locked skill has no directory under .agents/skills/",
       );
-  }
-  for (const name of Object.keys(unlocked)) {
-    if (!onDisk.includes(name))
+  for (const name of unlocked.keys())
+    if (!canonical.has(name))
       add(name, "stale-unlocked", "listed in `unlocked` but not on disk");
-  }
 
-  for (const name of onDisk) {
-    const dir = join(skillsDir, name);
-    let st;
-    try {
-      st = statSync(dir);
-    } catch {
-      add(name, "dangling", "skill path is a dangling symlink");
-      continue;
-    }
-    if (!st.isDirectory()) continue;
-    const entry = skills[name];
-    const files = walk(dir)
-      .map((abs) => ({ abs, rel: posix(relative(dir, abs)) }))
-      .sort((a, b) => a.rel.localeCompare(b.rel));
-
-    // 2. Integrity
-    if (entry && entry.files) {
-      const listed = new Set(Object.keys(entry.files));
-      for (const f of files) {
-        if (!listed.has(f.rel)) add(name, "unlisted-file", f.rel);
-        else if (sha256(readFileSync(f.abs)) !== entry.files[f.rel])
-          add(name, "hash-drift", f.rel);
-      }
-      const present = new Set(files.map((f) => f.rel));
-      for (const rel of listed)
-        if (!present.has(rel)) add(name, "missing-file", rel);
-    } else if (entry && entry.sourceType !== "local") {
-      legacy.push(name);
-    }
-
-    // 3 + 4. Content and declared class
-    let foundExec = 0;
-    const netHits = [];
-    for (const f of files) {
-      const buf = readFileSync(f.abs);
-      const exe = (statSync(f.abs).mode & 0o111) !== 0;
-      if (isBinary(buf)) {
-        foundExec = Math.max(foundExec, EXECUTION_RANK.binary);
-        continue;
-      }
-      const text = buf.toString("utf8");
-      const lines = text.split("\n");
-      lines.forEach((line, i) => {
-        if (HIDDEN_UNICODE.test(i === 0 ? line.replace(/^﻿/, "") : line)) {
-          add(name, "hidden-unicode", `${f.rel}:${i + 1}`);
+  for (const mirror of MIRRORS) {
+    const dir = join(root, mirror);
+    const exceptions = mirrorExceptions.get(mirror);
+    const seen = new Set();
+    if (existsSync(dir)) {
+      for (const name of readdirSync(dir).sort()) {
+        seen.add(name);
+        const abs = join(dir, name);
+        const label = `${mirror}/${name}`;
+        const st = lstatSync(abs);
+        const exception = exceptions.get(name);
+        if (st.isSymbolicLink()) {
+          const target = readlinkSync(abs);
+          if (
+            target === `../../.agents/skills/${name}` &&
+            canonical.has(name)
+          ) {
+            if (exception)
+              add(
+                label,
+                "stale-exception",
+                "links to the canonical skill; remove it from mirrorExceptions",
+              );
+            continue;
+          }
+          if (exception) {
+            external.push(`${label} -> ${target}`);
+            continue;
+          }
+          add(
+            label,
+            "mirror-link",
+            `links to ${target}; must link to ../../.agents/skills/${name} or be in mirrorExceptions`,
+          );
+        } else if (st.isDirectory()) {
+          if (!exception)
+            add(
+              label,
+              "mirror-unaccounted",
+              "real directory in a mirror tree is not in mirrorExceptions",
+            );
+          scanSkill(label, abs, exception ?? {}, add);
+        } else {
+          add(
+            label,
+            "stray-file",
+            "mirror trees hold only skill links and directories",
+          );
         }
-        if (BASE64_RUN.test(line))
-          add(name, "base64-blob", `${f.rel}:${i + 1}`);
-      });
-      const isScript = SCRIPT_EXT.test(f.rel) || exe || text.startsWith("#!");
-      if (isScript) foundExec = Math.max(foundExec, EXECUTION_RANK.script);
-      if (
-        HOOK_FILE.test(f.rel) ||
-        (PLUGIN_MANIFEST.test(f.rel) && /"hooks"\s*:/.test(text))
-      ) {
-        foundExec = Math.max(foundExec, EXECUTION_RANK.hook);
       }
-      lines.forEach((line, i) => {
-        if (MUTABLE_REF.test(line))
-          netHits.push({ code: "mutable-ref", where: `${f.rel}:${i + 1}` });
-        if (
-          NETWORK_ACTION.test(line) ||
-          (isScript && SCRIPT_NETWORK_CALL.test(line))
-        ) {
-          netHits.push({ code: "network-action", where: `${f.rel}:${i + 1}` });
-        }
-      });
     }
-
-    if (entry && entry.execution !== undefined) {
-      const declared = EXECUTION_RANK[entry.execution];
-      if (foundExec > declared) {
-        const found = Object.keys(EXECUTION_RANK).find(
-          (k) => EXECUTION_RANK[k] === foundExec,
-        );
+    for (const name of exceptions.keys()) {
+      if (!seen.has(name))
         add(
-          name,
-          "execution-class",
-          `declared ${entry.execution}, content needs ${found}`,
+          `${mirror}/${name}`,
+          "stale-exception",
+          "listed in mirrorExceptions but not on disk",
         );
-      }
-    }
-    if (entry && entry.network !== undefined) {
-      const acks = entry.acknowledged ?? {};
-      const used = new Set();
-      const acked = (where) => {
-        const fileKey = `${where.slice(0, where.lastIndexOf(":"))}:*`;
-        if (where in acks) return (used.add(where), true);
-        if (fileKey in acks) return (used.add(fileKey), true);
-        return false;
-      };
-      for (const hit of netHits) {
-        if (acked(hit.where)) continue;
-        if (hit.code === "mutable-ref")
-          add(name, "mutable-ref", `${hit.where} (pin an exact version)`);
-        else if (entry.network === "none")
-          add(
-            name,
-            "network-class",
-            `${hit.where} reaches the network but network is "none"`,
-          );
-      }
-      for (const k of Object.keys(acks)) {
-        if (!used.has(k))
-          add(
-            name,
-            "stale-ack",
-            `${k} is acknowledged but no longer matches a finding`,
-          );
-      }
     }
   }
 
-  return { ok: true, value: { findings, legacy, checked: onDisk.length } };
+  return {
+    ok: true,
+    value: { findings, legacy, external, checked: canonical.size },
+  };
 }
 
 function main() {
@@ -402,11 +681,11 @@ function main() {
     stderr.write(`verify-skills: ${result.error}\n`);
     exit(2);
   }
-  const { findings, legacy, checked } = result.value;
+  const { findings, legacy, external, checked } = result.value;
   if (args.value.json) {
     stdout.write(
       JSON.stringify(
-        { ok: findings.length === 0, checked, legacy, findings },
+        { ok: findings.length === 0, checked, legacy, external, findings },
         null,
         2,
       ) + "\n",
@@ -417,6 +696,10 @@ function main() {
     if (legacy.length)
       stderr.write(
         `verify-skills: legacy entries without file hashes: ${legacy.join(", ")}\n`,
+      );
+    if (external.length)
+      stderr.write(
+        `verify-skills: ${external.length} mirror exception link(s) not reviewable in CI\n`,
       );
     stderr.write(
       `verify-skills: ${checked} skill directories, ${findings.length} finding(s)\n`,

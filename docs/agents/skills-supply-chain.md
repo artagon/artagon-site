@@ -20,36 +20,43 @@ is. Requirements: `openspec/changes/add-agent-skills-supply-chain/specs/agent-sk
 
 ## `skills-lock.json`
 
-Version 1. `skills` maps a directory name under `.agents/skills/` to its entry; `unlocked` maps a
-directory without an entry to the reason it has none (legacy mirrors and OpenSpec scaffolds).
+Version 1. Three maps:
 
-| Field                      | Required for    | Meaning                                                                                                                                     |
-| -------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `source`, `sourceType`     | all             | `owner/repo` and `github`, or `artagon/artagon-site` and `local` for repo-authored skills                                                   |
-| `skillPath`                | third-party     | Path of the skill inside the upstream repo                                                                                                  |
-| `commit`                   | third-party     | 40-hex upstream commit that was reviewed                                                                                                    |
-| `license`                  | third-party     | SPDX id or a short statement                                                                                                                |
-| `execution`                | all new entries | `text-only`, `script`, `binary` or `hook`; must be at least what the content needs                                                          |
-| `network`                  | all new entries | `none`, `docs-only`, `arbitrary`, or `{ "allowlist": [hosts] }`                                                                             |
-| `files`                    | third-party     | Relative path → sha256 of every file in the directory; no more, no fewer                                                                    |
-| `acknowledged`             | when needed     | `"path:line"` or `"path:*"` → reason, for reviewed scanner hits that are sample code rather than agent actions. A stale key fails the gate. |
-| `modified`                 | third-party     | `true` when the vendored copy differs from upstream (explained in the skill's `FORK.md` or SKILL.md)                                        |
-| `reviewedBy`, `reviewedAt` | third-party     | Who signed off and when                                                                                                                     |
-| `computedHash`             | legacy          | Hash written by the `npx skills` CLI for `design-md`; not checked by the gate                                                               |
+- `skills`: directory name under `.agents/skills/` → its lock entry.
+- `unlocked`: directory with no entry → a reason string, or `{ "reason", "execution", "network", "acknowledged" }` when its content needs a class (legacy mirrors, OpenSpec scaffolds, the `playwright-cli` package skill).
+- `mirrorExceptions`: per mirror tree (`.claude/skills`, `.codex/skills`, `.gemini/skills`), entries that are not a link to `../../.agents/skills/<same name>`, each with a reason. Examples are real OpenSpec scaffold copies, and links into the external `artagon-ai-skills` checkout that `chore/consolidate-skills` removes.
+
+| Field                           | Required for                                              | Meaning                                                                                                                                                                                                                           |
+| ------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`, `sourceType`          | all                                                       | `owner/repo` and `github`, or exactly `artagon/artagon-site` and `local` for repo-authored skills. No other source type is accepted.                                                                                              |
+| `commit`, `license`, `files`    | every `github` entry except the grandfathered `design-md` | 40-hex reviewed upstream commit; SPDX id or statement; relative path → sha256 of every file, no more, no fewer                                                                                                                    |
+| `execution`                     | every `github` and `local` entry                          | `text-only`, `script`, `binary` or `hook`; at least what the content needs. Undeclared (unlocked, mirror) means `text-only`.                                                                                                      |
+| `network`                       | every `github` and `local` entry                          | `none`, `arbitrary`, or `{ "allowlist": [hosts] }`. Undeclared means `none`.                                                                                                                                                      |
+| `acknowledged`                  | when needed                                               | `"path:line"` → `{ "reason", "sha256" }`, where `sha256` is the hash of that exact line. Changing the line voids the acknowledgement (`ack-mismatch`); one that matches nothing is `stale-ack`. Whole-file keys are not accepted. |
+| `skillPath`, `modified`, `note` | third-party                                               | Upstream path; `true` when the copy differs from upstream (see the skill's `FORK.md`); free-text review note                                                                                                                      |
+| `reviewedBy`, `reviewedAt`      | third-party                                               | Who signed off and when                                                                                                                                                                                                           |
+| `computedHash`                  | `design-md` only                                          | Hash written by the `npx skills` CLI; not checked                                                                                                                                                                                 |
 
 ## What `npm run verify:skills` checks
 
-1. Every skill directory is locked or has an `unlocked` reason; every entry exists.
-2. Locked files match their sha256; no missing or unlisted files.
-3. No hidden Unicode (zero-width, bidi controls, tag characters) or base64 runs of 200+ characters, in
-   any skill.
-4. Declared `execution` covers scripts, executable bits, binaries and hook manifests.
-5. With `network: "none"`, no `curl`, `wget`, `npx`, `pnpx`, `bunx`, `WebFetch`, `git clone`,
-   `pip install` or `npm install` instruction, and no `fetch(` in a script. No moving `@latest`
-   reference anywhere.
+1. **Accounting.**
+   - Every `.agents/skills/` entry is a real directory that is locked or `unlocked`.
+   - Every mirror-tree entry links to `../../.agents/skills/<same name>` or is a listed exception.
+   - Nothing listed is missing on disk.
+2. **Integrity.** Hashed files match exactly.
+3. **Content**, in every scanned directory, locked or not:
+   - no hidden Unicode (Unicode format characters, which include zero-width and bidi marks and tag characters; also line and paragraph separators, fillers and variation selectors), apart from a single emoji presentation selector after a pictograph;
+   - no base64 runs of 200 or more characters, also when split across lines;
+   - no symlinks, special files, or files over 5 MB;
+   - no binary files unless the class is `binary`;
+   - no `allowed-tools` frontmatter;
+   - no moving `@latest` references.
+4. **Execution class.** Anything that is not a known text type (`.md`, `.txt`, `.json`, `.yaml`, `.toml`, `.csv`, license and readme files) or an image counts as a script. So do a shebang, an executable bit, and `package.json` scripts. Hook manifests, `.mcp.json`, manifests with `hooks` or `mcpServers`, and frontmatter `hooks:` count as `hook`.
+5. **Network class.** These are checked case-insensitively: shell and package-runner commands (`curl`, `wget`, `npx`, `bun x`, `npm`/`pnpm`/`yarn` install, exec and dlx forms, `pip install`, `pipx`, `uvx`, `cargo install`, `go install`, `git clone`/`fetch`/`pull`, `gh api`, `deno run https:`, `Invoke-WebRequest`, `iwr`, `ssh`, `nc` and more); network calls and any URL in script files; and any URL in a shell code fence.
+   - Under `none`, any such hit fails.
+   - Under an allowlist, every host the hit reaches must be listed, where package runners imply their registry.
 
-Exit codes: 0 clean, 1 findings, 2 usage or IO error. `--json` prints the findings and the list of
-legacy entries. CI runs it in `.github/workflows/agents-check.yml`.
+Exit codes: 0 clean, 1 findings, 2 usage or IO error. `--json` prints the findings, the legacy entries, and the mirror-exception links that CI cannot review. CI runs it in `.github/workflows/agents-check.yml`.
 
 ## Adding or updating a third-party skill
 
@@ -61,8 +68,9 @@ legacy entries. CI runs it in `.github/workflows/agents-check.yml`.
    explain the change in `FORK.md`), or reject it.
 4. Copy the files plus the upstream license into `.agents/skills/<name>/`, and link
    `.claude/skills/<name>` to `../../.agents/skills/<name>`.
-5. Add the lock entry with `files` hashes (`node scripts/verify-skills.mjs --json` shows what is
-   missing), and run `npm run verify:skills` until it exits 0.
+5. Add the lock entry with `files` hashes, and run `npm run verify:skills` until it exits 0. For a
+   hit that is sample code rather than an agent action, add an `acknowledged` entry with the line's
+   sha256 and a reason a reviewer can check. Never acknowledge a real instruction; fork the skill.
 6. A human reviewer signs off by filling `reviewedBy` and `reviewedAt`. An agent may prepare the
    entry, but never signs off.
 
