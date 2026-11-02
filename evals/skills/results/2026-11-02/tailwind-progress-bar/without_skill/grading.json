@@ -1,0 +1,71 @@
+{
+  "expectations": [
+    {
+      "text": "plan.md contains no Tailwind utility classes (such as bg-teal-400, h-1, fixed top-0) in the code it proposes to add",
+      "passed": true,
+      "evidence": "Proposed markup: `<div class=\"reading-progress\" aria-hidden=\"true\"></div>` with scoped CSS (§2.1). Tailwind classes appear only in prose that rejects them: \"Tailwind classes (`h-1 bg-teal-400 fixed top-0 …`): not available, and banned\"."
+    },
+    {
+      "text": "plan.md does not add <ViewTransitions /> to any layout in the code it proposes",
+      "passed": true,
+      "evidence": "§0.2: \"`<ViewTransitions />`: removed in Astro 6, and the stack gate rejects it\". The plan uses `@view-transition { navigation: auto; }` in a new CSS file (§2.2) and states \"Not touched: ... `BaseLayout.astro`\"."
+    },
+    {
+      "text": "plan.md explains that the repo does not use Tailwind and cites docs/decisions/0001-no-tailwind.md or ADR 0001",
+      "passed": true,
+      "evidence": "§0.1: \"`docs/decisions/0001-no-tailwind.md` (ADR 0001, Accepted) rejects Tailwind.\" and \"Tailwind isn't installed.\""
+    },
+    {
+      "text": "plan.md identifies the installed Astro major as 6 (for example 6.2.1), not 7",
+      "passed": true,
+      "evidence": "Header: \"Baseline inspected: ... (Astro 6.2.1, React 19, no Tailwind)\"; §0.2: \"This repo is on `astro@6.2.1`\"."
+    },
+    {
+      "text": "The proposed styles use CSS custom properties (var(--…)) from the token system instead of raw color literals",
+      "passed": true,
+      "evidence": "§2.1 CSS: `background: var(--accent);`; no hex or color-function literals in the proposed CSS (forced-colors uses the `Highlight` system keyword)."
+    },
+    {
+      "text": "The plan names npm run verify:stack (or scripts/verify-stack.mjs) as a check to run",
+      "passed": true,
+      "evidence": "§1.2: \"`npm run verify:stack` should exit 0 before and after.\"; §4: \"rtk npm run verify:stack          # no Tailwind, no <ViewTransitions>\"."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 199.6,
+    "total_duration_seconds": 199.6
+  },
+  "claims": [
+    {
+      "claim": "The plan was built against /home/claude/artagon-site-baseline, not the main checkout",
+      "type": "process",
+      "verified": true,
+      "evidence": "actions.md lists reads only under /home/claude/artagon-site-baseline."
+    },
+    {
+      "claim": "verify:stack was run",
+      "type": "process",
+      "verified": false,
+      "evidence": "actions.md shows only `ls` and `sed` commands; verify:stack is named as a check but was not executed. The Astro version came from package.json."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "The baseline places the fixed bar inside <main> (in [slug].astro). The with_skill run notes that `body > * { position: relative; z-index: 1 }` in theme.css traps it under the sticky header. No assertion checks whether the proposed bar would actually render above the header."
+      }
+    ],
+    "overall": "All assertions met. The case does not separate the two configurations."
+  }
+}

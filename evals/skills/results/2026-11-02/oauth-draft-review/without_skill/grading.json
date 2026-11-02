@@ -1,0 +1,76 @@
+{
+  "expectations": [
+    {
+      "text": "review.md flags that OAuth 2.1 is an Internet-Draft, not RFC 9725 (or any RFC)",
+      "passed": true,
+      "evidence": "Finding 1: \"OAuth 2.1 has no RFC number. It is the IETF Internet-Draft `draft-ietf-oauth-v2-1`. ... RFC 9725 is a different document.\""
+    },
+    {
+      "text": "review.md flags recommending the implicit flow for single-page apps as insecure or removed in OAuth 2.1 / RFC 9700",
+      "passed": true,
+      "evidence": "Finding 4: \"RFC 9700 ... §2.1.2 says clients SHOULD NOT use the implicit grant\" and \"The OAuth 2.1 draft removes the implicit grant entirely.\""
+    },
+    {
+      "text": "review.md flags storing a long-lived access token in localStorage",
+      "passed": true,
+      "evidence": "Finding 5: \"30-day access tokens in `localStorage` (line 15). Blocker. Any script on the origin can read `localStorage`, so a single XSS exposes the token.\""
+    },
+    {
+      "text": "review.md flags passing the access token as a URL query parameter",
+      "passed": true,
+      "evidence": "Finding 6: \"Access token in a query parameter (lines 17-21). Blocker. RFC 6750 §2.3 says the URI query method SHOULD NOT be used ... The OAuth 2.1 draft drops the query-parameter method.\""
+    },
+    {
+      "text": "review.md questions or flags the \"OIDC 2.1 certified\" claim as an unverified or nonexistent certification",
+      "passed": true,
+      "evidence": "Finding 2: \"There is no \\\"OpenID Connect 2.1\\\" specification\" and \"Saying \\\"is certified\\\" contradicts the site and is a compliance claim with no evidence behind it.\""
+    },
+    {
+      "text": "review.md does not mark the DPoP (RFC 9449) or PKCE (RFC 7636) statements as wrong",
+      "passed": true,
+      "evidence": "Finding 7 (line 23, Minor): \"The RFC numbers and the summaries are correct.\" It flags only incompleteness and placement, not correctness."
+    },
+    {
+      "text": "Each finding in review.md gives a location (line or quoted text), what is wrong, and a fix",
+      "passed": true,
+      "evidence": "Findings 1-10 each name lines (e.g. \"(line 11)\", \"(lines 17-21)\", \"(lines 1-7)\") and carry a **Fix:** or example. Finding 7 gives line 23 and implied fixes (\"It should be the core of the post\", \"Say what PKCE protects against\"). Finding 11 is located as \"all\" but quotes `## The standards` and lists concrete actions. Weakest case, still meets the bar."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 123.0,
+    "total_duration_seconds": 123.0
+  },
+  "claims": [
+    {
+      "claim": "Frontmatter fails the writing schema: description must be 80-160 chars; headline and lede required",
+      "type": "factual",
+      "verified": true,
+      "evidence": "src/content.config.ts:78 `description: z.string().min(80).max(160)`, :80-81 headline/lede `z.string().min(1)`; the draft's description is 44 characters with no headline/lede."
+    },
+    {
+      "claim": "No web sources were fetched; protocol citations are from memory",
+      "type": "process",
+      "verified": true,
+      "evidence": "actions.md: \"URLs fetched: none\"; review header says every citation should be checked against the live spec."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Protocol citations not checked against live specs (no fetch)", "PKCE exception section number to be confirmed"],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Add an assertion that citations are verified against primary sources (Datatracker / rfc-editor). That is where the skill run and this run differ. This run cited RFC 9700 and RFC 6750 sections from memory and said so."
+      }
+    ],
+    "overall": "All assertions met. The case does not separate the two configurations."
+  }
+}

@@ -1,0 +1,732 @@
+{
+  "metadata": {
+    "skill_name": "artagon-skills",
+    "skill_path": ".agents/skills (artagon-stack-guard, artagon-design-system, artagon-authz-content-review, artagon-docs-authoring, modern-web-guidance, web-interface-review)",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-11-02T16:05:55Z",
+    "evals_run": [
+      "anchored-tooltip",
+      "faqsearch-review",
+      "oauth-draft-review",
+      "pricing-hero",
+      "rebac-check-howto",
+      "starlight-install",
+      "tailwind-progress-bar"
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": "anchored-tooltip",
+      "eval_name": "anchored-tooltip",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 409.0,
+        "tokens": 148899,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "tooltip.md does not import a polyfill or library from a CDN (unpkg, jsdelivr, esm.sh) or reference @latest",
+          "passed": true,
+          "evidence": "No CDN import in any code block; unpkg/@latest appear only in the 'Not used' list (line 52): 'The guides' CDN polyfill imports (`unpkg \u2026@latest`). SKILL.md forbids third-party script origins'."
+        },
+        {
+          "text": "The run did not execute npx modern-web-guidance or fetch guidance from the network",
+          "passed": true,
+          "evidence": "actions.md: two failed `rtk rg` commands (exit 127), no other shell commands; 'URLs fetched: none'. Guides read from the local .agents/skills/modern-web-guidance tree."
+        },
+        {
+          "text": "The proposed tooltip works on keyboard focus as well as hover",
+          "passed": true,
+          "evidence": "Line 3 'hovers over a chip or reaches it by keyboard'; fallback controller keys on :focus-visible (lines 240, 293) and native interestfor covers focus."
+        },
+        {
+          "text": "The proposed tooltip uses the native popover attribute and/or CSS anchor positioning (anchor-name / position-anchor), with a fallback or note for browsers without anchor positioning",
+          "passed": true,
+          "evidence": "popover=\"hint\" + interestfor (line 117), CSS anchor positioning inside @supports (anchor-name: --a) (lines 160-171) with position-try-fallbacks; JS getBoundingClientRect fallback for `@supports not (anchor-name)` (line 45)."
+        },
+        {
+          "text": "The styles use theme tokens (var(--\u2026)) rather than raw color literals",
+          "passed": true,
+          "evidence": "No hex/rgb/hsl/oklch literals found; 6 var(--\u2026) uses for colours/surfaces."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "faqsearch-review",
+      "eval_name": "faqsearch-review",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 117.8,
+        "tokens": 105460,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md reports findings in a src/components/FaqSearch.astro:<line> format",
+          "passed": true,
+          "evidence": "Every finding line starts with that format, e.g. \"src/components/FaqSearch.astro:13 - [med] `type=\\\"search\\\"` renders the native WebKit/Blink cancel...\" and \"src/components/FaqSearch.astro:71-75 - [med] `:focus` with `outline: none`.\""
+        },
+        {
+          "text": "The run did not fetch guidelines from raw.githubusercontent.com or any other URL",
+          "passed": true,
+          "evidence": "actions.md: \"## URLs fetched\\n\\nnone\"; it read the pinned local `.agents/skills/web-interface-review/references/command.md`."
+        },
+        {
+          "text": "review.md does not recommend adding Tailwind classes or new dependencies",
+          "passed": true,
+          "evidence": "All fixes are plain CSS/HTML/JS (`::-webkit-search-cancel-button { appearance: none; }`, `<search>`, debounce, `?q=`, forced-colors rule). There is no Tailwind and no package."
+        },
+        {
+          "text": "Every finding in review.md points at a line that exists in FaqSearch.astro and describes something actually present there",
+          "passed": true,
+          "evidence": "Spot-checked all 14 findings against the file (224 lines): :13 type=search; :71-75 `:focus { outline: none; ... }`; :35 live region + :201-203 input listener + :192-198 messages; :178-182 answer matching; :5 plain div wrapper; :14 \"Search FAQs...\"; :14-15 placeholder/aria-label; :11-17 input has no name; :68 and :97 transitions, no reduce guard in the file; :100-103 hover color-mix, with :135-142 covering only input focus; :201-203 no URL state; :212-222 hash handled only on load; :193-197 hardcoded strings. Cross-file cites also hold: theme.css:1887 is `input:focus-visible`, and FaqItem.astro:127-132 zeroes transitions under reduce. No wrong line or claim found."
+        }
+      ],
+      "notes": [
+        "Static source review only, no browser/axe run",
+        "review-verification-protocol skill not installed"
+      ]
+    },
+    {
+      "eval_id": "oauth-draft-review",
+      "eval_name": "oauth-draft-review",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 245.0,
+        "tokens": 103913,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md flags that OAuth 2.1 is an Internet-Draft, not RFC 9725 (or any RFC)",
+          "passed": true,
+          "evidence": "Critical 1: \"`draft-tokens.mdx:11` ... OAuth 2.1 is not an RFC. It is the active Internet-Draft draft-ietf-oauth-v2-1 ... RFC 9725 is a different, published spec: \\\"WebRTC-HTTP Ingestion Protocol (WHIP)\\\".\""
+        },
+        {
+          "text": "review.md flags recommending the implicit flow for single-page apps as insecure or removed in OAuth 2.1 / RFC 9700",
+          "passed": true,
+          "evidence": "Critical 3: \"RFC 9700 \u00a72.1.2 says \\\"Clients SHOULD NOT use the implicit grant\\\" ... and the OAuth 2.1 draft (\u00a71.8, \u00a710.1) removes it.\""
+        },
+        {
+          "text": "review.md flags storing a long-lived access token in localStorage",
+          "passed": true,
+          "evidence": "Critical 4: \"`draft-tokens.mdx:15` ... This is a long-lived bearer token in `localStorage` ... Any XSS on the origin can read it and replay it\"; Critical 5 covers the 30-day lifetime."
+        },
+        {
+          "text": "review.md flags passing the access token as a URL query parameter",
+          "passed": true,
+          "evidence": "Critical 6: \"`draft-tokens.mdx:17-20` ... RFC 9700 \u00a74.3.2: \\\"Clients MUST NOT pass access tokens in a URI query parameter\\\"\"."
+        },
+        {
+          "text": "review.md questions or flags the \"OIDC 2.1 certified\" claim as an unverified or nonexistent certification",
+          "passed": true,
+          "evidence": "Critical 2: \"There is no OpenID Connect 2.1 specification ... Nothing in the repo shows that Artagon holds any OpenID certification\"."
+        },
+        {
+          "text": "review.md does not mark the DPoP (RFC 9449) or PKCE (RFC 7636) statements as wrong",
+          "passed": true,
+          "evidence": "\"Verified, no change needed: `draft-tokens.mdx:23` - RFC - \\\"DPoP (RFC 9449) binds a token ... PKCE (RFC 7636) protects the authorization code.\\\" This is accurate at RFC level.\" (Minor 1 refines line 11's 'PKCE mandatory for every client', which is a different statement.)"
+        },
+        {
+          "text": "Each finding in review.md gives a location (line or quoted text), what is wrong, and a fix",
+          "passed": true,
+          "evidence": "Every finding follows `path:line - level - claim - problem - fix`, for example Critical 1 ends \"- Write \\\"The OAuth 2.1 draft (draft-ietf-oauth-v2-1) requires PKCE\u2026\\\"\". Major 4 uses the range `9-25` and quotes the section heading."
+        }
+      ],
+      "notes": [
+        "\u00a77.5.1 of the OAuth 2.1 draft (PKCE exception) not read in full",
+        "review-verification-protocol skill not installed",
+        "rtk not installed; used built-in Grep"
+      ]
+    },
+    {
+      "eval_id": "pricing-hero",
+      "eval_name": "pricing-hero",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 213.3,
+        "tokens": 148979,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "hero.md does not adopt a purple-to-blue gradient as the hero treatment",
+          "passed": true,
+          "evidence": "\u00a70 table: \"Big purple-to-blue gradient | ... | Twilight neutrals plus **one** accent (cyan-teal). The only gradient is the existing tonal surface wash `var(--bg-1) \u2192 var(--bg)`\"; \"**Purple has no on-system path.**\""
+        },
+        {
+          "text": "hero.md uses the type families defined in DESIGN.md instead of Inter everywhere",
+          "passed": true,
+          "evidence": "\"Inter Tight for body and UI... Fraunces for the h1, JetBrains Mono for the eyebrow and ledger labels.\" The type table maps h1 to Fraunces `--f-display`, the lede to Inter Tight `--f-sans`, and the eyebrow and ledger to `--f-mono`."
+        },
+        {
+          "text": "The headline and copy in hero.md avoid the forbidden phrases and adverbs in DESIGN.md (seamlessly, \"for the modern enterprise\", truly, simply, easily, revolutionary, next-generation)",
+          "passed": true,
+          "evidence": "Headline: \"Pricing starts as a *partnership*.\" A grep for the banned words finds them only in the \u00a70 rejection row (\"*seamlessly* is a banned marketing adverb\"). The proposed lede, CTAs and ledger contain none of them."
+        },
+        {
+          "text": "hero.md keeps to one accent color and names it as a token (for example --accent) instead of a raw color value",
+          "passed": true,
+          "evidence": "Palette: \"Accent (the one) | `--accent` + `--accent-ink` | ... | Primary CTA, eyebrow dash, ledger-link hover, focus ring. Nothing else.\" Hex values are labelled \"Hex (reference)\" only; \"Palette: tokens only, no literals\"."
+        },
+        {
+          "text": "hero.md reuses an existing DESIGN.md primitive such as the mono eyebrow / .glow-tag or StandardChip instead of rejecting it as a generic AI tell",
+          "passed": true,
+          "evidence": "Reuses `.eyebrow` (\"uses the canonical `.eyebrow` primitive (mono, 12px...)\") and `<Standard term=\"\u2026\">`. It keeps the single-word serif-italic emphasis despite frontend-design calling it a tell: \"`frontend-design` lists single-word italic emphasis as a \\\"tell\\\", but the `artagon-design-system` skill names it as a deliberate Artagon choice, so it stays.\""
+        }
+      ],
+      "notes": [
+        "Several CONFIRM items (cohort size, pricing row, commercial commitment in lede) need owner sign-off"
+      ]
+    },
+    {
+      "eval_id": "rebac-check-howto",
+      "eval_name": "rebac-check-howto",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 220.0,
+        "tokens": 128442,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "check-permission.mdx frontmatter includes title, description, eyebrow, published and tags",
+          "passed": true,
+          "evidence": "Lines 2-13: `title: \"Check a permission with the Artagon API\"`, `description: \"...\"` (155 chars), `eyebrow: \"How-to\"`, `published: 2026-11-02`, `tags:` list. It also has headline, lede, author and `draft: true`."
+        },
+        {
+          "text": "The curl example does not put an access token in the URL or query string",
+          "passed": true,
+          "evidence": "`curl --fail-with-body -sS \"${ARTAGON_API}/v1/check\" -H \"Authorization: Bearer ${ARTAGON_TOKEN}\"`; prose: \"Send the token in the `Authorization` header only, never in the URL.\""
+        },
+        {
+          "text": "The diagram is static (inline SVG, an image, or a text/ASCII figure), not a client-side diagram library, and has a text equivalent describing the same relationships",
+          "passed": true,
+          "evidence": "Fig. 1 is a static HTML `<figure class=\"chain-fig\">` of text rows, with no script or diagram library. Text equivalent: \"Read Fig. 1 from top to bottom: anne is a member of `team:product` (tuple 1); members of `team:product` are viewers of `document:roadmap` (tuple 2); every viewer has `view` (the rule).\" The figcaption repeats the path."
+        },
+        {
+          "text": "The post states its goal in the opening lines (how-to page type)",
+          "passed": true,
+          "evidence": "First body line (35): \"Use this when you know which object, permission and subject you care about and need a yes or no from Artagon: here, can `user:anne` view `document:roadmap`?\""
+        },
+        {
+          "text": "Any external link uses rel=\"noopener noreferrer\" when it opens in a new tab, or the post uses no target=\"_blank\" links",
+          "passed": true,
+          "evidence": "The only target=_blank link (line 134): `<a href=\"https://www.usenix.org/conference/atc19/presentation/pang\" target=\"_blank\" rel=\"noopener noreferrer\">`."
+        }
+      ],
+      "notes": [
+        "API endpoint/body/response shape is a preview; TODO(api-contract) blockers recorded in an MDX comment with draft: true"
+      ]
+    },
+    {
+      "eval_id": "starlight-install",
+      "eval_name": "starlight-install",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 103.6,
+        "tokens": 106516,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "answer.md does not present a ready-to-apply astro.config.ts change that adds the Starlight integration as the recommended next step",
+          "passed": true,
+          "evidence": "Opening: \"I would not run the install or touch `astro.config.ts` as asked.\" The astro.config.ts snippet appears only in Step 3, after Step 0 (owner decision / ADR 0002), Step 1 (Astro 7 upgrade in its own change) and Step 2. The stated next step is \"You need to approve the scope ... so ADR 0002 can be written (task 0.1).\""
+        },
+        {
+          "text": "answer.md points to openspec/changes/adopt-tailwind-and-starlight (or the adopt-tailwind-and-starlight change) as the path for adopting Starlight",
+          "passed": true,
+          "evidence": "\"These follow the order in `openspec/changes/adopt-tailwind-and-starlight/tasks.md`.\" and \"`openspec/changes/adopt-tailwind-and-starlight/` is marked \\\"draft for owner decision\\\"\"."
+        },
+        {
+          "text": "answer.md states that Starlight 0.42 needs Astro 7 while the repo is on Astro 6",
+          "passed": true,
+          "evidence": "\"`npm run verify:stack` reports `astro 6.2.1`... `npm view @astrojs/starlight` reports the latest as `0.42.8`, with `peerDependencies: { astro: '^7.2.10', ...}`\"; Step 0.2: \"Starlight 0.42.8 needs `astro ^7.2.10`.\""
+        },
+        {
+          "text": "answer.md says that adding @astrojs/starlight would fail npm run verify:stack (or the stack gate) until the change is approved",
+          "passed": true,
+          "evidence": "\"`scripts/verify-stack.mjs` has `@astrojs/starlight` in `FORBIDDEN_DEPS`. Adding it to `package.json` makes `npm run verify:stack` exit 1.\" Step 2 relaxes the guard only in the same diff, after the decision."
+        }
+      ],
+      "notes": [
+        "`rtk` not installed; commands rerun without the prefix"
+      ]
+    },
+    {
+      "eval_id": "tailwind-progress-bar",
+      "eval_name": "tailwind-progress-bar",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 194.9,
+        "tokens": 146955,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md contains no Tailwind utility classes (such as bg-teal-400, h-1, fixed top-0) in the code it proposes to add",
+          "passed": true,
+          "evidence": "The proposed markup is `<div class=\"reading-progress\" aria-hidden=\"true\"></div>` with a scoped <style> block (\u00a73.1). Tailwind class names appear only in prose that rejects them: \"Tailwind classes (`h-1 bg-teal-400 fixed top-0`) | **Not used.**\""
+        },
+        {
+          "text": "plan.md does not add <ViewTransitions /> to any layout in the code it proposes",
+          "passed": true,
+          "evidence": "\u00a70: \"Wrap the post layout in `<ViewTransitions />` | **Not used.** Astro 6 removed `<ViewTransitions />`.\" The BaseLayout diff (\u00a73.2) adds only `<slot name=\"body-start\" />`. The optional \u00a75 uses CSS `@view-transition { navigation: auto; }`, not the component."
+        },
+        {
+          "text": "plan.md explains that the repo does not use Tailwind and cites docs/decisions/0001-no-tailwind.md or ADR 0001",
+          "passed": true,
+          "evidence": "\u00a70 table: \"Tailwind is not installed, and the repo has decided not to adopt it... | `docs/decisions/0001-no-tailwind.md`; AGENTS.md \"Stack contract\"; `scripts/verify-stack.mjs` `FORBIDDEN_DEPS`.\""
+        },
+        {
+          "text": "plan.md identifies the installed Astro major as 6 (for example 6.2.1), not 7",
+          "passed": true,
+          "evidence": "\u00a71 stack read: \"installed astro 6.2.1\"; \u00a70: \"Astro 6 removed `<ViewTransitions />`\"."
+        },
+        {
+          "text": "The proposed styles use CSS custom properties (var(--\u2026)) from the token system instead of raw color literals",
+          "passed": true,
+          "evidence": "\u00a73.1 CSS: `background: var(--accent);`; note: \"The only color is `var(--accent)`. There are no raw literals\". The forced-colors block uses the `Highlight` system keyword, which is not a raw literal."
+        },
+        {
+          "text": "The plan names npm run verify:stack (or scripts/verify-stack.mjs) as a check to run",
+          "passed": true,
+          "evidence": "\u00a76 verification table: \"`npm run verify:stack` | exit 0 (ran today: 0 findings, before the change)\"; actions.md shows it was actually run (exit 0)."
+        }
+      ],
+      "notes": [
+        "`rtk` is not installed, so verify:stack was run without the rtk prefix"
+      ]
+    },
+    {
+      "eval_id": "anchored-tooltip",
+      "eval_name": "anchored-tooltip",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 362.2,
+        "tokens": 142562,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "tooltip.md does not import a polyfill or library from a CDN (unpkg, jsdelivr, esm.sh) or reference @latest",
+          "passed": true,
+          "evidence": "No unpkg/jsdelivr/esm.sh/@latest/CDN strings anywhere in tooltip.md."
+        },
+        {
+          "text": "The run did not execute npx modern-web-guidance or fetch guidance from the network",
+          "passed": true,
+          "evidence": "actions.md: 'Shell commands run: none', 'URLs fetched: none'."
+        },
+        {
+          "text": "The proposed tooltip works on keyboard focus as well as hover",
+          "passed": true,
+          "evidence": "Line 3 'shows the glossary name on hover and on keyboard focus'; line 24 'Show on :focus-visible only'."
+        },
+        {
+          "text": "The proposed tooltip uses the native popover attribute and/or CSS anchor positioning (anchor-name / position-anchor), with a fallback or note for browsers without anchor positioning",
+          "passed": true,
+          "evidence": "Uses native Popover API (popover=\"manual\", showPopover at line 164); line 21 explicitly notes the choice not to use CSS anchor positioning and why, with JS placeTip() as the positioning path (a note on anchor positioning support)."
+        },
+        {
+          "text": "The styles use theme tokens (var(--\u2026)) rather than raw color literals",
+          "passed": true,
+          "evidence": "No raw colour literals found; 7 var(--\u2026) uses (--bg-1, --line, --fg, etc.)."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "faqsearch-review",
+      "eval_name": "faqsearch-review",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 256.1,
+        "tokens": 140427,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md reports findings in a src/components/FaqSearch.astro:<line> format",
+          "passed": false,
+          "evidence": "Findings are prose sections that cite lines as \"(line 13)\", \"(lines 178\u2013180)\", \"(line 65)\", etc., under the single header \"**File:** `src/components/FaqSearch.astro` (224 lines)\". No finding uses the `src/components/FaqSearch.astro:<line>` form. The only `file:line` cites are for other files (e.g. `FaqItem.astro:10`, `theme.css:1885-1895`)."
+        },
+        {
+          "text": "The run did not fetch guidelines from raw.githubusercontent.com or any other URL",
+          "passed": true,
+          "evidence": "actions.md: \"## URLs fetched\\n\\nnone\"."
+        },
+        {
+          "text": "review.md does not recommend adding Tailwind classes or new dependencies",
+          "passed": true,
+          "evidence": "Fixes use CSS, HTML attributes, the CSS Custom Highlight API (a browser API, not a package), a new theme token and a Playwright spec using existing devDeps. No Tailwind and no new packages."
+        },
+        {
+          "text": "Every finding in review.md points at a line that exists in FaqSearch.astro and describes something actually present there",
+          "passed": true,
+          "evidence": "Spot-checked all 13 findings: line 13 type=search, 24 clear button, 208 focus return; 35 live region, 192-198/201-203; 178-180 answer matching (FaqItem.astro:10 is `<details>`); 65 `border: 2px solid var(--card-stroke)` (theme.css:79 `--card-stroke: var(--line)`); 145-223 script; 14/15 placeholder and aria-label; 5 div wrapper; 63 font-size only, and theme.css has no `font: inherit`; 180 substring match; 212-222 hash on load; 24/166/170 inline display toggle, 93 `display: flex`, csp.mjs:48 style-src-attr, lint-no-inline-style.test.mts:36 allow-list; 71-75 focus, 83 `right: 0`, 101 hover tint, 68/97 transitions. Finding 11 (Escape) cites no line but correctly describes the absence of a keydown handler. Minor wording slip: finding 5 calls the processed Astro `<script>` \"inline\"; the behaviour described is accurate. No clearly wrong line or claim."
+        }
+      ],
+      "notes": [
+        "Static source reading only; rendering claims marked PARTIAL",
+        "rtk not installed; used built-in Grep"
+      ]
+    },
+    {
+      "eval_id": "oauth-draft-review",
+      "eval_name": "oauth-draft-review",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 123.0,
+        "tokens": 104926,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md flags that OAuth 2.1 is an Internet-Draft, not RFC 9725 (or any RFC)",
+          "passed": true,
+          "evidence": "Finding 1: \"OAuth 2.1 has no RFC number. It is the IETF Internet-Draft `draft-ietf-oauth-v2-1`. ... RFC 9725 is a different document.\""
+        },
+        {
+          "text": "review.md flags recommending the implicit flow for single-page apps as insecure or removed in OAuth 2.1 / RFC 9700",
+          "passed": true,
+          "evidence": "Finding 4: \"RFC 9700 ... \u00a72.1.2 says clients SHOULD NOT use the implicit grant\" and \"The OAuth 2.1 draft removes the implicit grant entirely.\""
+        },
+        {
+          "text": "review.md flags storing a long-lived access token in localStorage",
+          "passed": true,
+          "evidence": "Finding 5: \"30-day access tokens in `localStorage` (line 15). Blocker. Any script on the origin can read `localStorage`, so a single XSS exposes the token.\""
+        },
+        {
+          "text": "review.md flags passing the access token as a URL query parameter",
+          "passed": true,
+          "evidence": "Finding 6: \"Access token in a query parameter (lines 17-21). Blocker. RFC 6750 \u00a72.3 says the URI query method SHOULD NOT be used ... The OAuth 2.1 draft drops the query-parameter method.\""
+        },
+        {
+          "text": "review.md questions or flags the \"OIDC 2.1 certified\" claim as an unverified or nonexistent certification",
+          "passed": true,
+          "evidence": "Finding 2: \"There is no \\\"OpenID Connect 2.1\\\" specification\" and \"Saying \\\"is certified\\\" contradicts the site and is a compliance claim with no evidence behind it.\""
+        },
+        {
+          "text": "review.md does not mark the DPoP (RFC 9449) or PKCE (RFC 7636) statements as wrong",
+          "passed": true,
+          "evidence": "Finding 7 (line 23, Minor): \"The RFC numbers and the summaries are correct.\" It flags only incompleteness and placement, not correctness."
+        },
+        {
+          "text": "Each finding in review.md gives a location (line or quoted text), what is wrong, and a fix",
+          "passed": true,
+          "evidence": "Findings 1-10 each name lines (e.g. \"(line 11)\", \"(lines 17-21)\", \"(lines 1-7)\") and carry a **Fix:** or example. Finding 7 gives line 23 and implied fixes (\"It should be the core of the post\", \"Say what PKCE protects against\"). Finding 11 is located as \"all\" but quotes `## The standards` and lists concrete actions. Weakest case, still meets the bar."
+        }
+      ],
+      "notes": [
+        "Protocol citations not checked against live specs (no fetch)",
+        "PKCE exception section number to be confirmed"
+      ]
+    },
+    {
+      "eval_id": "pricing-hero",
+      "eval_name": "pricing-hero",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 199.8,
+        "tokens": 149102,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "hero.md does not adopt a purple-to-blue gradient as the hero treatment",
+          "passed": true,
+          "evidence": "The recommended hero (\u00a71\u20134) uses `--bg` / `--bg-1` neutrals and a single `--accent`. The literal gradient appears only in \u00a76 \"The literal brief, if you choose to amend the brand\", with \"I do not recommend it for one route\"."
+        },
+        {
+          "text": "hero.md uses the type families defined in DESIGN.md instead of Inter everywhere",
+          "passed": true,
+          "evidence": "Type table: h1 \"Fraunces 500 | `--f-display`\", lede and body \"Inter Tight\", eyebrow and chips \"JetBrains Mono 400 | `--f-mono`\". The Inter-only spec is confined to the non-recommended \u00a76."
+        },
+        {
+          "text": "The headline and copy in hero.md avoid the forbidden phrases and adverbs in DESIGN.md (seamlessly, \"for the modern enterprise\", truly, simply, easily, revolutionary, next-generation)",
+          "passed": true,
+          "evidence": "Headline: \"Verified identity, priced for how you run it.\" Alternates and the \u00a76 headline (\"Secure identity for every enterprise deployment.\") contain no banned terms. A grep finds 'Seamlessly' / 'modern enterprise' only in rejection notes (lines 16, 138, 244)."
+        },
+        {
+          "text": "hero.md keeps to one accent color and names it as a token (for example --accent) instead of a raw color value",
+          "passed": true,
+          "evidence": "Palette: \"Signal | `--accent` | `#3ceedd` | Primary CTA fill, the \\\"Same core\\\" ledger row, the 18px eyebrow dash. Nowhere else.\"; \"Consume all of them as `var(--token)`; no literals.\" Caveat: \u00a76 (the alternative it does not recommend) lists raw `oklch()` gradient stops."
+        },
+        {
+          "text": "hero.md reuses an existing DESIGN.md primitive such as the mono eyebrow / .glow-tag or StandardChip instead of rejecting it as a generic AI tell",
+          "passed": true,
+          "evidence": "Reuses \"Eyebrow | global `.eyebrow`\" and \"Chips | `<Standard term=\\\"\u2026\\\">` | global `.standard-chip`\". Caveat: it does drop a DESIGN.md primitive on frontend-design grounds. In \u00a72: \"Serif-italic emphasis on one word of the h1 | DESIGN.md allows it, but the frontend-design skill flags single-word accents as a generated-page tell ... | No emphasis span in the h1 (optional...)\". It also removes the site's `\u2192` button arrow as \"Template chrome\". The named primitives (eyebrow, StandardChip) are reused, so the assertion as written passes."
+        }
+      ],
+      "notes": [
+        "Pricing facts left as [CONFIRM] placeholders",
+        "artagon-authz-content-review not present in baseline, not run"
+      ]
+    },
+    {
+      "eval_id": "rebac-check-howto",
+      "eval_name": "rebac-check-howto",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 155.6,
+        "tokens": 137838,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "check-permission.mdx frontmatter includes title, description, eyebrow, published and tags",
+          "passed": true,
+          "evidence": "Lines 2-12: `title`, `description` (143 chars), `eyebrow: \"How-to\"`, `published: 2026-11-02`, `tags:` list, plus headline, lede and author."
+        },
+        {
+          "text": "The curl example does not put an access token in the URL or query string",
+          "passed": true,
+          "evidence": "`curl -sS -X POST \"$ARTAGON_API/v1/check\" -H \"Authorization: Bearer $ARTAGON_TOKEN\"`. The token is only in the header."
+        },
+        {
+          "text": "The diagram is static (inline SVG, an image, or a text/ASCII figure), not a client-side diagram library, and has a text equivalent describing the same relationships",
+          "passed": true,
+          "evidence": "Inline `<svg ... role=\"img\" aria-labelledby=\"cp-fig1-title cp-fig1-desc\">` with no script. `<desc>`: \"Tuple 1 links user:anne to group:eng through the member relation. Tuple 2 links group:eng to document:roadmap through the viewer relation, granted to the userset group:eng#member...\". The tuple code block (lines 36-37) also states both relationships in text."
+        },
+        {
+          "text": "The post states its goal in the opening lines (how-to page type)",
+          "passed": true,
+          "evidence": "Lede: \"This post sends one such question over HTTP and walks back through the relationship tuples that produce the answer.\" Body line 17: \"The question in this post: **can `user:anne` view `document:roadmap`?**\" Weaker than the how-to rule 'goal in the first line': the first body line (15) is background (\"Artagon's authorization engine is derived from Google's Zanzibar design.\"). The goal still appears within the opening lines."
+        },
+        {
+          "text": "Any external link uses rel=\"noopener noreferrer\" when it opens in a new tab, or the post uses no target=\"_blank\" links",
+          "passed": true,
+          "evidence": "The post contains no `target=\"_blank\"` links (and no external links at all)."
+        }
+      ],
+      "notes": [
+        "Request/response shapes marked illustrative"
+      ]
+    },
+    {
+      "eval_id": "starlight-install",
+      "eval_name": "starlight-install",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 177.3,
+        "tokens": 133038,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "answer.md does not present a ready-to-apply astro.config.ts change that adds the Starlight integration as the recommended next step",
+          "passed": true,
+          "evidence": "\"Below are the exact steps and config I would apply once the owner signs off on task 0.1.\" Step 0 (ADR 0002, spec delta, tasks) is \"required first\", and the astro.config.ts change is Step 2. Borderline: the recommended path A (Starlight 0.39.3 on the current Astro 6) makes that config directly applicable once the paperwork is signed, but it is not presented as the immediate next step."
+        },
+        {
+          "text": "answer.md points to openspec/changes/adopt-tailwind-and-starlight (or the adopt-tailwind-and-starlight change) as the path for adopting Starlight",
+          "passed": true,
+          "evidence": "\"So the work is the OpenSpec change that already exists for this, **`adopt-tailwind-and-starlight`**, using scope **(a) Starlight only for `/docs`**.\""
+        },
+        {
+          "text": "answer.md states that Starlight 0.42 needs Astro 7 while the repo is on Astro 6",
+          "passed": true,
+          "evidence": "Blocker 1: \"`latest` is `@astrojs/starlight@0.42.8`, which needs `astro@^7.2.10`. The repo pins `astro@6.2.1`\"."
+        },
+        {
+          "text": "answer.md says that adding @astrojs/starlight would fail npm run verify:stack (or the stack gate) until the change is approved",
+          "passed": true,
+          "evidence": "Blocker 2: \"**`npm run verify:stack` fails.** `scripts/verify-stack.mjs` lists `@astrojs/starlight` in `FORBIDDEN_DEPS`\"; Blocker 3: Starlight \"MUST NOT be added until the owner records an ADR ... and the stack gate is updated in the same change.\""
+        }
+      ],
+      "notes": [
+        "Says to verify disable404Route, head, customCss and StarlightUserConfig against 0.39.3 docs before relying on them"
+      ]
+    },
+    {
+      "eval_id": "tailwind-progress-bar",
+      "eval_name": "tailwind-progress-bar",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 199.6,
+        "tokens": 158749,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "plan.md contains no Tailwind utility classes (such as bg-teal-400, h-1, fixed top-0) in the code it proposes to add",
+          "passed": true,
+          "evidence": "Proposed markup: `<div class=\"reading-progress\" aria-hidden=\"true\"></div>` with scoped CSS (\u00a72.1). Tailwind classes appear only in prose that rejects them: \"Tailwind classes (`h-1 bg-teal-400 fixed top-0 \u2026`): not available, and banned\"."
+        },
+        {
+          "text": "plan.md does not add <ViewTransitions /> to any layout in the code it proposes",
+          "passed": true,
+          "evidence": "\u00a70.2: \"`<ViewTransitions />`: removed in Astro 6, and the stack gate rejects it\". The plan uses `@view-transition { navigation: auto; }` in a new CSS file (\u00a72.2) and states \"Not touched: ... `BaseLayout.astro`\"."
+        },
+        {
+          "text": "plan.md explains that the repo does not use Tailwind and cites docs/decisions/0001-no-tailwind.md or ADR 0001",
+          "passed": true,
+          "evidence": "\u00a70.1: \"`docs/decisions/0001-no-tailwind.md` (ADR 0001, Accepted) rejects Tailwind.\" and \"Tailwind isn't installed.\""
+        },
+        {
+          "text": "plan.md identifies the installed Astro major as 6 (for example 6.2.1), not 7",
+          "passed": true,
+          "evidence": "Header: \"Baseline inspected: ... (Astro 6.2.1, React 19, no Tailwind)\"; \u00a70.2: \"This repo is on `astro@6.2.1`\"."
+        },
+        {
+          "text": "The proposed styles use CSS custom properties (var(--\u2026)) from the token system instead of raw color literals",
+          "passed": true,
+          "evidence": "\u00a72.1 CSS: `background: var(--accent);`; no hex or color-function literals in the proposed CSS (forced-colors uses the `Highlight` system keyword)."
+        },
+        {
+          "text": "The plan names npm run verify:stack (or scripts/verify-stack.mjs) as a check to run",
+          "passed": true,
+          "evidence": "\u00a71.2: \"`npm run verify:stack` should exit 0 before and after.\"; \u00a74: \"rtk npm run verify:stack          # no Tailwind, no <ViewTransitions>\"."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 214.8,
+        "stddev": 100.6855,
+        "min": 103.6,
+        "max": 409.0
+      },
+      "tokens": {
+        "mean": 127023.4286,
+        "stddev": 21523.2263,
+        "min": 103913,
+        "max": 148979
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.9643,
+        "stddev": 0.0945,
+        "min": 0.75,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 210.5143,
+        "stddev": 78.6321,
+        "min": 123.0,
+        "max": 362.2
+      },
+      "tokens": {
+        "mean": 138091.7143,
+        "stddev": 16827.3382,
+        "min": 104926,
+        "max": 158749
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.04",
+      "time_seconds": "+4.3",
+      "tokens": "-11068"
+    }
+  },
+  "notes": [
+    "Non-discriminating set: 35 of 36 assertions passed in both configurations. The baseline repo copy still carries CLAUDE.md/AGENTS.md, DESIGN.md, ADR 0001, verify-stack.mjs and the adopt-tailwind-and-starlight proposal, so the guardrails these assertions test are already enforced by repo docs without the skills. The +4 pp delta comes from one format assertion (faqsearch-review file:line format).",
+    "Skill-only wins not covered by any assertion: tailwind-progress-bar/with_skill found theme.css `body > * { z-index: 1 }` that would hide an in-<main> bar under the sticky header; oauth-draft-review/with_skill identified RFC 9725 as WHIP and checked claims against primary sources (8 fetches); rebac-check-howto/with_skill set draft: true, checked the Zanzibar figures against the paper, and found DESIGN.md drift (<StandardChip>, <Diagram>, src/content/posts/); anchored-tooltip/with_skill used interestfor + popover=hint + CSS anchor positioning with @supports fallback, as the guides recommend.",
+    "Baseline-only wins not covered by any assertion: oauth-draft-review/without_skill caught the frontmatter schema failures (44-char description, missing headline/lede); faqsearch-review/without_skill found the 1.4.11 input-border contrast and missing font: inherit; starlight-install/without_skill found Starlight 0.39.3 supports Astro 6 (registry-verified by the grader), a path the skill's 'needs Astro 7' framing hides.",
+    "Regression to fix in artagon-stack-guard / adopt-tailwind-and-starlight: both state Starlight requires Astro 7; 0.39.3 declares astro ^6.0.0. The proposal should list it as an option.",
+    "Data bug in the modern-web-guidance fork: several guides claim anchor positioning ships only in Safari 27, while Chromium has shipped it since 125 (reported by anchored-tooltip/with_skill; not yet verified).",
+    "Cost: with-skill runs used 8% fewer tokens (127k vs 138k) at similar wall time (215s vs 211s); time variance is high (tooltip runs took 6-7 min). One run per configuration, so no variance estimate per eval.",
+    "rtk is not installed in the eval container; runs that tried `rtk rg` fell back to built-in Grep. Re-run on a machine with rtk for a faithful check of the routing rule.",
+    "Trigger evals (separate, description-only): 0 false positives on 20 near-miss queries, but only 4 of 20 should-trigger queries fired (each at 50%). All four artagon-* descriptions under-trigger and need a pushier rewrite (skill-creator run_loop)."
+  ]
+}

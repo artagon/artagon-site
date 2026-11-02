@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "tooltip.md does not import a polyfill or library from a CDN (unpkg, jsdelivr, esm.sh) or reference @latest",
+      "passed": true,
+      "evidence": "No CDN import in any code block; unpkg/@latest appear only in the 'Not used' list (line 52): 'The guides' CDN polyfill imports (`unpkg \u2026@latest`). SKILL.md forbids third-party script origins'."
+    },
+    {
+      "text": "The run did not execute npx modern-web-guidance or fetch guidance from the network",
+      "passed": true,
+      "evidence": "actions.md: two failed `rtk rg` commands (exit 127), no other shell commands; 'URLs fetched: none'. Guides read from the local .agents/skills/modern-web-guidance tree."
+    },
+    {
+      "text": "The proposed tooltip works on keyboard focus as well as hover",
+      "passed": true,
+      "evidence": "Line 3 'hovers over a chip or reaches it by keyboard'; fallback controller keys on :focus-visible (lines 240, 293) and native interestfor covers focus."
+    },
+    {
+      "text": "The proposed tooltip uses the native popover attribute and/or CSS anchor positioning (anchor-name / position-anchor), with a fallback or note for browsers without anchor positioning",
+      "passed": true,
+      "evidence": "popover=\"hint\" + interestfor (line 117), CSS anchor positioning inside @supports (anchor-name: --a) (lines 160-171) with position-try-fallbacks; JS getBoundingClientRect fallback for `@supports not (anchor-name)` (line 45)."
+    },
+    {
+      "text": "The styles use theme tokens (var(--\u2026)) rather than raw color literals",
+      "passed": true,
+      "evidence": "No hex/rgb/hsl/oklch literals found; 6 var(--\u2026) uses for colours/surfaces."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "expectations": [
+    {
+      "text": "review.md flags that OAuth 2.1 is an Internet-Draft, not RFC 9725 (or any RFC)",
+      "passed": true,
+      "evidence": "Critical 1: \"`draft-tokens.mdx:11` ... OAuth 2.1 is not an RFC. It is the active Internet-Draft draft-ietf-oauth-v2-1 ... RFC 9725 is a different, published spec: \\\"WebRTC-HTTP Ingestion Protocol (WHIP)\\\".\""
+    },
+    {
+      "text": "review.md flags recommending the implicit flow for single-page apps as insecure or removed in OAuth 2.1 / RFC 9700",
+      "passed": true,
+      "evidence": "Critical 3: \"RFC 9700 §2.1.2 says \\\"Clients SHOULD NOT use the implicit grant\\\" ... and the OAuth 2.1 draft (§1.8, §10.1) removes it.\""
+    },
+    {
+      "text": "review.md flags storing a long-lived access token in localStorage",
+      "passed": true,
+      "evidence": "Critical 4: \"`draft-tokens.mdx:15` ... This is a long-lived bearer token in `localStorage` ... Any XSS on the origin can read it and replay it\"; Critical 5 covers the 30-day lifetime."
+    },
+    {
+      "text": "review.md flags passing the access token as a URL query parameter",
+      "passed": true,
+      "evidence": "Critical 6: \"`draft-tokens.mdx:17-20` ... RFC 9700 §4.3.2: \\\"Clients MUST NOT pass access tokens in a URI query parameter\\\"\"."
+    },
+    {
+      "text": "review.md questions or flags the \"OIDC 2.1 certified\" claim as an unverified or nonexistent certification",
+      "passed": true,
+      "evidence": "Critical 2: \"There is no OpenID Connect 2.1 specification ... Nothing in the repo shows that Artagon holds any OpenID certification\"."
+    },
+    {
+      "text": "review.md does not mark the DPoP (RFC 9449) or PKCE (RFC 7636) statements as wrong",
+      "passed": true,
+      "evidence": "\"Verified, no change needed: `draft-tokens.mdx:23` - RFC - \\\"DPoP (RFC 9449) binds a token ... PKCE (RFC 7636) protects the authorization code.\\\" This is accurate at RFC level.\" (Minor 1 refines line 11's 'PKCE mandatory for every client', which is a different statement.)"
+    },
+    {
+      "text": "Each finding in review.md gives a location (line or quoted text), what is wrong, and a fix",
+      "passed": true,
+      "evidence": "Every finding follows `path:line - level - claim - problem - fix`, for example Critical 1 ends \"- Write \\\"The OAuth 2.1 draft (draft-ietf-oauth-v2-1) requires PKCE…\\\"\". Major 4 uses the range `9-25` and quotes the section heading."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 245.0,
+    "total_duration_seconds": 245.0
+  },
+  "claims": [
+    {
+      "claim": "RFC 9725 is WHIP (WebRTC-HTTP Ingestion Protocol)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with rfc-editor.org (fetched per actions.md) and grader knowledge."
+    },
+    {
+      "claim": "src/data/standards.ts:96 carries a 'Certifying' OIDC 2.1 badge",
+      "type": "factual",
+      "verified": true,
+      "evidence": "standards.ts:96: `{ kind: \"Certifying\", value: \"OIDC 2.1\" }`."
+    },
+    {
+      "claim": "The review covers all draft defects",
+      "type": "quality",
+      "verified": false,
+      "evidence": "It misses that the frontmatter fails the writing schema: content.config.ts:78 requires description min(80), and headline/lede are required (lines 80-81). The draft's description is 44 chars and has no headline/lede. The without_skill run caught this."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["§7.5.1 of the OAuth 2.1 draft (PKCE exception) not read in full"],
+    "needs_review": [],
+    "workarounds": ["review-verification-protocol skill not installed", "rtk not installed; used built-in Grep"]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion covers the zookie/'globally linearizable' misstatement on line 25. Both runs caught it, but it is a seeded defect and should be graded."
+      },
+      {
+        "reason": "No assertion checks the frontmatter schema failure (44-char description, missing headline/lede). Only the baseline flagged it."
+      }
+    ],
+    "overall": "All assertions met with sourced, primary-spec evidence. Both configurations pass every assertion, so the case does not separate them."
+  }
+}

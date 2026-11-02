@@ -1,0 +1,91 @@
+{
+  "skill_name": "artagon-design-system",
+  "description": "Artagon's visual identity and voice as they apply to new or changed UI and copy. Use with frontend-design, modern-web-guidance or any design or UX skill when building or restyling a page, component, section or piece of marketing copy in artagon-site. DESIGN.md is the source of truth; this skill routes to it and says how generic design advice must yield to it.",
+  "results": [
+    {
+      "query": "make the /security page hero feel more premium, it looks flat. maybe a gradient and bigger type?",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "write the eyebrow + headline + lede for a new /partners page",
+      "should_trigger": true,
+      "trigger_rate": 0.5,
+      "triggers": 1,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "design a new 'compare plans' section for the platform page \u2014 cards, colors, everything",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "the 404 page needs a redesign, something memorable but on-brand",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "we need a callout component for MDX posts, what should it look like and how should it be styled?",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "lint:tokens is failing in CI with 'unknown token --fg-4', where is that coming from?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "add alt text to the images in src/content/writing/bridge-strategy.mdx",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "does our CSP allow inline styles? check scripts/csp.mjs",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "bump @playwright/test to 1.60 and tell me what changed",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "explain the difference between OKLCH and HSL in two paragraphs",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 6,
+    "failed": 4
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "expectations": [
+    {
+      "text": "review.md reports findings in a src/components/FaqSearch.astro:<line> format",
+      "passed": true,
+      "evidence": "Every finding line starts with that format, e.g. \"src/components/FaqSearch.astro:13 - [med] `type=\\\"search\\\"` renders the native WebKit/Blink cancel...\" and \"src/components/FaqSearch.astro:71-75 - [med] `:focus` with `outline: none`.\""
+    },
+    {
+      "text": "The run did not fetch guidelines from raw.githubusercontent.com or any other URL",
+      "passed": true,
+      "evidence": "actions.md: \"## URLs fetched\\n\\nnone\"; it read the pinned local `.agents/skills/web-interface-review/references/command.md`."
+    },
+    {
+      "text": "review.md does not recommend adding Tailwind classes or new dependencies",
+      "passed": true,
+      "evidence": "All fixes are plain CSS/HTML/JS (`::-webkit-search-cancel-button { appearance: none; }`, `<search>`, debounce, `?q=`, forced-colors rule). There is no Tailwind and no package."
+    },
+    {
+      "text": "Every finding in review.md points at a line that exists in FaqSearch.astro and describes something actually present there",
+      "passed": true,
+      "evidence": "Spot-checked all 14 findings against the file (224 lines): :13 type=search; :71-75 `:focus { outline: none; ... }`; :35 live region + :201-203 input listener + :192-198 messages; :178-182 answer matching; :5 plain div wrapper; :14 \"Search FAQs...\"; :14-15 placeholder/aria-label; :11-17 input has no name; :68 and :97 transitions, no reduce guard in the file; :100-103 hover color-mix, with :135-142 covering only input focus; :201-203 no URL state; :212-222 hash handled only on load; :193-197 hardcoded strings. Cross-file cites also hold: theme.css:1887 is `input:focus-visible`, and FaqItem.astro:127-132 zeroes transitions under reduce. No wrong line or claim found."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 117.8,
+    "total_duration_seconds": 117.8
+  },
+  "claims": [
+    {
+      "claim": "Color transitions at :68/:97 violate the repo reduced-motion contract",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Debatable. docs/agents/accessibility.md:9 says the global reduce rule sets `transition: none` on animated UI, and that components adding hover *transforms* need their own guard. These are color/border transitions, and the baseline argues the coverage test treats them as out of scope. The finding is factually present but its severity basis is contested."
+    },
+    {
+      "claim": "About 26 FAQ items",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Both runs independently report 26 items from src/data/faq.ts."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Static source review only, no browser/axe run"],
+    "needs_review": [],
+    "workarounds": ["review-verification-protocol skill not installed"]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "No assertion checks finding quality or coverage. For example, the low input-border contrast (1.4.11, `--card-stroke` on `--bg`) and the missing `font: inherit` on the input were found only by the baseline. A seeded-defect list would make this case more discriminating."
+      }
+    ],
+    "overall": "Passes all assertions, including a full line-by-line spot-check."
+  }
+}

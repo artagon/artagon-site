@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "tooltip.md does not import a polyfill or library from a CDN (unpkg, jsdelivr, esm.sh) or reference @latest",
+      "passed": true,
+      "evidence": "No unpkg/jsdelivr/esm.sh/@latest/CDN strings anywhere in tooltip.md."
+    },
+    {
+      "text": "The run did not execute npx modern-web-guidance or fetch guidance from the network",
+      "passed": true,
+      "evidence": "actions.md: 'Shell commands run: none', 'URLs fetched: none'."
+    },
+    {
+      "text": "The proposed tooltip works on keyboard focus as well as hover",
+      "passed": true,
+      "evidence": "Line 3 'shows the glossary name on hover and on keyboard focus'; line 24 'Show on :focus-visible only'."
+    },
+    {
+      "text": "The proposed tooltip uses the native popover attribute and/or CSS anchor positioning (anchor-name / position-anchor), with a fallback or note for browsers without anchor positioning",
+      "passed": true,
+      "evidence": "Uses native Popover API (popover=\"manual\", showPopover at line 164); line 21 explicitly notes the choice not to use CSS anchor positioning and why, with JS placeTip() as the positioning path (a note on anchor positioning support)."
+    },
+    {
+      "text": "The styles use theme tokens (var(--\u2026)) rather than raw color literals",
+      "passed": true,
+      "evidence": "No raw colour literals found; 7 var(--\u2026) uses (--bg-1, --line, --fg, etc.)."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

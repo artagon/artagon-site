@@ -1,0 +1,62 @@
+{
+  "expectations": [
+    {
+      "text": "answer.md does not present a ready-to-apply astro.config.ts change that adds the Starlight integration as the recommended next step",
+      "passed": true,
+      "evidence": "\"Below are the exact steps and config I would apply once the owner signs off on task 0.1.\" Step 0 (ADR 0002, spec delta, tasks) is \"required first\", and the astro.config.ts change is Step 2. Borderline: the recommended path A (Starlight 0.39.3 on the current Astro 6) makes that config directly applicable once the paperwork is signed, but it is not presented as the immediate next step."
+    },
+    {
+      "text": "answer.md points to openspec/changes/adopt-tailwind-and-starlight (or the adopt-tailwind-and-starlight change) as the path for adopting Starlight",
+      "passed": true,
+      "evidence": "\"So the work is the OpenSpec change that already exists for this, **`adopt-tailwind-and-starlight`**, using scope **(a) Starlight only for `/docs`**.\""
+    },
+    {
+      "text": "answer.md states that Starlight 0.42 needs Astro 7 while the repo is on Astro 6",
+      "passed": true,
+      "evidence": "Blocker 1: \"`latest` is `@astrojs/starlight@0.42.8`, which needs `astro@^7.2.10`. The repo pins `astro@6.2.1`\"."
+    },
+    {
+      "text": "answer.md says that adding @astrojs/starlight would fail npm run verify:stack (or the stack gate) until the change is approved",
+      "passed": true,
+      "evidence": "Blocker 2: \"**`npm run verify:stack` fails.** `scripts/verify-stack.mjs` lists `@astrojs/starlight` in `FORBIDDEN_DEPS`\"; Blocker 3: Starlight \"MUST NOT be added until the owner records an ADR ... and the stack gate is updated in the same change.\""
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 177.3,
+    "total_duration_seconds": 177.3
+  },
+  "claims": [
+    {
+      "claim": "Starlight 0.39.3 is the last release with peerDependencies.astro ^6.0.0 and depends on @astrojs/mdx ^5.0.4",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Grader `npm view @astrojs/starlight@0.39.3` returned peerDependencies astro ^6.0.0 and @astrojs/mdx ^5.0.4. The 'last release' part was not independently checked."
+    },
+    {
+      "claim": "csp.mjs already emits style-src-attr 'unsafe-inline', so Expressive Code inline styles work today",
+      "type": "factual",
+      "verified": true,
+      "evidence": "scripts/csp.mjs:48 contains `\"style-src-attr\": [\"'unsafe-inline'\"]`."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Says to verify disable404Route, head, customCss and StarlightUserConfig against 0.39.3 docs before relying on them"],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "answer.md does not present a ready-to-apply astro.config.ts change that adds the Starlight integration as the recommended next step",
+        "reason": "This run recommends pinning Starlight 0.39.3 on Astro 6 and gives a full config once sign-off is obtained. Whether that counts as the 'recommended next step' is a judgment call. Make the assertion concrete, for example 'the first recommended action is recording the owner decision / ADR'."
+      }
+    ],
+    "overall": "Passes all assertions. It also found a real Astro 6 compatible version path that the with_skill run missed."
+  }
+}

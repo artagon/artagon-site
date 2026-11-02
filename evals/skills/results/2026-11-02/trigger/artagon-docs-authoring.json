@@ -1,0 +1,91 @@
+{
+  "skill_name": "artagon-docs-authoring",
+  "description": "How artagon-site writes long-form technical content: writing posts, MDX pages, docs, code samples, diagrams and standards references. Use when creating or editing MDX under src/content/, a /writing post, a docs page, or any page with code samples or protocol diagrams. Pair with artagon-authz-content-review for anything that states an identity or authorization fact.",
+  "results": [
+    {
+      "query": "turn these notes into an MDX how-to: rotating DPoP keys without logging users out",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "draft a tutorial for the docs: issue your first SD-JWT credential with the Artagon CLI",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "write a /writing post explaining how our trust chain verifies a passkey assertion, with a diagram",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "we need a reference page listing every error code the check API returns",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "add a code sample to compounding-trust-chain.mdx showing the policy check in TypeScript",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "the RSS feed at /writing/feed.xml is missing the newest post, why?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "rename the 'Writing' nav label to 'Blog' in the header",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "review the color contrast of the writing index cards",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "is the reading-time calculation in src/lib/reading-time.ts right for code-heavy posts?",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "what's the difference between Zanzibar and OPA? just tell me, no doc needed",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 5,
+    "failed": 5
+  }
+}
