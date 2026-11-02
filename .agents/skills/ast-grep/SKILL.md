@@ -77,8 +77,12 @@ After a rewrite, review `rtk git diff`, then run `npm run lint:sg` and the focus
 
 ## Flags that prompt
 
-Claude Code pre-approves only `rtk ast-grep run` and `rtk ast-grep scan`. These still ask, because they write files or load native code: `-U` / `--update-all`, `-i` / `--interactive` (also inside a cluster such as `-iU`), and `--custom-languages`.
+Claude Code pre-approves only `rtk ast-grep run` and `rtk ast-grep scan`. These still ask, because they write files, select alternate configuration, or load native code: `-U` / `--update-all`, standalone `-i` / `--interactive`, `-c` / `--config`, and `--custom-languages`. USMR 14.92 adds the configuration gate, including attached short values. Codex mirrors `-c` / `--config` immediately after `run` or `scan`; later options are not prefix rules.
+
+The `run` rewrite preview (`-r` / `--rewrite`) stays pre-approved: it prints a diff until interactive or update mode is selected. On `scan`, `-r` means `--rule` instead. The existing interactive/update rules catch `-iU` and `-Ui`; a general clustered-flag or quoted-argument check needs an argument-aware hook. Do not replace the interactive rule with a broad `*-i*` pattern: it also catches the read-only `--inline-rules` examples above. Keep short options separate.
 
 ```bash
 rtk ast-grep scan --update-all  # asks first: applies every rule fix
+rtk ast-grep scan --config <path>  # asks first: selects alternate configuration
+rtk ast-grep scan -c <path>  # asks first: same configuration gate
 ```

@@ -14,6 +14,7 @@
 // The Claude matcher below follows the documented rule grammar (`*` matches
 // any text; a trailing ` *` that is the only wildcard also matches the bare
 // command) and proves itself on the documentation's own examples first.
+// This models simple literal commands, not the client's shell parser or modes.
 
 import { describe, expect, test } from "vitest";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -89,6 +90,8 @@ const PRE_APPROVED = [
   "rtk ripwire . --uses=safeJsonLd --legend=compact",
   "rtk ast-grep run --lang html --globs '**/*.astro' --pattern '<Header />' src",
   "rtk ast-grep scan",
+  "rtk ast-grep scan --inline-rules '{id: x, language: typescript, rule: {pattern: foo}}' src",
+  "rtk ast-grep run --lang typescript --pattern 'oldCall($$$A)' --rewrite 'newCall($$$A)' src",
 ];
 
 const STILL_PROMPTS = [
@@ -99,6 +102,14 @@ const STILL_PROMPTS = [
   "rtk rg -z token .",
   "rtk rg -n -z token .",
   "rtk tgrep serve .",
+  // USMR 14.92 (site-5to): subcommands remain gated after global options.
+  "rtk tgrep serve",
+  "rtk tgrep --hidden serve .",
+  "rtk tgrep --hidden serve",
+  "rtk tgrep index .",
+  "rtk tgrep index --force /tmp/elsewhere",
+  "rtk tgrep --hidden index .",
+  "rtk tgrep --hidden index",
   "rtk tgrep --index-path /tmp/elsewhere token .",
   "rtk ast-grep run --lang ts -p 'a($X)' -r 'b($X)' -U src",
   "rtk ast-grep run -p 'foo()' -r 'bar()' -l ts -iU src",
@@ -106,6 +117,12 @@ const STILL_PROMPTS = [
   "rtk ast-grep scan --update-all",
   "rtk ast-grep run --lang ts -p 'a' --interactive src",
   "rtk ast-grep scan --custom-languages=trust",
+  "rtk ast-grep scan -c /tmp/other-sgconfig.yml",
+  "rtk ast-grep scan -c/tmp/other-sgconfig.yml",
+  "rtk ast-grep scan --config /tmp/other-sgconfig.yml",
+  "rtk ast-grep scan --config=/tmp/other-sgconfig.yml",
+  "rtk ast-grep run --lang ts -p foo -c /tmp/other-sgconfig.yml",
+  "rtk ast-grep run -p 'foo()' -r 'bar()' -l ts -Ui src",
   "rtk ripwire . --run-trace='npm test'",
   "rtk ripwire . --note-add='safeJsonLd: escapes JSON-LD'",
   "rtk ripwire . --index-out=.ripwire_index",
@@ -113,6 +130,10 @@ const STILL_PROMPTS = [
   "rtk ripwire . --pin-census=census.tsv",
   "rtk ripwire . --listen=127.0.0.1:9000",
   "rtk ripwire . --mcp --allow-remote-edits",
+  "rtk ripwire . --mcp",
+  "rtk ripwire . --for=task --mcp",
+  "rtk ripwire . --quality-delta",
+  "rtk ripwire . --quality-delta=HEAD",
   "rtk ripwire . --replace-symbol-body=safeJsonLd --edit-payload=-",
   "rtk ripwire . --insert-after-symbol=safeJsonLd --edit-payload=-",
   "rtk ripwire . --edit-plan=plan.json",
@@ -121,6 +142,19 @@ const STILL_PROMPTS = [
   "rtk ripwire . --arch=layers.txt --baseline",
   "rtk ripwire . --html=graph.html",
   "rtk ripwire . --cache=/tmp/ripwire",
+];
+
+// Prefix rules cannot search arbitrary later argv positions or match a flag's
+// variable =value suffix. Mirror only the literal prefixes Codex can express.
+const CODEX_PROMPTS = [
+  "rtk tgrep index .",
+  "rtk tgrep serve .",
+  "rtk tgrep --hidden index .",
+  "rtk tgrep --hidden serve .",
+  "rtk ast-grep scan -c /tmp/other-sgconfig.yml",
+  "rtk ast-grep run --config /tmp/other-sgconfig.yml",
+  "rtk ripwire . --mcp",
+  "rtk ripwire . --quality-delta",
 ];
 
 describe("Claude Code permissions (USMR 14.85)", () => {
@@ -134,6 +168,40 @@ describe("Claude Code permissions (USMR 14.85)", () => {
     expect(decide("lsof", docs)).toBe("default");
     expect(decide("git log --oneline main", docs)).toBe("allow");
     expect(decide("git log main", docs)).toBe("default");
+  });
+
+  test("deny precedes ask, and ask precedes even an exact allow", () => {
+    const command = "rtk tgrep index .";
+    const overlapping = {
+      allow: [`Bash(${command})`],
+      ask: ["Bash(rtk tgrep index *)"],
+      deny: ["Bash(rtk tgrep *)"],
+    };
+    expect(decide(command, overlapping)).toBe("deny");
+    expect(decide(command, { ...overlapping, deny: [] })).toBe("ask");
+  });
+
+  test("removes pre-approval for an immediate extra ripwire root", () => {
+    expect(decide("rtk ripwire . /tmp/other-repo --for=task")).toBe("default");
+    expect(decide("rtk ripwire .")).toBe("allow");
+  });
+
+  test("documents why whole-text globs do not normalize short flags", () => {
+    const narrow = { ask: ["Bash(rtk rg * -z*)"] };
+    expect(decide("rtk rg -n -z token .", narrow)).toBe("ask");
+    expect(decide("rtk rg -nz token .", narrow)).toBe("default");
+    // Broadening '*' across the cluster also matches unrelated argument text.
+    const broad = { ask: ["Bash(rtk rg *-*z*)"] };
+    expect(decide("rtk rg -n zebra .", broad)).toBe("ask");
+    expect(decide("rtk rg -n zebra .")).toBe("allow");
+  });
+
+  test("does not mistake a flag-prefixed allow for complete root validation", () => {
+    expect(decide("rtk ripwire . --for=task /tmp/other-repo")).toBe("allow");
+    // Full argv/path validation needs the proposed hook, not another allow glob.
+    expect(
+      readFileSync(join(ROOT, "docs/agents/code-intelligence.md"), "utf8"),
+    ).toContain("argument-aware hook");
   });
 
   test.each(BLOCKED)("denies %s", (command) => {
@@ -214,9 +282,11 @@ const hasCodex =
 describe("Codex rules (USMR 14.85)", () => {
   const rules = parsePrefixRules(readFileSync(RULES_PATH, "utf8"));
 
-  test("every rule forbids, so none runs a command outside the sandbox", () => {
+  test("rules only forbid or prompt; none grants unsandboxed approval", () => {
     expect(rules.length).toBeGreaterThan(0);
-    expect(rules.every((rule) => rule.decision === "forbidden")).toBe(true);
+    expect(
+      rules.every((rule) => ["forbidden", "prompt"].includes(rule.decision)),
+    ).toBe(true);
   });
 
   test.each(BLOCKED)("forbids %s", (command) => {
@@ -227,10 +297,17 @@ describe("Codex rules (USMR 14.85)", () => {
     expect(codexDecision(rules, command)).toBe("none");
   });
 
+  test.each(CODEX_PROMPTS)(
+    "prompts for the representable prefix %s",
+    (command) => {
+      expect(codexDecision(rules, command)).toBe("prompt");
+    },
+  );
+
   test.skipIf(!hasCodex)(
     "codex execpolicy agrees with the static reading",
     () => {
-      for (const command of [...BLOCKED, ...PRE_APPROVED]) {
+      for (const command of [...BLOCKED, ...PRE_APPROVED, ...CODEX_PROMPTS]) {
         const out = execFileSync(
           "codex",
           [
@@ -359,7 +436,8 @@ function mislabeled(commands: SkillCommand[], rules: PrefixRule[]): string[] {
   return commands.flatMap(({ skill, command, asks }) => {
     const claude = decide(command);
     const codex = codexDecision(rules, command);
-    return claude === (asks ? "ask" : "allow") && codex === "none"
+    return claude === (asks ? "ask" : "allow") &&
+      (asks ? ["none", "prompt"].includes(codex) : codex === "none")
       ? []
       : [`${skill}: ${command} -> Claude ${claude}, Codex ${codex}`];
   });

@@ -16,7 +16,7 @@ ripwire 0.5 parses source with tree-sitter and ranks symbols. It needs no build 
 
 ## Call form
 
-Run `rtk ripwire . <verb> --legend=compact` from the checkout root. Claude Code pre-approves `rtk ripwire . …`. Any other root is not pre-approved, and a git URL as the root clones over the network.
+Run `rtk ripwire . --uses=SYM --legend=compact` from the checkout root. Claude Code pre-approves `rtk ripwire .` alone or with a long flag immediately after the root, subject to the asking flags below. USMR 14.92 removes the broad allow for an immediate extra root. A later positional root can still fit the whole-text glob after a flag: complete root validation needs an argument-aware hook. Use only one root; a git URL as the root clones over the network.
 
 ```bash
 rtk ripwire . --help-task="<task>" --legend=compact  # names one verb for the task; advice only
@@ -31,7 +31,7 @@ rtk ripwire . --expand=src/lib/charset.ts:safeJsonLd --top-k=0  # one symbol's b
 rtk ripwire . --outline=src/lib/charset.ts:safeJsonLd --top-k=0  # its control-flow skeleton
 rtk ripwire . --edit-check=SYM --legend=compact  # did the contract change against git HEAD?
 rtk ripwire . --situ  # blast radius and tests for the working-tree diff; prose, so no --legend
-rtk ripwire . --quality-delta  # what the diff made worse; read the rows, not just the exit code
+rtk ripwire . --quality-delta  # asks first: can delete a stale quality baseline
 rtk ripwire . --skipped --legend=compact  # why a file is not in the index
 rtk ripwire . --doctor  # tool health
 rtk ripwire . --scan-skills=.agents/skills  # injection and exfiltration scan of skill files
@@ -56,11 +56,12 @@ Without `--top-k=0`, `--expand` and `--outline` also print the ranked map. `--le
 
 ## Flags that prompt
 
-These run commands, write files, or start servers, so Claude Code asks first. Use them only when the user asks: `--run-trace`, `--replace-symbol-body`, `--insert-before-symbol`, `--insert-after-symbol`, `--edit-plan`, `--note-add`, `--quality-baseline`, `--quality-ack`, `--baseline`, `--index-out`, `--export`, `--pin-census`, `--html`, `--cache=`, `--listen`, and `--allow-remote-edits`. Make edits with the native edit tool, not ripwire's edit verbs.
+These run commands, write files, or start servers, so Claude Code asks first. Use them only when the user asks: `--run-trace`, `--replace-symbol-body`, `--insert-before-symbol`, `--insert-after-symbol`, `--edit-plan`, `--note-add`, `--quality-baseline`, `--quality-delta`, `--quality-ack`, `--baseline`, `--index-out`, `--export`, `--pin-census`, `--html`, `--cache=`, `--mcp`, `--listen`, and `--allow-remote-edits`. The quality-delta gate conservatively also covers its read-only committed-revision form. Codex mirrors standalone `--mcp` and `--quality-delta` immediately after the `.` root; it cannot express the whole-text matching of later flags or arbitrary `=value` suffixes. Make edits with the native edit tool, not ripwire's edit verbs.
 
 ```bash
 rtk ripwire . --note-add='SYM: text'  # asks first: writes .ripwire_notes
 rtk ripwire . --quality-baseline  # asks first: writes .ripwire_quality_baseline
+rtk ripwire . --mcp  # asks first: starts a persistent stdio server
 ```
 
 ## The user-level ripwire-\* skills

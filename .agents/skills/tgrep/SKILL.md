@@ -23,8 +23,8 @@ Use `rtk rg` instead for files you edited this session, for one-off searches, an
 
 ```bash
 rtk tgrep status .  # file count, "Updated" age, server state
-rtk tgrep index .  # rebuild after a large edit
-rtk tgrep index --force .  # full rebuild
+rtk tgrep index .  # asks first: writes the index after a large edit
+rtk tgrep index --force .  # asks first: writes a full rebuild
 ```
 
 - The husky post-checkout (branch checkouts only), post-merge, and post-rewrite hooks run `scripts/tgrep-refresh.sh`. It rebuilds the index in the background and returns at once; `SKIP_TGREP_INDEX=1` turns it off.
@@ -51,8 +51,12 @@ tgrep reads no config file. It is case-sensitive, and it skips hidden files and 
 
 ## Commands that prompt
 
+USMR 14.92 gates manual index writes as well as server startup, including when global options precede the subcommand. The literal Claude patterns can also match these words inside query text; they do not parse argv. Codex mirrors the direct subcommand and leading `--hidden` prefixes; other option orders need review separately.
+
 ```bash
 rtk tgrep serve .  # asks first: a long-running file watcher
+rtk tgrep --hidden serve .  # asks first: global options do not bypass the gate
+rtk tgrep --hidden index .  # asks first: writes an index
 rtk tgrep --index-path <dir> '<regex>' .  # asks first: an index outside the repo
 ```
 

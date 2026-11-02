@@ -54,11 +54,12 @@ ripgrep 15 has no `astro` type. Use `-g '*.astro'`. The `md` type includes `.mdx
 
 ## Flags that prompt
 
-`--pre` and `--hostname-bin` run a program, and `-z` / `--search-zip` starts decompressors. Claude Code asks before each one (`.claude/settings.json`), so use them only for a reason the user accepts. The `-z` prompt fires only when `-z` is written on its own: never fold it into a cluster such as `-nz`.
+`--pre` and `--hostname-bin` run a program, and `-z` / `--search-zip` starts decompressors. The literal forms below prompt in Claude Code (`.claude/settings.json`), so use them only for a reason the user accepts. Keep short flags separate: the whole-text permission globs do not normalize a cluster such as `-nz`. USMR 14.92 records that remaining gap; an argument-aware hook is required to recognize arbitrary clusters without also prompting ordinary read-only patterns containing `z`. No such hook is installed by this change.
 
 ```bash
 rtk rg --pre ./decode.sh '<regex>' <path>  # asks first
 rtk rg -z '<regex>' <path>  # asks first
+rtk rg -n -z '<regex>' <path>  # asks first: keep the short flags separate
 ```
 
 ## Blocked commands
