@@ -606,8 +606,8 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs these 12 ste
    focusable element with a valid `href="#<id>"` target.
 9. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
    source for tagline strings via `src/content/taglines.json`.
-10. `lint:design` — `design.md lint DESIGN.md` per
-    `@google/design.md@0.1.1`.
+10. `lint:design` — runs `check:oklch-hex-parity`, then
+    `design.md lint DESIGN.md` per `@google/design.md@0.1.1`.
 11. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
     guards against duplicate DESIGN.md FILES — exactly one at the
     repo root, none under `src/`, `new-design/`, or any other

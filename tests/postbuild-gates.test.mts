@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, test } from "vitest";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import {
   existsSync,
+  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -13,6 +14,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash } from "node:crypto";
 import * as cheerio from "cheerio";
+import { pathToFileURL } from "node:url";
+import { POSTBUILD_STAGES } from "../scripts/postbuild.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const SCRIPTS = join(ROOT, "scripts");
@@ -77,6 +80,92 @@ function setupIndexationRoot(root: string, sitemap: string): string {
 function sitemap(body: string): string {
   return `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${body}</urlset>`;
 }
+
+// BUILD 2.3: run real child processes from a disposable working directory.
+describe("named postbuild runner", () => {
+  const runnerUrl = pathToFileURL(join(SCRIPTS, "postbuild.mjs")).href;
+
+  function runDriver(root: string, stages: Array<{ name: string; command: string; args: string[] }>) {
+    const driver = writeFile(root, "driver.mjs", `import { runPostbuild } from ${JSON.stringify(runnerUrl)};\nprocess.exitCode = runPostbuild(${JSON.stringify(stages)});\n`);
+    return spawnSync(process.execPath, [driver], { cwd: root, encoding: "utf8" });
+  }
+
+  test("import exposes twelve stages without spawning anything", () => {
+    const result = spawnSync(process.execPath, ["--input-type=module", "-e", `const m = await import(${JSON.stringify(runnerUrl)}); console.log(m.POSTBUILD_STAGES.length);`], { encoding: "utf8" });
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout.trim()).toBe("12");
+    expect(POSTBUILD_STAGES.map((stage) => stage.name)).toEqual([
+      "verify:prerequisites", "verify:design-prerequisites", "lint:tokens",
+      "verify-font-self-hosting.mjs", "minify-theme-css.mjs", "sri.mjs", "csp.mjs",
+      "lint:skip-link", "lint:taglines", "lint:design", "lint:design-md-uniqueness", "verify:indexation",
+    ]);
+    for (const stage of POSTBUILD_STAGES) {
+      if ("npmCommand" in stage) {
+        expect(stage.command).toBe("npm");
+        expect(stage.args).toEqual(["run", stage.name]);
+        expect(stage.npmCommand).toBe(`npm run ${stage.name}`);
+      } else {
+        expect(stage.command).toBe(process.execPath);
+        expect(stage.args).toEqual([`scripts/${stage.name}`]);
+      }
+    }
+  });
+
+  test("runs each stage in order and prints stage and total timings", () => {
+    const root = tempRoot("postbuild-runner-order-");
+    const recorder = writeFile(root, "record.mjs", 'import { appendFileSync } from "node:fs"; appendFileSync("order.txt", process.argv[2] + "\\n");\n');
+    const stages = POSTBUILD_STAGES.map((stage) => ({ name: stage.name, command: process.execPath, args: [recorder, stage.name] }));
+    const result = runDriver(root, stages);
+    expect(result.status, result.stderr).toBe(0);
+    expect(readFileSync(join(root, "order.txt"), "utf8").trim().split("\n")).toEqual(stages.map((stage) => stage.name));
+    const lines = result.stdout.trim().split("\n");
+    expect(lines).toHaveLength(13);
+    for (const [index, stage] of stages.entries()) expect(lines[index]).toMatch(new RegExp(`^\\[postbuild\\] ${stage.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\(\\d+ms\\)$`));
+    expect(lines[12]).toMatch(/^\[postbuild\] completed 12 stages in \d+ms$/);
+  }, 30_000);
+
+  const failureCases: Array<[string, string, string[], number]> = [
+    ["nonzero exit", process.execPath, ["-e", "process.exit(23)"], 23],
+    ["spawn failure", "/missing-postbuild-executable", [], 1],
+  ];
+  if (process.platform !== "win32") failureCases.push(["signal", process.execPath, ["-e", 'process.kill(process.pid, "SIGTERM")'], 1]);
+  test.each(failureCases)("stops on %s and does not run later stages", (_label, command, args, code) => {
+    const root = tempRoot("postbuild-runner-fail-");
+    const marker = join(root, "unexpected");
+    const result = runDriver(root, [
+      { name: "fail", command, args: [...args] },
+      { name: "later", command: process.execPath, args: ["-e", `require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'bad')`] },
+    ]);
+    expect(result.status, result.stderr).toBe(code);
+    expect(existsSync(marker)).toBe(false);
+    expect(result.stdout).toMatch(/\[postbuild\] fail \(\d+ms\)/);
+    expect(result.stdout).toMatch(/\[postbuild\] attempted 1 stages in \d+ms/);
+    expect(result.stdout).not.toContain("[postbuild] later");
+  }, 30_000);
+
+  test("runs the real composite lint:design script and halts after parity failure", () => {
+    const root = tempRoot("postbuild-runner-design-");
+    const productionPackage = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as { scripts: { "lint:design": string } };
+    writeFile(root, "package.json", JSON.stringify({ scripts: {
+      "lint:design": productionPackage.scripts["lint:design"],
+      "check:oklch-hex-parity": "node parity.mjs",
+    } }));
+    writeFile(root, "parity.mjs", "process.exit(23);\n");
+    const fakeDesign = writeFile(root, "node_modules/.bin/design.md", '#!/usr/bin/env node\nrequire("node:fs").writeFileSync("design-ran", "bad");\n');
+    chmodSync(fakeDesign, 0o755);
+    writeFile(root, "node_modules/.bin/design.md.cmd", '@echo off\r\nnode "%~dp0design.md" %*\r\n');
+    const design = POSTBUILD_STAGES.find((stage) => stage.name === "lint:design");
+    expect(design).toBeDefined();
+    const result = runDriver(root, [design!, { name: "later", command: process.execPath, args: ["-e", "process.exit(0)"] }]);
+    expect(result.status, result.stderr).toBe(23);
+    expect(existsSync(join(root, "design-ran"))).toBe(false);
+    expect(result.stdout).not.toContain("[postbuild] later");
+    writeFile(root, "parity.mjs", "process.exit(0);\n");
+    const success = runDriver(root, [design!]);
+    expect(success.status, success.stderr).toBe(0);
+    expect(existsSync(join(root, "design-ran"))).toBe(true);
+  }, 30_000);
+});
 
 describe("postbuild gate regressions", () => {
   test("SRI resolves relative URLs from deployed routes and hashes only /_astro assets", () => {
