@@ -89,8 +89,7 @@
     "astro": "7.4.5",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "serialize-javascript": "7.0.5",
-    "sharp": "0.34.5"
+    "serialize-javascript": "7.0.5"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.42.1",
@@ -107,13 +106,12 @@
     "husky": "9.1.7",
     "prettier": "3.8.3",
     "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.5",
+    "yaml": "2.8.3"
   },
   "overrides": {
     "chrome-launcher": "1.2.1",
     "tmp": "0.2.5",
-    "rimraf": "6.0.1",
-    "glob": "11.0.0",
     "uuid": "14.0.0"
   }
 }
