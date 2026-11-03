@@ -6637,15 +6637,9 @@
       {
         "segment": "loop-a-continuation",
         "original": " directly — functionally equivalent (both produce sRGB hex from OKLCH triples), avoids adding a new dependency, and ensures the contrast assertions stay locked to the same OKLCH→sRGB conversion that the existing oklch-hex-parity gate uses. Per AGENTS.md:165 change discipline, \"every code change must move three artifacts together: implementation + tasks.md + DESIGN.md\" — task 3.1 should have been checked off when the file shipped. Drift class: tasks-vs-disk drift (different from spec-vs-implementation drift in pt395/pt397; tasks.md is a working doc that should be in sync with implementation, while live-spec Scenarios are amendment-gated). Same broader pattern as the discipline failure mode AGENTS.md:165 names (\"OpenSpec changes claim work is done that hasn't shipped\" / vice-versa). Fix: checked task 3.1 as ",
-        "replacement": " directly — functionally equivalent (both produce sRGB hex from OKLCH triples), avoids adding a new dependency, and ensures the contrast assertions stay locked to the same OKLCH→sRGB conversion that the existing oklch-hex-parity gate uses. Per AGENTS.md:165 change discipline, \"every code change must move three artifacts together: implementation + ../tasks.md + DESIGN.md\" — task 3.1 should have been checked off when the file shipped. Drift class: tasks-vs-disk drift (different from spec-vs-implementation drift in pt395/pt397; ../tasks.md is a working doc that should be in sync with implementation, while live-spec Scenarios are amendment-gated). Same broader pattern as the discipline failure mode AGENTS.md:165 names (\"OpenSpec changes claim work is done that hasn't shipped\" / vice-versa). Fix: checked task 3.1 as ",
+        "replacement": " directly — functionally equivalent (both produce sRGB hex from OKLCH triples), avoids adding a new dependency, and ensures the contrast assertions stay locked to the same OKLCH→sRGB conversion that the existing oklch-hex-parity gate uses. Per AGENTS.md:165 change discipline, \"every code change must move three artifacts together: implementation + tasks.md + DESIGN.md\" — task 3.1 should have been checked off when the file shipped. Drift class: tasks-vs-disk drift (different from spec-vs-implementation drift in pt395/pt397; ../tasks.md is a working doc that should be in sync with implementation, while live-spec Scenarios are amendment-gated). Same broader pattern as the discipline failure mode AGENTS.md:165 names (\"OpenSpec changes claim work is done that hasn't shipped\" / vice-versa). Fix: checked task 3.1 as ",
         "sourceLine": 213,
         "resolvedTargets": [
-          {
-            "reference": "tasks.md",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "sameTarget": true
-          },
           {
             "reference": "tasks.md",
             "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
@@ -7130,12 +7124,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "tasks.md:55",
-        "replacement": "../tasks.md (line 55)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/tasks.md (line 55)",
         "resolvedTargets": [
           {
             "reference": "tasks.md:55",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
             "sameTarget": true
           }
         ]
@@ -7144,12 +7138,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "design.md:129",
-        "replacement": "../design.md (line 129)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/design.md (line 129)",
         "resolvedTargets": [
           {
             "reference": "design.md:129",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           }
         ]
@@ -7331,7 +7325,7 @@
       "fakingArchivePresenceRejected": true,
       "actualUsmrArchiveHelperResult": false
     },
-    "relativeTargetOccurrenceCount": 90,
+    "relativeTargetOccurrenceCount": 89,
     "lineAnnotationRepairs": [
       {
         "where": "implementation-history.md",
@@ -7745,7 +7739,7 @@
       "proseSegmentsExactAfterUndoingRecordedRepairs": true,
       "proseSegmentCount": 5,
       "relativeRepairSpans": 58,
-      "resolvedTargetOccurrences": 90,
+      "resolvedTargetOccurrences": 89,
       "lineAnnotationRepairs": 79,
       "unqualifiedPathRefs": 0,
       "nonPathLabelsRetained": [
