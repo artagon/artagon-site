@@ -25,6 +25,7 @@
 import { describe, expect, test } from "vitest";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { isChangeScratch } from "./helpers/change-scratch.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 
@@ -49,6 +50,8 @@ function gather(dir: string, out: string[]) {
       // Skip archived / vendored / build dirs.
       if (
         entry.name === "archive" ||
+        // LAYOUT-13: prune only ignored scratch below an OpenSpec change.
+        isChangeScratch(relative(ROOT, p)) ||
         entry.name === "new-design" ||
         entry.name === "node_modules" ||
         entry.name === ".build" ||

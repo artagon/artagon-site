@@ -163,15 +163,16 @@ const README_ROOT_FILES = [
 ] as const;
 
 /** The former per-document gates now share one explicit policy table. */
-export function pathCitationSources(root: string): readonly PathCitationSource[] {
-  const oneFile = (relativePath: string): (() => string[]) =>
+export function pathCitationSources(
+  root: string,
+): readonly PathCitationSource[] {
+  const oneFile =
+    (relativePath: string): (() => string[]) =>
     () => [join(root, relativePath)];
-  const yamlFiles = (directory: string): (() => string[]) =>
+  const yamlFiles =
+    (directory: string): (() => string[]) =>
     () =>
-      walkFiles(
-        join(root, directory),
-        (file) => /\.(yml|yaml)$/.test(file),
-      );
+      walkFiles(join(root, directory), (file) => /\.(yml|yaml)$/.test(file));
 
   return [
     {
@@ -339,9 +340,8 @@ export function findPathCitationDrifts(
     }
     raw = raw.replace(/[,.;:)]+$/, "").trim();
 
-    const pathCandidate = policy.stripAtAlias && raw.startsWith("@/")
-      ? raw.slice(2)
-      : raw;
+    const pathCandidate =
+      policy.stripAtAlias && raw.startsWith("@/") ? raw.slice(2) : raw;
     const recognized =
       policy.pathPrefixes.some((prefix) => pathCandidate.startsWith(prefix)) ||
       policy.rootFiles?.includes(pathCandidate) === true ||

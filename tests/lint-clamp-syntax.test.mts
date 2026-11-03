@@ -15,6 +15,10 @@
 import { describe, expect, test } from "vitest";
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import {
+  findInvalidClamps,
+  type ClampFinding,
+} from "./helpers/clamp-syntax.js";
 import { walkFiles } from "./helpers/lint-discovery.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -22,51 +26,6 @@ const supportedSource = (file: string): boolean =>
   /\.(css|astro|mdx|tsx|jsx)$/.test(file);
 const excludedDirectory = (_directory: string, name: string): boolean =>
   ["node_modules", ".build", ".git", "new-design"].includes(name);
-
-interface Finding {
-  file: string;
-  line: number;
-  match: string;
-}
-
-// Match clamp(...) calls and check each comma-separated arg.
-// A valid arg is either a single length / function call, or
-// `calc(...)`. An invalid arg looks like `<token> +/- <token>`
-// without being inside calc(). Approximation: flag any clamp()
-// where any arg contains ` + ` or ` - ` (with surrounding spaces)
-// but not `calc(`.
-function findInvalidClamps(body: string, rel: string): Finding[] {
-  // Strip /* ... */ block comments AND // line comments (when the file
-  // type supports them — .astro / .tsx / .jsx) so prose mentions like
-  // `// clamp(18-22px) per canonical` don't trip the gate.
-  let stripped = body.replace(/\/\*[\s\S]*?\*\//g, (m) =>
-    m.replace(/[^\n]/g, " "),
-  );
-  if (rel.endsWith(".astro") || rel.endsWith(".tsx") || rel.endsWith(".jsx")) {
-    stripped = stripped.replace(/\/\/[^\n]*/g, (m) => m.replace(/./g, " "));
-  }
-  const findings: Finding[] = [];
-  const re = /clamp\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(stripped)) !== null) {
-    const args = m[1]!.split(",");
-    for (const arg of args) {
-      const trimmed = arg.trim();
-      // Has `+` or `-` between non-numeric tokens AND not wrapped
-      // in calc(). The `[^a-z0-9]` guards prevent false positives
-      // for negative numbers like `-0.5em`.
-      if (/[a-z0-9)]\s*[+\-]\s*[a-z0-9.]/i.test(trimmed)) {
-        if (!/^\s*calc\(/i.test(trimmed)) {
-          const before = stripped.slice(0, m.index);
-          const line = before.split("\n").length;
-          findings.push({ file: rel, line, match: m[0] });
-          break; // one finding per clamp() is enough
-        }
-      }
-    }
-  }
-  return findings;
-}
 
 describe("Invalid clamp() syntax detection", () => {
   const files = [
@@ -79,7 +38,7 @@ describe("Invalid clamp() syntax detection", () => {
   });
 
   test("no clamp() with bare arithmetic args (must wrap in calc())", () => {
-    const allFindings: Finding[] = [];
+    const allFindings: ClampFinding[] = [];
     for (const file of files) {
       const body = readFileSync(file, "utf8");
       const rel = relative(ROOT, file);

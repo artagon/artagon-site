@@ -50,6 +50,9 @@ artagon-site/
 ├── deploy/                 # Static-server examples and operator guidance
 ├── docs/                   # Human documentation
 ├── openspec/               # Active changes, capability specs, and project context
+│   └── changes/<change-id>/
+│       ├── scratch/         # Ignored temporary session artifacts
+│       └── evidence/        # Reviewed, retained change evidence
 ├── public/                 # Stable static URLs copied to .build/dist/
 ├── scripts/                # Build, verification, and asset-generation tools
 │   └── templates/og/       # Text and image-plus-logo SVG inputs for OG generation

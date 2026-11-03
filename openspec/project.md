@@ -40,6 +40,7 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 - `src/data/` typed registries, including the standards catalog in `src/data/standards.ts`, FAQ entries, and roadmap content.
 - `public/` static assets, icons, manifests, `_redirects`. (`_headers` generation is PLANNED — the in-flight `migrate-deploy-to-cloudflare-pages` proposal will extend `scripts/csp.mjs` to emit `dist/_headers` from the CSP source-of-truth; pre-pt387 the project.md said the generation was already wired but `scripts/csp.mjs` carries zero `_headers` references today — phantom-implementation drift. The proposal lands the wiring per its design.md D3.)
 - `scripts/` postbuild security scripts and asset-generation helpers (`csp.mjs`, `sri.mjs`, `lint-tokens.mjs`, etc.); OG generator templates are owned under `scripts/templates/og/`.
+- `openspec/changes/<change-id>/scratch/` is ignored local storage for temporary session artifacts. Tools and agents use that directory or `.build/`, never the repository root. Promote results to tracked `evidence/` only through an explicit, reviewed copy.
 - `deploy/` sample Caddy and nginx server configs. The Cloudflare HSTS operator note is `docs/guides/cloudflare-hsts.md`.
 
 ## Capabilities (`openspec/specs/`)
