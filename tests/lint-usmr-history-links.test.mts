@@ -89,6 +89,7 @@ function expectRelativeCitationTarget(
 }
 
 type RelativeRepair = {
+  original: string;
   replacement: string;
   resolvedTargets: Array<{
     after: string;
@@ -269,20 +270,48 @@ describe("USMR extracted-history Markdown references", () => {
       brandDesign,
     );
 
-    const repairs = readRelativeRepairs();
-    for (const [replacement, reference, target] of [
+    // USMR site-w1n.13: every recorded repair of these branding citations, not
+    // just the first match, must name the branding change and appear in history.
+    const brandingCitations = [
       [taskCitation.slice(1, -1), "tasks.md:55", brandTasks],
       [designCitation.slice(1, -1), "design.md:129", brandDesign],
-    ]) {
-      const repair = repairs.find((entry) => entry.replacement === replacement);
-      expect(repair).toBeDefined();
-      expect(repair?.resolvedTargets).toContainEqual({
-        reference,
-        before: target,
-        after: target,
-        sameTarget: true,
-      });
-    }
+    ] as const;
+    const assertBrandingRepairs = (records: RelativeRepair[]) => {
+      for (const [replacement, reference, target] of brandingCitations) {
+        const matching = records.filter(
+          (entry) => entry.original === reference,
+        );
+        expect(matching.length, reference).toBeGreaterThan(0);
+        for (const repair of matching) {
+          expect(repair.replacement, reference).toBe(replacement);
+          expect(history).toContain(repair.replacement);
+          expect(repair.resolvedTargets).toContainEqual({
+            reference,
+            before: target,
+            after: target,
+            sameTarget: true,
+          });
+        }
+      }
+    };
+
+    const repairs = readRelativeRepairs();
+    assertBrandingRepairs(repairs);
+
+    // Negative control: a correct first record must not hide a stale duplicate.
+    const staleDuplicate: RelativeRepair = {
+      ...repairs.find((entry) => entry.original === "design.md:129")!,
+      replacement: "../design.md (line 129)",
+      resolvedTargets: [
+        {
+          reference: "design.md:129",
+          before: "openspec/changes/update-site-marketing-redesign/design.md",
+          after: "openspec/changes/update-site-marketing-redesign/design.md",
+          sameTarget: true,
+        },
+      ],
+    };
+    expect(() => assertBrandingRepairs([...repairs, staleDuplicate])).toThrow();
 
     const pt404 = passageBetween(
       history,

@@ -7180,12 +7180,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "design.md:129",
-        "replacement": "../design.md (line 129)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/design.md (line 129)",
         "resolvedTargets": [
           {
             "reference": "design.md:129",
-            "before": "openspec/changes/update-site-marketing-redesign/design.md",
-            "after": "openspec/changes/update-site-marketing-redesign/design.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/design.md",
             "sameTarget": true
           }
         ]
@@ -7194,12 +7194,12 @@
         "segment": "loop-a-continuation",
         "sourceLine": 213,
         "original": "tasks.md:55",
-        "replacement": "../tasks.md (line 55)",
+        "replacement": "../../add-brand-assets-and-writing-pipeline/tasks.md (line 55)",
         "resolvedTargets": [
           {
             "reference": "tasks.md:55",
-            "before": "openspec/changes/update-site-marketing-redesign/tasks.md",
-            "after": "openspec/changes/update-site-marketing-redesign/tasks.md",
+            "before": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
+            "after": "openspec/changes/add-brand-assets-and-writing-pipeline/tasks.md",
             "sameTarget": true
           }
         ]
