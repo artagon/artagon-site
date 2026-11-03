@@ -23,7 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const GENERATED = [join(ROOT, "lighthouserc.json"), join(ROOT, "lychee.toml")];
 
-// BUILD 1.4: after astro sync and build, framework metadata and cache stay ignored.
+// BUILD 1.4: after astro sync, framework metadata and cache stay ignored.
 test("Astro metadata and production cache occupy their ignored paths", () => {
   const ignoreLines = readFileSync(join(ROOT, ".gitignore"), "utf8").split(
     /\r?\n/,
@@ -50,18 +50,24 @@ test("Astro metadata and production cache occupy their ignored paths", () => {
     git("ls-files", "--", ".astro", ".lighthouseci", ".lycheecache").trim(),
     "",
   );
-  assert.ok(
-    ["types.d.ts", "content.d.ts"].some((file) => {
-      const candidate = join(ROOT, ".astro", file);
-      return existsSync(candidate) && statSync(candidate).isFile();
-    }),
-    "run astro sync before this check",
-  );
+  const isFile = (path) => existsSync(path) && statSync(path).isFile();
+  const hasTypes = () =>
+    ["types.d.ts", "content.d.ts"].some((file) =>
+      isFile(join(ROOT, ".astro", file)),
+    );
   const store = join(ROOT, BUILD.cache.astro, "data-store.json");
-  assert.ok(
-    existsSync(store) && statSync(store).isFile(),
-    "run npm build before this check",
-  );
+  // BUILD 1.4a: CI test shards reuse a downloaded build and never run Astro
+  // themselves, so create the metadata here with the pinned CLI instead of
+  // depending on leftovers from an earlier local build.
+  if (!hasTypes() || !isFile(store)) {
+    execFileSync(
+      process.execPath,
+      [join(ROOT, "node_modules", "astro", "bin", "astro.mjs"), "sync"],
+      { cwd: ROOT, env: gitEnv, stdio: "ignore" },
+    );
+  }
+  assert.ok(hasTypes(), "astro sync did not write .astro/ types");
+  assert.ok(isFile(store), `astro sync did not write ${store}`);
   assert.equal(
     git(
       "status",
