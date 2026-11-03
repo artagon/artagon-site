@@ -30,6 +30,7 @@
 ## 4. MCP and plugins
 
 - [x] 4.1 Add the Astro Docs MCP (`astro-docs`, `https://mcp.docs.astro.build/mcp`) to `.mcp.json`, `.codex/config.toml` and `.gemini/settings.json`; enable it in `.claude/settings.json`.
+- [x] 4.1a Exclude the POST-only Astro Docs MCP endpoint from the link check (`scripts/sync-build-config.mjs` → `lychee.toml`); lychee's GET returned 405 on PR #94. Gate: `sync-build-config --check` clean and the exclusion matches only that endpoint.
 - [x] 4.2 Pin `chrome-devtools` to `chrome-devtools-mcp@1.12.0` with `--isolated`, `--no-performance-crux`, `--no-usage-statistics`, `CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS=1` and `CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS=1` (flags verified in the 1.12.0 package README).
 - [x] 4.3 Disable `frontend-design@claude-plugins-official`; the pinned `.agents/skills/frontend-design` replaces it.
 - [x] 4.4 Update `docs/agents/mcp-servers.md` and the AGENTS.md MCP table.

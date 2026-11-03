@@ -270,6 +270,11 @@ exclude = [
   # not a live dependency; exclude the upstream domain rather than
   # retrying indefinitely.
   "^https?://(www\\\\.)?designtokens\\\\.org/",
+  # MCP Streamable-HTTP endpoints accept POST only and answer GET with 405.
+  # They are configuration targets (.mcp.json, .codex/config.toml,
+  # .gemini/settings.json) cited in docs, not navigable pages
+  # (add-agent-skills-supply-chain 4.1a).
+  "^https?://mcp\\\\.docs\\\\.astro\\\\.build/mcp/?$",
 ]
 `;
 
