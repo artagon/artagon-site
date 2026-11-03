@@ -66,13 +66,27 @@ describe("repository documentation path citations vs disk", () => {
           "openspec/changes/update-site-marketing-redesign/evidence/implementation-history.md",
       ),
     ).toHaveLength(7);
-    for (const citation of citations) {
+    const assertAuditCitationRecognizedAndResolved = (citation: {
+      sourcePath: string;
+      token: string;
+    }) => {
+      const token = /^`([^`]+)`$/.exec(citation.token);
+      expect(token, citation.sourcePath).not.toBeNull();
+      const target = token?.[1]?.trim() ?? "";
+      expect(
+        target.startsWith("docs/"),
+        `${citation.sourcePath}: ${target}`,
+      ).toBe(true);
+      expect(existsSync(resolve(ROOT, target)), citation.sourcePath).toBe(true);
       expect(
         findPathCitationDrifts(ROOT, citation.sourcePath, citation.token, {
           pathPrefixes: ["docs/"],
         }),
-        citation.token,
       ).toEqual([]);
+    };
+
+    for (const citation of citations) {
+      assertAuditCitationRecognizedAndResolved(citation);
     }
 
     const validCitation = citations[0]!;
@@ -90,6 +104,21 @@ describe("repository documentation path citations vs disk", () => {
         },
       ),
     ).toEqual([`moved-audit-negative-control.md: ${MOVED_AUDIT_PATH}-missing`]);
+
+    // USMR site-w1n.6: reject a token that the shared helper would skip by prefix.
+    const glossaryCitation = citations.find(
+      ({ sourcePath }) => sourcePath === ".agents/context/glossary.md",
+    )!;
+    const unrecognizedPrefixCitation = {
+      ...glossaryCitation,
+      token: glossaryCitation.token.replace(
+        MOVED_AUDIT_PATH,
+        `glossary/${MOVED_AUDIT_PATH}`,
+      ),
+    };
+    expect(() =>
+      assertAuditCitationRecognizedAndResolved(unrecognizedPrefixCitation),
+    ).toThrow();
 
     const oldPath = "docs/SITE_AUDIT.md";
     expect(existsSync(resolve(ROOT, oldPath))).toBe(false);
