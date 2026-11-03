@@ -1,0 +1,91 @@
+{
+  "skill_name": "artagon-stack-guard",
+  "description": "Version and migration guard for artagon-site. Use before adding or changing Astro components, pages, layouts, integrations, styles, content collections, client directives, or dependencies, and before following any framework advice from a skill, a doc, or memory. Reads the installed stack, routes framework questions to live docs, and runs the stack check.",
+  "results": [
+    {
+      "query": "I want to pull our blog posts with Astro.glob in src/pages/writing/index.astro instead of the content collection, it feels simpler",
+      "should_trigger": true,
+      "trigger_rate": 0.5,
+      "triggers": 1,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "add @astrojs/partytown to astro.config.ts so we can load the analytics script off the main thread",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "can you add a dark/light toggle to the header in src/components/Header.astro? i think a small react island with client:load is easiest",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "let's restyle the FAQ accordion with tailwind utilities, the scoped css in FaqItem.astro is getting long",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "the playwright visual regression shard 3 keeps flaking on webkit, can you look at tests/visual.spec.ts",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "upgrade us to astro 7, what breaks? we're on 6.2.1 per package.json",
+      "should_trigger": true,
+      "trigger_rate": 0.5,
+      "triggers": 1,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "write a commit message for my staged changes to .beads/issues.jsonl",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "fix the typo 'recieve' in src/content/pages/vision.mdx line 40",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "summarize what openspec/changes/self-host-woff2-fonts/proposal.md wants to do",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "what does RFC 9449 DPoP actually protect against vs mTLS-bound tokens? explain for a blog intro",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 7,
+    "failed": 3
+  }
+}

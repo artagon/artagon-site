@@ -1,0 +1,42 @@
+[
+  {
+    "query": "write a /writing post explaining how our trust chain verifies a passkey assertion, with a diagram",
+    "should_trigger": true
+  },
+  {
+    "query": "draft a tutorial for the docs: issue your first SD-JWT credential with the Artagon CLI",
+    "should_trigger": true
+  },
+  {
+    "query": "turn these notes into an MDX how-to: rotating DPoP keys without logging users out",
+    "should_trigger": true
+  },
+  {
+    "query": "we need a reference page listing every error code the check API returns",
+    "should_trigger": true
+  },
+  {
+    "query": "add a code sample to compounding-trust-chain.mdx showing the policy check in TypeScript",
+    "should_trigger": true
+  },
+  {
+    "query": "the RSS feed at /writing/feed.xml is missing the newest post, why?",
+    "should_trigger": false
+  },
+  {
+    "query": "rename the 'Writing' nav label to 'Blog' in the header",
+    "should_trigger": false
+  },
+  {
+    "query": "is the reading-time calculation in src/lib/reading-time.ts right for code-heavy posts?",
+    "should_trigger": false
+  },
+  {
+    "query": "review the color contrast of the writing index cards",
+    "should_trigger": false
+  },
+  {
+    "query": "what's the difference between Zanzibar and OPA? just tell me, no doc needed",
+    "should_trigger": false
+  }
+]

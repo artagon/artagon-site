@@ -3,6 +3,10 @@ skills:
     - https://github.com/google-labs-code/design.md/tree/main/.agents/skills
     - https://github.com/google-labs-code/stitch-skills # design-md
     - https://www.npmjs.com/package/@playwright/cli/v/0.1.22 # playwright-cli skill source, pinned package version
+    - https://github.com/anthropics/skills # frontend-design (pinned commit in skills-lock.json)
+    - https://github.com/addyosmani/web-quality-skills # accessibility, best-practices, core-web-vitals, performance, seo, web-quality-audit
+    - https://github.com/GoogleChrome/modern-web-guidance # modern-web-guidance (local-mode fork; FORK.md)
+    - https://github.com/vercel-labs/web-interface-guidelines # web-interface-review rules (references/command.md)
   installed: .agents/skills/
   lockfile: skills-lock.json
   mandatory:
@@ -11,6 +15,13 @@ skills:
     - typed-service-contracts # parse-don't-validate, Result<T, E> for data layer
     - agent-dx-cli-scale # score npm scripts >= 18/21
     - design-md # synthesize semantic design systems into DESIGN.md
+    - ripwire # callers, blast radius, affected tests (USMR 14.86)
+    - tgrep # indexed regex sweeps over an unchanged tree
+    - ripgrep # rtk rg live text search; replaces grep and find
+    - ast-grep # structural search, rewrites, and the lint:sg linter
+    - ast-grep-mcp # syntax-tree dumps and YAML rule tests over MCP
+    - artagon-stack-guard # installed-stack check before framework changes; npm run verify:stack
+    - artagon-design-system # DESIGN.md precedence over generic design skills
   not-applicable:
     - ink # terminal UI; project is web
 
@@ -27,10 +38,12 @@ tools:
       spec: "npx design.md spec"
 
 tasks:
+  # LAYOUT-06A: the hero's copy is content; the Astro page is its template.
   - id: update-hero
-    title: Update homepage hero
-    input: new_h1, new_subhead
-    output: src/pages/index.astro
+    title: Update homepage hero copy
+    input: new_headline, new_lede
+    output: src/content/pages/home.mdx
+    # Template/layout changes belong in src/pages/index.astro.
     risk: low
   - id: theme-management
     title: Manage site themes

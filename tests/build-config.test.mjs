@@ -5,13 +5,112 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BUILD } from "../build.config.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const GENERATED = [join(ROOT, "lighthouserc.json"), join(ROOT, "lychee.toml")];
+
+// BUILD 1.4: after astro sync, framework metadata and cache stay ignored.
+test("Astro metadata and production cache occupy their ignored paths", () => {
+  const ignoreLines = readFileSync(join(ROOT, ".gitignore"), "utf8").split(
+    /\r?\n/,
+  );
+  for (const entry of [
+    ".build/",
+    ".astro/",
+    ".lycheecache",
+    ".lighthouseci/",
+  ]) {
+    assert.ok(ignoreLines.includes(entry), `missing .gitignore entry ${entry}`);
+  }
+  const gitEnv = { ...process.env };
+  for (const key of [
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_COMMON_DIR",
+    "GIT_INDEX_FILE",
+  ])
+    delete gitEnv[key];
+  const git = (...args) =>
+    execFileSync("git", args, { cwd: ROOT, env: gitEnv, encoding: "utf8" });
+  assert.equal(
+    git("ls-files", "--", ".astro", ".lighthouseci", ".lycheecache").trim(),
+    "",
+  );
+  const isFile = (path) => existsSync(path) && statSync(path).isFile();
+  const hasTypes = () =>
+    ["types.d.ts", "content.d.ts"].some((file) =>
+      isFile(join(ROOT, ".astro", file)),
+    );
+  const store = join(ROOT, BUILD.cache.astro, "data-store.json");
+  // BUILD 1.4a: CI test shards reuse a downloaded build and never run Astro
+  // themselves, so create the metadata here with the pinned CLI instead of
+  // depending on leftovers from an earlier local build.
+  if (!hasTypes() || !isFile(store)) {
+    execFileSync(
+      process.execPath,
+      [join(ROOT, "node_modules", "astro", "bin", "astro.mjs"), "sync"],
+      { cwd: ROOT, env: gitEnv, stdio: "ignore" },
+    );
+  }
+  assert.ok(hasTypes(), "astro sync did not write .astro/ types");
+  assert.ok(isFile(store), `astro sync did not write ${store}`);
+  assert.equal(
+    git(
+      "status",
+      "--porcelain=v1",
+      "--untracked-files=all",
+      "--",
+      ".astro",
+      BUILD.cache.astro,
+    ).trim(),
+    "",
+  );
+});
+
+// LAYOUT-10A: validate the actual typed config against isolated inputs.
+test("icon checksum report path is required, typed and safe", () => {
+  const root = mkdtempSync(join(tmpdir(), "build-icon-config-"));
+  try {
+    copyFileSync(join(ROOT, "build.config.ts"), join(root, "build.config.ts"));
+    const config = JSON.parse(
+      readFileSync(join(ROOT, "build.config.json"), "utf8"),
+    );
+    const load = () =>
+      execFileSync(
+        process.execPath,
+        [
+          "--input-type=module",
+          "-e",
+          'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.iconChecksums)',
+        ],
+        { cwd: root, encoding: "utf8", stdio: "pipe" },
+      );
+    writeFileSync(join(root, "build.config.json"), JSON.stringify(config));
+    assert.equal(load(), ".build/reports/icon-checksums");
+    for (const value of [undefined, 42, "../public/icons/checksums"]) {
+      if (value === undefined) delete config.reports.iconChecksums;
+      else config.reports.iconChecksums = value;
+      writeFileSync(join(root, "build.config.json"), JSON.stringify(config));
+      assert.throws(load);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
 
 function sha256(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -123,3 +222,39 @@ test("path validator rejects traversal", () => {
     "expected path-traversal rejection in stderr",
   );
 });
+
+// modernize-build-pipeline 3.1 (site-j2l.4): the report leaf is required and validated.
+for (const control of ["valid", "missing", "non-string", "unsafe"]) {
+  test(`BUILD.reports.buildProvenance: ${control}`, () => {
+    const dir = mkdtempSync(join(tmpdir(), "site-build-provenance-config-"));
+    try {
+      copyFileSync(join(ROOT, "build.config.ts"), join(dir, "build.config.ts"));
+      const config = JSON.parse(
+        readFileSync(join(ROOT, "build.config.json"), "utf8"),
+      );
+      assert.equal(
+        config.reports.buildProvenance,
+        ".build/reports/build-provenance",
+      );
+      if (control === "missing") delete config.reports.buildProvenance;
+      if (control === "non-string") config.reports.buildProvenance = 42;
+      if (control === "unsafe") config.reports.buildProvenance = "../outside";
+      writeFileSync(join(dir, "build.config.json"), JSON.stringify(config));
+      const run = () =>
+        execFileSync(
+          process.execPath,
+          [
+            "--input-type=module",
+            "-e",
+            'import { BUILD } from "./build.config.ts"; process.stdout.write(BUILD.reports.buildProvenance)',
+          ],
+          { cwd: dir, encoding: "utf8", stdio: "pipe" },
+        );
+      if (control === "valid")
+        assert.equal(run(), ".build/reports/build-provenance");
+      else assert.throws(run, /reports\.buildProvenance/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+}

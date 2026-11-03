@@ -1,6 +1,6 @@
 import {
   createMarkdownProcessor,
-  type MarkdownProcessor,
+  type MarkdownRenderer,
 } from "@astrojs/markdown-remark";
 import { escapeHTML, markHTMLString } from "astro/runtime/server/index.js";
 
@@ -12,7 +12,7 @@ import { escapeHTML, markHTMLString } from "astro/runtime/server/index.js";
 // concurrent first calls share the same in-flight init. There is no
 // reset path — by design: tests should construct their own processor
 // rather than reach into this module's state.
-let processorPromise: Promise<MarkdownProcessor> | null = null;
+let processorPromise: Promise<MarkdownRenderer> | null = null;
 
 const getProcessor = () => {
   if (!processorPromise) {

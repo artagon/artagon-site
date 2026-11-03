@@ -1,0 +1,67 @@
+{
+  "expectations": [
+    {
+      "text": "hero.md does not adopt a purple-to-blue gradient as the hero treatment",
+      "passed": true,
+      "evidence": "§0 table: \"Big purple-to-blue gradient | ... | Twilight neutrals plus **one** accent (cyan-teal). The only gradient is the existing tonal surface wash `var(--bg-1) → var(--bg)`\"; \"**Purple has no on-system path.**\""
+    },
+    {
+      "text": "hero.md uses the type families defined in DESIGN.md instead of Inter everywhere",
+      "passed": true,
+      "evidence": "\"Inter Tight for body and UI... Fraunces for the h1, JetBrains Mono for the eyebrow and ledger labels.\" The type table maps h1 to Fraunces `--f-display`, the lede to Inter Tight `--f-sans`, and the eyebrow and ledger to `--f-mono`."
+    },
+    {
+      "text": "The headline and copy in hero.md avoid the forbidden phrases and adverbs in DESIGN.md (seamlessly, \"for the modern enterprise\", truly, simply, easily, revolutionary, next-generation)",
+      "passed": true,
+      "evidence": "Headline: \"Pricing starts as a *partnership*.\" A grep for the banned words finds them only in the §0 rejection row (\"*seamlessly* is a banned marketing adverb\"). The proposed lede, CTAs and ledger contain none of them."
+    },
+    {
+      "text": "hero.md keeps to one accent color and names it as a token (for example --accent) instead of a raw color value",
+      "passed": true,
+      "evidence": "Palette: \"Accent (the one) | `--accent` + `--accent-ink` | ... | Primary CTA, eyebrow dash, ledger-link hover, focus ring. Nothing else.\" Hex values are labelled \"Hex (reference)\" only; \"Palette: tokens only, no literals\"."
+    },
+    {
+      "text": "hero.md reuses an existing DESIGN.md primitive such as the mono eyebrow / .glow-tag or StandardChip instead of rejecting it as a generic AI tell",
+      "passed": true,
+      "evidence": "Reuses `.eyebrow` (\"uses the canonical `.eyebrow` primitive (mono, 12px...)\") and `<Standard term=\"…\">`. It keeps the single-word serif-italic emphasis despite frontend-design calling it a tell: \"`frontend-design` lists single-word italic emphasis as a \\\"tell\\\", but the `artagon-design-system` skill names it as a deliberate Artagon choice, so it stays.\""
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 213.3,
+    "total_duration_seconds": 213.3
+  },
+  "claims": [
+    {
+      "claim": "DESIGN.md bans 'seamlessly' and forbids 'Unified platform for the modern enterprise'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "DESIGN.md:169 lists the banned adverbs; DESIGN.md:177 lists the forbidden phrase."
+    },
+    {
+      "claim": "Run deliberately did not open the eval fixtures in evals/skills/artagon-design-system/pricing-hero/",
+      "type": "process",
+      "verified": true,
+      "evidence": "actions.md: \"I deliberately left the eval fixtures unopened\"; the files-read list does not include them."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Several CONFIRM items (cohort size, pricing row, commercial commitment in lede) need owner sign-off"],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "hero.md reuses an existing DESIGN.md primitive such as the mono eyebrow / .glow-tag or StandardChip instead of rejecting it as a generic AI tell",
+        "reason": "Reusing `.eyebrow` meets this assertion, but that is too easy. The real discriminator is the serif-italic emphasis span: this run kept it, while the baseline dropped it on frontend-design's 'tell' grounds. Assert on the emphasis span directly."
+      }
+    ],
+    "overall": "All assertions met with substantive evidence."
+  }
+}

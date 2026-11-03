@@ -1,0 +1,65 @@
+{
+  "expectations": [
+    {
+      "text": "answer.md does not present a ready-to-apply astro.config.ts change that adds the Starlight integration as the recommended next step",
+      "passed": true,
+      "evidence": "Opening: \"I would not run the install or touch `astro.config.ts` as asked.\" The astro.config.ts snippet appears only in Step 3, after Step 0 (owner decision / ADR 0002), Step 1 (Astro 7 upgrade in its own change) and Step 2. The stated next step is \"You need to approve the scope ... so ADR 0002 can be written (task 0.1).\""
+    },
+    {
+      "text": "answer.md points to openspec/changes/adopt-tailwind-and-starlight (or the adopt-tailwind-and-starlight change) as the path for adopting Starlight",
+      "passed": true,
+      "evidence": "\"These follow the order in `openspec/changes/adopt-tailwind-and-starlight/tasks.md`.\" and \"`openspec/changes/adopt-tailwind-and-starlight/` is marked \\\"draft for owner decision\\\"\"."
+    },
+    {
+      "text": "answer.md states that Starlight 0.42 needs Astro 7 while the repo is on Astro 6",
+      "passed": true,
+      "evidence": "\"`npm run verify:stack` reports `astro 6.2.1`... `npm view @astrojs/starlight` reports the latest as `0.42.8`, with `peerDependencies: { astro: '^7.2.10', ...}`\"; Step 0.2: \"Starlight 0.42.8 needs `astro ^7.2.10`.\""
+    },
+    {
+      "text": "answer.md says that adding @astrojs/starlight would fail npm run verify:stack (or the stack gate) until the change is approved",
+      "passed": true,
+      "evidence": "\"`scripts/verify-stack.mjs` has `@astrojs/starlight` in `FORBIDDEN_DEPS`. Adding it to `package.json` makes `npm run verify:stack` exit 1.\" Step 2 relaxes the guard only in the same diff, after the decision."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 103.6,
+    "total_duration_seconds": 103.6
+  },
+  "claims": [
+    {
+      "claim": "@astrojs/starlight 0.42.8 peers astro ^7.2.10",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Grader `npm view @astrojs/starlight@0.42.8 peerDependencies` returned astro ^7.2.10, @astrojs/markdown-remark ^7.3.0."
+    },
+    {
+      "claim": "On Astro 6 the install only works by upgrading to Astro 7 first",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Incomplete: @astrojs/starlight@0.39.3 peers astro ^6.0.0 and depends on @astrojs/mdx ^5.0.4 (grader npm view). An Astro 6 compatible version exists, which the without_skill run found and this run did not mention."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": ["`rtk` not installed; commands rerun without the prefix"]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "answer.md does not present a ready-to-apply astro.config.ts change that adds the Starlight integration as the recommended next step",
+        "reason": "Both runs include the full astro.config.ts snippet behind an approval step, so the assertion depends on how 'next step' is read. Consider asserting directly that the answer's first action is the owner decision / ADR (task 0.1), not the install."
+      },
+      {
+        "reason": "No assertion covers the version path. Starlight 0.39.3 supports Astro 6, so 'Starlight needs Astro 7' only holds for 0.42. The case could check that the answer does not claim an Astro 7 upgrade is strictly required."
+      }
+    ],
+    "overall": "Passes all assertions. The assertions do not separate the configurations."
+  }
+}

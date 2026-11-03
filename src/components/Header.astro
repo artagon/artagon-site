@@ -151,8 +151,10 @@ const NAV_LINKS = [
     position: sticky;
     top: 0;
     z-index: 30;
-    backdrop-filter: blur(14px);
+    /* USMR 14.87: prefixed first. Lightning CSS 1.33 (Vite 8) drops the
+     * standard property when the -webkit- one follows it. */
     -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
     background: color-mix(in oklab, var(--bg) 72%, transparent);
     border-bottom: 1px solid var(--line-soft);
   }

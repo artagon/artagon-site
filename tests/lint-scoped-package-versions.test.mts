@@ -25,6 +25,7 @@
 import { describe, expect, test } from "vitest";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { isChangeScratch } from "./helpers/change-scratch.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 
@@ -33,12 +34,12 @@ const ROOT = new URL("..", import.meta.url).pathname;
 // version states as part of explaining what changed. Adding
 // to this set MUST be paired with a written rationale.
 const NARRATIVE_ARCHAEOLOGY = new Set<string>([
-  // USMR rolling-loop log — every pt commit appends a narrative
+  // USMR retained rolling-loop history — every pt commit appends a narrative
   // entry that quotes the OLD version cite as part of describing
   // what got fixed (e.g. pt221 narrative quotes
   // "@lhci/cli@0.14.x → 0.15.x"). Sanitizing those past tenses
   // would erase the load-bearing pt-history pointer.
-  "openspec/changes/update-site-marketing-redesign/tasks.md",
+  "openspec/changes/update-site-marketing-redesign/evidence/implementation-history.md",
 ]);
 
 function gather(dir: string, out: string[]) {
@@ -49,6 +50,8 @@ function gather(dir: string, out: string[]) {
       // Skip archived / vendored / build dirs.
       if (
         entry.name === "archive" ||
+        // LAYOUT-13: prune only ignored scratch below an OpenSpec change.
+        isChangeScratch(relative(ROOT, p)) ||
         entry.name === "new-design" ||
         entry.name === "node_modules" ||
         entry.name === ".build" ||

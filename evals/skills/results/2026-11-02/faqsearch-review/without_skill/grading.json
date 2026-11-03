@@ -1,0 +1,61 @@
+{
+  "expectations": [
+    {
+      "text": "review.md reports findings in a src/components/FaqSearch.astro:<line> format",
+      "passed": false,
+      "evidence": "Findings are prose sections that cite lines as \"(line 13)\", \"(lines 178–180)\", \"(line 65)\", etc., under the single header \"**File:** `src/components/FaqSearch.astro` (224 lines)\". No finding uses the `src/components/FaqSearch.astro:<line>` form. The only `file:line` cites are for other files (e.g. `FaqItem.astro:10`, `theme.css:1885-1895`)."
+    },
+    {
+      "text": "The run did not fetch guidelines from raw.githubusercontent.com or any other URL",
+      "passed": true,
+      "evidence": "actions.md: \"## URLs fetched\\n\\nnone\"."
+    },
+    {
+      "text": "review.md does not recommend adding Tailwind classes or new dependencies",
+      "passed": true,
+      "evidence": "Fixes use CSS, HTML attributes, the CSS Custom Highlight API (a browser API, not a package), a new theme token and a Playwright spec using existing devDeps. No Tailwind and no new packages."
+    },
+    {
+      "text": "Every finding in review.md points at a line that exists in FaqSearch.astro and describes something actually present there",
+      "passed": true,
+      "evidence": "Spot-checked all 13 findings: line 13 type=search, 24 clear button, 208 focus return; 35 live region, 192-198/201-203; 178-180 answer matching (FaqItem.astro:10 is `<details>`); 65 `border: 2px solid var(--card-stroke)` (theme.css:79 `--card-stroke: var(--line)`); 145-223 script; 14/15 placeholder and aria-label; 5 div wrapper; 63 font-size only, and theme.css has no `font: inherit`; 180 substring match; 212-222 hash on load; 24/166/170 inline display toggle, 93 `display: flex`, csp.mjs:48 style-src-attr, lint-no-inline-style.test.mts:36 allow-list; 71-75 focus, 83 `right: 0`, 101 hover tint, 68/97 transitions. Finding 11 (Escape) cites no line but correctly describes the absence of a keydown handler. Minor wording slip: finding 5 calls the processed Astro `<script>` \"inline\"; the behaviour described is accurate. No clearly wrong line or claim."
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "pass_rate": 0.75
+  },
+  "timing": {
+    "executor_duration_seconds": 256.1,
+    "total_duration_seconds": 256.1
+  },
+  "claims": [
+    {
+      "claim": "Field border contrast is about 1.3–1.4:1 against surroundings",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Estimated from OKLCH lightness and tagged PARTIAL by the run itself; not measured."
+    },
+    {
+      "claim": "The review was run against /home/claude/artagon-site-baseline",
+      "type": "process",
+      "verified": true,
+      "evidence": "actions.md says so; grader diff shows the baseline FaqSearch.astro is identical to /home/claude/artagon-site/src/components/FaqSearch.astro, so line numbers carry over."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Static source reading only; rendering claims marked PARTIAL"],
+    "needs_review": [],
+    "workarounds": ["rtk not installed; used built-in Grep"]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "The format assertion is the only one that separates the configurations, and it tests output shape, not review quality. This baseline found extra real issues (1.4.11 border contrast, no `font: inherit`, no-JS dead field) that the skill run missed. Consider an assertion on coverage of seeded issues."
+      }
+    ],
+    "overall": "Substantive and accurate review. It fails only the file:line format requirement."
+  }
+}

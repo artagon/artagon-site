@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: rebac-check-howto
+expected_outcome: |
+  A how-to page matching the writing collection's frontmatter, with the goal up front, a safe sample (no token in the URL), a static diagram with a text equivalent, and correctly cited standards.

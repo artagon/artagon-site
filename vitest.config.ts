@@ -11,6 +11,12 @@ import { defineConfig } from "vitest/config";
 // happens to use the .mts extension). Both are excluded explicitly.
 
 export default defineConfig({
+  // USMR 14.87 (site-yy1): Vite 8 transforms TS/JSX with Oxc, which follows
+  // the Astro tsconfig's `jsx: "preserve"` and leaves JSX untransformed in
+  // React island tests. Compile .tsx with the React automatic runtime.
+  oxc: {
+    jsx: { runtime: "automatic", importSource: "react" },
+  },
   test: {
     include: ["tests/**/*.test.mts"],
     exclude: [

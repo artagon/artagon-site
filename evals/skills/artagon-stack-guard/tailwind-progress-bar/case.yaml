@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: tailwind-progress-bar
+expected_outcome: |
+  The plan does not use Tailwind classes or <ViewTransitions />; it explains why (ADR 0001, removed Astro API) using the installed stack, and proposes a scoped-style, token-based progress bar with no or minimal client JS.

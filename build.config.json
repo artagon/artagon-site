@@ -11,7 +11,9 @@
     },
     "playwrightCli": ".build/reports/playwright-cli",
     "lhci": ".build/reports/lhci",
-    "cloudflarePurge": ".build/reports/cloudflare-purge"
+    "cloudflarePurge": ".build/reports/cloudflare-purge",
+    "iconChecksums": ".build/reports/icon-checksums",
+    "buildProvenance": ".build/reports/build-provenance"
   },
   "dist": ".build/dist"
 }

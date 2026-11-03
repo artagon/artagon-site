@@ -1,0 +1,42 @@
+[
+  {
+    "query": "can you sanity check the standards claims on src/content/pages/standards.mdx before launch",
+    "should_trigger": true
+  },
+  {
+    "query": "I wrote 'Artagon is fully OAuth 2.1 compliant (RFC)' in the hero, is that accurate?",
+    "should_trigger": true
+  },
+  {
+    "query": "review this paragraph: 'GNAP replaces OAuth entirely and every major IdP supports it today'",
+    "should_trigger": true
+  },
+  {
+    "query": "check the FAQ answers about passkeys and WebAuthn for anything wrong or overstated",
+    "should_trigger": true
+  },
+  {
+    "query": "our use-cases page says we're FAPI 2.0 certified \u2014 verify that wording before we ship",
+    "should_trigger": true
+  },
+  {
+    "query": "implement a JWT verification helper in src/lib for the demo",
+    "should_trigger": false
+  },
+  {
+    "query": "make the standards chips on /standards wrap better on mobile",
+    "should_trigger": false
+  },
+  {
+    "query": "write a fun tagline for the bridge page",
+    "should_trigger": false
+  },
+  {
+    "query": "add the OAuth 2.1 logo to public/assets/icons",
+    "should_trigger": false
+  },
+  {
+    "query": "the link to the DPoP RFC on /standards 404s, fix the URL",
+    "should_trigger": false
+  }
+]

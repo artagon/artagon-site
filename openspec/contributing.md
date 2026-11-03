@@ -60,8 +60,8 @@ lychee --config lychee.toml './**/*.md' './public/**/*.html' './src/**/*.astro'
 
 ## Assets and Media
 
-- Use `scripts/make-og-from-template.sh` to generate OG images from the SVG template.
-- Use `scripts/make-favicon.sh` or `scripts/svg-to-pngs.sh` for icon updates.
+- Use `scripts/make-og-from-template.sh` to generate OG images from the SVG templates in `scripts/templates/og/`. It uses the image-plus-logo template when both that template and the selected logo file exist; otherwise it falls back to the text template. Its default output destination is unchanged.
+- With ImageMagick installed and `public/icons/icon-{16,32,48}.png` present, run `./scripts/make-favicon.sh` to write `public/favicon.ico`, or `./scripts/make-favicon.sh path/to/existing-directory` to write `favicon.ico` in that directory. Use `scripts/svg-to-pngs.sh` for other icon updates.
 - Keep filenames and sizes consistent with existing assets in `public/assets`.
 
 ## Pull Requests
@@ -141,6 +141,12 @@ Fixes #55
 ## AI Agent Workflow (OpenSpec)
 
 > **Note on examples**: The following sections use `add-two-factor-auth` as a hypothetical change-id in worked examples. Substitute your real change-id (run `openspec list` to see active changes); the literal `openspec/changes/add-two-factor-auth/` path does not exist in this repository.
+
+### Session artifacts and retained evidence
+
+- Put screenshots, logs, probes, drafts, and other temporary work in `openspec/changes/<change-id>/scratch/` or under `.build/`; never write session artifacts at the repository root.
+- A change's `scratch/` is ignored by Git and moves with the change when it is archived. Keep all of its contents untracked.
+- Promote a result to `openspec/changes/<change-id>/evidence/` only by explicitly copying the selected file after review. Evidence is tracked; scratch is not.
 
 When an AI agent works from an OpenSpec item, it must:
 

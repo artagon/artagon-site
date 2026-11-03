@@ -163,15 +163,16 @@ const README_ROOT_FILES = [
 ] as const;
 
 /** The former per-document gates now share one explicit policy table. */
-export function pathCitationSources(root: string): readonly PathCitationSource[] {
-  const oneFile = (relativePath: string): (() => string[]) =>
+export function pathCitationSources(
+  root: string,
+): readonly PathCitationSource[] {
+  const oneFile =
+    (relativePath: string): (() => string[]) =>
     () => [join(root, relativePath)];
-  const yamlFiles = (directory: string): (() => string[]) =>
+  const yamlFiles =
+    (directory: string): (() => string[]) =>
     () =>
-      walkFiles(
-        join(root, directory),
-        (file) => /\.(yml|yaml)$/.test(file),
-      );
+      walkFiles(join(root, directory), (file) => /\.(yml|yaml)$/.test(file));
 
   return [
     {
@@ -190,7 +191,9 @@ export function pathCitationSources(root: string): readonly PathCitationSource[]
         stripAtAlias: true,
         // Historical citation explains that this guide moved into opsx skills.
         allowPaths: ["openspec/AGENTS.md"],
-        // These are external trees on contributor machines, absent in CI.
+        // new-design/ is an external tree on contributor machines, absent in
+        // CI. .claude/skills/ holds links into .agents/skills/ (USMR 14.84);
+        // docs may still name user-level skills under it.
         allowPrefixes: ["new-design/", ".claude/skills/"],
       },
     },
@@ -337,9 +340,8 @@ export function findPathCitationDrifts(
     }
     raw = raw.replace(/[,.;:)]+$/, "").trim();
 
-    const pathCandidate = policy.stripAtAlias && raw.startsWith("@/")
-      ? raw.slice(2)
-      : raw;
+    const pathCandidate =
+      policy.stripAtAlias && raw.startsWith("@/") ? raw.slice(2) : raw;
     const recognized =
       policy.pathPrefixes.some((prefix) => pathCandidate.startsWith(prefix)) ||
       policy.rootFiles?.includes(pathCandidate) === true ||

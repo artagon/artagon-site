@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# USMR 14.85 (site-dfn): refresh the tgrep index in the background after a
+# branch checkout ($3 = 1); file checkouts ($3 = 0) leave it alone.
+# scripts/tgrep-refresh.sh documents the no-op cases.
+
+[ "${3:-0}" = "1" ] || exit 0
+[ -f scripts/tgrep-refresh.sh ] || exit 0
+sh scripts/tgrep-refresh.sh

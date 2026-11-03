@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: faqsearch-review
+expected_outcome: |
+  A terse file:line review grounded in the vendored rules, translated to this repo's non-Tailwind vocabulary, without fetching rules from the network.

@@ -45,11 +45,12 @@ This conversion depends on agent skills + a CLI tool from the design.md ecosyste
 
 ### Install skills (once per machine, or when refreshing)
 
-The `skills` CLI is the canonical installer. It writes skills to `.agents/skills/<name>/SKILL.md` and symlinks them into `.claude/skills/<name>` so Claude Code surfaces them alongside other project skills.
+The `skills` CLI is the canonical installer. It writes skills to `.agents/skills/<name>/SKILL.md` and symlinks them into `.claude/skills/<name>` so Claude Code surfaces them alongside other project skills. Keep only those relative links in `.claude/skills/`; delete any copies the CLI writes to `.codex/skills/` or `.gemini/skills/` (see `.agents/skills/README.md`).
 
 ```bash
-# Install all 4 skills from google-labs-code/design.md (publishes via .agents/skills directory)
-for s in agent-dx-cli-scale ink tdd typed-service-contracts; do
+# Install the 3 applicable skills from google-labs-code/design.md (publishes via .agents/skills directory).
+# `ink` is not-applicable (terminal UI) per .agents/AGENT_MANIFEST.yaml.
+for s in agent-dx-cli-scale tdd typed-service-contracts; do
   npx skills add google-labs-code/design.md --skill "$s" \
     -a claude-code -a codex -a gemini-cli -y
 done
@@ -117,7 +118,7 @@ If a skill conflicts with this guidance prompt, the skill wins for its domain (T
 ## Source of truth (precedence order)
 
 1. `openspec/specs/*` — live specs (highest authority for requirements)
-2. `openspec/changes/update-site-marketing-redesign/` (USMR — task count + ralph-loop narrative log grew substantially through Phase 5.x and the 5.5.16-loop deep-audit pass; the file is now in the ~500-line range and grows by ~1 narrative entry per pt-iter. For the live count run `wc -l openspec/changes/update-site-marketing-redesign/tasks.md` and `grep -c '^\s*- \[' openspec/changes/update-site-marketing-redesign/tasks.md` for the task-checkbox count) — the change you're implementing
+2. [USMR live checklist](../../openspec/changes/update-site-marketing-redesign/tasks.md) — current task state and acceptance. Its [retained 5.5.16-loop history](../../openspec/changes/update-site-marketing-redesign/evidence/implementation-history.md#usmr-loop-a) contains the historical iteration narrative; the change is still in flight.
 3. `new-design/extracted/DESIGN.md` (39KB) — visual + content intent. The repo-rooted `DESIGN.md` (per `openspec/specs/design-system-format`) is the canonical visual identity contract; the new-design copy is FROZEN reference material. Where the two disagree, the spec wins and the repo-rooted DESIGN.md is updated in the same change (per the precedence chain in `openspec/project.md` and `AGENTS.md`).
 4. `new-design/extracted/MIGRATION.md` — historical migration notes. **STALE — do not follow as roadmap.** Use only as visual reference.
 5. This guidance prompt.

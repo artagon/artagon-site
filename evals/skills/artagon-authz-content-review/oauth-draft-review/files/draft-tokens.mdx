@@ -1,0 +1,25 @@
+---
+title: "Binding tokens to the client"
+description: "How Artagon issues tokens you cannot replay."
+eyebrow: "Writing"
+published: 2026-11-05
+tags: [oauth, dpop]
+---
+
+## The standards
+
+OAuth 2.1 (RFC 9725) makes PKCE mandatory for every client, and Artagon is OIDC 2.1 certified.
+
+For single-page apps we recommend the implicit flow: the access token comes straight back in the URL fragment, so there is no extra round trip.
+
+Store the access token in `localStorage` so it survives reloads; our tokens live for 30 days.
+
+To call the API from a script, pass the token as a query parameter:
+
+```sh
+curl "https://api.artagon.example/v1/check?access_token=eyJhbGciOi..."
+```
+
+DPoP (RFC 9449) binds a token to a key the client holds, and PKCE (RFC 7636) protects the authorization code.
+
+Every check is evaluated at a zookie, Zanzibar's guarantee that permission checks are globally linearizable.

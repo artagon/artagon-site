@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# USMR 14.85 (site-dfn): refresh the tgrep index in the background after a
+# rebase or amend. scripts/tgrep-refresh.sh documents the no-op cases.
+
+[ -f scripts/tgrep-refresh.sh ] || exit 0
+sh scripts/tgrep-refresh.sh

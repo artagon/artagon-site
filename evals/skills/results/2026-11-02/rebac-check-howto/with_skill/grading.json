@@ -1,0 +1,76 @@
+{
+  "expectations": [
+    {
+      "text": "check-permission.mdx frontmatter includes title, description, eyebrow, published and tags",
+      "passed": true,
+      "evidence": "Lines 2-13: `title: \"Check a permission with the Artagon API\"`, `description: \"...\"` (155 chars), `eyebrow: \"How-to\"`, `published: 2026-11-02`, `tags:` list. It also has headline, lede, author and `draft: true`."
+    },
+    {
+      "text": "The curl example does not put an access token in the URL or query string",
+      "passed": true,
+      "evidence": "`curl --fail-with-body -sS \"${ARTAGON_API}/v1/check\" -H \"Authorization: Bearer ${ARTAGON_TOKEN}\"`; prose: \"Send the token in the `Authorization` header only, never in the URL.\""
+    },
+    {
+      "text": "The diagram is static (inline SVG, an image, or a text/ASCII figure), not a client-side diagram library, and has a text equivalent describing the same relationships",
+      "passed": true,
+      "evidence": "Fig. 1 is a static HTML `<figure class=\"chain-fig\">` of text rows, with no script or diagram library. Text equivalent: \"Read Fig. 1 from top to bottom: anne is a member of `team:product` (tuple 1); members of `team:product` are viewers of `document:roadmap` (tuple 2); every viewer has `view` (the rule).\" The figcaption repeats the path."
+    },
+    {
+      "text": "The post states its goal in the opening lines (how-to page type)",
+      "passed": true,
+      "evidence": "First body line (35): \"Use this when you know which object, permission and subject you care about and need a yes or no from Artagon: here, can `user:anne` view `document:roadmap`?\""
+    },
+    {
+      "text": "Any external link uses rel=\"noopener noreferrer\" when it opens in a new tab, or the post uses no target=\"_blank\" links",
+      "passed": true,
+      "evidence": "The only target=_blank link (line 134): `<a href=\"https://www.usenix.org/conference/atc19/presentation/pang\" target=\"_blank\" rel=\"noopener noreferrer\">`."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 220.0,
+    "total_duration_seconds": 220.0
+  },
+  "claims": [
+    {
+      "claim": "Description is 155 characters, inside the 80-160 Zod bound",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Grader count of the description string: 155."
+    },
+    {
+      "claim": "Zanzibar paper reports p95 < 10 ms and > 99.999% availability over three years",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the USENIX ATC'19 abstract (fetched per actions.md)."
+    },
+    {
+      "claim": "The tuple notation `document:roadmap#viewer@team:product#member` is valid Zanzibar userset notation",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with the paper's object#relation@user / userset syntax."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["API endpoint/body/response shape is a preview; TODO(api-contract) blockers recorded in an MDX comment with draft: true"],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "check-permission.mdx frontmatter includes title, description, eyebrow, published and tags",
+        "reason": "The writing schema also requires headline and lede, with description at 80-160 chars. A post that meets this assertion could still fail the build. Assert the full schema."
+      },
+      {
+        "reason": "The how-to type requires 'failure modes'. This run has a dedicated 'When the answer is no' section and the baseline does not. No assertion checks it."
+      }
+    ],
+    "overall": "All assertions met. The assertions miss the clearest differences between the runs (failure modes, preview/API-contract caveats)."
+  }
+}

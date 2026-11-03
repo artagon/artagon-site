@@ -16,10 +16,10 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 
 ### Core
 
-- Astro 6 (ESM, static output; per `package.json` `"astro": "6.2.1"`)
-- Node 22.18.0+ and npm (per `.nvmrc` 22.18.0 and `package.json` engines.node `>=22.18.0`; plain Node entry points import TypeScript without a loader flag)
-- @astrojs/sitemap, @astrojs/mdx, @astrojs/react (for interactive islands only), @astrojs/rss (for `/writing/feed.xml`)
-- Astro Content Collections + Zod schemas (`src/content/`)
+- Astro 7.4.5 (ESM, static output; pinned in `package.json`)
+- Node 22.23.4+ and npm (per `.nvmrc` and `package.json` engines.node; plain Node entry points import TypeScript without a loader flag)
+- @astrojs/mdx, @astrojs/react (for interactive islands only), @astrojs/rss (for `/writing/feed.xml`), and @astrojs/sitemap (versions pinned in `package.json`)
+- Astro Content Collections + Zod schemas declared in `src/content.config.ts`: `pages` loads `src/content/pages/`, `writing` loads `src/content/writing/`, and `authors` loads `src/content/authors/`; shared tagline data is in `src/content/taglines.json`.
 
 ### Tooling
 
@@ -28,6 +28,7 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 - Lighthouse CI (performance and a11y thresholds)
 - Lychee (link checking)
 - Playwright (E2E + accessibility + visual regression)
+- Vitest (`*.test.mts`), Node's built-in test runner (the explicit `package.json` `test:node` list), and Playwright (`*.spec.ts`) are separate test runners.
 - ast-grep (`sg`) — primary linter; rules in `rules/security/*.yml` (no ESLint)
 
 ## Project Structure
@@ -35,11 +36,12 @@ Artagon Web is the public marketing site and docs shell for the Artagon identity
 - `src/pages/` route pages (Astro). Live routes (22 total post-USMR-Phase-5.x): `/`, `/platform`, `/vision`, `/roadmap`, `/faq`, `/use-cases`, `/standards`, `/developers`, `/docs`, `/console`, `/search`, `/get-started`, `/how`, `/status`, `/security`, `/privacy`, `/play`, `/bridge`, `/writing`, `/writing/[slug]`, `/writing/feed.xml`, `/404`. The `/use-cases`, `/standards`, `/writing/[slug]`, `/writing/feed.xml` routes were added by USMR (live since Phase 5.x); the RSS feed gained auto-discovery wiring in pt197.
 - `src/layouts/BaseLayout.astro` shared layout, SEO tags, and inline theme/menu scripts. USMR adds named slots: `json-ld`, `indexation`, `branding`.
 - `src/components/` UI components, navigation, and SEO helpers.
-- `src/content/` MDX/JSON content collections (`pages/`, `pages/writing/`, `taglines.json`, `standards.json`).
-- `src/data/` typed data for FAQ and roadmap content.
+- `src/content.config.ts` defines the `pages`, `writing`, and `authors` collections; their content is in `src/content/pages/`, `src/content/writing/`, and `src/content/authors/`. Shared tagline data is `src/content/taglines.json`.
+- `src/data/` typed registries, including the standards catalog in `src/data/standards.ts`, FAQ entries, and roadmap content.
 - `public/` static assets, icons, manifests, `_redirects`. (`_headers` generation is PLANNED — the in-flight `migrate-deploy-to-cloudflare-pages` proposal will extend `scripts/csp.mjs` to emit `dist/_headers` from the CSP source-of-truth; pre-pt387 the project.md said the generation was already wired but `scripts/csp.mjs` carries zero `_headers` references today — phantom-implementation drift. The proposal lands the wiring per its design.md D3.)
-- `scripts/` postbuild security scripts and asset generation helpers (`csp.mjs`, `sri.mjs`, `lint-tokens.mjs`, etc.).
-- `deploy/` sample server configs and HSTS guidance.
+- `scripts/` postbuild security scripts and asset-generation helpers (`csp.mjs`, `sri.mjs`, `lint-tokens.mjs`, etc.); OG generator templates are owned under `scripts/templates/og/`.
+- `openspec/changes/<change-id>/scratch/` is ignored local storage for temporary session artifacts. Tools and agents use that directory or `.build/`, never the repository root. Promote results to tracked `evidence/` only through an explicit, reviewed copy.
+- `deploy/` sample Caddy and nginx server configs. The Cloudflare HSTS operator note is `docs/guides/cloudflare-hsts.md`.
 
 ## Capabilities (`openspec/specs/`)
 
@@ -47,7 +49,7 @@ Live capabilities: `build-config`, `check-site-quality`, `configure-copilot-envi
 
 Capabilities introduced by `update-site-marketing-redesign` (deltas pending archive): `site-navigation`, `site-standards-registry`, `site-bridge-story`, `site-mobile-layout`, `site-structured-data`, `site-indexation`, `site-branding`. The change also MODIFIES `site-content` and `style-system`.
 
-Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive), `enhance-a11y-coverage` (NEW WCAG 2.1 AA contracts), `externalize-strings-and-add-i18n` (NEW capability `site-i18n` + MODIFIED `site-content`; authored as the parallel-track proposal during the USMR deep-audit ralph loop).
+Other in-flight changes: `self-host-woff2-fonts` (NEW capability `font-self-hosting` + MODIFIED `style-system`), `migrate-deploy-to-cloudflare-pages` (NEW capability `cloudflare-pages-deployment` + MODIFIED `github-pages-deployment` + `check-site-quality`), `add-brand-assets-and-writing-pipeline` (depends on USMR archive), `migrate-legacy-tokens-to-layer` (stub; depends on USMR archive), `enhance-a11y-coverage` (NEW WCAG 2.1 AA contracts), `externalize-strings-and-add-i18n` (NEW capability `site-i18n` + MODIFIED `site-content`; authored as the parallel-track proposal during the USMR deep-audit ralph loop), `add-agent-skills-supply-chain` (NEW agent-skills capability: pinned agent skills plus the verify:skills and verify:stack gates), `adopt-tailwind-and-starlight` (draft for owner decision; NEW docs-site capability; would supersede ADR 0001), `standardize-repository-layout` (in flight; staged repository-layout cleanup with no live capability claim before archive), and `modernize-build-pipeline` (build gate orchestration and CI artifact reuse).
 
 ## Merge order
 
@@ -55,7 +57,7 @@ The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
 
 1. `refactor-styling-architecture` — archived `2026-05-04`.
 2. `adopt-design-md-format` — archived `2026-05-05`.
-3. `update-site-marketing-redesign` — in flight (Phase 2 foundations merged via PR #43; Phases 5.x marketing routes shipped via USMR pt-iter ralph loop; currently in late-stage `Phase 5.5.16-loop` post-saturation polish — the live pt-counter is in the `5.5.16-loop` row of `openspec/changes/update-site-marketing-redesign/tasks.md`).
+3. `update-site-marketing-redesign` — in flight (Phase 2 foundations merged via PR #43; Phases 5.x marketing routes shipped via USMR pt-iter ralph loop; currently in late-stage `Phase 5.5.16-loop` post-saturation polish — the live pt-counter remains in the [`5.5.16-loop` checklist row](changes/update-site-marketing-redesign/tasks.md); retained iteration history is in the [USMR implementation history](changes/update-site-marketing-redesign/evidence/implementation-history.md#usmr-loop-a)).
 4. `add-brand-assets-and-writing-pipeline` — blocked on #3.
 5. `cleanup-new-design-extracted` — follow-up after #4.
 
@@ -65,6 +67,7 @@ The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
 
 - `npm run dev` local dev server.
 - `npm run build` produces `.build/dist/` (per `build.config.json`) and runs the postbuild chain (`scripts/sri.mjs`, `scripts/csp.mjs`, `lint:tokens`, etc.).
+- The site builds to `.build/dist/`; copy that directory's contents into the external server document root configured by `deploy/Caddyfile` or `deploy/nginx.conf`.
 - `npm run preview` serves the static output.
 - GitHub Actions deploys on pushes to `main` (GitHub Pages today; Cloudflare Pages parallel deploy planned per `migrate-deploy-to-cloudflare-pages`). Custom domain is `artagon.com` via `CNAME` and `public/CNAME`.
 
@@ -84,7 +87,7 @@ The canonical sequence (from `openspec/changes/FINAL-CROSS-CUTTING-REVIEW.md`):
 - All runtime build/cache/report artifacts live under `.build/{cache,reports,dist}/`. Single SSoT: `build.config.json` at repo root, typed wrapper `build.config.ts`. TS configs `import { BUILD }`; JSON/YAML/TOML configs are GENERATED by `scripts/sync-build-config.mjs`. See `docs/build-artifacts.md`.
 - All in-flight changes' `/opsx:apply` phases consume `BUILD.*` constants from `build.config.ts` instead of hardcoded strings. The path constants are stable; the SSoT is `build.config.json`. (Pre-pt382 phrasing said "All four in-flight changes" but that count drifted as 3 more changes were filed; current set is enumerated in `AGENTS.md` §"Symbolic references" → "OpenSpec changes (active)" — run `ls -d openspec/changes/*/ | grep -v archive` for the live count.)
 - **Precedence chain (canonical):** openspec/specs/\* govern behavior; DESIGN.md governs visual presentation; implementation traces to both. On conflict, the spec wins and DESIGN.md is updated in the same change. (DESIGN.md is at the repo root, governed by `openspec/specs/design-system-format/spec.md` — the live capability spec; originally authored in the archived `openspec/changes/archive/2026-05-05-adopt-design-md-format/` proposal.)
-- `adopt-design-md-format` is a prerequisite for `update-site-marketing-redesign`. The change archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/` (live capability spec at `openspec/specs/design-system-format/spec.md`); the redesign's path-reference updates have been landing iter-by-iter through the 5.5.16-loop pass (pt350/352/356/358-360/363-367 archive-citation sweep documented in `update-site-marketing-redesign/tasks.md` 5.5.16-loop log).
+- `adopt-design-md-format` is a prerequisite for `update-site-marketing-redesign`. The change archived 2026-05-05 to `openspec/changes/archive/2026-05-05-adopt-design-md-format/` (live capability spec at `openspec/specs/design-system-format/spec.md`); the redesign's path-reference updates have been landing iter-by-iter through the 5.5.16-loop pass (pt350/352/356/358-360/363-367 archive-citation sweep is recorded in the [retained USMR history](changes/update-site-marketing-redesign/evidence/implementation-history.md#archive-citation-sweep)).
 
 ## External Dependencies
 

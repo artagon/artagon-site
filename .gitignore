@@ -9,6 +9,11 @@ build.config.json.bak
 # Claude Code session-state (in-memory cron lock; should not be tracked).
 .claude/scheduled_tasks.lock
 
+# OpenSpec 1.6 still writes Codex copies of its skills here on every
+# `openspec update`. Codex reads .agents/skills/, which holds the only real
+# copies (USMR 14.84, site-y0k; see .agents/skills/README.md).
+.codex/skills/
+
 # Build umbrella — all runtime artifacts (cache, reports, dist) live here.
 # See openspec/specs/build-config/spec.md (originally authored in the
 # archived openspec/changes/archive/2026-05-05-standardize-build-artifacts/
@@ -46,7 +51,7 @@ tests/device-tour.spec.ts-snapshots/*.png
 tests/vision-page.spec.ts-snapshots/*.png
 !tests/vision-page.spec.ts-snapshots/*-chromium-linux.png
 
-# Lychee cache file. `lychee.toml` enables caching and the link-check workflow
+# LAYOUT-01B (standardize-repository-layout 1.2): Lychee caching is enabled; the workflow
 # does not pass `--cache-dir`, so Lychee writes the default `.lycheecache`
 # file at the repo root. Keep it out of version control.
 .lycheecache
@@ -105,3 +110,11 @@ new-design/
 /*-state.json
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
+
+# LAYOUT-13: OpenSpec session artifacts stay local to each active or archived change.
+openspec/changes/**/scratch/
+# LAYOUT-13: the NTM front door also writes transient logs at the repository root.
+/scratch/
+
+# LAYOUT-01A (standardize-repository-layout 1.1): local session scratch.
+/session.txt

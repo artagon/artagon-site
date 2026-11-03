@@ -1,0 +1,71 @@
+{
+  "expectations": [
+    {
+      "text": "plan.md contains no Tailwind utility classes (such as bg-teal-400, h-1, fixed top-0) in the code it proposes to add",
+      "passed": true,
+      "evidence": "The proposed markup is `<div class=\"reading-progress\" aria-hidden=\"true\"></div>` with a scoped <style> block (§3.1). Tailwind class names appear only in prose that rejects them: \"Tailwind classes (`h-1 bg-teal-400 fixed top-0`) | **Not used.**\""
+    },
+    {
+      "text": "plan.md does not add <ViewTransitions /> to any layout in the code it proposes",
+      "passed": true,
+      "evidence": "§0: \"Wrap the post layout in `<ViewTransitions />` | **Not used.** Astro 6 removed `<ViewTransitions />`.\" The BaseLayout diff (§3.2) adds only `<slot name=\"body-start\" />`. The optional §5 uses CSS `@view-transition { navigation: auto; }`, not the component."
+    },
+    {
+      "text": "plan.md explains that the repo does not use Tailwind and cites docs/decisions/0001-no-tailwind.md or ADR 0001",
+      "passed": true,
+      "evidence": "§0 table: \"Tailwind is not installed, and the repo has decided not to adopt it... | `docs/decisions/0001-no-tailwind.md`; AGENTS.md \"Stack contract\"; `scripts/verify-stack.mjs` `FORBIDDEN_DEPS`.\""
+    },
+    {
+      "text": "plan.md identifies the installed Astro major as 6 (for example 6.2.1), not 7",
+      "passed": true,
+      "evidence": "§1 stack read: \"installed astro 6.2.1\"; §0: \"Astro 6 removed `<ViewTransitions />`\"."
+    },
+    {
+      "text": "The proposed styles use CSS custom properties (var(--…)) from the token system instead of raw color literals",
+      "passed": true,
+      "evidence": "§3.1 CSS: `background: var(--accent);`; note: \"The only color is `var(--accent)`. There are no raw literals\". The forced-colors block uses the `Highlight` system keyword, which is not a raw literal."
+    },
+    {
+      "text": "The plan names npm run verify:stack (or scripts/verify-stack.mjs) as a check to run",
+      "passed": true,
+      "evidence": "§6 verification table: \"`npm run verify:stack` | exit 0 (ran today: 0 findings, before the change)\"; actions.md shows it was actually run (exit 0)."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 194.9,
+    "total_duration_seconds": 194.9
+  },
+  "claims": [
+    {
+      "claim": "verify:stack reports astro 6.2.1 with 0 findings",
+      "type": "process",
+      "verified": true,
+      "evidence": "actions.md item 2: `npm run verify:stack`. Exit 0... astro 6.2.1... 0 findings."
+    },
+    {
+      "claim": "Astro 6 removed <ViewTransitions /> (checked via Context7 v6 docs)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "actions.md logs the Context7 query on /withastro/docs/__branch__v6; consistent with the Astro v6 upgrade guide."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": ["`rtk` is not installed, so verify:stack was run without the rtk prefix"]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Both configurations pass all six assertions, so this case does not separate them. A discriminating assertion could check that the plan offers no `<ClientRouter />` drop-in replacement without a spec change, or that the bar is rendered outside <main> / above the sticky header (the with_skill run found the `body > * { z-index: 1 }` stacking trap; the baseline did not)."
+      }
+    ],
+    "overall": "Assertions are correct but easy for a careful baseline to meet in this repo, where CLAUDE.md already states the no-Tailwind rule."
+  }
+}

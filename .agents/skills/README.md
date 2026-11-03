@@ -1,17 +1,62 @@
 # Project Skills
 
-Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.com/google-labs-code/design.md/tree/main/.agents/skills), plus `playwright-cli` from `@playwright/cli@0.1.22`. Mandated by user for this project.
+Skills mirrored from [google-labs-code/design.md/.agents/skills](https://github.com/google-labs-code/design.md/tree/main/.agents/skills), plus `playwright-cli` from `@playwright/cli@0.1.22`, the OpenSpec workflow skills that `openspec update` generates, and the search-tool skills written for this repo. Mandated by user for this project.
+
+## Layout
+
+`.agents/skills/` holds the only real copy of every project skill (USMR 14.84, `site-y0k`).
+
+| Client                                   | Reads                   | How it gets these skills                                    |
+| ---------------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| Codex                                    | `.agents/skills/`       | Directly.                                                   |
+| Gemini CLI                               | `.agents/skills/` alias | Directly; the alias wins over `.gemini/skills/`.            |
+| Antigravity and other Agent Skills tools | `.agents/skills/`       | Directly.                                                   |
+| Claude Code                              | `.claude/skills/` only  | One relative link per skill: `../../.agents/skills/<name>`. |
+
+Do not add `.codex/skills/` or `.gemini/skills/`, and do not commit links to skills outside this repo. Personal skills such as `review-verification-protocol` belong in your user skills directory (`~/.claude/skills/`, `~/.agents/skills/`). `tests/lint-skills-layout.test.mts` enforces this layout.
+
+### Add a skill
+
+1. Put the skill in `.agents/skills/<name>/SKILL.md`.
+2. Link it for Claude Code: `ln -s ../../.agents/skills/<name> .claude/skills/<name>`.
+3. Classify it in `.agents/AGENT_MANIFEST.yaml` if the project mandates it.
+4. Scan it: `rtk ripwire . --scan-skills=.agents/skills` must report `verdict="clean"`. `ripwire wrap` runs the same scan and refuses to print its recipe on a critical finding, such as a download command.
+
+### OpenSpec
+
+OpenSpec 1.6 has no `.agents` target. `openspec update` writes the Claude skills to `.claude/skills/openspec-*/SKILL.md`, and those writes land in `.agents/skills/` through the links, so there is still one copy. It also regenerates the Claude `/opsx:*` commands in `.claude/commands/opsx/`, and writes Codex copies to `.codex/skills/`; git ignores that directory and Codex does not read it, so you can delete it. If an update replaces a link with a real directory, the layout test fails: move that directory over `.agents/skills/<name>` (it holds the newly generated content), then restore the link.
 
 ## Installed
 
-| Skill                                                       | Purpose                                                                | Applies to                                                             |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| [agent-dx-cli-scale](agent-dx-cli-scale/SKILL.md)           | Score CLI/npm scripts on agent-friendliness (0–21 scale, ≥18 required) | `package.json` scripts, any script in `scripts/`                       |
-| [design-md](design-md/SKILL.md)                             | Synthesize semantic design systems into `DESIGN.md`                    | DESIGN.md authoring, design-token reconciliation                       |
-| [playwright-cli](playwright-cli/SKILL.md)                   | Agent browser verification and spec codegen; sourced from `@playwright/cli@0.1.22` | Rendered page verification and new Playwright spec code                 |
-| `ink` (NOT installed)                                       | Ink terminal renderer for JSON specs                                   | N/A — terminal UI; site is web. Deliberately skipped.                  |
-| [tdd](tdd/SKILL.md)                                         | Red-Green-Refactor for TS/Node                                         | All component conversions, all `src/lib/*.ts` and `src/data/*.ts` work |
-| [typed-service-contracts](typed-service-contracts/SKILL.md) | Spec & Handler pattern with `Result<T, E>`                             | `src/data/*.ts`, `src/lib/*.ts`, any data parsing/validation           |
+| Skill                                                       | Purpose                                                                            | Applies to                                                             |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [agent-dx-cli-scale](agent-dx-cli-scale/SKILL.md)           | Score CLI/npm scripts on agent-friendliness (0–21 scale, ≥18 required)             | `package.json` scripts, any script in `scripts/`                       |
+| [design-md](design-md/SKILL.md)                             | Synthesize semantic design systems into `DESIGN.md`                                | DESIGN.md authoring, design-token reconciliation                       |
+| [playwright-cli](playwright-cli/SKILL.md)                   | Agent browser verification and spec codegen; sourced from `@playwright/cli@0.1.22` | Rendered page verification and new Playwright spec code                |
+| `ink` (NOT installed)                                       | Ink terminal renderer for JSON specs                                               | N/A — terminal UI; site is web. Deliberately skipped.                  |
+| [tdd](tdd/SKILL.md)                                         | Red-Green-Refactor for TS/Node                                                     | All component conversions, all `src/lib/*.ts` and `src/data/*.ts` work |
+| [typed-service-contracts](typed-service-contracts/SKILL.md) | Spec & Handler pattern with `Result<T, E>`                                         | `src/data/*.ts`, `src/lib/*.ts`, any data parsing/validation           |
+| `openspec-*` (11 skills)                                    | OpenSpec `opsx:*` workflow: propose, explore, apply, verify, archive, and the rest | OpenSpec changes; generated by `openspec update`                       |
+| [ripwire](ripwire/SKILL.md)                                 | Orientation, callers, blast radius, affected tests; the Astro and MDX blind spots  | Any `.ts`/`.mjs` change; before reading many files                     |
+| [tgrep](tgrep/SKILL.md)                                     | Indexed regex sweeps; index freshness and the husky refresh hooks                  | Repeated searches over an unchanged tree                               |
+| [ripgrep](ripgrep/SKILL.md)                                 | `rtk rg` live text search; what replaces each blocked search command               | One-off searches, edited files, config, prose, `.astro`, `.mdx`        |
+| [ast-grep](ast-grep/SKILL.md)                               | Structural search, rewrite previews, and the `lint:sg` linter                      | Code shape, codemods, `rules/security/`                                |
+| [ast-grep-mcp](ast-grep-mcp/SKILL.md)                       | The ast-grep MCP tools: syntax-tree dumps, rule tests, rule search                 | Writing and proving YAML rules; class and attribute searches           |
+
+### UX, quality and domain skills (add-agent-skills-supply-chain)
+
+Pinned in `skills-lock.json` and checked by `npm run verify:skills`. Routing and the vendoring procedure: `docs/agents/skills-supply-chain.md`.
+
+| Skill                                                                                                                                                                                                                                      | Source                                     | Purpose                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------- |
+| [artagon-stack-guard](artagon-stack-guard/SKILL.md)                                                                                                                                                                                        | repo                                       | Installed-stack check and migration guard (`npm run verify:stack`)  |
+| [artagon-design-system](artagon-design-system/SKILL.md)                                                                                                                                                                                    | repo                                       | DESIGN.md precedence; resolves conflicts with generic design skills |
+| [artagon-docs-authoring](artagon-docs-authoring/SKILL.md)                                                                                                                                                                                  | repo                                       | Long-form, MDX, code samples, diagrams                              |
+| [artagon-authz-content-review](artagon-authz-content-review/SKILL.md)                                                                                                                                                                      | repo                                       | Identity and authorization accuracy, standards status               |
+| [frontend-design](frontend-design/SKILL.md)                                                                                                                                                                                                | anthropics/skills                          | Design direction (yields to DESIGN.md)                              |
+| [modern-web-guidance](modern-web-guidance/SKILL.md)                                                                                                                                                                                        | GoogleChrome/modern-web-guidance (fork)    | Local modern HTML/CSS/JS platform guides                            |
+| [web-interface-review](web-interface-review/SKILL.md)                                                                                                                                                                                      | vercel-labs/web-interface-guidelines rules | UI review against interface guidelines                              |
+| [web-quality-audit](web-quality-audit/SKILL.md), [accessibility](accessibility/SKILL.md), [performance](performance/SKILL.md), [core-web-vitals](core-web-vitals/SKILL.md), [seo](seo/SKILL.md), [best-practices](best-practices/SKILL.md) | addyosmani/web-quality-skills              | Evidence-led quality audits                                         |
 
 ## Mandate
 
@@ -36,16 +81,13 @@ Already wired in `package.json:58`: `"lint:design": "npm run check:oklch-hex-par
 
 ## Refresh skills
 
-Pull latest from upstream:
+Third-party skills listed in `skills-lock.json` with a `commit` are never refreshed in place: follow `docs/agents/skills-supply-chain.md`. The steps below cover only the legacy design.md skills and the Playwright CLI skill.
+
+Reinstall the design.md skills with the `skills` CLI, as "Install skills" in `docs/guides/new-design-conversion.md` describes (`ink` stays uninstalled). The download commands live there, not in this directory: `ripwire wrap` scans skill directories and refuses to emit its agent recipe when a skill file contains a download command.
+
+Refresh the pinned Playwright CLI skill from the installed package:
 
 ```bash
-# `ink` is intentionally NOT in this loop — it is the terminal-renderer
-# skill and the site target is web (skipped per the table above).
-for s in agent-dx-cli-scale tdd typed-service-contracts; do
-  curl -sf "https://raw.githubusercontent.com/google-labs-code/design.md/main/.agents/skills/$s/SKILL.md" -o ".agents/skills/$s/SKILL.md"
-done
-
-# Refresh the pinned Playwright CLI skill from the installed package.
 npx --no-install playwright-cli install --skills=agents
 ```
 

@@ -180,6 +180,8 @@ exclude_path = [
   "${buildConfig.dist}",
   "node_modules",
   "${buildConfig.root}",
+  # LAYOUT-13: local change-session artifacts are not link-check input.
+  "(^|/)openspec/changes/(archive/)?[^/]+/scratch(/|$)",
   # Skill source files contain template placeholders (\$s, \$variable) and
   # blog-style root-relative paths (/posts/...) that aren't real links —
   # they're documentation snippets meant to be copy-edited by skill
@@ -234,12 +236,12 @@ exclude = [
   # text still cites this bare path-prefix. jsDelivr returns 400 because it
   # is not a directory listing.
   "^https?://cdn\\\\.jsdelivr\\\\.net/npm/@docsearch/?$",
-  # USMR rolling tasks.md narrative occasionally references
+  # USMR retained implementation history occasionally references
   # relative paths in backticks that lychee resolves to bogus
   # file:// URLs (e.g. \`writing/feed.xml\`, \`ink/SKILL.md\`, \`url\`).
   # The narrative is documentation, not navigable links — exclude
-  # the misresolved file:// forms targeted at the USMR change dir.
-  "^file://.*/openspec/changes/update-site-marketing-redesign/(ink/SKILL\\\\.md|url|writing/feed\\\\.xml)$",
+  # the misresolved file:// forms targeted at the history evidence dir.
+  "^file://.*/openspec/changes/update-site-marketing-redesign/evidence/(ink/SKILL\\\\.md|url|writing/feed\\\\.xml)$",
   # The workflow's absolute --root-dir resolves /writing/feed.xml against
   # the repository, but the route only exists in the built artifact. Exclude
   # its resolved file:// form so the source-tree scan does not flag it.
@@ -259,9 +261,10 @@ exclude = [
   "^file://.*/new-design/",
   # Local Claude/agent skill references — \`.claude/skills\` is in
   # exclude_path for input-scanning, but doc references like
-  # \`./.claude/skills/<name>\` still get checked as link targets. These
-  # name user-level skills installed outside the repo (e.g.
-  # review-verification-protocol); not all of them ship locally.
+  # \`./.claude/skills/<name>\` still get checked as link targets. The
+  # repo's .claude/skills/ holds only links into .agents/skills/ (USMR
+  # 14.84); a reference may still name a user-level skill that is not
+  # in the repo (e.g. review-verification-protocol).
   "^file://.*/\\\\.claude/skills/",
   # W3C / upstream spec mirrors that are known-flaky from CI runners
   # (connection-reset on GitHub-hosted infrastructure). The spec text
@@ -269,6 +272,11 @@ exclude = [
   # not a live dependency; exclude the upstream domain rather than
   # retrying indefinitely.
   "^https?://(www\\\\.)?designtokens\\\\.org/",
+  # MCP Streamable-HTTP endpoints accept POST only and answer GET with 405.
+  # They are configuration targets (.mcp.json, .codex/config.toml,
+  # .gemini/settings.json) cited in docs, not navigable pages
+  # (add-agent-skills-supply-chain 4.1a).
+  "^https?://mcp\\\\.docs\\\\.astro\\\\.build/mcp/?$",
 ]
 `;
 

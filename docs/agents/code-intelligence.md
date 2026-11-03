@@ -1,6 +1,6 @@
 # Code intelligence in this repo
 
-`~/.agents/TOOLS.md` defines the tools and evidence labels on every machine. This page is the repo override: what each tool sees here, how to call it, and where it goes blind. The short form is in `AGENTS.md` under "Code intelligence and search".
+`~/.agents/TOOLS.md` defines the tools and evidence labels on every machine. This page is the repo override: what each tool sees here, how to call it, and where it goes blind. The short form is in `AGENTS.md` under "Code intelligence and search", and each tool's call forms and pitfalls are in its project skill: `.agents/skills/ripwire/`, `tgrep/`, `ripgrep/`, `ast-grep/`, and `ast-grep-mcp/` (USMR 14.86).
 
 ## Tool coverage
 
@@ -31,15 +31,45 @@ ripwire 0.5 has no extension-to-language mapping, and its only config file key (
 
 ### ast-grep practice
 
-- Always pass `--lang`. Test a new pattern on a known match first. `<Header />` under `src/pages/` is a reliable positive control for `html`, and `safeJsonLd($$$A)` in `tests/charset.test.mts` is one for `typescript`. Exit 1 with no output means no match or a bad pattern; the two look the same.
-- The global CLI can be newer than the version pinned in `package.json`. Ad hoc searches may use the global binary. Rule verification must use the pinned engine (`npm run lint:sg`, or `./node_modules/.bin/sg` after `npm ci`).
-- The ast-grep MCP server (`dump_syntax_tree`, `test_match_code_rule`, `find_code`, `find_code_by_rule`) is fine for exploration. Each call asks for approval in Claude Code and Codex, so batch your questions.
+- Always pass `--lang`. Test a new pattern on a known match first. `<Header />` under `src/layouts/` (in `BaseLayout.astro`) is a reliable positive control for `html`, and `safeJsonLd($$$A)` in `tests/charset.test.mts` is one for `typescript`. Exit 1 with no output means no match, or a pattern that parsed as a different node than you meant. A pattern that does not parse prints `Pattern contains an ERROR node` on stderr and still exits 0 (checked on ast-grep 0.42.1 and 0.50), so read stderr.
+- The global CLI can be newer than the version pinned in `package.json`. Ad hoc searches may use the global binary. Rule verification must use the pinned engine (`npm run lint:sg`, or `./node_modules/.bin/sg` after `npm ci`). The two parse Astro differently: the pinned 0.42.1 sees no self-closing tags in `src/layouts/BaseLayout.astro` (0.50 sees 17), so the `<Header />` control matches only under 0.50, and `no-set-html-directive` flags the two `set:html` sites only under 0.50 (checked 2026-10-26).
+- The ast-grep MCP server (`dump_syntax_tree`, `test_match_code_rule`, `find_code`, `find_code_by_rule`) is fine for exploration. Claude Code pre-approves these four read tools (see Enforcement); Codex still asks for each call, so batch your questions there.
 
 ### tgrep index
 
-- The index lives in `.tgrep/` at the repo root and is gitignored.
-- Build it with `rtk tgrep index .`. Rebuild after checkout, pull, rebase, merge, or a large edit. Check its age with `rtk tgrep status .`.
+- The index lives in `.tgrep/` at the repo root (or worktree root) and is gitignored.
+- The husky post-checkout (branch checkouts only), post-merge, and post-rewrite hooks run `scripts/tgrep-refresh.sh`, which rebuilds the index in the background and returns at once. It does nothing when tgrep is not installed or `SKIP_TGREP_INDEX=1` is set. While a rebuild holds the lock (`tgrep-refresh.lock` in the git dir; ten minutes old counts as stale), a new request makes that rebuild run once more, so a rebase's post-checkout and post-rewrite both land. It never fails the git command.
+- Manual rebuilds write index files and prompt (USMR 14.92): use `rtk tgrep index .` after a large edit. Check the age with `rtk tgrep status .`.
 - Use `rtk rg` for files you edited this session unless `tgrep serve .` is running.
+
+## Enforcement
+
+USMR 14.85 turns the routing rules into settings. `.claude/settings.json` denies the blocked commands in every Claude Code permission mode, and `.codex/rules/search.rules` forbids them in Codex once the project is trusted. `tests/search-tool-mandate.test.mts` checks both, plus the tgrep hooks.
+
+| Blocked                                            | Use instead                                                                                     |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `grep -rn`, `egrep`, `fgrep`, bare `rg`, Grep tool | `rtk rg -n '<regex>' <path>`; `rtk tgrep '<regex>' .` for repeated sweeps                       |
+| `find . -name '<glob>'`                            | `rtk rg --files -g '<glob>' <path>`                                                             |
+| `git grep`, `rtk git grep`, `rtk grep`             | `rtk rg -n '<regex>'`; for tracked files only, `rtk git ls-files` then `rtk rg` on those paths  |
+| A text search for callers or use sites             | `rtk ripwire . --callers=SYM` / `--uses=SYM` for `.ts`, plus `rtk rg` over `.astro` and `.mdx`  |
+| A regex for code shape                             | `rtk ast-grep run --lang <lang> --pattern '<pat>' <path>`, or the ast-grep MCP `find_code` tool |
+
+The read-only forms of `rtk rg`, `rtk tgrep`, `rtk ripwire .` (alone or immediately followed by a long flag), `rtk ast-grep run` and `scan`, and the ast-grep MCP read tools (`dump_syntax_tree`, `find_code`, `find_code_by_rule`, `test_match_code_rule`) are pre-approved. USMR 14.92 keeps the following literal forms behind a prompt because they can run a program, write files, select configuration, or start a server:
+
+| Tool     | Flags that prompt                                                                                                                                                                                                                                                                |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rg       | `--pre`, `--hostname-bin`, `--search-zip` / standalone `-z` (starts decompressors); arbitrary short-flag clusters remain a gap |
+| tgrep    | `index` (writes index files), `serve` (a persistent server), including global options before either subcommand; `--index-path` |
+| ast-grep | `-U` / `--update-all`, standalone `-i` / `--interactive` (the interactive/update rules also catch `-iU` and `-Ui`), `-c` / `--config` (alternate configuration), `--custom-languages` (native libraries) |
+| ripwire  | `--run-trace`, `--replace-symbol-body`, `--insert-before-symbol`, `--insert-after-symbol`, `--edit-plan`, `--note-add`, `--quality-baseline`, `--quality-delta`, `--quality-ack`, `--baseline`, `--index-out`, `--export`, `--pin-census`, `--html`, `--cache=`, `--mcp`, `--listen`, `--allow-remote-edits` |
+
+A ripwire run on a git URL is not pre-approved (it clones over the network). An immediate second positional root also loses pre-approval. A root supplied after a long flag can still match the allow glob; an argument-aware hook must validate the complete argv and resolved paths before this can be treated as a root boundary. No hook is implemented in USMR 14.92.
+
+Claude Code evaluates deny rules before ask rules and ask before allow rules, regardless of specificity. Its Bash `*` matches text including spaces; it does not normalize tool arguments or short-flag clusters. Compound commands are split by the client, and a matching subcommand can require a prompt. Ask rules suffice for the matching forms above; no new deny rule is needed. See the official [permission precedence](https://code.claude.com/docs/en/permissions#manage-permissions), [wildcard syntax](https://code.claude.com/docs/en/permissions#wildcard-patterns), [compound-command handling](https://code.claude.com/docs/en/permissions#compound-commands), and [Bash rule limits](https://code.claude.com/docs/en/permissions#bash-rule-limits). `bypassPermissions` skips permission prompts; these ask rules are not an enforcement boundary in that mode.
+
+The ask list is a conservative list of known spellings. A general clustered `-z` check cannot be expressed precisely with whole-text `*` globs without prompting unrelated read-only patterns containing `z`; use separate short flags pending the argument-aware hook. Ast-grep's `run -r` / `--rewrite` preview remains pre-approved, while `scan -r` means `--rule`. Do not broaden the interactive ask to `*-i*`, which also matches the read-only `--inline-rules` form. Tgrep subcommand globs can likewise match literal query text. The ripwire quality-delta gate conservatively includes the read-only committed-revision form. Re-check flag semantics with each tool's help when it changes.
+
+Codex mirrors only representable argv prefixes: direct tgrep `index`/`serve`, those subcommands after leading `--hidden`, ast-grep `-c`/`--config` immediately after `run`/`scan`, and standalone ripwire `--mcp`/`--quality-delta` immediately after `.`. There are no allow rules granting unsandboxed access. Prefix rules cannot match arbitrary later flags, arbitrary attached `=value` suffixes, clustered short flags, or distinguish extra roots from option values. Codex also cannot fully parse scripts with redirects, variables, or globs. Neither client's string rules are a sandbox; the proposed hook and filesystem/network sandbox enforce different boundaries.
 
 ## Where static analysis stops here
 
@@ -70,7 +100,7 @@ Links across these boundaries are strings or conventions. Search them as text be
 ### Is this CSS class still used?
 
 1. `rtk rg -n 'class-name' src tests public` covers markup, `class:list` expressions, template literals, tests, and the stylesheet.
-2. For a structural check, run an ast-grep YAML rule through `find_code_by_rule` (language `html` for `.astro`) with `kind: attribute_value` and `regex: 'class-name'`. A plain `--pattern` cannot match part of an attribute value.
+2. For a structural check, run an ast-grep YAML rule through `find_code_by_rule` (language `html` for `.astro`) with `kind: attribute_value` and `regex: '(^|\s)class-name(\s|$)'`. A plain `--pattern` cannot match part of an attribute value, and `\bclass-name\b` also matches `class-name-suffix`, because a hyphen is a word boundary.
 3. Before deleting, check the Playwright specs, which select elements by class: `rtk rg -n '\.class-name' tests`.
 
 ### Who calls this TypeScript helper?

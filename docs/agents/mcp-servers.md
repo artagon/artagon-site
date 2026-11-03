@@ -10,13 +10,14 @@ The `serena` entries are rendered by `sync-mcp.sh --project <repo-root> --includ
 
 ## Active servers
 
-| Server            | Purpose                                                        | How to use                                                                                                                                                  |
-| ----------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `context7`        | Current docs for Astro, MDN, Playwright, and other libraries   | Call `resolve-library-id`, then `query-docs` with the specific topic. Served from user-level config.                                                        |
-| `serena`          | LSP-backed symbol navigation and symbol-aware edits            | Named components, functions, hooks, types, references. Per-repo HTTP daemon at `http://127.0.0.1:9141/mcp`; if it refuses connections, re-run project sync. |
-| `ast-grep`        | Tree-sitter structural search and rule testing                 | Syntactic patterns in Astro (as HTML), TS/TSX, JS, CSS, YAML, JSON, Bash.                                                                                   |
-| `playwright`      | Browser automation for rendered pages, screenshots, DOM        | Exploratory work and long-running browser sessions. Runs the globally installed `playwright-mcp` (version not pinned here).                                 |
-| `chrome-devtools` | Performance traces, Lighthouse, network and console inspection | Claude only. Runs the globally installed `chrome-devtools-mcp` (version not pinned here).                                                                   |
+| Server            | Purpose                                                        | How to use                                                                                                                                                                                                                                                                                                              |
+| ----------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `context7`        | Current docs for Astro, MDN, Playwright, and other libraries   | Call `resolve-library-id`, then `query-docs` with the specific topic. Served from user-level config.                                                                                                                                                                                                                    |
+| `serena`          | LSP-backed symbol navigation and symbol-aware edits            | Named components, functions, hooks, types, references. Per-repo HTTP daemon at `http://127.0.0.1:9141/mcp`; if it refuses connections, re-run project sync.                                                                                                                                                             |
+| `ast-grep`        | Tree-sitter structural search and rule testing                 | Syntactic patterns in Astro (as HTML), TS/TSX, JS, CSS, YAML, JSON, Bash.                                                                                                                                                                                                                                               |
+| `playwright`      | Browser automation for rendered pages, screenshots, DOM        | Exploratory work and long-running browser sessions. Runs the globally installed `playwright-mcp` (version not pinned here).                                                                                                                                                                                             |
+| `chrome-devtools` | Performance traces, Lighthouse, network and console inspection | Claude only. Pinned: `npx -y chrome-devtools-mcp@1.12.0 --isolated --no-performance-crux --no-usage-statistics`, with usage statistics and update checks also off by env. `lighthouse_audit` covers accessibility, SEO and best practices; use the trace tools for performance. Bump the pin only in a reviewed change. |
+| `astro-docs`      | Official Astro documentation search (`search_astro_docs`)      | Authoritative for Astro and integration APIs at the installed major (see `artagon-stack-guard`). Remote HTTP at `https://mcp.docs.astro.build/mcp`; configured in `.mcp.json`, `.codex/config.toml` and `.gemini/settings.json`. Read-only.                                                                             |
 
 ## Playwright lanes
 
@@ -61,6 +62,8 @@ Install dependencies (`npm ci`) before LSP-dependent work so the TypeScript, Ast
 Inspect the AST before writing a non-trivial pattern.
 
 ## Adding servers
+
+- Pin every server that runs locally to an exact version, never `@latest`, and turn off telemetry and update checks where the server offers a switch. Record the reason in this page.
 
 - Add project-specific stdio servers to both `.mcp.json` and `.codex/config.toml`. Sync keeps entries it does not manage.
 - Do not hand-edit the `serena` entry, and do not add controller-managed servers (`context7`, `tavily`, and the rest) here. Re-run project sync instead.

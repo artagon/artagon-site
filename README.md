@@ -45,83 +45,34 @@ npm run format
 
 ```
 artagon-site/
-├── .agents/                 # AI agent configuration and policies
-├── .github/workflows/       # GitHub Actions CI/CD pipelines
-├── openspec/               # OpenSpec spec-driven development
-│   ├── changes/            # Proposed changes and features
-│   ├── specs/              # Current capability specifications
-│   ├── project.md          # Project conventions
-│   ├── contributing.md     # Contribution guidelines
-│   └── config.yaml         # OpenSpec CLI project descriptor
-├── public/                 # Static assets (copied as-is to .build/dist/)
-│   ├── .well-known/        # Well-known URIs (security.txt, etc.)
-│   ├── assets/             # Images, logos, OG images, theme.css, fonts/
-│   │   └── logos/          # Logo variants and documentation
-│   ├── icons/              # Favicons and app icons
-│   ├── robots.txt          # Search engine directives
-│   └── _redirects          # Cloudflare Pages redirect rules
-                            # (sitemap-index.xml is GENERATED to
-                            #  .build/dist/ at build time, NOT
-                            #  pre-existing in public/)
-├── scripts/                # Build, lint, verify, and asset scripts
-                            # (run `ls scripts/*.mjs scripts/*.sh`
-                            #  for the current count — frozen counts
-                            #  pre-pt380 (~14 .mjs + 8 .sh) drifted
-                            #  as new scripts landed; SSoT is the dir)
-│   ├── csp.mjs             # Content Security Policy injection (postbuild)
-│   ├── sri.mjs             # Subresource Integrity injection (postbuild)
-│   ├── minify-theme-css.mjs # Minifies the dist copy of the public theme stylesheet
-│   ├── lhci-serve.mjs      # LHCI local server with ready signal
-│   ├── verify-prerequisites.mjs       # USMR Phase 0.5 archive-ordering gate
-│   ├── verify-design-prerequisites.mjs # adopt-design-md-format archive gate
-│   ├── verify-font-self-hosting.mjs   # font-src 'self' postbuild gate
-│   ├── lint-skip-link.mjs  # Skip-link first-tabbable postbuild gate
-│   ├── lint-taglines.mjs   # Single-source tagline gate
-│   ├── lint-tokens.mjs     # Raw color literal gate
-│   ├── sync-build-config.mjs # Generates lighthouserc.json + lychee.toml
-│   ├── make-og-from-template.sh  # OG image generation
-│   ├── make-favicon.sh     # Favicon generation
-│   ├── icons/              # Icon generation utilities
-│   ├── lib/                # Internal helpers (e.g. openspec-archive.mjs)
-│   └── ...                 # Other helpers (oklch-to-hex, check-design-drift, etc.)
+├── .agents/                # Agent context, skills, and workflows
+├── .github/workflows/      # CI and deployment workflows
+├── deploy/                 # Static-server examples and operator guidance
+├── docs/                   # Human documentation
+├── openspec/               # Active changes, capability specs, and project context
+│   └── changes/<change-id>/
+│       ├── scratch/         # Ignored temporary session artifacts
+│       └── evidence/        # Reviewed, retained change evidence
+├── public/                 # Stable static URLs copied to .build/dist/
+├── scripts/                # Build, verification, and asset-generation tools
+│   └── templates/og/       # Text and image-plus-logo SVG inputs for OG generation
 ├── src/
-│   ├── components/         # Reusable Astro components
-│                           # (run `find src/components -maxdepth 2
-│                           #  -name '*.astro' -o -name '*.tsx' | wc -l`
-│                           #  for current count — pre-pt381 (~30) drifted
-│                           #  as the redesign added/retired surfaces;
-│                           #  SSoT is the dir tree)
-│   │   ├── Header.astro    # Main navigation
-│   │   ├── Footer.astro    # Site footer
-│   │   ├── SeoTags.astro   # SEO meta tags
-│   │   ├── FaqSearch.astro # FAQ search functionality
-│   │   ├── ui/             # UI primitives (Card, SectionHeader, FeatureList)
-│   │   └── ...
-│   ├── data/               # Typed structured-data registries (~11 modules)
-│   │   ├── faq.ts          # FAQ entries
-│   │   ├── roadmap.ts      # Roadmap horizontal-timeline registry
-│   │   ├── pillars.ts      # Three-pillars taxonomy
-│   │   ├── standards.ts    # Standards / specs registry
-│   │   ├── glossary.ts     # Acronym/term glossary (consumed by Standard chips)
-│   │   └── ...             # Other registries (organization, affiliations, bridge, etc.)
-│   ├── lib/                # Pure helpers (charset, markdown, reading-time)
-│   ├── scripts/            # Browser-side TS (tweaks-state, etc.)
-│   ├── content/            # Astro Content Collections (pages/, writing/, taglines.json)
-│   ├── layouts/
-│   │   └── BaseLayout.astro  # Main layout template
-│   └── pages/              # File-based routing
-│       ├── index.astro     # Homepage
-│       ├── platform/       # Platform features
-│       ├── roadmap/        # Product roadmap
-│       ├── faq/            # FAQ page
-│       ├── vision/         # Vision and strategy
-│       ├── docs/           # Docs shell
-│       ├── console/        # Console shell
-│       ├── search/         # Search interface
-│       └── ...
-├── astro.config.ts         # Astro configuration (TypeScript)
-├── lighthouserc.json       # Lighthouse CI thresholds
-├── lychee.toml             # Link checker configuration
+│   ├── components/         # Astro components and React islands
+│   ├── content.config.ts   # Content Collection loaders and Zod schemas
+│   ├── content/
+│   │   ├── authors/        # Author entries
+│   │   ├── pages/          # Marketing-route MDX
+│   │   ├── writing/        # Long-form posts
+│   │   └── taglines.json   # Shared tagline data
+│   ├── data/               # Typed registries, including standards.ts
+│   ├── layouts/            # Shared Astro layouts
+│   ├── lib/                # Server-side TypeScript helpers
+│   ├── pages/              # File-based Astro routes
+│   └── scripts/            # Browser-side TypeScript
+├── tests/                  # Playwright, Vitest, and node:test suites
+├── .nvmrc                  # Node version used by local and CI workflows
+├── astro.config.ts         # Astro configuration
+├── build.config.json       # Build paths and settings source of truth
 ├── package.json            # Dependencies and scripts
 └── README.md               # This file
 ```
@@ -130,7 +81,7 @@ artagon-site/
 
 ### Core Framework
 
-- **[Astro](https://astro.build/)** v6.2.1 - Static site generator with zero JS by default (per `package.json` `"astro": "6.2.1"`)
+- **[Astro](https://astro.build/)** v7.4.5 - Static site generator with zero JS by default (per `package.json` `"astro": "7.4.5"`)
 - **Static Output** - Pure HTML/CSS/JS, no server required
 - **File-based Routing** - Pages in `src/pages/` map to routes
 
@@ -147,7 +98,7 @@ The four `@astrojs/*` integrations declared in `package.json` (versions accurate
 
 ### Build Tools
 
-- **Node.js** 22.18.0+ (per `.nvmrc` 22.18.0 and `package.json` engines.node `>=22.18.0`; this floor enables plain Node entry points to import TypeScript without a loader flag). npm warns on unsupported engines; this repository does not enable `engine-strict`.
+- **Node.js** 22.23.4+ (per `.nvmrc` 22.23.4 and `package.json` engines.node `>=22.23.4`, the floor Astro 7 requires; this floor enables plain Node entry points to import TypeScript without a loader flag). npm warns on unsupported engines; this repository does not enable `engine-strict`.
 - **npm** - Package manager
 - **Prettier** 3.8.3 - Code formatting (per `package.json` `"prettier": "3.8.3"`)
 
@@ -198,17 +149,19 @@ Performance thresholds enforced in CI:
 - **Best Practices**: ≥90% (error)
 - **SEO**: ≥95% (error)
 
-Runs 2 times per URL and uploads to temporary public storage.
+Collects the configured routes and writes reports to `.build/reports/lhci/`.
 
 Local usage:
 
 ```bash
 npm run build
-npx -y @lhci/cli@0.15.x autorun --config=lighthouserc.json
+npx --no-install lhci autorun --config=lighthouserc.json --fail-on-upload-failure
 ```
 
-The LHCI config starts `scripts/lhci-serve.mjs`, which prints `READY` once the
-static server responds. Override the port with `LHCI_PORT` if needed.
+The generated `lighthouserc.json` uses `ci.collect.staticDistDir` set to
+`.build/dist`; LHCI serves that directory with its built-in static server.
+`scripts/lhci-serve.mjs` is an optional standalone local helper; it prints
+`READY` and accepts `LHCI_PORT`, but LHCI does not start it.
 
 ### Link Checker Configuration
 
@@ -448,7 +401,7 @@ build job:
      "per pt? CODEOWNERS rule" — stale TODO placeholder; CODEOWNERS
      doesn't enforce SHA-pinning, the security-audit + Dependabot pair
      does.)
-  2. Setup Node.js from `.nvmrc` (22.18.0, actions/setup-node)
+  2. Setup Node.js from `.nvmrc` (22.23.4, actions/setup-node)
   3. Install deps with `npm ci` (frozen lockfile — NOT `npm install`)
   4. `npm run build` (runs prebuild → astro build → postbuild chain)
   5. Upload `.build/dist/` Pages artifact
@@ -561,10 +514,13 @@ All scripts located in `scripts/` directory.
   "Artagon — Identity that can prove it" \
   "Passkeys • VCs • Attestation • Policy" \
   public/assets/og-image.png \
-  --logo public/assets/logo-lockup.png
+  --logo public/assets/logos/logo-horizontal-800.png
 ```
 
 Creates Open Graph images from SVG templates.
+The templates live in `scripts/templates/og/`. When both the image template and
+logo file exist, the generator uses the image-plus-logo layout; otherwise it
+uses the text template. The default output destination is unchanged.
 
 #### Favicon Generation
 
@@ -572,7 +528,7 @@ Creates Open Graph images from SVG templates.
 ./scripts/make-favicon.sh
 ```
 
-Generates multi-size favicons from source SVG.
+Generates a multi-resolution favicon with ImageMagick: `./scripts/make-favicon.sh` (writes `public/favicon.ico`) or `./scripts/make-favicon.sh path/to/existing-directory` (writes `favicon.ico` there). Required inputs: `public/icons/icon-{16,32,48}.png`.
 
 #### Icon Generation
 
@@ -605,7 +561,13 @@ Generates logo variants from source files.
 
 **Documentation:**
 
-- `public/assets/logos/README.md` - Logo usage guidelines and variant inventory
+- `docs/guides/logo-assets.md` - Logo usage guidelines and variant inventory
+
+Tooling migration: the public guide URL /assets/logos/README.md is retired;
+use `docs/guides/logo-assets.md`. The 15 PNG image URLs under `/assets/logos/`
+remain unchanged.
+
+Reports use `BUILD.reports.iconChecksums` (`.build/reports/icon-checksums/`); `/icons/checksums/*` URLs are retired; `/icons/*` image URLs remain unchanged.
 
 #### Composite App Icons
 
@@ -658,8 +620,8 @@ The postbuild pipeline (per `package.json` `postbuild` script) runs these 12 ste
    focusable element with a valid `href="#<id>"` target.
 9. `lint:taglines` — `scripts/lint-taglines.mjs` enforces single
    source for tagline strings via `src/content/taglines.json`.
-10. `lint:design` — `design.md lint DESIGN.md` per
-   `@google/design.md@0.1.1`.
+10. `lint:design` — runs `check:oklch-hex-parity`, then
+    `design.md lint DESIGN.md` per `@google/design.md@0.1.1`.
 11. `lint:design-md-uniqueness` — `scripts/verify-design-md-uniqueness.mjs`
     guards against duplicate DESIGN.md FILES — exactly one at the
     repo root, none under `src/`, `new-design/`, or any other
@@ -687,8 +649,8 @@ Other build-related scripts not in the postbuild chain:
   configs (`lighthouserc.json`, `lychee.toml`) from
   `build.config.json` SSoT (run via `prebuild` before
   `astro build`).
-- `scripts/lhci-serve.mjs` — Lighthouse CI local server with
-  `READY` signal (consumed by `lighthouserc.json`).
+- `scripts/lhci-serve.mjs` — optional standalone local server with a `READY`
+  signal; `lighthouserc.json` instead uses `staticDistDir`.
 - `scripts/check-design-drift.mjs` — orphan-token detection. Every
   CSS custom property declared in `public/assets/theme.css` MUST
   resolve to a token in `DESIGN.md` YAML frontmatter, OR appear on
@@ -721,7 +683,7 @@ Other build-related scripts not in the postbuild chain:
 1. **Build** - Install deps, build site, upload artifact
 2. **Deploy** - Deploy to GitHub Pages
 
-**Node version:** 22.18.0 (from `.nvmrc`)
+**Node version:** 22.23.4 (from `.nvmrc`)
 
 #### Lighthouse CI (`lighthouse.yml`)
 
@@ -730,7 +692,7 @@ Other build-related scripts not in the postbuild chain:
 **Process:**
 
 1. Build site
-2. Start HTTP server on port 8081 (via `scripts/lhci-serve.mjs`)
+2. Serve `.build/dist` via LHCI's `staticDistDir` server
 3. Run Lighthouse audits
 4. Assert score thresholds against `lighthouserc.json` `assertMatrix`
 5. Upload results
@@ -784,7 +746,7 @@ Prepares the repository for GitHub Copilot coding agent sessions. The workflow m
 
 **Trigger:** Push to `main`, pull request to `main`, manual dispatch
 
-**Process:** Runs the full Playwright project matrix in five shards with two workers per shard. Each shard uploads a blob report; a lockfile-pinned merge job creates the combined HTML report (14-day retention). The accessibility job targets `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium / webkit / Mobile Safari. Visual comparison is read-only and Chromium-only, with 39 tracked Linux baselines including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the visual-regression job. This job is not a required status check on main. Manual dispatch on `main` runs a separate snapshot-update job with write permission; its verified pathspec stages only Chromium Linux PNGs and push failures fail the job. Hosted timing remains pending. See `playwright.config.ts` for the full project matrix.
+**Process:** Runs the full Playwright project matrix in five shards with two workers per shard. Each shard uploads a blob report; a lockfile-pinned merge job creates the combined HTML report (14-day retention). The accessibility job targets `tests/home-axe.spec.ts` and `tests/styling-a11y.spec.ts` on chromium / webkit / Mobile Safari. Visual comparison is read-only and Chromium-only, with 39 tracked Linux baselines including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the required `visual-regression` status check on main. Manual dispatch on `main` runs a separate snapshot-update job that commits only Chromium Linux PNGs to a new branch and opens a PR; follow [the snapshot PR procedure](docs/agents/testing.md#intentional-visual-changes) to approve CI and merge. Hosted timing remains pending. See `playwright.config.ts` for the full project matrix.
 
 #### Design.md Lint (`design-md-lint.yml`)
 
@@ -989,18 +951,19 @@ Living guides (current state authoritative):
 - **`docs/build-artifacts.md`** - SSoT contract for `.build/{cache,reports,dist}/`, generated-file inventory, "add a tool" contributor checklist; governed by `openspec/specs/build-config/spec.md`.
 - **`docs/design-md.md`** - design.md authoring guide (token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook).
 - **`docs/decisions/0001-no-tailwind.md`** - Architecture-decision record on the no-Tailwind contract.
+- **`docs/guides/cloudflare-hsts.md`** - Operator note for enabling HSTS at the Cloudflare edge.
 - **`docs/guides/styling-guide.md`** - Component-vs-utility decision tree, theme-variable reference, post-archive distilled record from `refactor-styling-architecture`.
 - **`docs/guides/new-design-conversion.md`** - Conversion guide from `new-design/extracted/` mocks to live Astro routes; consumed by USMR Phase 5.x work.
 
 Asset / icon references:
 
-- **`public/assets/logos/README.md`** - Logo file reference and variants.
+- **`docs/guides/logo-assets.md`** - Logo file reference and variants.
 - **`scripts/icons/README.md`** - Icon generation guide.
 - **`scripts/icons/VERIFICATION.md`** - Icon verification checklist.
 
 Historical snapshots (read-only):
 
-- **`docs/SITE_AUDIT.md`** - Phase-1-era audit dated 2026-05-04 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
+- **`docs/archive/2025-11-12-site-audit.md`** - Phase-1-era audit dated 2025-11-12 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
 
 ## License
 

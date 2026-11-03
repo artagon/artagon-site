@@ -59,9 +59,30 @@ Adding a device project means updating `projects[]` in `playwright.config.ts` an
 - Visual snapshots are opt-in and chromium-only. `tests/styling-snapshots.spec.ts` skips unless `VISUAL_REGRESSION=1`, and skips every project except `chromium`. Run them locally with `VISUAL_REGRESSION=1 npx playwright test styling-snapshots.spec.ts`. The trusted-main `workflow_dispatch` update-snapshots job seeds the tracked Linux baselines (`*-chromium-linux.png`). Local Darwin and Windows runs write gitignored host PNGs. Additional engines need their own tracked baselines before their skip is removed.
 - Cross-engine color and backdrop differences are guarded structurally (computed-style reads in `tests/header.spec.ts`, plus the axe audit), not by pixel diffs.
 
+**Palette-sensitive snapshots (USMR 14.89, `site-ukx`).** The global `expect.toHaveScreenshot` policy in `playwright.config.ts` sets `threshold: 0.01`, `maxDiffPixelRatio: 0.001`, and `animations: "disabled"` for both visual suites. The threshold controls each pixel's perceived color difference; Playwright's default `0.2` misses the historical dark-surface palette shifts. The separate pixel budget permits at most 0.1% differing pixels after that color filter. `tests/visual-palette-threshold.test.mjs` imports the same `tests/helpers/visual-screenshot-policy.ts` constant as the production configuration under node:test and exercises Playwright's installed comparator with in-memory historical palette pairs and patches above/below the budget. These synthetic controls establish comparator sensitivity. Real-render calibration in the pinned `v1.59.1-jammy` image (2026-11-03, `site-grc`): against the committed baselines, exactly the 18 midnight snapshots fail (they predate the midnight palette fix) and all 21 twilight and `/vision` snapshots render byte-identical; after regeneration, two reruns pass with no diff. The committed baselines are unchanged: the trusted-main update-snapshots job below must reseed the 18 midnight PNGs after this policy reaches `main`, and `visual-regression` fails until it does. That reseed blocks closure of `site-ukx`.
+
 ### Intentional visual changes
 
-Merge the visual change to main, dispatch `update-snapshots` on main, then push a follow-up commit to main or open/update a PR to trigger a fresh comparison against the new baselines. The update job's `GITHUB_TOKEN` commit does not trigger another workflow run. A mismatch fails the visual-regression job; that job is not a required status check on main.
+The snapshot update job runs only on trusted main (USMR 14.82, `site-pep`):
+
+Prerequisite: **Allow GitHub Actions to create and approve pull requests** must be enabled in the repository's Actions settings. The coordinator verified it was enabled on 2026-10-26 (`can_approve_pull_request_reviews: true`). If PR creation fails after the branch is pushed, delete the orphan `ci/update-snapshots-<run_id>` branch, then dispatch the workflow again.
+
+1. Dispatch the **Playwright Tests** workflow on `main` after the intended visual change is available there. An intentional mismatch may require the owner's admin bypass to merge that change before regenerating baselines.
+2. When baselines change, `update-snapshots` commits them to `ci/update-snapshots-<run_id>` and opens a PR to `main`. With no snapshot changes, it creates no branch or PR.
+3. Select **Approve workflows to run** in the merge box (or close and reopen the PR). GitHub documents approval-required runs for a PR opened with `GITHUB_TOKEN`; see [GITHUB_TOKEN — When GITHUB_TOKEN triggers workflow runs](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs).
+4. Review the updated baselines and merge the PR after all 13 required checks pass. A mismatch fails the required `visual-regression` check.
+
+The owner chose PRs with zero required approvals, admin bypass, blocked force-pushes and deletions, and disabled squash merging on 2026-10-26. The coordinator applies protection after this workflow change merges; see [the branch-protection configuration](../build-artifacts.md#generator-adjacent-codeowners).
+
+## Same-run Playwright build reuse
+
+`modernize-build-pipeline` tasks 3.1–3.3 (`site-j2l.4`) give the Playwright workflow one read-only `build` producer in the same pinned container and Node runtime as its browser consumers. It performs the initial lifecycle build once. The five `test` shards, `visual-regression`, and `accessibility` download the exact `needs.build.outputs.artifact-id` into `.build` and verify it before any suite runs. The four isolated schema-validation builds in `tests/content-collections.spec.ts` remain intentional. Trusted-main `update-snapshots`, deployment, and Lighthouse keep their own independent builds; they never consume a PR build artifact.
+
+`node scripts/verify-build-provenance.mjs --write` writes `provenance.json` under `BUILD.reports.buildProvenance` (`.build/reports/build-provenance`) and publishes its SHA-256 and producer attempt through job outputs. `--verify` checks the manifest digest, checkout SHA, workflow run ID, producer attempt, actual Node version, SHA-256 digests of `package-lock.json`, `build.config.json`, and `astro.config.ts`, and the complete recursive build-output file set and hashes. A missing, modified, extra, or non-regular file fails before tests; this is byte/provenance verification within one run, not a signed cross-workflow attestation.
+
+The required `merge-reports` check always runs after `build`, `test`, `visual-regression`, and `accessibility`. Report download/merge/upload still runs after failed shards when the build succeeded and the workflow was not cancelled. Its final enforcement step always runs: build, test, and accessibility must succeed on every event; visual regression must also succeed on PRs and pushes. Manual `workflow_dispatch` may accept the intentional visual-regression skip on either main or another ref. Every other upstream skip, failure, or cancellation fails enforcement. Report errors also fail the job. All 13 required check names stay unchanged.
+
+The build artifact has **1-day retention**. For **Re-run failed jobs**, the consumer verifies against `needs.build.outputs.producer-run-attempt`, not its own newer `GITHUB_RUN_ATTEMPT`; an attempt-2 consumer can therefore use a valid attempt-1 producer artifact. If download fails because that artifact expired, choose **Re-run all jobs** to regenerate it. Do not substitute another run's artifact or bypass verification.
 
 ## Gotchas
 
@@ -72,6 +93,6 @@ Merge the visual change to main, dispatch `update-snapshots` on main, then push 
 
 From the 2026-10-20 review (beads under epic `site-2m1`):
 
-- The trusted-main `workflow_dispatch` update-snapshots job seeded 39 Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete. A mismatch fails the visual-regression job. This job is not a required status check on main. `site-2m1.38` uses `#playground` for the home explore snapshot, restores `#pillars` coverage on `/platform`, and scopes the vision domain-card snapshot to `#executive-summary`.
+- The trusted-main `workflow_dispatch` update-snapshots job seeded 39 Chromium Linux baselines, including the masked `/vision` footer; baseline acceptance is complete. Snapshot updates now use the PR procedure above, and `visual-regression` is among the owner's selected required checks. `site-2m1.38` uses `#playground` for the home explore snapshot, restores `#pillars` coverage on `/platform`, and scopes the vision domain-card snapshot to `#executive-summary`.
 - The active `self-host-woff2-fonts` change will require a full visual-baseline re-seed after the font files move into the repository.
 - The header hit-area tests are `test.fixme`, and the GitHub icon is 34 × 34 px (`site-2m1.32`).

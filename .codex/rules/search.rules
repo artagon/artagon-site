@@ -1,0 +1,82 @@
+# USMR 14.85 (site-dfn): block the search commands AGENTS.md forbids and name
+# the mandated tool in every rejection. Codex loads project rules only when
+# the project .codex/ layer is trusted. Check a command with:
+#   codex execpolicy check --rules .codex/rules/search.rules -- grep -rn x src
+# No allow rules here: an allow rule would run the command outside the
+# sandbox, and read-only searches already run inside it without a prompt.
+# USMR 14.92 (site-5to): prompt for expressible literal prefixes. These are
+# argv prefixes, not Claude's whole-text globs: options in later positions,
+# attached =values, clustered short flags and roots need an argument-aware hook.
+
+USE_INSTEAD = "Use rtk rg for text (rtk rg --files -g '<glob>' lists files instead of find), rtk tgrep for repeated sweeps, rtk ast-grep for code shape, and rtk ripwire for callers and impact (AGENTS.md, Code intelligence and search)."
+
+prefix_rule(
+    pattern = [["grep", "egrep", "fgrep", "rg", "find"]],
+    decision = "forbidden",
+    justification = USE_INSTEAD,
+    match = [
+        "grep -rn safeJsonLd src",
+        "egrep -n safeJsonLd src",
+        "fgrep -n safeJsonLd src",
+        "rg -n safeJsonLd src",
+        "find src -name Header.astro",
+    ],
+    not_match = [
+        "rtk rg -n safeJsonLd src",
+        "rtk tgrep safeJsonLd .",
+    ],
+)
+
+prefix_rule(
+    pattern = [["git", "rtk"], "grep"],
+    decision = "forbidden",
+    justification = USE_INSTEAD,
+    match = [
+        "git grep -n safeJsonLd",
+        "rtk grep safeJsonLd src",
+    ],
+    not_match = [
+        "git status",
+        "rtk rg -n safeJsonLd src",
+    ],
+)
+
+prefix_rule(
+    pattern = ["rtk", "git", "grep"],
+    decision = "forbidden",
+    justification = USE_INSTEAD,
+    match = ["rtk git grep -n safeJsonLd"],
+    not_match = ["rtk git status"],
+)
+
+prefix_rule(
+    pattern = ["rtk", "tgrep", ["index", "serve"]],
+    decision = "prompt",
+    justification = "tgrep index writes an index; serve starts a persistent server.",
+    match = ["rtk tgrep index .", "rtk tgrep serve ."],
+    not_match = ["rtk tgrep status .", "rtk tgrep safeJsonLd ."],
+)
+
+prefix_rule(
+    pattern = ["rtk", "tgrep", "--hidden", ["index", "serve"]],
+    decision = "prompt",
+    justification = "A leading global --hidden option does not make index or serve read-only.",
+    match = ["rtk tgrep --hidden index .", "rtk tgrep --hidden serve ."],
+    not_match = ["rtk tgrep --hidden safeJsonLd ."],
+)
+
+prefix_rule(
+    pattern = ["rtk", "ast-grep", ["run", "scan"], ["-c", "--config"]],
+    decision = "prompt",
+    justification = "Review alternate ast-grep configuration before loading it.",
+    match = ["rtk ast-grep scan -c other.yml", "rtk ast-grep run --config other.yml"],
+    not_match = ["rtk ast-grep scan", "rtk ast-grep run --lang ts --pattern foo src"],
+)
+
+prefix_rule(
+    pattern = ["rtk", "ripwire", ".", ["--mcp", "--quality-delta"]],
+    decision = "prompt",
+    justification = "Review server startup or a quality run that can remove a stale baseline.",
+    match = ["rtk ripwire . --mcp", "rtk ripwire . --quality-delta"],
+    not_match = ["rtk ripwire . --uses=safeJsonLd"],
+)

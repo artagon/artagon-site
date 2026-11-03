@@ -1,0 +1,42 @@
+[
+  {
+    "query": "can you add a dark/light toggle to the header in src/components/Header.astro? i think a small react island with client:load is easiest",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to pull our blog posts with Astro.glob in src/pages/writing/index.astro instead of the content collection, it feels simpler",
+    "should_trigger": true
+  },
+  {
+    "query": "add @astrojs/partytown to astro.config.ts so we can load the analytics script off the main thread",
+    "should_trigger": true
+  },
+  {
+    "query": "let's restyle the FAQ accordion with tailwind utilities, the scoped css in FaqItem.astro is getting long",
+    "should_trigger": true
+  },
+  {
+    "query": "upgrade us to astro 7, what breaks? we're on 6.2.1 per package.json",
+    "should_trigger": true
+  },
+  {
+    "query": "the playwright visual regression shard 3 keeps flaking on webkit, can you look at tests/visual.spec.ts",
+    "should_trigger": false
+  },
+  {
+    "query": "write a commit message for my staged changes to .beads/issues.jsonl",
+    "should_trigger": false
+  },
+  {
+    "query": "what does RFC 9449 DPoP actually protect against vs mTLS-bound tokens? explain for a blog intro",
+    "should_trigger": false
+  },
+  {
+    "query": "fix the typo 'recieve' in src/content/pages/vision.mdx line 40",
+    "should_trigger": false
+  },
+  {
+    "query": "summarize what openspec/changes/self-host-woff2-fonts/proposal.md wants to do",
+    "should_trigger": false
+  }
+]

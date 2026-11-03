@@ -30,7 +30,7 @@
 ## Phase 3 — Favicon and logo PNG generation
 
 - [ ] 3.1 Build `scripts/generate-favicons.mjs` (sharp-based): emits `public/favicon.ico`, `public/favicon.svg`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/mask-icon.svg` from `brand-svgs.ts`. Sub-32px sizes (`favicon-16.png`, `favicon-32.png`) MUST consume `SRC.glyph.bold` (NOT classic) per DESIGN.md §4.14 sizing rule.
-- [ ] 3.2 Build `scripts/generate-logo-pngs.mjs` (sharp-based): emits the 15 PNG outputs documented in `public/assets/logos/README.md`.
+- [ ] 3.2 Build `scripts/generate-logo-pngs.mjs` (sharp-based): emits the 15 PNG outputs documented in `docs/guides/logo-assets.md`.
 - [ ] 3.3 Add `npm run build:favicons` and `npm run build:logos` scripts. Wire both into a NEW `prebuild` npm script (`"prebuild": "npm run build:favicons && npm run build:logos"`) that runs BEFORE `astro build`. Do NOT wire to `postbuild` — `astro build` copies `public/` to `dist/` early in its pipeline, so postbuild generation produces a stale deployed artifact. The drift-detection CI step (3.5) runs separately as a CI-only check, not in `postbuild`. PNGs/icons are static and do not need SRI hashing (which is why they don't need to live in postbuild's SRI/CSP chain).
 - [ ] 3.4 Run both generators once, commit the output PNGs + favicons.
 - [ ] 3.5 Add CI step: `npm run build:favicons && npm run build:logos && git diff --exit-code public/assets/logos/ public/favicon.svg public/icon-192.png public/icon-512.png public/apple-touch-icon.png public/mask-icon.svg`. Fails on drift between source and committed outputs.
@@ -72,7 +72,7 @@
 ## Phase 8 — Documentation
 
 - [ ] 8.1 Author `docs/writing-pipeline.md` with REQUIRED sections: (a) env-var contract (`WRITING_REMOTE_REPO`, `WRITING_REMOTE_REF`, `WRITING_REMOTE_PATH`); (b) frontmatter contract for remote posts (`repo` allowlist, 40-hex `commit`, `cover` regex); (c) dispatch payload schema + ignored fields; (d) dispatching workflow YAML template for `artagon/content` authors; (e) fallback behavior when `WRITING_REMOTE_REPO=""`; (f) MDX component allowlist (`['StandardChip', 'StandardsRow', 'TrustChain', 'Diagram', 'Callout']`); (g) Mermaid + D2 + SVG diagram support uniformly for local AND remote posts; (h) PAT rotation runbook (≤90 days, leak procedure within 1h); (i) latency expectations (P95 ≤ 10 min); (j) "View source on GitHub" link semantics (read-only at pinned SHA; fork-and-PR for edits).
-- [ ] 8.1a Copy `new-design/extracted/public/assets/logos/README.md` verbatim to `public/assets/logos/README.md` (preserve as the canonical 15-PNG contract authority); add a one-line cross-reference to `docs/brand-assets.md`.
+- [ ] 8.1a Copy `new-design/extracted/public/assets/logos/README.md` verbatim to `docs/guides/logo-assets.md` (preserve as the canonical 15-PNG contract authority); add a one-line cross-reference to `docs/brand-assets.md`.
 - [ ] 8.2 Author `docs/brand-assets.md`: how `brand-svgs.ts` is the single source; how to regenerate PNGs/favicons; what `check:glyph-parity` enforces; the relationship to DESIGN.md §4.14.
 - [ ] 8.3 Update `README.md` with links to both docs and a one-line "Editorial workflow" section pointing at `docs/writing-pipeline.md`.
 

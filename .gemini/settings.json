@@ -3,24 +3,18 @@
   "enabledMcpjsonServers": ["context7", "serena", "ast-grep", "playwright"],
   "mcpServers": {
     "serena": {
-      "command": "serena",
-      "args": [
-        "start-mcp-server",
-        "--context",
-        "gemini-cli",
-        "--project-from-cwd"
-      ]
+      "httpUrl": "http://127.0.0.1:9141/mcp"
     },
     "ast-grep": {
       "command": "ast-grep-mcp-server",
       "args": []
     },
     "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@0.0.73"
-      ]
+      "command": "playwright-mcp",
+      "args": []
+    },
+    "astro-docs": {
+      "httpUrl": "https://mcp.docs.astro.build/mcp"
     }
   },
   "enabledPlugins": {

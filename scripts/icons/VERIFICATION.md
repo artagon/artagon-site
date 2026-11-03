@@ -169,11 +169,11 @@ Checksums are available for SRI validation:
 
 ```bash
 # View checksums
-ls public/icons/checksums/
+ls .build/reports/icon-checksums/
 
 # Example: icon-32.png SHA-256
-cat public/icons/checksums/icon-32.png.sha256.base64
-cat public/icons/checksums/icon-32.png.sha256.hex
+cat .build/reports/icon-checksums/icon-32.png.sha256.base64
+cat .build/reports/icon-checksums/icon-32.png.sha256.hex
 ```
 
 ## 🐛 Troubleshooting

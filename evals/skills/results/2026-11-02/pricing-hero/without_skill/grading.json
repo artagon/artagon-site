@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "hero.md does not adopt a purple-to-blue gradient as the hero treatment",
+      "passed": true,
+      "evidence": "The recommended hero (§1–4) uses `--bg` / `--bg-1` neutrals and a single `--accent`. The literal gradient appears only in §6 \"The literal brief, if you choose to amend the brand\", with \"I do not recommend it for one route\"."
+    },
+    {
+      "text": "hero.md uses the type families defined in DESIGN.md instead of Inter everywhere",
+      "passed": true,
+      "evidence": "Type table: h1 \"Fraunces 500 | `--f-display`\", lede and body \"Inter Tight\", eyebrow and chips \"JetBrains Mono 400 | `--f-mono`\". The Inter-only spec is confined to the non-recommended §6."
+    },
+    {
+      "text": "The headline and copy in hero.md avoid the forbidden phrases and adverbs in DESIGN.md (seamlessly, \"for the modern enterprise\", truly, simply, easily, revolutionary, next-generation)",
+      "passed": true,
+      "evidence": "Headline: \"Verified identity, priced for how you run it.\" Alternates and the §6 headline (\"Secure identity for every enterprise deployment.\") contain no banned terms. A grep finds 'Seamlessly' / 'modern enterprise' only in rejection notes (lines 16, 138, 244)."
+    },
+    {
+      "text": "hero.md keeps to one accent color and names it as a token (for example --accent) instead of a raw color value",
+      "passed": true,
+      "evidence": "Palette: \"Signal | `--accent` | `#3ceedd` | Primary CTA fill, the \\\"Same core\\\" ledger row, the 18px eyebrow dash. Nowhere else.\"; \"Consume all of them as `var(--token)`; no literals.\" Caveat: §6 (the alternative it does not recommend) lists raw `oklch()` gradient stops."
+    },
+    {
+      "text": "hero.md reuses an existing DESIGN.md primitive such as the mono eyebrow / .glow-tag or StandardChip instead of rejecting it as a generic AI tell",
+      "passed": true,
+      "evidence": "Reuses \"Eyebrow | global `.eyebrow`\" and \"Chips | `<Standard term=\\\"…\\\">` | global `.standard-chip`\". Caveat: it does drop a DESIGN.md primitive on frontend-design grounds. In §2: \"Serif-italic emphasis on one word of the h1 | DESIGN.md allows it, but the frontend-design skill flags single-word accents as a generated-page tell ... | No emphasis span in the h1 (optional...)\". It also removes the site's `→` button arrow as \"Template chrome\". The named primitives (eyebrow, StandardChip) are reused, so the assertion as written passes."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 199.8,
+    "total_duration_seconds": 199.8
+  },
+  "claims": [
+    {
+      "claim": "Every other route hero uses a serif-italic emphasis span, so dropping it breaks parity",
+      "type": "factual",
+      "verified": true,
+      "evidence": "DESIGN.md §6 route entries (lines 924, 952, 977, 1003) each specify '<h1> with serif-italic emphasis'. The run acknowledges this ('add one only if you want parity with sibling routes') but defaults to removing it."
+    },
+    {
+      "claim": "Card copy states product behaviour (step-up, PERMIT/DENY reasons) taken from trust-chain demo data",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The run itself flags this: \"confirm they describe shipped behaviour, not demo behaviour, before publishing.\""
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Pricing facts left as [CONFIRM] placeholders", "artagon-authz-content-review not present in baseline, not run"],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "hero.md reuses an existing DESIGN.md primitive such as the mono eyebrow / .glow-tag or StandardChip instead of rejecting it as a generic AI tell",
+        "reason": "This run passes on `.eyebrow`, yet it removes the DESIGN.md serif-italic emphasis span because frontend-design calls it a tell. That is the behaviour the assertion is meant to catch. Add an assertion that the h1 keeps the `*marker*` / serif-italic emphasis."
+      },
+      {
+        "reason": "The baseline keeps 'three feature cards' as a repeat(3, 1fr) card row. The with_skill run turns them into ledger rows, following the skill's 'avoid default three-card grids'. No assertion covers this."
+      }
+    ],
+    "overall": "Passes as written, but two assertions are weaker than the behaviour they target."
+  }
+}

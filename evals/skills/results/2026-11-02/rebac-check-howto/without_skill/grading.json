@@ -1,0 +1,76 @@
+{
+  "expectations": [
+    {
+      "text": "check-permission.mdx frontmatter includes title, description, eyebrow, published and tags",
+      "passed": true,
+      "evidence": "Lines 2-12: `title`, `description` (143 chars), `eyebrow: \"How-to\"`, `published: 2026-11-02`, `tags:` list, plus headline, lede and author."
+    },
+    {
+      "text": "The curl example does not put an access token in the URL or query string",
+      "passed": true,
+      "evidence": "`curl -sS -X POST \"$ARTAGON_API/v1/check\" -H \"Authorization: Bearer $ARTAGON_TOKEN\"`. The token is only in the header."
+    },
+    {
+      "text": "The diagram is static (inline SVG, an image, or a text/ASCII figure), not a client-side diagram library, and has a text equivalent describing the same relationships",
+      "passed": true,
+      "evidence": "Inline `<svg ... role=\"img\" aria-labelledby=\"cp-fig1-title cp-fig1-desc\">` with no script. `<desc>`: \"Tuple 1 links user:anne to group:eng through the member relation. Tuple 2 links group:eng to document:roadmap through the viewer relation, granted to the userset group:eng#member...\". The tuple code block (lines 36-37) also states both relationships in text."
+    },
+    {
+      "text": "The post states its goal in the opening lines (how-to page type)",
+      "passed": true,
+      "evidence": "Lede: \"This post sends one such question over HTTP and walks back through the relationship tuples that produce the answer.\" Body line 17: \"The question in this post: **can `user:anne` view `document:roadmap`?**\" Weaker than the how-to rule 'goal in the first line': the first body line (15) is background (\"Artagon's authorization engine is derived from Google's Zanzibar design.\"). The goal still appears within the opening lines."
+    },
+    {
+      "text": "Any external link uses rel=\"noopener noreferrer\" when it opens in a new tab, or the post uses no target=\"_blank\" links",
+      "passed": true,
+      "evidence": "The post contains no `target=\"_blank\"` links (and no external links at all)."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 155.6,
+    "total_duration_seconds": 155.6
+  },
+  "claims": [
+    {
+      "claim": "\"Zanzibar describes every permission as a relation tuple\"",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Imprecise: Zanzibar stores ACLs as relation tuples. Computed permissions come from userset rewrite rules, which the post mentions only later in passing (line 76)."
+    },
+    {
+      "claim": "Check responses include a consistency_token (zookie)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Invented API shape. It is labelled illustrative (line 19), but no repo source backs a `consistency_token` field. In Zanzibar, clients typically get zookies from content-change checks or writes."
+    },
+    {
+      "claim": "Post cites sources for Zanzibar claims",
+      "type": "quality",
+      "verified": false,
+      "evidence": "No link to the Zanzibar paper or any primary source, although the post attributes the 'new enemy' problem and zookies to it."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": ["Request/response shapes marked illustrative"],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The post states its goal in the opening lines (how-to page type)",
+        "reason": "'Opening lines' is looser than the skill's 'goal in the first line'. This run puts background first and the goal in paragraph 2. Tighten the assertion to the first body sentence if that is the intended contract."
+      },
+      {
+        "reason": "No assertion checks for a Sources section or links to the Zanzibar paper. This run makes paper-attributed claims with no link."
+      }
+    ],
+    "overall": "Passes all assertions as written. The assertion set is lenient enough that the baseline's gaps (no sources, no failure-modes section, invented response field) go ungraded."
+  }
+}

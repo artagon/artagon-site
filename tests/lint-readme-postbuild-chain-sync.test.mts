@@ -9,10 +9,9 @@
 // The current postbuild chain has 12 ordered steps.
 //
 // pt267 ships the gate that prevents that drift from re-
-// occurring. The gate parses `package.json`'s `scripts.postbuild`
-// command-string, extracts the ordered sequence of `npm run X` /
-// `node scripts/X.mjs` invocations, and asserts every step
-// appears in the README's Build Scripts ordered list.
+// occurring. The gate reads the runner's side-effect-free stage metadata
+// and compares it with the
+// README's Build Scripts ordered list.
 //
 // Sibling of:
 //   - pt184 / pt255 / pt263 — sync gates that compare doc lists
@@ -46,6 +45,7 @@
 import { describe, expect, test } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { POSTBUILD_STAGES } from "../scripts/postbuild.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const PACKAGE_JSON = join(ROOT, "package.json");
@@ -76,25 +76,14 @@ function parsePostbuildChain(packageJsonBody: string): PostbuildStep[] {
       `package.json: scripts.postbuild not found. The pt267 gate expects a postbuild chain to validate against the README.`,
     );
   }
-  const out: PostbuildStep[] = [];
-  // Split on `&&` (the chain separator). Each invocation is
-  // either `npm run <name>` or `node scripts/<name>.mjs`.
-  const steps = chain.split(/\s*&&\s*/);
-  for (const raw of steps) {
-    const s = raw.trim();
-    if (!s) continue;
-    let m;
-    if ((m = s.match(/^npm\s+run\s+([a-z][a-z0-9:_-]+)\b/))) {
-      out.push({ name: m[1]!, isNpmScript: true });
-    } else if ((m = s.match(/^node\s+scripts\/([a-z][a-z0-9.\-]+\.mjs)\b/))) {
-      out.push({ name: m[1]!, isNpmScript: false });
-    } else {
-      throw new Error(
-        `package.json: postbuild step has unrecognized shape: "${s}". Expected "npm run X" or "node scripts/X.mjs".`,
-      );
-    }
+  // BUILD 2.2: importing the runner only reads metadata, never runs stages.
+  if (chain.trim() !== "node scripts/postbuild.mjs") {
+    throw new Error("package.json: postbuild must invoke node scripts/postbuild.mjs");
   }
-  return out;
+  return POSTBUILD_STAGES.map((stage) => ({
+    name: stage.name,
+    isNpmScript: "npmCommand" in stage,
+  }));
 }
 
 function findReadmeBuildScriptsList(body: string): string {
@@ -128,6 +117,12 @@ function extractCitedStepsInOrder(buildScriptsSection: string): string[] {
   return out;
 }
 
+function assertExactStageNames(expected: string[], actual: string[]): void {
+  if (expected.length !== actual.length || expected.some((name, i) => name !== actual[i])) {
+    throw new Error(`README postbuild order/missing-step drift: expected ${expected.join(", ")}; got ${actual.join(", ")}`);
+  }
+}
+
 describe("README Build Scripts vs package.json postbuild (pt267)", () => {
   test("package.json postbuild script exists and parses", () => {
     expect(existsSync(PACKAGE_JSON), "package.json must exist").toBe(true);
@@ -157,14 +152,13 @@ describe("README Build Scripts vs package.json postbuild (pt267)", () => {
       }
       return c;
     });
+    assertExactStageNames(expectedNames, cited);
 
-    // For ordered comparison: take the first N cited items where
-    // N = chain.length, and assert they match the chain order. Any
-    // extra items at the end of the README list (e.g.
-    // "non-postbuild support scripts" subsection) are out of scope
-    // — the gate locates the Build Scripts section header, not the
-    // sibling "support scripts" enumeration.
+    // The Build Scripts list and runner are a 1:1 ordered contract.
     const drifts: string[] = [];
+    if (cited.length !== chain.length) {
+      drifts.push(`Expected ${chain.length} stages, README cites ${cited.length}.`);
+    }
     for (let i = 0; i < chain.length; i++) {
       const expected = chain[i]!.name;
       const actual = cited[i];
@@ -196,5 +190,17 @@ describe("README Build Scripts vs package.json postbuild (pt267)", () => {
         `README Build Scripts ordered list vs package.json postbuild chain drift:\n${lines.join("\n")}\nFix:\n  - Update README's "### Build Scripts" ordered list to match \`package.json:scripts.postbuild\` step-for-step\n  - If a step is intentionally cited under a different label, add the alias to HISTORICAL_ALIASES with a documented rationale`,
       );
     }
+  });
+
+  test("rejects reordered and added runner stages without README changes", () => {
+    const listed = extractCitedStepsInOrder(findReadmeBuildScriptsList(readFileSync(README, "utf8")));
+    const stages = POSTBUILD_STAGES.map((stage) => stage.name);
+    expect(() => assertExactStageNames(stages, listed)).not.toThrow();
+    expect(() => assertExactStageNames([stages[1]!, stages[0]!, ...stages.slice(2)], listed)).toThrow(/order\/missing-step drift/);
+    expect(() => assertExactStageNames([...stages, "new-stage"], listed)).toThrow(/order\/missing-step drift/);
+  });
+
+  test("rejects a legacy direct chain that bypasses timing", () => {
+    expect(() => parsePostbuildChain(JSON.stringify({ scripts: { postbuild: "npm run verify:prerequisites && npm run lint:tokens" } }))).toThrow(/must invoke/);
   });
 });

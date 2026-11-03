@@ -1,0 +1,91 @@
+{
+  "skill_name": "artagon-authz-content-review",
+  "description": "Accuracy review for identity, authentication and authorization content on artagon-site (OAuth, OIDC, GNAP, JWT, DPoP, mTLS, WebAuthn and passkeys, verifiable credentials, SD-JWT, Zanzibar and ReBAC). Use when writing or reviewing any page, post, sample or copy that states a protocol fact, cites a standard, or describes how Artagon makes an authorization decision. Read-only review that reports findings.",
+  "results": [
+    {
+      "query": "can you sanity check the standards claims on src/content/pages/standards.mdx before launch",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "I wrote 'Artagon is fully OAuth 2.1 compliant (RFC)' in the hero, is that accurate?",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "review this paragraph: 'GNAP replaces OAuth entirely and every major IdP supports it today'",
+      "should_trigger": true,
+      "trigger_rate": 0.5,
+      "triggers": 1,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "check the FAQ answers about passkeys and WebAuthn for anything wrong or overstated",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "implement a JWT verification helper in src/lib for the demo",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "our use-cases page says we're FAPI 2.0 certified \u2014 verify that wording before we ship",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": false
+    },
+    {
+      "query": "make the standards chips on /standards wrap better on mobile",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "write a fun tagline for the bridge page",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "add the OAuth 2.1 logo to public/assets/icons",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    },
+    {
+      "query": "the link to the DPoP RFC on /standards 404s, fix the URL",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 2,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "passed": 6,
+    "failed": 4
+  }
+}

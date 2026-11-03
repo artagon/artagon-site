@@ -30,7 +30,7 @@ The script creates icons in `public/icons/`:
 
 ### Verification
 
-- `checksums/` - SHA-256 digests (base64 and hex) for all generated files
+- `.build/reports/icon-checksums/` - SHA-256 digests (base64 and hex) for all generated files, independent of `OUT`
 
 ## Configuration
 
@@ -100,8 +100,9 @@ public/icons/
 ├── icon-maskable-512.png
 ├── apple-touch-icon.png
 ├── favicon.ico
-├── safari-pinned-tab.svg
-└── checksums/
+└── safari-pinned-tab.svg
+
+.build/reports/icon-checksums/
     ├── icon-16.png.sha256.base64
     ├── icon-16.png.sha256.hex
     └── ... (checksums for all files)
@@ -252,5 +253,5 @@ git commit -m "Update site icons from latest logo"
 
 - Icons are generated from the **logo mark** (emblem/shield), not the full wordmark
 - Maskable icons use 20% padding (80% safe area) per maskable icon guidelines
-- SHA-256 checksums are provided for verification and optional SRI (Subresource Integrity)
+- SHA-256 checksums are provided under `.build/reports/icon-checksums/` for verification and optional SRI (Subresource Integrity). The old `public/icons/checksums/` report URLs are retired.
 - The Safari pinned tab SVG is a simplified monochrome version
