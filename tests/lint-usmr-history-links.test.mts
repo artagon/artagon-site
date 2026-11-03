@@ -43,14 +43,29 @@ function collectNodes(
   return nodes;
 }
 
+// The history document is large; parse each distinct text once (CI timed out
+// re-parsing it for every target; standardize-repository-layout 12.6).
+const linkUrlsByMarkdown = new Map<string, Set<string>>();
+
+function linkUrls(markdown: string): Set<string> {
+  let urls = linkUrlsByMarkdown.get(markdown);
+  if (!urls) {
+    urls = new Set(
+      collectNodes(fromMarkdown(markdown))
+        .filter((node) => node.type === "link")
+        .flatMap((node) => (typeof node.url === "string" ? [node.url] : [])),
+    );
+    linkUrlsByMarkdown.set(markdown, urls);
+  }
+  return urls;
+}
+
 function assertLinkTargets(
   markdown: string,
   targetUrl: string,
   targetPath: string,
 ): void {
-  const link = collectNodes(fromMarkdown(markdown)).find(
-    (node) => node.type === "link" && node.url === targetUrl,
-  );
+  const link = linkUrls(markdown).has(targetUrl);
   if (!link) throw new Error(`Expected Markdown link to ${targetUrl}`);
 
   const resolved = resolve(
