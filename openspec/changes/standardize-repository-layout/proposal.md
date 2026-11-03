@@ -10,7 +10,7 @@ The application already follows Astro's source and public-asset conventions, but
 - Correct the hero-edit workflow and the favicon helper's source-image paths. Fix the Caddy/nginx examples to return a real static 404.
 - Relocate the logo guide to docs/guides/logo-assets.md after amending the active branding change; preserve all 15 contracted PNG outputs.
 - **BREAKING — tooling/report paths:** move generated icon checksum reports from public/icons/checksums/ to the BUILD.reports.iconChecksums path, .build/reports/icon-checksums. Existing published checksum URLs and the public logo-guide URL are retired only with explicit migration notes; served image URLs remain unchanged.
-- Replace/repair the no-set-html-directive implementation under security review, retaining its rule identity and enabled guard. In the same PR, strengthen the tracked-Astro sanitizer gate to verify the canonical sanitizer binding and reject local, shadowed or rebound lookalikes; prove combined coverage is at least as strong before changing the existing guard. Synchronize every active rule contract and retain existing unsafe-output controls.
+- Replace the planned static set:html repair with a security-reviewed, fail-closed build-time trusted-sink-module gate (site-w1n.12, site-kks). Its initial reviewed exports are safeJsonLd from src/lib/charset.ts and the FAQ renderMarkdown export from src/lib/markdown.ts, subject to their explicit escaping and input contracts. Verify provenance against the actual linked build graph, including raw runtime and wrapper paths. Keep both existing controls active until the new gate passes the baseline and bypass matrix; retire them atomically with the proven replacement and reconcile active contracts.
 - Extract historical USMR task prose into evidence/implementation-history.md inside the still-active change. Preserve every ordered checkbox ID/state occurrence, including duplicates, and keep the live tasks.md path and prerequisite gates. Repair moved relative/verbatim file references and current readers' history pointers; the prerequisite scanner remains scoped to the live checklist, with a migration precondition preventing stale paths from being moved out of its coverage.
 
 ## Capabilities
@@ -22,15 +22,15 @@ The application already follows Astro's source and public-asset conventions, but
 ### Modified Capabilities
 
 - build-config: add the icon-checksum report-location and reproducibility contract to openspec/specs/build-config/spec.md; preserve its existing path-validation and committed public-deliverable requirements.
-- check-site-quality: add the sanitizer-aware Astro HTML enforcement contract to openspec/specs/check-site-quality/spec.md without changing Lighthouse, browser reports, or runner discovery.
+- check-site-quality: add build-time trusted-sink provenance, sink contracts, governance and migration requirements to openspec/specs/check-site-quality/spec.md without changing Lighthouse, browser reports, or runner discovery.
 - openspec-workflow: add active-change checklist/evidence preservation to openspec/specs/openspec-workflow/spec.md; extraction must not imply completion or archive state.
 
-No github-pages-deployment delta is needed: no path named by that live capability moves, and its workflow, .nojekyll and _config.yml safeguards remain. Amendments to the active add-brand-assets-and-writing-pipeline and update-site-marketing-redesign changes are explicit implementation tasks naming their affected contracts; this proposal does not edit those changes. PR 11 reconciles the USMR JSON-LD requirement/design/task and the branding safe-composition scenario with the actual combined security gates.
+No github-pages-deployment delta is needed: no path named by that live capability moves, and its workflow, .nojekyll and _config.yml safeguards remain. Amendments to the active add-brand-assets-and-writing-pipeline and update-site-marketing-redesign changes are explicit implementation tasks naming their affected contracts; this proposal does not edit those changes. PR 11 reconciles the USMR JSON-LD requirement/design/task and the branding safe-composition scenario with the actual trusted-sink gate.
 
 ## Impact
 
-- Implementation spans root package/ignore/config documents, scripts and authoring inputs, human/agent docs, public checksum reports, sample server configs, one linter rule, and targeted tests.
-- build.config.json remains the path source of truth; build.config.ts and generated config headers must follow its new report leaf. No new runtime dependency is introduced.
+- Implementation spans root package/ignore/config documents, scripts and authoring inputs, human/agent docs, public checksum reports, sample server configs, the build-time HTML security gate and targeted tests.
+- build.config.json remains the path source of truth; build.config.ts and generated config headers must follow its new report leaf. Any dependency needed by the future sink implementation requires explicit security review and lockfile proof.
 - README, DESIGN's future diagram path and §9.4.1 security-gate reference, openspec/project.md, glossary/manifest entries and active-change references stay synchronized with their consumers.
 - Thirteen ordered PR groups, numbered 0–12, retain separate review and acceptance. Each task is a bead-sized implementation unit; task completion requires its stated proof.
 - modernize-build-pipeline owns LHCI/.astro contract reconciliation and pipeline changes. Layout PR 1 must land before its task 1.4 asserts that .lycheecache is untracked. Shared-file merges preserve both changes' requirements; this change does not edit that sibling.
