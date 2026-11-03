@@ -142,6 +142,12 @@ Fixes #55
 
 > **Note on examples**: The following sections use `add-two-factor-auth` as a hypothetical change-id in worked examples. Substitute your real change-id (run `openspec list` to see active changes); the literal `openspec/changes/add-two-factor-auth/` path does not exist in this repository.
 
+### Session artifacts and retained evidence
+
+- Put screenshots, logs, probes, drafts, and other temporary work in `openspec/changes/<change-id>/scratch/` or under `.build/`; never write session artifacts at the repository root.
+- A change's `scratch/` is ignored by Git and moves with the change when it is archived. Keep all of its contents untracked.
+- Promote a result to `openspec/changes/<change-id>/evidence/` only by explicitly copying the selected file after review. Evidence is tracked; scratch is not.
+
 When an AI agent works from an OpenSpec item, it must:
 
 1. **Identify the change-id and affected spec(s)**

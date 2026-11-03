@@ -43,6 +43,8 @@ function gatherSources(dir: string, out: string[]) {
     const p = join(dir, entry.name);
     if (entry.isDirectory()) {
       if (
+        // LAYOUT-13: never search local OpenSpec session artifacts for consumers.
+        entry.name === "scratch" ||
         entry.name === "node_modules" ||
         entry.name === ".astro" ||
         entry.name === ".build"

@@ -49,6 +49,8 @@ function gather(dir: string, out: string[]) {
       // Skip archived / vendored / build dirs.
       if (
         entry.name === "archive" ||
+        // LAYOUT-13: local per-change artifacts are not version-claim sources.
+        entry.name === "scratch" ||
         entry.name === "new-design" ||
         entry.name === "node_modules" ||
         entry.name === ".build" ||

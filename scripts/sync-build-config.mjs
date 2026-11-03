@@ -180,6 +180,8 @@ exclude_path = [
   "${buildConfig.dist}",
   "node_modules",
   "${buildConfig.root}",
+  # LAYOUT-13: local change-session artifacts are not link-check input.
+  "(^|/)openspec/changes/(archive/)?[^/]+/scratch(/|$)",
   # Skill source files contain template placeholders (\$s, \$variable) and
   # blog-style root-relative paths (/posts/...) that aren't real links —
   # they're documentation snippets meant to be copy-edited by skill

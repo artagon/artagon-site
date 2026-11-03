@@ -51,7 +51,8 @@ function listActiveChanges(): Set<string> {
     // (e.g. `FINAL-CROSS-CUTTING-REVIEW.md`) are notes, not
     // proposals.
     if (!entry.isDirectory()) continue;
-    if (entry.name === "archive") continue;
+    // LAYOUT-13: local scratch folders never represent active changes.
+    if (entry.name === "archive" || entry.name === "scratch") continue;
     out.add(entry.name);
   }
   return out;

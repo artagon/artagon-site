@@ -111,5 +111,10 @@ new-design/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
 
+# LAYOUT-13: OpenSpec session artifacts stay local to each active or archived change.
+openspec/changes/**/scratch/
+# LAYOUT-13: the NTM front door also writes transient logs at the repository root.
+/scratch/
+
 # LAYOUT-01A (standardize-repository-layout 1.1): local session scratch.
 /session.txt
