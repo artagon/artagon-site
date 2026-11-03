@@ -104,8 +104,6 @@ function listFilesRecursive(dir: string): string[] {
   for (const e of entries) {
     const abs = join(dir, e.name);
     if (e.isDirectory()) {
-      // LAYOUT-13: ignored session scratch is never a source-comment scan input.
-      if (e.name === "scratch") continue;
       // Skip node_modules, .build, .git, and any archive/ subtree
       // (we don't scan archive content because every reference
       // there is intentional historical record).
@@ -126,8 +124,7 @@ function listInFlightChanges(): Set<string> {
   if (!existsSync(CHANGES)) return out;
   for (const e of readdirSync(CHANGES, { withFileTypes: true })) {
     if (!e.isDirectory()) continue;
-    // LAYOUT-13: scratch is never a change directory to resolve citations against.
-    if (e.name === "archive" || e.name === "scratch") continue;
+    if (e.name === "archive") continue;
     out.add(e.name);
   }
   return out;
@@ -140,7 +137,6 @@ function listArchivedChangeIds(): Set<string> {
   if (!existsSync(ARCHIVE)) return out;
   for (const e of readdirSync(ARCHIVE, { withFileTypes: true })) {
     if (!e.isDirectory()) continue;
-    if (e.name === "scratch") continue;
     const m = e.name.match(/^\d{4}-\d{2}-\d{2}-(.+)$/);
     if (m) out.add(m[1]!);
   }

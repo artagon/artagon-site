@@ -1,27 +1,35 @@
 // LAYOUT-13: session artifacts under OpenSpec change scratch stay untracked and
-// are excluded from filesystem-walking lint inputs.
+// only the matching change-scratch paths are excluded from lint discovery.
 import { execFileSync, spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readdirSync,
   readFileSync,
+  rmSync,
   rmdirSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { join, relative } from "node:path";
 import { describe, expect, test } from "vitest";
+import { findInvalidClamps } from "./helpers/clamp-syntax.js";
+import { isChangeScratch } from "./helpers/change-scratch.js";
 import { walkFiles } from "./helpers/lint-discovery.js";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const CHANGES = join(ROOT, "openspec", "changes");
 const ARCHIVE = join(CHANGES, "archive");
-const LINT_CHANGE = join(CHANGES, "standardize-repository-layout");
-const scratchRoot = join(LINT_CHANGE, "scratch");
-const scratchRootExisted = existsSync(scratchRoot);
-const scratchProbe = join(scratchRoot, `layout-13-probe-${process.pid}.md`);
+
+function activeChangeWithTasks(): string | undefined {
+  return readdirSync(CHANGES, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== "archive")
+    .map((entry) => join(CHANGES, entry.name))
+    .find((changeDir) => existsSync(join(changeDir, "tasks.md")));
+}
 
 function changeDirectories(): string[] {
   const active = readdirSync(CHANGES, { withFileTypes: true })
@@ -33,7 +41,7 @@ function changeDirectories(): string[] {
   return [...active, ...archived];
 }
 
-function runScratchSensitiveLints(): string {
+function runScratchSensitiveLints(): void {
   const lintFiles = [
     "tests/lint-scoped-package-versions.test.mts",
     "tests/lint-source-comment-archive-paths.test.mts",
@@ -66,10 +74,24 @@ function runScratchSensitiveLints(): string {
     result.status,
     `filesystem-walking lints failed with scratch present:\n${result.stdout}\n${result.stderr}`,
   ).toBe(0);
-  return `${result.stdout}\n${result.stderr}`;
 }
 
 describe("OpenSpec change scratch is local-only (LAYOUT-13)", () => {
+  test("the shared predicate matches only active and archived change scratch", () => {
+    expect(isChangeScratch("openspec/changes/demo/scratch/probe.md")).toBe(
+      true,
+    );
+    expect(
+      isChangeScratch(
+        "openspec/changes/archive/2026-11-03-demo/scratch/probe.md",
+      ),
+    ).toBe(true);
+    expect(isChangeScratch("src/components/scratch/Bad.css")).toBe(false);
+    expect(isChangeScratch("openspec/changes/demo/scratchpad/probe.md")).toBe(
+      false,
+    );
+  });
+
   test("Git ignores scratch in every active and archived change", () => {
     const changes = changeDirectories();
     expect(changes.length).toBeGreaterThan(0);
@@ -92,10 +114,7 @@ describe("OpenSpec change scratch is local-only (LAYOUT-13)", () => {
     const negative = spawnSync(
       "git",
       ["check-ignore", "--", "scratchpad/probe.md"],
-      {
-        cwd: ROOT,
-        encoding: "utf8",
-      },
+      { cwd: ROOT, encoding: "utf8" },
     );
     expect(negative.error).toBeUndefined();
     expect(
@@ -120,33 +139,58 @@ describe("OpenSpec change scratch is local-only (LAYOUT-13)", () => {
     expect(trackedScratch).toEqual([]);
   });
 
-  test("filesystem-walking lints ignore a broken scratch probe", () => {
-    mkdirSync(scratchRoot, { recursive: true });
+  test("change walkers exclude only change scratch and source scratch remains linted", () => {
+    const changeDir = activeChangeWithTasks();
+    expect(changeDir, "expected an active change with tasks.md").toBeDefined();
+    if (!changeDir) throw new Error("no active change with tasks.md");
+
+    const scratchRoot = join(changeDir, "scratch");
+    const scratchRootExisted = existsSync(scratchRoot);
+    const scratchProbe = join(scratchRoot, `layout-13-probe-${process.pid}.md`);
+    const fixtureRoot = mkdtempSync(join(tmpdir(), "layout13-source-scratch-"));
+    const fixtureSourceRoot = join(fixtureRoot, "src");
+    const fixtureScratch = join(fixtureSourceRoot, "components", "scratch");
+    const clampProbe = join(fixtureScratch, "Bad.css");
+
     try {
+      if (!scratchRootExisted) mkdirSync(scratchRoot);
+      mkdirSync(fixtureScratch, { recursive: true });
+      const invalidCss = ".bad { width: clamp(10px, 2px + 1vw, 20px); }\n";
       writeFileSync(
         scratchProbe,
-        [
-          "# Unreviewed local probe",
-          "Broken citation: `openspec/changes/not-a-real-change/tasks.md`.",
-          "Raw color: `#ff00aa`.",
-          "Stale package claim: `@astrojs/rss@0.0.1`.",
-          "Orphan-script probe: `npm run layout-13-scratch-only`.",
-          "",
-        ].join("\n"),
+        "# Local lint probe\nStale package claim: `@astrojs/rss@0.0.1`.\n",
       );
+      writeFileSync(clampProbe, invalidCss);
 
-      const markdownFiles = walkFiles(LINT_CHANGE, (file) =>
+      expect(isChangeScratch(relative(ROOT, scratchProbe))).toBe(true);
+      expect(isChangeScratch("src/components/scratch/Bad.css")).toBe(false);
+      const changeMarkdown = walkFiles(changeDir, (file) =>
         file.endsWith(".md"),
       );
-      expect(markdownFiles).toContain(join(LINT_CHANGE, "tasks.md"));
-      expect(markdownFiles).not.toContain(scratchProbe);
-      expect(readFileSync(scratchProbe, "utf8")).toContain("#ff00aa");
-
+      expect(changeMarkdown).toContain(join(changeDir, "tasks.md"));
+      expect(changeMarkdown).toContain(scratchProbe);
       runScratchSensitiveLints();
+
+      const sourceFiles = walkFiles(fixtureSourceRoot, (file) =>
+        file.endsWith(".css"),
+      );
+      expect(sourceFiles).toContain(clampProbe);
+      expect(
+        findInvalidClamps(
+          readFileSync(clampProbe, "utf8"),
+          "src/components/scratch/Bad.css",
+        ),
+      ).toHaveLength(1);
     } finally {
       if (existsSync(scratchProbe)) unlinkSync(scratchProbe);
-      if (!scratchRootExisted && existsSync(scratchRoot))
+      if (
+        !scratchRootExisted &&
+        existsSync(scratchRoot) &&
+        readdirSync(scratchRoot).length === 0
+      ) {
         rmdirSync(scratchRoot);
+      }
+      rmSync(fixtureRoot, { recursive: true, force: true });
     }
   }, 120_000);
 });

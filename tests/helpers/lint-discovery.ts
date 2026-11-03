@@ -31,12 +31,7 @@ export function walkFiles(
     for (const entry of entries) {
       const fullPath = join(directory, entry.name);
       if (entry.isDirectory()) {
-        // LAYOUT-13: per-change scratch is ignored session data, never lint input.
-        if (
-          recursive &&
-          entry.name !== "scratch" &&
-          !excludeDirectory(fullPath, entry.name)
-        ) {
+        if (recursive && !excludeDirectory(fullPath, entry.name)) {
           visit(fullPath);
         }
       } else if (entry.isFile() && includeFile(fullPath)) {

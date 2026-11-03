@@ -32,8 +32,18 @@
 // remaining 4 scripts whose orphan status is intentional.
 
 import { describe, expect, test } from "vitest";
-import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
-import { join } from "node:path";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmdirSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { join, relative } from "node:path";
+import { isChangeScratch } from "./helpers/change-scratch.js";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 
@@ -43,8 +53,8 @@ function gatherSources(dir: string, out: string[]) {
     const p = join(dir, entry.name);
     if (entry.isDirectory()) {
       if (
-        // LAYOUT-13: never search local OpenSpec session artifacts for consumers.
-        entry.name === "scratch" ||
+        // LAYOUT-13: scratch only counts as excluded inside an OpenSpec change.
+        isChangeScratch(relative(ROOT, p)) ||
         entry.name === "node_modules" ||
         entry.name === ".astro" ||
         entry.name === ".build"
@@ -56,6 +66,11 @@ function gatherSources(dir: string, out: string[]) {
       out.push(p);
     }
   }
+}
+
+function hasDirectCaller(script: string, corpus: string): boolean {
+  const escaped = script.replace(/[:.]/g, "\\$&");
+  return new RegExp(`\\bnpm run ${escaped}\\b`).test(corpus);
 }
 
 // Top-level entry-points that contributors run directly. These
@@ -147,9 +162,7 @@ describe("orphan npm scripts gate (pt183)", () => {
       if (NPM_LIFECYCLE.has(s)) continue;
 
       // Direct invocation: `npm run <s>` somewhere in the corpus.
-      const escaped = s.replace(/[:.]/g, "\\$&");
-      const directRe = new RegExp(`\\bnpm run ${escaped}\\b`);
-      if (directRe.test(corpus)) continue;
+      if (hasDirectCaller(s, corpus)) continue;
 
       // Composed: another script body invokes `npm run <s>`.
       const composed = Object.entries(
@@ -178,4 +191,38 @@ describe("orphan npm scripts gate (pt183)", () => {
 
     expect(orphans.length).toBe(0);
   });
+
+  test("an OpenSpec scratch mention cannot count as an npm-script caller", () => {
+    const changesDir = join(ROOT, "openspec", "changes");
+    const changeDir = readdirSync(changesDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name !== "archive")
+      .map((entry) => join(changesDir, entry.name))
+      .find((candidate) => existsSync(join(candidate, "tasks.md")));
+    expect(changeDir, "expected an active change with tasks.md").toBeDefined();
+    if (!changeDir) throw new Error("no active change with tasks.md");
+
+    const scratchDir = join(changeDir, "scratch");
+    const scratchDirExisted = existsSync(scratchDir);
+    const probe = join(scratchDir, `layout-13-orphan-${process.pid}.md`);
+    const orphan = "layout-13-scratch-only";
+    const files: string[] = [];
+
+    if (!scratchDirExisted) mkdirSync(scratchDir);
+    try {
+      writeFileSync(probe, `npm run ${orphan}\n`);
+      gatherSources(join(ROOT, "openspec"), files);
+      expect(files).not.toContain(probe);
+      const corpus = files.map((file) => readFileSync(file, "utf8")).join("\n");
+      expect(hasDirectCaller(orphan, corpus)).toBe(false);
+    } finally {
+      if (existsSync(probe)) unlinkSync(probe);
+      if (
+        !scratchDirExisted &&
+        existsSync(scratchDir) &&
+        readdirSync(scratchDir).length === 0
+      ) {
+        rmdirSync(scratchDir);
+      }
+    }
+  }, 30_000);
 });
