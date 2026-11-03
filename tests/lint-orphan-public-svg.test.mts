@@ -10,9 +10,11 @@
 //
 // Pre-pt182 `public/assets/logo-wordmark.svg` (583 bytes,
 // committed Nov 11) had zero consumers in `src/`, `scripts/`,
-// `tests/`, or `public/site.webmanifest`. The only mentions were
-// in `public/assets/logos/README.md` (doc), `scripts/icons/
-// VERIFICATION.md` (doc), and `scripts/icons/README.md` (doc) —
+// `tests/`, or `public/site.webmanifest`. LAYOUT-09B moved the
+// historical guide citation to `docs/guides/logo-assets.md`; at
+// pt182, the only mentions were in `public/assets/logos/README.md`
+// (doc), `scripts/icons/VERIFICATION.md` (doc), and
+// `scripts/icons/README.md` (doc) —
 // all describing variants, not consuming the SVG. The mate
 // `public/assets/logo-mark.svg` IS consumed (`scripts/icons/
 // make-icons.sh:9` reads it as `SVG_MARK`); the wordmark variant

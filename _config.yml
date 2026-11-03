@@ -9,7 +9,6 @@ exclude:
   - .agents
   - deploy
   - docs
-  - assets
   - package.json
   - package-lock.json
   - astro.config.ts

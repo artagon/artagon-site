@@ -2,8 +2,7 @@
 
 ## Date: 2025-11-12
 
-> **HISTORICAL SNAPSHOT (see pt236 in `openspec/changes/update-site-
-marketing-redesign/tasks.md` row 5.5.16-loop).** This document
+> **HISTORICAL SNAPSHOT (see [pt236 in the retained USMR history](../../openspec/changes/update-site-marketing-redesign/evidence/implementation-history.md#pt236)).** This document
 > records a Phase-1-era audit pass. The system has evolved
 > substantially since: `astro.config.mjs` migrated to
 > `astro.config.ts`, the slate theme was retired (pt167; only
@@ -68,7 +67,7 @@ Comprehensive site audit and improvements implemented to enhance SEO, performanc
 1. `astro.config.mjs` - Added sitemap integration
 2. `public/robots.txt` - Updated canonical domain
 3. `src/pages/platform/index.astro` - Enhanced hero with chart and chips
-4. `docs/SITE_AUDIT.md` - This document
+4. `docs/archive/2025-11-12-site-audit.md` - This document
 
 ### New Features
 

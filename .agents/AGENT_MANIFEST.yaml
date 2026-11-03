@@ -38,10 +38,12 @@ tools:
       spec: "npx design.md spec"
 
 tasks:
+  # LAYOUT-06A: the hero's copy is content; the Astro page is its template.
   - id: update-hero
-    title: Update homepage hero
-    input: new_h1, new_subhead
-    output: src/pages/index.astro
+    title: Update homepage hero copy
+    input: new_headline, new_lede
+    output: src/content/pages/home.mdx
+    # Template/layout changes belong in src/pages/index.astro.
     risk: low
   - id: theme-management
     title: Manage site themes

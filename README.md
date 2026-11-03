@@ -47,12 +47,12 @@ npm run format
 artagon-site/
 ├── .agents/                # Agent context, skills, and workflows
 ├── .github/workflows/      # CI and deployment workflows
-├── assets/                 # OG authoring templates (moved by layout PR 3)
 ├── deploy/                 # Static-server examples and operator guidance
 ├── docs/                   # Human documentation
 ├── openspec/               # Active changes, capability specs, and project context
 ├── public/                 # Stable static URLs copied to .build/dist/
 ├── scripts/                # Build, verification, and asset-generation tools
+│   └── templates/og/       # Text and image-plus-logo SVG inputs for OG generation
 ├── src/
 │   ├── components/         # Astro components and React islands
 │   ├── content.config.ts   # Content Collection loaders and Zod schemas
@@ -511,10 +511,13 @@ All scripts located in `scripts/` directory.
   "Artagon — Identity that can prove it" \
   "Passkeys • VCs • Attestation • Policy" \
   public/assets/og-image.png \
-  --logo public/assets/logo-lockup.png
+  --logo public/assets/logos/logo-horizontal-800.png
 ```
 
 Creates Open Graph images from SVG templates.
+The templates live in `scripts/templates/og/`. When both the image template and
+logo file exist, the generator uses the image-plus-logo layout; otherwise it
+uses the text template. The default output destination is unchanged.
 
 #### Favicon Generation
 
@@ -522,7 +525,7 @@ Creates Open Graph images from SVG templates.
 ./scripts/make-favicon.sh
 ```
 
-Generates multi-size favicons from source SVG.
+Generates a multi-resolution favicon with ImageMagick: `./scripts/make-favicon.sh` (writes `public/favicon.ico`) or `./scripts/make-favicon.sh path/to/existing-directory` (writes `favicon.ico` there). Required inputs: `public/icons/icon-{16,32,48}.png`.
 
 #### Icon Generation
 
@@ -555,7 +558,13 @@ Generates logo variants from source files.
 
 **Documentation:**
 
-- `public/assets/logos/README.md` - Logo usage guidelines and variant inventory
+- `docs/guides/logo-assets.md` - Logo usage guidelines and variant inventory
+
+Tooling migration: the public guide URL /assets/logos/README.md is retired;
+use `docs/guides/logo-assets.md`. The 15 PNG image URLs under `/assets/logos/`
+remain unchanged.
+
+Reports use `BUILD.reports.iconChecksums` (`.build/reports/icon-checksums/`); `/icons/checksums/*` URLs are retired; `/icons/*` image URLs remain unchanged.
 
 #### Composite App Icons
 
@@ -939,18 +948,19 @@ Living guides (current state authoritative):
 - **`docs/build-artifacts.md`** - SSoT contract for `.build/{cache,reports,dist}/`, generated-file inventory, "add a tool" contributor checklist; governed by `openspec/specs/build-config/spec.md`.
 - **`docs/design-md.md`** - design.md authoring guide (token-add procedure, OKLCH↔hex hybrid, upstream version-bump runbook).
 - **`docs/decisions/0001-no-tailwind.md`** - Architecture-decision record on the no-Tailwind contract.
+- **`docs/guides/cloudflare-hsts.md`** - Operator note for enabling HSTS at the Cloudflare edge.
 - **`docs/guides/styling-guide.md`** - Component-vs-utility decision tree, theme-variable reference, post-archive distilled record from `refactor-styling-architecture`.
 - **`docs/guides/new-design-conversion.md`** - Conversion guide from `new-design/extracted/` mocks to live Astro routes; consumed by USMR Phase 5.x work.
 
 Asset / icon references:
 
-- **`public/assets/logos/README.md`** - Logo file reference and variants.
+- **`docs/guides/logo-assets.md`** - Logo file reference and variants.
 - **`scripts/icons/README.md`** - Icon generation guide.
 - **`scripts/icons/VERIFICATION.md`** - Icon verification checklist.
 
 Historical snapshots (read-only):
 
-- **`docs/SITE_AUDIT.md`** - Phase-1-era audit dated 2026-05-04 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
+- **`docs/archive/2025-11-12-site-audit.md`** - Phase-1-era audit dated 2025-11-12 (marked HISTORICAL SNAPSHOT in pt236; the system has evolved substantially since — see the marker for major drifts).
 
 ## License
 

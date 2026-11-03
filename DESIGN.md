@@ -823,7 +823,7 @@ Footer
 **Diagrams.**
 
 - **Authoring formats accepted (in priority order):**
-  1. **SVG** committed to the repo (`assets/diagrams/<slug>.svg`). Inline-rendered, never `<img>`. Required: `<title>` + `<desc>` for a11y.
+  1. **SVG** committed to the repo (`src/assets/diagrams/<slug>.svg`). Inline-rendered, never `<img>`. Required: `<title>` + `<desc>` for a11y.
   2. **Mermaid** in fenced ` `mermaid ` ` blocks. Compiled to SVG at build with `@mermaid-js/mermaid-cli`. Themed via the same Artagon palette — never the default Mermaid pastel.
   3. **D2** in fenced ` `d2 ` ` blocks. Compiled at build with `terrastruct/d2`. Use for sequence + grid diagrams Mermaid handles poorly.
   4. **PNG/WebP screenshots** with intrinsic `width`/`height` attrs and `alt`. Last resort.
